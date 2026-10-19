@@ -19,12 +19,10 @@ export const WireguardApps = () => {
       <ul className={s.list}>
         {WIREGUARD_APPS.map(({ id, links }) => (
           <li key={id} className={s.app}>
-            <span className={s.head}>
-              <span className={s.name}>{t(`apps.${id}.name`)}</span>
-              <span className={s.platform}>{t(`apps.${id}.platform`)}</span>
-            </span>
+            <span className={s.platform}>{t(`apps.${id}.platform`)}</span>
+            <span className={s.name}>{t(`apps.${id}.name`)}</span>
 
-            <Text as='p' size='xs' tone='muted'>
+            <Text as='p' className={s.hint} size='xs' tone='muted'>
               {t(`apps.${id}.hint`)}
             </Text>
 

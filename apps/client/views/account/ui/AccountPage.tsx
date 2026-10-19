@@ -1,6 +1,6 @@
 'use client';
 
-import { CreditCard, Gift, KeyRound, LogOut, MonitorSmartphone, Send, Smartphone, UserRound } from 'lucide-react';
+import { CreditCard, Gift, LogOut, MonitorSmartphone, Plug, Send, UserRound } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 
@@ -13,17 +13,7 @@ import { ACCOUNT_TAB } from '@/shared/constants';
 import type { AccountTab } from './components';
 
 import { BLOCK_MOTION, HEADER_MOTION, PAGE_MOTION } from './AccountPage.motion';
-import {
-  AccountIdentity,
-  AccountTabs,
-  AppCard,
-  DevicesCard,
-  InviteCard,
-  ProfileCard,
-  SubscriptionCard,
-  TelegramCard,
-  WireguardCard
-} from './components';
+import { AccountIdentity, AccountTabs, ConnectCard, DevicesCard, InviteCard, ProfileCard, SubscriptionCard, TelegramCard } from './components';
 
 import s from './AccountPage.module.scss';
 
@@ -38,16 +28,17 @@ export const AccountPage = () => {
 
   const tabs: AccountTab[] = [
     {
-      value: 'profile',
-      label: t('profile.title'),
-      icon: UserRound,
-      render: () => <ProfileCard />
-    },
-    {
       value: 'subscription',
       label: t('tabs.subscription'),
       icon: CreditCard,
       render: () => <SubscriptionCard isError={isError} isLoading={isLoading} subscription={subscription} onRetry={() => void refetch()} />
+    },
+    {
+      value: ACCOUNT_TAB.connect,
+      label: t('tabs.connect'),
+      icon: Plug,
+      aliases: [ACCOUNT_TAB.wireguard],
+      render: () => <ConnectCard hasWireguard={hasAccess} />
     },
     ...(hasAccess
       ? [
@@ -56,12 +47,6 @@ export const AccountPage = () => {
             label: t('tabs.devices'),
             icon: MonitorSmartphone,
             render: () => <DevicesCard />
-          },
-          {
-            value: ACCOUNT_TAB.wireguard,
-            label: t('tabs.wireguard'),
-            icon: KeyRound,
-            render: () => <WireguardCard />
           }
         ]
       : []),
@@ -72,16 +57,16 @@ export const AccountPage = () => {
       render: () => <InviteCard />
     },
     {
+      value: 'profile',
+      label: t('profile.title'),
+      icon: UserRound,
+      render: () => <ProfileCard />
+    },
+    {
       value: 'telegram',
       label: t('tabs.telegram'),
       icon: Send,
       render: () => <TelegramCard />
-    },
-    {
-      value: 'app',
-      label: t('tabs.app'),
-      icon: Smartphone,
-      render: () => <AppCard />
     }
   ];
 

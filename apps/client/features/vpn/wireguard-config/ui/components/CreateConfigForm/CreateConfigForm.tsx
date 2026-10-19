@@ -4,6 +4,7 @@ import type { CreateWireguardConfigInput } from '@gnomevpn/schemas';
 
 import { createWireguardConfigSchema } from '@gnomevpn/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useId } from 'react';
 import { useForm } from 'react-hook-form';
@@ -58,40 +59,50 @@ export const CreateConfigForm = ({ nodes, isFull, onCreated }: CreateConfigFormP
         {t('createTitle')}
       </Text>
 
-      <div aria-labelledby={countryId} className={s.countries} role='group'>
-        <Text as='span' id={countryId} size='xs' tone='muted'>
+      <div aria-labelledby={countryId} className={s.group} role='radiogroup'>
+        <span className={s.groupLabel} id={countryId}>
           {t('countryLabel')}
-        </Text>
+        </span>
 
         <div className={s.countryList}>
           {nodes.map((node) => (
             <SelectableCard
               key={node.id}
+              aria-checked={selected === node.id}
               className={s.country}
               isSelected={selected === node.id}
+              role='radio'
               size='sm'
+              type='button'
               onClick={() => setValue('nodeId', node.id, { shouldValidate: true })}
             >
-              <CountryFlag countryCode={node.countryCode} size='sm' />
-              <span className={s.countryName}>{node.city ? `${node.country}, ${node.city}` : node.country}</span>
+              <CountryFlag countryCode={node.countryCode} size='md' />
+
+              <span className={s.countryText}>
+                <span className={s.countryName}>{node.country}</span>
+                {node.city && <span className={s.city}>{node.city}</span>}
+              </span>
             </SelectableCard>
           ))}
         </div>
       </div>
 
-      <FormField className={s.field} error={fieldError(errors.name)} htmlFor={nameId} label={t('nameLabel')}>
-        <Input autoComplete='off' id={nameId} placeholder={t('namePlaceholder')} {...register('name')} />
-      </FormField>
+      <div className={s.row}>
+        <FormField hasFloatingError className={s.field} error={fieldError(errors.name)} htmlFor={nameId} label={t('nameLabel')}>
+          <Input autoComplete='off' id={nameId} placeholder={t('namePlaceholder')} {...register('name')} />
+        </FormField>
+
+        <SubmitButton className={s.submit} disabled={isFull} isPending={isPending} size='lg'>
+          <Plus aria-hidden size={18} />
+          {t('create')}
+        </SubmitButton>
+      </div>
 
       {isFull && (
         <Text as='p' className={s.full} size='sm'>
           {t('full')}
         </Text>
       )}
-
-      <SubmitButton className={s.submit} disabled={isFull} isPending={isPending} size='lg'>
-        {t('create')}
-      </SubmitButton>
     </form>
   );
 };

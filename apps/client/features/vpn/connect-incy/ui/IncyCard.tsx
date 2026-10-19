@@ -5,11 +5,11 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { ACCOUNT_TAB, ROUTES } from '@/shared/constants';
+import { ROUTES } from '@/shared/constants';
 import { Link } from '@/shared/i18n/navigation';
 import { Button, ErrorBlock, LoadingBlock, Text } from '@/ui-kit';
 
-import type { CopyInput } from './IncyCard.types';
+import type { CopyInput, IncyCardProps } from './IncyCard.types';
 
 import { useRotateLink, useSubscriptionLink } from '../model/hooks';
 import { IncyQrDialog, IncyRotateDialog, OtherAppsList } from './components';
@@ -17,7 +17,7 @@ import { COPIED_RESET_MS } from './IncyCard.constants';
 
 import s from './IncyCard.module.scss';
 
-export const IncyCard = () => {
+export const IncyCard = ({ onWireguard }: IncyCardProps) => {
   const t = useTranslations('incy');
   const { data: link, isPending, isError, isRefetching, refetch } = useSubscriptionLink();
   const rotate = useRotateLink();
@@ -69,15 +69,17 @@ export const IncyCard = () => {
           {t('setupLink')}
         </Link>
 
-        <Text size='xs' tone='muted'>
-          {t.rich('wireguardHint', {
-            tab: (chunks) => (
-              <a className={s.tabLink} href={`#${ACCOUNT_TAB.wireguard}`}>
-                {chunks}
-              </a>
-            )
-          })}
-        </Text>
+        {onWireguard && (
+          <Text size='xs' tone='muted'>
+            {t.rich('wireguardHint', {
+              tab: (chunks) => (
+                <button className={s.tabLink} type='button' onClick={onWireguard}>
+                  {chunks}
+                </button>
+              )
+            })}
+          </Text>
+        )}
       </div>
 
       <div className={s.actions}>

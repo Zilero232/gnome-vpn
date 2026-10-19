@@ -72,7 +72,7 @@ describe('applySqlCommand', () => {
 });
 
 describe('restartServerCommand', () => {
-  it('restarts from inside the deploy path', () => {
-    expect(restartServerCommand('/opt/gnomevpn')).toBe('cd /opt/gnomevpn && docker compose restart server');
+  it('recreates the server from inside the deploy path, so it reads the new node secrets', () => {
+    expect(restartServerCommand('/opt/gnomevpn')).toBe('cd /opt/gnomevpn && docker compose up -d --force-recreate --no-deps server');
   });
 });

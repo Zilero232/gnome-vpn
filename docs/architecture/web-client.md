@@ -119,17 +119,34 @@ app per platform (`WIREGUARD_APPS` in `features/vpn/wireguard-config`):
 WireSock Secure Connect on Windows, which imports a `.conf` and can route only
 chosen programs; AmneziaVPN on iPhone and Android, which imports the file or
 its QR code; the official WireGuard app on macOS, Linux and routers. The same
-block sits on the account's WireGuard tab, so both places recommend the same
+block sits on the account's Connect tab, so both places recommend the same
 apps.
+
+## The account tabs, in the order people need them
+
+Subscription, Connect, Devices, Invite, Profile, Telegram. The status and the
+payment come first because that is what a returning visitor checks; Connect
+next, since it is what someone who just paid opens; the settings-like tabs
+last. Devices only appears with access.
+
+**Connect is one tab for both ways in.** The INCY link and the WireGuard
+configs used to be two tabs, App and WireGuard, which read as two products and
+put the recommended way and the fallback side by side as equals. `ConnectCard`
+now shows a switch between "INCY app" and "WireGuard config", INCY first; the
+WireGuard side appears only with access, because creating a config needs a
+running period. The link on the INCY side that says a `.conf` is available
+flips the switch rather than navigating.
 
 ## Account tabs follow the URL hash
 
 `AccountTabs` selects the tab named by `location.hash` and writes the hash back
-with `history.replaceState` when a tab is picked, so `/account#wireguard` opens
-that tab, a reload keeps it, and an in-page link like the App tab's
-"on the WireGuard tab" switches to it. The hash is applied after mount and again
-whenever the set of tabs changes — the WireGuard and Devices tabs only appear
-once the subscription status has loaded, so a hash read on mount alone would
-miss them. The hash is never read during render, which keeps the server and the
+with `history.replaceState` when a tab is picked, so `/account#connect` opens
+that tab and a reload keeps it. A tab can answer to aliases as well:
+`#wireguard` opens Connect with the WireGuard side selected — `ConnectCard`
+reads the same hash and writes `#connect` or `#wireguard` as the switch moves —
+so the setup page's link and any old bookmark land on the configs. The hash is
+applied after mount and again whenever the set of tabs changes — the Devices
+tab and the WireGuard side only appear once the subscription status has
+loaded, so a hash read on mount alone would miss them. The hash is never read during render, which keeps the server and the
 first client render identical. Tab names that other pages link to live in
 `ACCOUNT_TAB` (`shared/constants`).

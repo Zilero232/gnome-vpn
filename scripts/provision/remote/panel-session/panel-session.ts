@@ -22,8 +22,8 @@ const waitForPanel = async (credentials: WaitForPanelInput): Promise<boolean> =>
   }
 };
 
-export const startPanel = async ({ ssh, host, password, panelPath }: StartPanelInput): Promise<PanelSession> => {
-  const token = await configurePanel({ ssh, password, panelPath });
+export const startPanel = async ({ ssh, host, password, panelPath, knownToken }: StartPanelInput): Promise<PanelSession> => {
+  const token = await configurePanel({ ssh, password, panelPath, knownToken });
   const baseUrl = panelUrl({ host, panelPath });
 
   log.step('waiting for the panel api');

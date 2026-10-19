@@ -52,7 +52,16 @@ re-provision rather than an ssh session.
 VLESS inbound, WireGuard keys, WireGuard inbound) → `registerNode` (`.env.nodes` secrets, the node's database row).
 Once every node has succeeded, `pruneNodes` drops nodes and keys missing from
 `nodes.json`, and `syncToProduction` copies `.env.nodes` and the node rows to
-the production VPS over SSH and restarts the server there.
+the production VPS over SSH and recreates the server container there.
+
+**The panel's api token survives a re-run.** `x-ui setting -getApiToken` mints a
+new token and revokes the old one, so a run that always asked for one cut
+production off every node until its server picked up the new `.env.nodes` — and
+`docker compose restart` never re-reads `env_file`, so it never did: every panel
+call answered 401 and the account page said the node was not responding.
+`startPanel` now keeps the token `.env.nodes` already holds when the panel still
+accepts it, and `syncToProduction` recreates the container
+(`up -d --force-recreate`) so a rotated token does reach it.
 
 Remote commands are composed through `@gnomevpn/scripts/shell` rather than
 written as strings — `arg()` quotes anything untrusted, and `quiet()`/`silent()`

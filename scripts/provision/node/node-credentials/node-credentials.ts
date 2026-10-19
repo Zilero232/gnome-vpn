@@ -12,13 +12,15 @@ export const panelPasswordName = (countryCode: string) => `${NODE_ENV_PREFIX.pan
 export const panelPathName = (countryCode: string) => `${NODE_ENV_PREFIX.panelPath}${countryCode}`;
 
 export const resolveNodeCredentials = async ({ envFilePath, countryCode }: ResolveNodeCredentialsInput): Promise<NodeCredentials> => {
-  const [password, panelPath] = await Promise.all([
+  const [password, panelPath, apiToken] = await Promise.all([
     readEnvValue({ filePath: envFilePath, key: panelPasswordName(countryCode) }),
-    readEnvValue({ filePath: envFilePath, key: panelPathName(countryCode) })
+    readEnvValue({ filePath: envFilePath, key: panelPathName(countryCode) }),
+    readEnvValue({ filePath: envFilePath, key: nodeKeyName(countryCode) })
   ]);
 
   return {
     password: password ?? randomBytes(CREDENTIAL_BYTES.password).toString('hex'),
-    panelPath: panelPath ?? randomBytes(CREDENTIAL_BYTES.panelPath).toString('hex')
+    panelPath: panelPath ?? randomBytes(CREDENTIAL_BYTES.panelPath).toString('hex'),
+    apiToken: apiToken || null
   };
 };

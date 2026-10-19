@@ -50,44 +50,52 @@ export const ConfigList = ({ configs, onShow }: ConfigListProps) => {
         {t('listTitle')}
       </Text>
 
-      {configs.length === 0 ? (
-        <Text as='p' size='sm' tone='muted'>
-          {t('empty')}
-        </Text>
-      ) : (
-        <ul className={s.list}>
-          {configs.map((config) => (
-            <li key={config.deviceId} className={s.row}>
-              <span className={s.info}>
-                <CountryFlag countryCode={config.node.countryCode} size='md' />
+      <ul className={s.list}>
+        {configs.map((config) => (
+          <li key={config.deviceId} className={s.row}>
+            <span className={s.info}>
+              <CountryFlag countryCode={config.node.countryCode} size='md' />
 
-                <span className={s.text}>
-                  <span className={s.name}>{config.name}</span>
-                  <span className={s.meta}>
-                    {config.node.country} · {t('createdAt', { date: format.dateTime(new Date(config.createdAt), DATE_FORMAT) })}
-                  </span>
+              <span className={s.text}>
+                <span className={s.name}>{config.name}</span>
+                <span className={s.meta}>
+                  {config.node.country} · {t('createdAt', { date: format.dateTime(new Date(config.createdAt), DATE_FORMAT) })}
                 </span>
               </span>
+            </span>
 
-              <span className={s.actions}>
-                <Button disabled={file.isPending} size='md' type='button' variant='ghost' onClick={() => onDownload(config.deviceId)}>
-                  <Download aria-hidden size={16} />
-                  {t('download')}
-                </Button>
+            <span className={s.actions}>
+              <Button
+                className={s.action}
+                disabled={file.isPending}
+                size='md'
+                type='button'
+                variant='ghost'
+                onClick={() => onDownload(config.deviceId)}
+              >
+                <Download aria-hidden size={16} />
+                {t('download')}
+              </Button>
 
-                <Button disabled={file.isPending} size='md' type='button' variant='ghost' onClick={() => onQr(config.deviceId)}>
-                  <QrCode aria-hidden size={16} />
-                  {t('qr')}
-                </Button>
+              <Button className={s.action} disabled={file.isPending} size='md' type='button' variant='ghost' onClick={() => onQr(config.deviceId)}>
+                <QrCode aria-hidden size={16} />
+                {t('qr')}
+              </Button>
+            </span>
 
-                <Button aria-label={`${t('remove')}: ${config.name}`} size='icon' type='button' variant='danger' onClick={() => setRemoving(config)}>
-                  <Trash2 aria-hidden size={16} />
-                </Button>
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
+            <Button
+              aria-label={`${t('remove')}: ${config.name}`}
+              className={s.remove}
+              size='icon'
+              type='button'
+              variant='ghost'
+              onClick={() => setRemoving(config)}
+            >
+              <Trash2 aria-hidden size={16} />
+            </Button>
+          </li>
+        ))}
+      </ul>
 
       <ConfirmDialog
         cancelLabel={t('cancel')}

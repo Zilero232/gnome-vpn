@@ -92,5 +92,11 @@
 }
 
 .tabLink {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+
   @include text-link(12px);
 }
