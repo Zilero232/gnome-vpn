@@ -1,0 +1,87 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  border: 1px dashed var(--color-border-bright);
+  border-radius: var(--radius-md);
+
+  &[data-open='true'] {
+    border-style: solid;
+  }
+}
+
+.toggle {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  padding: 14px 16px;
+  border: none;
+  background: none;
+  color: var(--color-text);
+  cursor: pointer;
+  font: inherit;
+  gap: 10px;
+  text-align: left;
+
+  @include touch-target;
+}
+
+.toggleIcon {
+  flex-shrink: 0;
+  color: var(--color-accent);
+}
+
+.toggleTitle {
+  flex: 1;
+  font-size: var(--step-sm);
+  font-weight: 600;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  transition: transform var(--duration-fast) ease;
+
+  .root[data-open='true'] & {
+    transform: rotate(180deg);
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  padding: 0 16px 16px;
+  gap: 12px;
+}
+
+.form[hidden] {
+  display: none;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.field {
+  min-width: 200px;
+  flex: 1;
+}
+
+.input {
+  font-family: var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.submit {
+  margin-top: 22px;
+}
+
+@include below(sm) {
+  .submit {
+    width: 100%;
+    margin-top: 0;
+  }
+}

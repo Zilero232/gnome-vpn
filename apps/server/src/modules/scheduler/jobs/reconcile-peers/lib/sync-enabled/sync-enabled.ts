@@ -1,8 +1,8 @@
-import { isEmpty, isNullish } from 'remeda';
+import { isEmpty } from 'remeda';
 
 import type { SyncEnabledInput } from './sync-enabled.types';
 
-import { peerClientNames } from '../../../../../peers';
+import { peerClientName } from '../../../../../peers';
 
 export const syncEnabled = async ({ xray, peers, nodeClients }: SyncEnabledInput): Promise<boolean> => {
   const toEnable: string[] = [];
@@ -13,9 +13,9 @@ export const syncEnabled = async ({ xray, peers, nodeClients }: SyncEnabledInput
       continue;
     }
 
-    const email = peerClientNames(peer).find((candidate) => nodeClients.has(candidate));
+    const email = peerClientName(peer);
 
-    if (isNullish(email)) {
+    if (!nodeClients.has(email)) {
       continue;
     }
 
@@ -30,7 +30,10 @@ export const syncEnabled = async ({ xray, peers, nodeClients }: SyncEnabledInput
     return false;
   }
 
-  await Promise.all([xray.setClientsEnabled({ emails: toEnable, enabled: true }), xray.setClientsEnabled({ emails: toDisable, enabled: false })]);
+  const restarts = await Promise.all([
+    xray.setClientsEnabled({ emails: toEnable, enabled: true }),
+    xray.setClientsEnabled({ emails: toDisable, enabled: false })
+  ]);
 
-  return true;
+  return restarts.some(Boolean);
 };

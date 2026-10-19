@@ -67,7 +67,9 @@
     "app": "Приложение",
     "devices": "Устройства",
     "telegram": "Telegram",
-    "label": "Разделы кабинета"
+    "label": "Разделы кабинета",
+    "invite": "Пригласить",
+    "wireguard": "WireGuard"
   },
   "meta": {
     "title": "Личный кабинет",

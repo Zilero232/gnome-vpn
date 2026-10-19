@@ -20,7 +20,8 @@ holding secrets; `nodes.example.json` is the committed template.
 
 **`remote/` is one folder per thing done to the host**, not one file that grew:
 `host-packages` (docker, jq, fail2ban), `firewall`, `xray-stack`, `host-cert`,
-`reality-keys`, `panel-config`, `panel-session`, `xray-panel`, and `host-prepare`,
+`key-files` (write a key file only when it is missing), `reality-keys`,
+`wireguard-keys`, `panel-config`, `panel-session`, `xray-panel`, and `host-prepare`,
 which runs the host-level steps (packages, firewall, the compose stack) in order.
 They were a single 232-line `remote-setup.ts` holding five unrelated concerns.
 `inContainer` lives with the stack that defines the container name, so a
@@ -48,7 +49,7 @@ re-provision rather than an ssh session.
 `provisionHost` is staged: `prepareHost` (docker, jq, fail2ban, firewall, the
 3x-ui compose stack) → `startPanel` (configure the panel, wait for its api) →
 `installInbounds` (cert, Hysteria2 inbound, cert fingerprint, Reality keys,
-VLESS inbound) → `registerNode` (`.env.nodes` secrets, the node's database row).
+VLESS inbound, WireGuard keys, WireGuard inbound) → `registerNode` (`.env.nodes` secrets, the node's database row).
 Once every node has succeeded, `pruneNodes` drops nodes and keys missing from
 `nodes.json`, and `syncToProduction` copies `.env.nodes` and the node rows to
 the production VPS over SSH and restarts the server there.
@@ -85,5 +86,17 @@ presents, the CN of the self-signed cert, the site an HTTP/3 prober is proxied t
 (`masquerade: proxy`), and also the Reality donor (`REALITY_DONOR`). It therefore
 has to be a real TLS 1.3 site that the node can reach and that nobody would think
 to block.
+
+**The WireGuard inbound takes 51820/UDP** (`PORTS.wireguard`, from `WIREGUARD`
+in the server's peers config so both ends agree), with a `/16` client subnet
+(`10.9.0.0/16`) rather than the panel's `/24`, because every device gets an
+address of its own. Its server key is seeded into `/etc/gnomevpn/wg.{key,pub}`
+like the Reality keys — written only when missing, so a re-provision keeps the
+key every issued config was built against; `lostWireguardKeys` warns when it
+had to mint a new one. The inbound keeps the remark and port of the one the old
+desktop client used, so a node that still carries that inbound gets it updated
+rather than a second one fighting for the port, and `ensureWireguardInbound`
+deletes the clients that inbound still held for the old desktop sessions
+(`app-` prefix) — nothing issues those any more.
 
 **Verify a node end-to-end, never by "the panel returned 200".** A Hysteria2 client written without its full field set is stored by the panel but dropped from the running core (`clients: null`), and every connection then fails auth with a 404. The only trustworthy check is to run a real hysteria client against the node and confirm a request returns the node's own IP — ideally from the target network, since the whole reason for Hysteria2 is a TSPU that treats UDP/QUIC differently from TCP.

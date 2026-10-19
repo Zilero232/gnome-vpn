@@ -6,7 +6,7 @@ Adding a VPN node, step by step. Why the pipeline is shaped the way it is:
 
 ## What it does
 
-`bun run provision:nodes` reads `nodes.json` from the repo root (gitignored — it holds root SSH passwords; `nodes.example.json` next to it is the committed template) and sets each host up over SSH: install Docker, jq and fail2ban, open the tunnel and panel ports, ship the 3x-ui compose stack, configure the panel, generate the TLS cert and the Reality keys, install both inbounds, register the node. When every host succeeded it prunes nodes missing from `nodes.json` and pushes the result to production.
+`bun run provision:nodes` reads `nodes.json` from the repo root (gitignored — it holds root SSH passwords; `nodes.example.json` next to it is the committed template) and sets each host up over SSH: install Docker, jq and fail2ban, open the tunnel and panel ports, ship the 3x-ui compose stack, configure the panel, generate the TLS cert, the Reality keys and the WireGuard keys, install the Hysteria2, VLESS and WireGuard inbounds, register the node. When every host succeeded it prunes nodes missing from `nodes.json` and pushes the result to production.
 
 It runs on a workstation, never in CI: the node credentials live in
 `nodes.json` and `.env.nodes`, the production VPS credentials in the root
@@ -49,9 +49,12 @@ is dead.
 Verify end-to-end, as [architecture/provisioning.md](../architecture/provisioning.md#what-a-run-does-to-a-node)
 explains: run a real hysteria client against the node and confirm a request
 returns the node's own IP, ideally from the target network. Then fetch a
-subscription and check the node appears in it, under both `🇳🇱 Netherlands` and
-`🇳🇱 Netherlands · TCP` when the Reality keys were written.
+subscription and check the node appears in it once per protocol — Hysteria2,
+VLESS when the Reality keys were written, WireGuard when its key was — and
+connect over the `wireguard://` entry too, from a phone on mobile data if you
+can, since that is where WireGuard is blocked first.
 
 A node provisioned before a field existed (`certFingerprint`,
-`realityPublicKey`, `realityShortId`) keeps working with what it has; re-provision
-it to pick the new field up.
+`realityPublicKey`, `realityShortId`, `wgPublicKey`) keeps working with what it
+has; re-provision it to pick the new field up. A node without `wgPublicKey`
+simply offers no WireGuard entry.

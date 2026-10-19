@@ -34,8 +34,8 @@
   },
   "features": {
     "title": "What you get",
-    "protocolTitle": "Two protocols",
-    "protocolBody": "Hysteria2 over QUIC leads, because it holds up better on mobile networks. Where UDP is blocked outright the list also carries a TCP fallback — one tap away.",
+    "protocolTitle": "Three protocols",
+    "protocolBody": "Hysteria2 over QUIC leads, because it holds up better on mobile networks. Where UDP is blocked outright the list also carries a TCP fallback, and WireGuard for those who prefer it — one tap away.",
     "devicesTitle": "Two devices",
     "devicesBody": "Phone and computer at the same time on one subscription. Need more? Add them in your account.",
     "platformsTitle": "Every platform",

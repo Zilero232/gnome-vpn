@@ -1,11 +1,11 @@
 # GnomeVPN
 
-A commercial VPN: Hysteria2 (QUIC/UDP) on self-hosted nodes, with VLESS + Reality (TCP/443) beside it for networks that drop UDP, both served by the 3x-ui panel. There is no app of ours — the user installs [INCY](https://incy.cc/) (or any client that takes a subscription link) and pastes one URL. Bun-workspaces monorepo.
+A commercial VPN: Hysteria2 (QUIC/UDP) on self-hosted nodes, with VLESS + Reality (TCP/443) beside it for networks that drop UDP and WireGuard (UDP/51820) for those it suits, all served by the 3x-ui panel. There is no app of ours — the user installs [INCY](https://incy.cc/) (or any client that takes a subscription link) and pastes one URL. Bun-workspaces monorepo.
 
 - Every doc, indexed: [docs/README.md](docs/README.md)
-- Why Hysteria2, why VLESS beside it, why INCY: [docs/architecture/protocols.md](docs/architecture/protocols.md)
+- Why Hysteria2, why VLESS and WireGuard beside it, why INCY: [docs/architecture/protocols.md](docs/architecture/protocols.md)
 - The subscription feed, the product surface: [docs/architecture/subscription-feed.md](docs/architecture/subscription-feed.md)
-- Billing and automatic renewal: [docs/architecture/billing.md](docs/architecture/billing.md); the Telegram bot: [docs/architecture/telegram-bot.md](docs/architecture/telegram-bot.md)
+- Billing and automatic renewal: [docs/architecture/billing.md](docs/architecture/billing.md); referrals: [docs/architecture/referrals.md](docs/architecture/referrals.md); the Telegram bot: [docs/architecture/telegram-bot.md](docs/architecture/telegram-bot.md)
 - Things that have already bitten us: [docs/architecture/pitfalls.md](docs/architecture/pitfalls.md)
 - Deploying the VPS: [docs/ops/deploy.md](docs/ops/deploy.md); adding a node: [docs/ops/provisioning-a-node.md](docs/ops/provisioning-a-node.md)
 

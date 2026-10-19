@@ -1,17 +1,29 @@
 'use client';
 
-import { CreditCard, LogOut, MonitorSmartphone, Send, Smartphone, UserRound } from 'lucide-react';
+import { CreditCard, Gift, KeyRound, LogOut, MonitorSmartphone, Send, Smartphone, UserRound } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 
 import { useSubscriptionStatus } from '@/entities/billing/subscription';
+import { useClaimPendingReferral } from '@/features/account/invite-friends';
 import { useSignOut } from '@/features/auth/sign-out';
 import { useVerifyEmailOutcome } from '@/features/auth/verify-email';
+import { ACCOUNT_TAB } from '@/shared/constants';
 
 import type { AccountTab } from './components';
 
 import { BLOCK_MOTION, HEADER_MOTION, PAGE_MOTION } from './AccountPage.motion';
-import { AccountIdentity, AccountTabs, AppCard, DevicesCard, ProfileCard, SubscriptionCard, TelegramCard } from './components';
+import {
+  AccountIdentity,
+  AccountTabs,
+  AppCard,
+  DevicesCard,
+  InviteCard,
+  ProfileCard,
+  SubscriptionCard,
+  TelegramCard,
+  WireguardCard
+} from './components';
 
 import s from './AccountPage.module.scss';
 
@@ -22,6 +34,7 @@ export const AccountPage = () => {
   const signOut = useSignOut();
 
   useVerifyEmailOutcome();
+  useClaimPendingReferral();
 
   const tabs: AccountTab[] = [
     {
@@ -43,9 +56,21 @@ export const AccountPage = () => {
             label: t('tabs.devices'),
             icon: MonitorSmartphone,
             render: () => <DevicesCard />
+          },
+          {
+            value: ACCOUNT_TAB.wireguard,
+            label: t('tabs.wireguard'),
+            icon: KeyRound,
+            render: () => <WireguardCard />
           }
         ]
       : []),
+    {
+      value: 'invite',
+      label: t('tabs.invite'),
+      icon: Gift,
+      render: () => <InviteCard />
+    },
     {
       value: 'telegram',
       label: t('tabs.telegram'),

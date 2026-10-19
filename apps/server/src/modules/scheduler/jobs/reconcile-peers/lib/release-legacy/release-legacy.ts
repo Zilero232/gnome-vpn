@@ -5,7 +5,7 @@ import type { ReconcilePeer } from '../../reconcile-peers.job.types';
 import type { ReleaseLegacyInput } from './release-legacy.types';
 
 import { LEGACY_PEER } from '../../../../../devices';
-import { peerClientNames } from '../../../../../peers';
+import { peerClientName } from '../../../../../peers';
 import { deleteNodeClients } from '../delete-node-clients';
 import { isReplacedLegacyPeer } from './release-legacy.helpers';
 
@@ -24,7 +24,7 @@ export const releaseLegacy = async ({ prisma, xray, peers, nodeClients, online, 
 
   const replaced = new Set(settled.map((device) => device.userId));
 
-  const idle = peers.filter((peer) => isReplacedLegacyPeer({ peer, replaced }) && !peerClientNames(peer).some((email) => online.has(email)));
+  const idle = peers.filter((peer) => isReplacedLegacyPeer({ peer, replaced }) && !online.has(peerClientName(peer)));
 
   if (isEmpty(idle)) {
     return [];

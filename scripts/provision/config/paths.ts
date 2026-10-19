@@ -6,5 +6,7 @@ export const NODE_FILES = {
   key: `${SECRETS_DIR}/key.pem`,
   realityKey: `${SECRETS_DIR}/reality.key`,
   realityPub: `${SECRETS_DIR}/reality.pub`,
-  realitySid: `${SECRETS_DIR}/reality.sid`
+  realitySid: `${SECRETS_DIR}/reality.sid`,
+  wgKey: `${SECRETS_DIR}/wg.key`,
+  wgPub: `${SECRETS_DIR}/wg.pub`
 } as const;

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { isPeriodActive, nextPeriodEnd, resolveStatus } from '../period';
+import { extendPeriod, isPeriodActive, nextPeriodEnd, resolveStatus } from '../period';
 
 const NOW = new Date('2026-01-15T12:00:00.000Z');
 
@@ -96,5 +96,28 @@ describe('resolveStatus', () => {
 
   it('resolves to expired without a period', () => {
     expect(resolveStatus(null)).toBe('expired');
+  });
+});
+
+describe('extendPeriod', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('adds the days to the end of a running period', () => {
+    expect(extendPeriod({ currentPeriodEnd: new Date('2026-02-01T00:00:00.000Z'), days: 7 })).toEqual(new Date('2026-02-08T00:00:00.000Z'));
+  });
+
+  it('counts the days from now when the period already ended', () => {
+    expect(extendPeriod({ currentPeriodEnd: new Date('2026-01-01T00:00:00.000Z'), days: 7 })).toEqual(new Date('2026-01-22T12:00:00.000Z'));
+  });
+
+  it('counts the days from now when there was never a period', () => {
+    expect(extendPeriod({ currentPeriodEnd: null, days: 3 })).toEqual(new Date('2026-01-18T12:00:00.000Z'));
   });
 });

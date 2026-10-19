@@ -17,11 +17,13 @@ import enNotFound from './locales/en/notFound.json';
 import enPlans from './locales/en/plans.json';
 import enPricing from './locales/en/pricing.json';
 import enPrivacy from './locales/en/privacy.json';
+import enReferrals from './locales/en/referrals.json';
 import enServers from './locales/en/servers.json';
 import enSetup from './locales/en/setup.json';
 import enTelegram from './locales/en/telegram.json';
 import enTrial from './locales/en/trial.json';
 import enValidation from './locales/en/validation.json';
+import enWireguard from './locales/en/wireguard.json';
 import ruAbout from './locales/ru/about.json';
 import ruAccount from './locales/ru/account.json';
 import ruAuth from './locales/ru/auth.json';
@@ -39,11 +41,13 @@ import ruNotFound from './locales/ru/notFound.json';
 import ruPlans from './locales/ru/plans.json';
 import ruPricing from './locales/ru/pricing.json';
 import ruPrivacy from './locales/ru/privacy.json';
+import ruReferrals from './locales/ru/referrals.json';
 import ruServers from './locales/ru/servers.json';
 import ruSetup from './locales/ru/setup.json';
 import ruTelegram from './locales/ru/telegram.json';
 import ruTrial from './locales/ru/trial.json';
 import ruValidation from './locales/ru/validation.json';
+import ruWireguard from './locales/ru/wireguard.json';
 
 const ru = {
   about: ruAbout,
@@ -63,11 +67,13 @@ const ru = {
   plans: ruPlans,
   pricing: ruPricing,
   privacy: ruPrivacy,
+  referrals: ruReferrals,
   servers: ruServers,
   setup: ruSetup,
   telegram: ruTelegram,
   trial: ruTrial,
-  validation: ruValidation
+  validation: ruValidation,
+  wireguard: ruWireguard
 };
 
 const en = {
@@ -88,11 +94,13 @@ const en = {
   plans: enPlans,
   pricing: enPricing,
   privacy: enPrivacy,
+  referrals: enReferrals,
   servers: enServers,
   setup: enSetup,
   telegram: enTelegram,
   trial: enTrial,
-  validation: enValidation
+  validation: enValidation,
+  wireguard: enWireguard
 };
 
 export type Messages = typeof ru;

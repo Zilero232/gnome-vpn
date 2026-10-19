@@ -29,11 +29,13 @@ out clients the running core has never heard of.
 ```text
 lib/xray/
 ├── panel-client/      # the 3x-ui HTTP API, and nothing above it
-├── inbounds/          # find/create an inbound, shape its payload — used by both protocols
-├── protocol-clients/  # list/create/delete clients of one inbound, shared by both protocols
+├── inbounds/          # find/create an inbound, shape its payload — used by every protocol
+├── protocol-clients/  # list/create/delete clients of one inbound, for Hysteria2 and VLESS
 ├── hysteria/          # Hysteria2 clients: create, delete, enable
 ├── vless/             # VLESS + Reality clients, in their own inbound
+├── wireguard/         # WireGuard clients: keys, addresses, re-enable by delete and add
 ├── serialize/         # serializeByKey: one write at a time per node
+├── coalesce/          # coalesceByKey: one restart per node at a time, plus one follow-up
 └── xray.ts            # the facade the rest of the server calls
 ```
 
@@ -48,9 +50,13 @@ and with the paths interleaved one was easy to miss. Splitting by protocol makes
 each rule visible where it applies.
 
 Both protocols are ordinary panel clients, so one `deleteClient` removes either.
-`peerClientNames` (`modules/peers/lib/peer-name`) still derives the
-pre-protocol name alongside the current one, so a peer written before the
-protocol became part of the key can still be found on its node.
+A peer has exactly one client name, `peerClientName`. It used to answer a second,
+"pre-protocol" name too — a leftover of WireGuard, whose clients predated the
+`-wg` suffix. For VLESS that second name is the Hysteria2 client of the same
+device, so a VLESS client lost from a node counted as present: `restoreMissing`
+never put it back, and the TCP fallback was dead for exactly the readers whose
+UDP is blocked. No VLESS client was ever issued without its suffix — the panel
+refused the duplicate email — so there is nothing the fallback could find.
 
 **Every write path parses settings strictly.** `readSettings` and `readClients`
 return `null` on malformed JSON, and the caller refuses rather than rewriting:
@@ -105,16 +111,83 @@ fires the panel calls detached; a leaked client is collected by `collectOrphans`
 on the next weekly sweep anyway, while a stuck release would be visible
 immediately.
 
+## WireGuard clients
+
+`lib/xray/wireguard` holds them, beside `hysteria/` and `vless/`. A WireGuard
+peer is an ordinary panel client of the `GnomeVPN WireGuard` inbound — email,
+`privateKey`, `publicKey`, `allowedIPs`, `keepAlive` — added through the same
+`/panel/api/clients/add`, and since 3x-ui v3.4.2 the panel turns those clients
+into xray peers itself, so the per-client traffic, online list and deletion
+work as for the other two protocols.
+
+**The server generates the key pair; the panel picks the address.** The device
+needs its private key in the URI, so `PeersService.issue` mints it
+(`generateWireguardKeys`, x25519 through `@noble/curves`) and stores it as the
+peer's `nodeCredential`. The address is left to the panel, which allocates the
+next free one in the inbound's `10.9.0.0/16`; `WireguardClients.create` reads
+it back and the peer row keeps it as `tunnel_address`, unique per node. A
+restore sends both back, so a config already on a phone keeps working.
+`allowedIPs` is always a single `/32` — since v3.9.0 the panel rejects
+overlapping ranges, and a wider one would capture other clients' traffic.
+
+**Adding a WireGuard client needs no core restart.** The panel applies it live
+through xray's `AlterInbound`, so `ensureNode` restarts the core only when a
+Hysteria2 or VLESS client was issued too; a node that only gained WireGuard
+keeps its sessions. A failed restart forgets only the clients that needed it.
+
+**Re-enabling a WireGuard client is a delete and an add, never `bulkEnable`.**
+The panel's `bulkEnable` calls xray's `AddUser` without the key and the
+address; for WireGuard that fails, the panel flags a restart, and its own
+30-second job restarts the whole core — every Hysteria2 and VLESS session on
+the node with it. `XrayClient.setClientsEnabled` therefore splits the emails:
+the others go through `bulkEnable`, the WireGuard ones are deleted and added
+back with the same keys and address, both of which apply live. Disabling goes
+through `bulkDisable` for everyone, which removes the peer live.
+
+Every step that only touched WireGuard clients reports that no restart is
+needed: `setClientsEnabled` returns whether a non-WireGuard email changed, and
+`syncEnabled`, `restoreMissing`, `releaseRevoked` and `collectOrphans` pass that
+on, so reconcile and `pushEnabled` restart a node only for Hysteria2 or VLESS
+work. Re-adding a client drops its traffic counter on the panel, so the usage a
+device reports starts over after a renewal that had disabled it; access is not
+affected.
+
 ## The panel does not restart its own core
 
-Every mutating panel endpoint ends in `SetToNeedRestart()`, which only sets a
-flag — nothing acts on it, and `CheckXrayRunningJob` restarts on a crash, not on
-that flag. Any change to clients needs an explicit `restartCore()`, or the
-running core never learns about it: the client sits in the panel's database
-while the core has never heard of it, and the very first connection fails auth
-with a 404.
+For Hysteria2 and VLESS clients, a mutating panel endpoint ends in
+`SetToNeedRestart()` and the running core does not learn about the change on
+its own: the client sits in the panel's database while the core has never heard
+of it, and the very first connection fails auth with a 404. Those changes need
+an explicit `restartCore()`. Newer panels run a 30-second job that restarts on
+that flag when an API apply failed — which is exactly what `bulkEnable` on a
+WireGuard client sets off — so a flag is never something to rely on, and never
+something to raise by accident. WireGuard adds and deletes are applied live and
+need no restart (above).
 
 That restart drops every live session on the node, so batch it: one restart at
 the end of a pass, only when something actually changed. `reconcile-peers`
 restarts once per node per pass, and the feed once per node per fetch
 (`deferRestart`, above).
+
+**Concurrent restarts of one node collapse into at most two.** Batching per
+fetch was not enough: three new devices importing at once were three fetches,
+three restarts back to back, and a restart that failed while another was
+running made the feed forget the peers it had just issued. `restartCore` goes
+through `coalesceByKey` (`lib/xray/coalesce`), keyed on the node: with nothing
+running it restarts at once; every call made while a restart runs shares one
+follow-up restart, which starts only after the running one ends — a client
+added mid-restart may not be in the running one, so it cannot simply join it.
+Every restart is logged with its reason (`reconcile synced, restored`,
+`issued 2 client(s) for a new device`, …), so a node that keeps dropping
+sessions shows why.
+
+**Paying re-enables the node clients at once, not on the next sweep.**
+`setEnabledAll` used to flip `peer.state` in the database only; the panel
+client stayed disabled until `reconcile-peers` ran `syncEnabled`, up to five
+minutes later, while the feed already served its credentials — so a reader who
+had just paid got auth failures. On enable it now calls
+`PeersService.pushEnabled` detached: per node, it enables only the clients the
+panel still holds disabled and restarts only if there were any, so a renewal of
+an account that never lapsed restarts nothing. Disabling stays with the sweep —
+a few minutes of grace cost nothing, and a restart per expiry would. The sweep
+is still the guarantee for both directions.

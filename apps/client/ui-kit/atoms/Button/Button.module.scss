@@ -25,6 +25,10 @@
 
   @include pressable;
 
+  svg {
+    flex-shrink: 0;
+  }
+
   &:disabled {
     cursor: not-allowed;
     opacity: 0.45;

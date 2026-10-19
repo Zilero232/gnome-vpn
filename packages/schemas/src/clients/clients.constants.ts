@@ -2,6 +2,8 @@ export const CLIENT_IDS = ['incy', 'hiddify', 'v2rayng', 'streisand', 'nekobox',
 
 export const CLIENT_PLATFORMS = ['ios', 'android', 'windows', 'macos', 'linux', 'tv'] as const;
 
+export const INCY_DESKTOP_RELEASE = 'desktop-v3.8.8';
+
 export const CLIENT_IMPORT_STYLE = {
   path: 'path',
   query: 'query'

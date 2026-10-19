@@ -43,23 +43,30 @@ export class ExpiredAccessJob {
       this.logger.error(`sweeping a subscriber failed: ${describeError(result.reason)}`);
     }
 
-    return owners.filter((_, index) => results[index].status === 'fulfilled');
+    return owners.filter((_, index) => {
+      const result = results[index];
+
+      return result.status === 'fulfilled' && result.value > 0;
+    });
   }
 
   @Cron(CronExpression.EVERY_5_MINUTES)
   async run(): Promise<void> {
     const now = new Date();
 
+    const lapsed = lapsedBefore(subHours(now, WINDOW.configGraceHours));
+    const active = activeSince(now);
+
     const [disabled, restored] = await Promise.all([
       this.sweep({
-        user: lapsedBefore(subHours(now, WINDOW.configGraceHours)),
+        user: lapsed,
         state: 'active',
-        act: (userId) => this.access.setEnabledAll({ userId, enabled: false })
+        act: (userId) => this.access.setEnabledAll({ userId, enabled: false, owner: lapsed })
       }),
       this.sweep({
-        user: activeSince(now),
+        user: active,
         state: 'disabled',
-        act: (userId) => this.access.setEnabledAll({ userId, enabled: true })
+        act: (userId) => this.access.setEnabledAll({ userId, enabled: true, owner: active })
       })
     ]);
 

@@ -64,6 +64,16 @@ export type AddClientInput = {
   limitIp: number;
 };
 
+export type AddWireguardClientInput = {
+  inboundId: number;
+  email: string;
+  privateKey: string;
+  publicKey: string;
+  limitIp: number;
+  keepAlive: number;
+  allowedIPs?: string[];
+};
+
 export type AddPanelClientInput = {
   inboundId: number;
   client: Record<string, unknown>;

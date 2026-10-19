@@ -48,6 +48,7 @@ export const registerNode = async ({
       certFingerprint: cert.certFingerprint,
       realityPublicKey: cert.realityPublicKey,
       realityShortId: cert.realityShortId,
+      wgPublicKey: cert.wgPublicKey,
       apiUrl: panel.baseUrl,
       apiTokenEnvVar: nodeKeyName(config.countryCode)
     }

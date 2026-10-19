@@ -13,4 +13,6 @@ export type InstalledInbounds = {
   realityPublicKey: string;
   realityShortId: string;
   realityWasGenerated: boolean;
+  wgPublicKey: string;
+  wgWasGenerated: boolean;
 };

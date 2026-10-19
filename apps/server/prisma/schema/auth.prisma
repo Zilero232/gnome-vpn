@@ -19,6 +19,9 @@ model User {
   telegramAccount  TelegramAccount?
   telegramCodes    TelegramLinkCode[]
   telegramLogins   TelegramWebLogin[]
+  referralCode     ReferralCode?
+  referralsMade    Referral[]         @relation("ReferralsMade")
+  referredBy       Referral?          @relation("ReferredBy")
 
   @@map("user")
 }

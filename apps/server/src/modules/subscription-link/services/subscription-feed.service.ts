@@ -1,5 +1,6 @@
+import { TUNNEL_PROTOCOL } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
-import { isNonNullish } from 'remeda';
+import { isEmpty, isNonNullish } from 'remeda';
 
 import type { BuildFeedInput, ServerUrisInput, SubscriptionBody, SubscriptionNode, TouchLinkInput } from '../subscription-link.service.types';
 
@@ -11,7 +12,7 @@ import { NO_TRAFFIC } from '../../../lib/xray';
 import { DEVICE_HEADER, deviceIdentity, DevicesService, headerOf } from '../../devices';
 import { buildTunnelConfig } from '../../peers';
 import { NODE_FEED_SELECT } from '../config';
-import { announcement, clientPlatform, incyHeaders, incyServerUri, tlsMode } from '../lib';
+import { announcement, clientPlatform, incyHeaders, incyServerUri, isClientFetch, liveNodes, tlsMode } from '../lib';
 import { FeedNoticeService } from './feed-notice.service';
 import { SubscriptionPeersService } from './subscription-peers.service';
 
@@ -39,16 +40,23 @@ export class SubscriptionFeedService {
 
     const identity = deviceIdentity(headers);
     const userAgent = headerOf({ headers, name: DEVICE_HEADER.userAgent });
+    const isClient = isClientFetch({ headers, hwid: identity.hwid });
 
-    void this.touch({ token, userAgent });
+    if (isClient) {
+      void this.touch({ token, userAgent });
+    } else {
+      this.logger.debug(`a non-client fetch of a feed was served no servers: ${userAgent ?? 'no user agent'}`);
+    }
 
+    const now = new Date();
     const subscription = link.user.subscription;
     const currentPeriodEnd = subscription?.currentPeriodEnd ?? null;
-    const hasAccess = isPeriodActive(currentPeriodEnd);
+    const canAdmit = isPeriodActive(currentPeriodEnd) && isClient;
     const deviceLimit = activeDeviceLimit(subscription);
     const nodes = await this.availableNodes();
+    const live = liveNodes({ nodes, now });
 
-    const admitted = hasAccess ? await this.devices.admit({ userId: link.userId, identity, deviceLimit }) : null;
+    const admitted = canAdmit ? await this.devices.admit({ userId: link.userId, identity, deviceLimit }) : null;
     const deviceId = admitted?.isAllowed ? admitted.deviceId : null;
 
     if (admitted?.isNew) {
@@ -61,9 +69,15 @@ export class SubscriptionFeedService {
       });
     }
 
-    const uris = isNonNullish(deviceId) ? await this.serverUris({ userId: link.userId, deviceId, nodes, tls: tlsMode(userAgent) }) : [];
+    const issuable = new Set(live.map((node) => node.id));
+    const uris = isNonNullish(deviceId) ? await this.serverUris({ userId: link.userId, deviceId, nodes, tls: tlsMode(userAgent), issuable }) : [];
+    const expected = live.flatMap((node) => this.subscriptionPeers.protocolsFor(node)).length;
 
-    const traffic = hasAccess ? await this.subscriptionPeers.traffic({ userId: link.userId, nodes }) : NO_TRAFFIC;
+    if (isNonNullish(deviceId) && uris.length < expected) {
+      this.logger.warn(`feed for ${link.userId} served ${uris.length} of ${expected} servers to device ${deviceId}`);
+    }
+
+    const traffic = canAdmit ? await this.subscriptionPeers.traffic({ userId: link.userId, nodes: live }) : NO_TRAFFIC;
 
     return {
       body: Buffer.from(uris.join('\n'), 'utf8').toString('base64'),
@@ -76,7 +90,9 @@ export class SubscriptionFeedService {
           nodes,
           hasSubscription: isNonNullish(subscription),
           currentPeriodEnd,
-          blockedAtLimit: admitted && !admitted.isAllowed ? deviceLimit : null
+          blockedAtLimit: admitted && !admitted.isAllowed ? deviceLimit : null,
+          isPreparing: isNonNullish(deviceId) && isEmpty(uris) && !isEmpty(nodes),
+          now
         })
       })
     };
@@ -101,19 +117,21 @@ export class SubscriptionFeedService {
     });
   }
 
-  private async serverUris({ userId, deviceId, nodes, tls }: ServerUrisInput): Promise<string[]> {
-    const issued = await Promise.all(nodes.map((node) => this.subscriptionPeers.ensureNode({ userId, deviceId, node })));
+  private async serverUris({ userId, deviceId, nodes, tls, issuable }: ServerUrisInput): Promise<string[]> {
+    const issued = await Promise.all(
+      nodes.map((node) => this.subscriptionPeers.ensureNode({ userId, deviceId, node, canIssue: issuable.has(node.id) }))
+    );
 
     return nodes
       .flatMap((node, index) =>
         this.subscriptionPeers.protocolsFor(node).map((protocol) => {
           const peer = issued[index].find((candidate) => candidate.protocol === protocol);
 
-          if (!peer) {
+          if (!peer || (protocol === TUNNEL_PROTOCOL.wireguard && !peer.tunnelAddress)) {
             return null;
           }
 
-          const config = buildTunnelConfig({ node, protocol, auth: peer.nodeCredential });
+          const config = buildTunnelConfig({ node, protocol, auth: peer.nodeCredential, address: peer.tunnelAddress });
 
           return incyServerUri({ config, country: node.country, countryCode: node.countryCode, city: node.city, tls });
         })

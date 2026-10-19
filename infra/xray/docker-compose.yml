@@ -1,6 +1,6 @@
 services:
   xray:
-    image: ghcr.io/mhsanaei/3x-ui:v3.8.5
+    image: ghcr.io/mhsanaei/3x-ui:v3.10.2
     container_name: gnomevpn-xray
     restart: unless-stopped
     environment:

@@ -18,6 +18,7 @@ const peer = (overrides: Partial<ReconcilePeer> = {}): ReconcilePeer => ({
   protocol: 'hysteria2',
   state: 'disabled',
   nodeCredential: 'secret',
+  tunnelAddress: null,
   user: { subscription: null },
   ...overrides
 });

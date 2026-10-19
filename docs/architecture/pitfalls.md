@@ -3,7 +3,7 @@
 Each entry cost a debugging session once. Where another page argues the case in
 full, the entry links to it. Part of the [documentation index](../README.md).
 
-- **A Hysteria2 client needs its full field set.** Writing `{email, auth}` alone leaves the panel storing the client but generating `clients: null` in the running core, so every connection fails auth with a 404. `enable/limitIp/totalGB/expiryTime/tgId/reset` must all be present — see `PanelClient.addClient` and `CLIENT_DEFAULTS`. 3x-ui fixed a neighbouring bug in v3.6.0 (an inbound whose clients are _all_ filtered out now serialises as `[]` rather than `null`) but explicitly left this one open — nothing up to v3.8.5 changes it, so the full set is still required.
+- **A Hysteria2 client needs its full field set.** Writing `{email, auth}` alone leaves the panel storing the client but generating `clients: null` in the running core, so every connection fails auth with a 404. `enable/limitIp/totalGB/expiryTime/tgId/reset` must all be present — see `PanelClient.addClient` and `CLIENT_DEFAULTS`. 3x-ui fixed a neighbouring bug in v3.6.0 (an inbound whose clients are _all_ filtered out now serialises as `[]` rather than `null`) but explicitly left this one open — checked up to v3.8.5 and not re-checked on v3.10.2, so the full set is still sent.
 - **Xray-core cannot close a live session, so the panel restarts the core to end one.** Its API has `AddUser` and `RemoveUser` and nothing that disconnects anybody, so `restartXrayOnClientDisable` is how 3x-ui makes a revoked client stop working — and that restart drops every tunnel on the node. Provisioning turns the setting off: a revoked client keeps the session it already has and simply cannot open a new one, which is what `reconcile-peers` already assumes. Leaving it on is what made the tunnel drop roughly once a minute.
 - **The panel's traffic counters are not liveness.** Treating "has traffic" as "active now" meant stale peers were never collected. Liveness now comes from the core's own online list — see [nodes-and-peers.md](nodes-and-peers.md#device-limits).
 - **A state a job can only enter is a state nothing can leave.** `expired-access` disabled configs and only the payment webhook re-enabled them, so a webhook that failed after its transaction committed stranded a paying user permanently. Any revocation needs a matching restore in the same sweep — `SubscriptionAccessService` is both halves; [billing.md](billing.md#prices-flags-and-webhooks) has the details.
@@ -22,3 +22,28 @@ full, the entry links to it. Part of the [documentation index](../README.md).
   links imported before the move, with nothing but a TLS `internal_error` alert
   in the app's log; the old name is served again ([deploy](../ops/deploy.md)).
   A Caddyfile change only applies after `docker compose restart caddy`.
+- **Opening the subscription link anywhere but the app took a device slot.**
+  A browser or a messenger's link preview registered as a device, held a slot
+  for good and restarted every node's core; non-client fetches are refused now
+  ([devices](devices.md#a-device-is-what-fetches-the-subscription)).
+- **A VLESS peer answered to its device's Hysteria2 client name.** The
+  pre-protocol fallback name made a lost VLESS client look present, so the TCP
+  fallback was never restored ([nodes and peers](nodes-and-peers.md)).
+- **3x-ui's `bulkEnable` restarts the whole core for a WireGuard client.** It
+  re-adds the user without its key and address, the add fails, and the panel's
+  restart job drops every session on the node; WireGuard clients are re-enabled
+  by delete and add instead ([nodes and peers](nodes-and-peers.md#wireguard-clients)).
+- **`releases/latest` on INCY's repository is not the desktop build.** Android
+  and desktop ship as separate releases in one repository, so an Android-only
+  release made every `latest/download/incy-*.exe|.dmg|.deb` a 404. The desktop
+  links pin `INCY_DESKTOP_RELEASE` ([subscription feed](subscription-feed.md#platform-downloads)).
+- **Since 3x-ui v3.9.0 `/panel/api/inbounds/update` leaves clients and the
+  inbound's `enable` flag alone.** `rewriteInbound` still sends the client list,
+  which the panel now ignores; clients change only through the client endpoints,
+  and switching an inbound on or off needs `/panel/api/inbounds/setEnable/:id`.
+  The nodes run v3.10.2 (`infra/xray/docker-compose.yml`); every route
+  `lib/xray` calls was checked against its source before the bump.
+- **Next 16.4 refuses `next/font` in the instrumentation bundle.** Importing the
+  `@/shared/config` barrel from `instrumentation.node.ts` pulled the font loaders
+  in and every page failed with `non-ecmascript placeable asset`; it imports
+  `@/shared/config/client-env` directly.

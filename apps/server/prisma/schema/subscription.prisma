@@ -16,6 +16,8 @@ model Subscription {
 
   trialStartedAt DateTime? @map("trial_started_at") @db.Timestamptz(3)
 
+  bonusDays Int @default(0) @map("bonus_days")
+
   reminderSentFor DateTime? @map("reminder_sent_for") @db.Timestamptz(3)
 
   savedCardId    String? @map("saved_card_id")

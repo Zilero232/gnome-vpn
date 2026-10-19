@@ -37,3 +37,103 @@
     grid-template-columns: 1fr;
   }
 }
+
+.wireguardLink {
+  display: inline-block;
+  margin-top: 16px;
+
+  @include text-link(14px);
+}
+
+.ways {
+  display: grid;
+  padding: 0;
+  margin: 0;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  list-style: none;
+
+  @include below(xl) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.way {
+  display: flex;
+  height: 100%;
+  box-sizing: border-box;
+  flex-direction: column;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: color-mix(in srgb, var(--color-surface-raised) 60%, transparent);
+  color: inherit;
+  gap: 6px;
+  text-decoration: none;
+  transition: border-color var(--duration-fast) ease;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--color-accent);
+  }
+
+  &[data-recommended='true'] {
+    border-color: rgb(53 240 160 / 35%);
+    box-shadow: var(--glow-accent);
+  }
+}
+
+.wayHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wayIcon {
+  color: var(--color-accent);
+}
+
+.wayBadge {
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-accent);
+  color: var(--color-bg-deep);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.wayTitle {
+  color: var(--color-text);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.wayBody {
+  flex: 1;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.wayGo {
+  color: var(--color-accent);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.section {
+  scroll-margin-top: calc(var(--header-height) + 16px);
+}
+
+.sectionIntro {
+  max-width: 70ch;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.subTitle {
+  margin: 20px 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+}

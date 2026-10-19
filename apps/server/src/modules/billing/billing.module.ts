@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 
 import { AppConfigService } from '../../config';
 import { makeYooKassaClient, YooKassaClient } from '../../lib';
+import { ReferralsModule } from '../referrals';
 import { SubscriptionLinkModule } from '../subscription-link';
 import { TelegramNotifyModule } from '../telegram/telegram-notify.module';
 import { BillingController } from './billing.controller';
@@ -15,7 +16,7 @@ const yooKassaProvider = {
 };
 
 @Module({
-  imports: [SubscriptionLinkModule, TelegramNotifyModule],
+  imports: [ReferralsModule, SubscriptionLinkModule, TelegramNotifyModule],
   controllers: [BillingController],
   providers: [BillingSharedService, CheckoutService, WebhookService, AutoRenewService, CardService, WebhookIpGuard, yooKassaProvider],
   exports: [AutoRenewService, CardService, CheckoutService, WebhookService, YooKassaClient]

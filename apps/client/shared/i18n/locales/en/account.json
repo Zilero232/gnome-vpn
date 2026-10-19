@@ -67,7 +67,9 @@
     "app": "App",
     "devices": "Devices",
     "telegram": "Telegram",
-    "label": "Account sections"
+    "label": "Account sections",
+    "invite": "Invite",
+    "wireguard": "WireGuard"
   },
   "meta": {
     "title": "Account",

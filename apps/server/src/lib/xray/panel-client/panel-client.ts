@@ -4,6 +4,7 @@ import type {
   AddClientInput,
   AddPanelClientInput,
   AddVlessClientInput,
+  AddWireguardClientInput,
   PanelClientInput,
   PanelClientStat,
   PanelInbound,
@@ -108,6 +109,10 @@ export class PanelClient {
 
   async addVlessClient({ inboundId, email, id, limitIp }: AddVlessClientInput): Promise<void> {
     await this.addPanelClient({ inboundId, client: { email, id, flow: VLESS_FLOW, limitIp } });
+  }
+
+  async addWireguardClient({ inboundId, email, privateKey, publicKey, limitIp, keepAlive, allowedIPs }: AddWireguardClientInput): Promise<void> {
+    await this.addPanelClient({ inboundId, client: { email, privateKey, publicKey, keepAlive, limitIp, ...(allowedIPs && { allowedIPs }) } });
   }
 
   async setClientsEnabled({ emails, enabled }: SetClientsEnabledInput): Promise<void> {

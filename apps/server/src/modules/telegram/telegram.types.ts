@@ -152,6 +152,21 @@ export type ConsumeInput = {
   text: string;
 };
 
+export type WelcomeInput = {
+  ctx: BotContext;
+  note?: string;
+};
+
+export type ArriveInput = {
+  ctx: BotContext;
+  code: string;
+};
+
+export type AttributeNoteInput = {
+  chat: ResolvedChat;
+  code: string;
+};
+
 export type RefusalInput = {
   error: unknown;
   copy: BotText;
@@ -193,6 +208,7 @@ export type NotifyInput = {
   notice: NoticeKey;
   fill?: TextFill;
   date?: Date | null;
+  days?: number;
 };
 
 export type RemovalInput = {

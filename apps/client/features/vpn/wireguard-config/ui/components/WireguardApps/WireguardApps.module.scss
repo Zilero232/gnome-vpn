@@ -1,0 +1,71 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.title {
+  font-weight: 600;
+}
+
+.list {
+  display: grid;
+  padding: 0;
+  margin: 0;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr);
+  list-style: none;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  gap: 6px;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+}
+
+.name {
+  color: var(--color-text);
+  font-size: var(--step-sm);
+  font-weight: 600;
+}
+
+.platform {
+  padding: 1px 8px;
+  border: 1px solid rgb(53 240 160 / 25%);
+  border-radius: var(--radius-pill);
+  color: var(--color-accent);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  @include text-link(13px);
+}
+
+@include from(xl) {
+  .list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

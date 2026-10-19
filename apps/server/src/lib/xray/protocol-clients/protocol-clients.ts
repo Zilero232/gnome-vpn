@@ -4,6 +4,7 @@ import type { XrayInbound } from '../inbounds';
 import type { IssueProtocolClientInput, IssueProtocolClientResult, ProtocolClient, ProtocolClientsInput } from './protocol-clients.types';
 
 import { AppServiceUnavailableException } from '../../../common/exceptions';
+import { coalesceByKey } from '../coalesce';
 import { serializeByKey } from '../serialize';
 import { readSettings } from '../xray.helpers';
 
@@ -57,6 +58,6 @@ export class ProtocolClients<TClient extends ProtocolClient> {
       return;
     }
 
-    await this.options.panel.restartCore();
+    await coalesceByKey({ key: this.options.nodeKey, task: () => this.options.panel.restartCore() });
   }
 }

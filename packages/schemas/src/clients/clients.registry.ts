@@ -1,8 +1,8 @@
 import type { ClientEntry, ClientId, ClientPlatform } from './clients.types';
 
-import { CLIENT_IMPORT_STYLE } from './clients.constants';
+import { CLIENT_IMPORT_STYLE, INCY_DESKTOP_RELEASE } from './clients.constants';
 
-const INCY_RELEASES = 'https://github.com/INCY-DEV/incy-platforms/releases/latest/download';
+const INCY_RELEASES = `https://github.com/INCY-DEV/incy-platforms/releases/download/${INCY_DESKTOP_RELEASE}`;
 
 export const CLIENT_REGISTRY: Record<ClientId, ClientEntry> = {
   incy: {

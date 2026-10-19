@@ -88,18 +88,21 @@ client looked to `reconcile-peers` like a peer that had vanished from its node.
 ```text
 lib/
 ├── announcement/      # the announce banner
+├── client-fetch/      # whether the fetch is a VPN client, not a browser or a link preview
 ├── client-links/      # the third-party clients and their import links
 ├── client-platform/   # what the User-Agent says the caller is
 ├── incy-headers/      # the response headers, with header-value/ and userinfo/
-├── incy-uri/          # the server list, with hysteria2/ and vless/ beside it
-├── server-name/       # the flag-and-country label both protocols share
+├── incy-uri/          # the server list, with hysteria2/, vless/ and wireguard/ beside it
+├── live-nodes/        # the nodes whose health probe is fresh, or all when none is
+├── server-name/       # the flag-and-country label every protocol shares
 ├── subscription-token/
-└── tls-mode/          # pin or skip verification, from the User-Agent
+├── tls-mode/          # pin or skip verification, from the User-Agent
+└── wireguard-conf/    # the .conf file and its name, for the official WireGuard apps
 ```
 
-The two URI builders were one file once, which hid that they share nothing but
-the server label — and that label is what keeps `🇳🇱 Netherlands` apart from
-`🇳🇱 Netherlands · TCP` in the app's list.
+The URI builders were one file once, which hid that they share nothing but the
+server label. Every entry of one country carries the same label; INCY tells them
+apart by the protocol it reads from the scheme.
 
 **A builder that cannot produce a URI returns `null`, never `''`.** `vlessUri`
 returned an empty string for a node without reality keys, and the feed filters
@@ -190,6 +193,23 @@ dead node keeps serving in the list. `node-health` stamps `lastHealthyAt` every
 minute, and a stamp older than `NODE_STALE_MINUTES` is what "down" means here. A
 node that has never reported counts as down rather than as new.
 
+**A down node keeps the servers it already issued and issues no new ones.** A
+fetch from a new device used to call the panel of every node in the list, and a
+dead one held the whole response for `REQUEST_TIMEOUT_MS` per call — long
+enough for an app's first import to time out — and the traffic headers asked
+every node on every fetch the same way. A stale node is now skipped for issuing
+(`ensureNode({ canIssue })`) and for traffic; the URIs a device already holds
+for it are still served, so it works again the moment the node comes back.
+When no node looks alive, `liveNodes` keeps them all: that means the health
+probe itself is down, not every node at once, and skipping them all would leave
+every new device with an empty list.
+
+**An allowed device with no servers is told why.** When issuing failed on every
+node, the device used to get an empty list and nothing else, which INCY shows as
+"no servers". It now gets `ANNOUNCEMENTS.preparing`, asking for a refresh in a
+minute, and the server logs a warning whenever a device is served fewer servers
+than the healthy nodes offer.
+
 The text is Russian, and only Russian: the subscription request carries no
 `Accept-Language`, and INCY's User-Agent names the platform, not the locale.
 Plurals and country lists go through `Intl.PluralRules` and `Intl.ListFormat`
@@ -232,5 +252,11 @@ The INCY download links are `INCY_DOWNLOADS` in `packages/schemas`, and
 a day (`PLATFORMS_CACHE_TTL_MS`) through `CacheInterceptor`, because it is a
 constant rather than a query.
 
-The desktop URLs point at `releases/latest`, so they follow INCY's current
-release without a redeploy. Only a renamed artifact forces a change here.
+**The desktop URLs name a release tag, not `releases/latest`.** INCY publishes
+Android and desktop builds as separate releases in one repository
+(`android-v*`, `desktop-v*`), and `latest` is whichever came last. Once an
+Android-only release went out, `latest/download/incy-windows-setup.exe` and the
+macOS and Linux files answered 404 — every desktop download on the site was
+dead. `INCY_DESKTOP_RELEASE` pins the desktop tag instead, and a test forbids
+`latest` in those URLs. Moving to a newer desktop build means bumping that tag;
+an old one still installs, and INCY updates itself from there.

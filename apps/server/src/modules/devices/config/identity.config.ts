@@ -11,7 +11,9 @@ export const DEVICE_KEY = {
   hwid: 'hwid:',
   app: 'app:',
   unknownApp: 'unknown',
-  incyApp: 'INCY'
+  incyApp: 'INCY',
+  wireguard: 'wg:',
+  wireguardApp: 'WireGuard'
 } as const;
 
 export const DEVICE_FIELD = {

@@ -1,4 +1,4 @@
-import { env } from '@/shared/config';
+import { env } from '@/shared/config/client-env';
 import { serverLogger } from '@/shared/lib/server-logger';
 
 serverLogger.info('web server ready', {

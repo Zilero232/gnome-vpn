@@ -8,7 +8,7 @@
   "facts": {
     "protocol": {
       "label": "Protocol",
-      "value": "Hysteria2 + VLESS"
+      "value": "Hysteria2 + VLESS + WireGuard"
     },
     "transport": {
       "label": "Transport",

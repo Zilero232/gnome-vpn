@@ -4,5 +4,7 @@
   "emailInvalid": "Неверный email",
   "passwordMin": "Минимум 8 символов",
   "passwordsMismatch": "Пароли не совпадают",
-  "required": "Заполните поле"
+  "required": "Заполните поле",
+  "referralCodeInvalid": "Код из 8 символов: латинские буквы и цифры",
+  "wireguardNameMax": "Не длиннее 24 символов"
 }

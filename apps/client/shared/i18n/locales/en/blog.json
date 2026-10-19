@@ -32,7 +32,7 @@
         },
         "howToChoose": {
           "title": "What to pick in practice",
-          "body": "Start with Hysteria2 — in the server list it is the plain entry with no marking. On most networks it is faster and steadier. If the connection will not establish, or drops immediately, switch to the entry for the same country marked TCP, which is Reality. Nothing needs configuring: both servers are already in the subscription and the app remembers your choice. If neither works, the problem is usually the network rather than the protocol — try mobile data instead of Wi-Fi."
+          "body": "Start with Hysteria2 — the app labels each entry with its protocol. On most networks it is faster and steadier. If the connection will not establish, or drops immediately, switch to the VLESS entry for the same country, which is Reality. Nothing needs configuring: both servers are already in the subscription and the app remembers your choice. If neither works, the problem is usually the network rather than the protocol — try mobile data instead of Wi-Fi."
         }
       }
     },
@@ -51,7 +51,7 @@
         },
         "switchToTcp": {
           "title": "The fix: switch to TCP",
-          "body": "In a GnomeVPN subscription every country appears twice. The plain entry is Hysteria2 over UDP; the one marked TCP is VLESS + Reality. The second rides TCP on port 443 — the same channel as any HTTPS site. A network that lets a browser through lets it through too. Switching takes one tap in the app and nothing has to be reconfigured. If the TCP entry connects, UDP was the cause, and that is the entry to use on this network."
+          "body": "In a GnomeVPN subscription every country comes in several variants. The main one is Hysteria2 over UDP, the fallback is VLESS + Reality over TCP; the app labels each entry with its protocol. The second rides TCP on port 443 — the same channel as any HTTPS site. A network that lets a browser through lets it through too. Switching takes one tap in the app and nothing has to be reconfigured. If the TCP entry connects, UDP was the cause, and that is the entry to use on this network."
         },
         "captivePortal": {
           "title": "The second cause: a captive portal",

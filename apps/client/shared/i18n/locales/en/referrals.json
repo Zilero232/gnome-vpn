@@ -1,0 +1,59 @@
+{
+  "eyebrow": "Invites",
+  "title": "Give days, get days",
+  "upTo": "up to",
+  "perFriend": "{days, plural, one {day} other {days}} for every friend",
+  "intro": "Send a friend your link. They get bonus days on their first payment, and you get days on your subscription as soon as they pay.",
+  "linkTitle": "Your link",
+  "linkSite": "Through the site",
+  "linkBot": "Through the Telegram bot",
+  "copy": "Copy the link",
+  "copied": "Link copied",
+  "copyFailed": "Could not copy — select the link by hand",
+  "shareText": "I use GnomeVPN — a fast VPN with no speed limits. Take my link and get bonus days on your first payment.",
+  "stepsTitle": "How it works",
+  "steps": {
+    "send": {
+      "title": "Send the link",
+      "text": "In a messenger, on social media or by email — whatever suits you."
+    },
+    "pay": {
+      "title": "Your friend subscribes",
+      "text": "Their bonus days come with their very first payment."
+    },
+    "earn": {
+      "title": "You get days",
+      "text": "They extend your subscription — nothing to press."
+    }
+  },
+  "rewardsTitle": "How many days",
+  "rewardYouLabel": "for you",
+  "rewardYou": "+{days, plural, one {# day} other {# days}}",
+  "rewardFriend": "your friend +{days, plural, one {# day} other {# days}}",
+  "rewardBest": "The most",
+  "statsTitle": "Your invites",
+  "stats": {
+    "invited": "Came by your link",
+    "rewarded": "Paid",
+    "daysEarned": "Days earned"
+  },
+  "pending": "{days, plural, one {# more day waits} other {# more days wait}} for your next payment — you have no paid period to add them to right now.",
+  "referred": "A friend invited you — the bonus days come with your first payment.",
+  "claimTitle": "Got a code from a friend?",
+  "claimHint": "Enter it before your first payment to get bonus days.",
+  "claimLabel": "Invite code",
+  "claimSubmit": "Apply",
+  "claimed": "Invite accepted — the bonus days come with your first payment",
+  "rules": "The bonus comes once per friend, for their first payment. With a paid subscription running, the days extend it right away; without one, they are added to your next payment. No more than {days, plural, one {# day} other {# days}} per 30 days.",
+  "loading": "Loading invites…",
+  "unavailable": "Could not load invites. Check your connection.",
+  "retry": "Retry",
+  "emailSubject": "An invite to GnomeVPN",
+  "targets": {
+    "telegram": "Telegram",
+    "whatsapp": "WhatsApp",
+    "vk": "VK",
+    "email": "Email"
+  },
+  "share": "Share"
+}

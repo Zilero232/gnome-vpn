@@ -1,0 +1,1 @@
+export { WireguardCard } from './WireguardCard';

@@ -96,3 +96,40 @@ deliberate: an explicit `openGraph.images` overrides the generated
 `opengraph-image` route, which is how every page ended up sharing one static
 card; and the root `title.template` would otherwise append `· GnomeVPN` to a
 title that already contains it.
+
+## Partial prefetching and the smooth scroll flag
+
+`partialPrefetching: true` sits beside `cacheComponents` in `next.config.ts`.
+Next 16.4 warns when Cache Components runs without it, recommends both for a
+new app, and makes both the default in the next major — so the flag is set now
+rather than met as a migration later. The build reports it, and every page
+still prerenders as before.
+
+The `<html>` element carries `data-scroll-behavior='smooth'` because the global
+styles set `scroll-behavior: smooth`; without the attribute Next keeps smooth
+scrolling on during route transitions and warns about it in the browser console.
+
+## The setup page offers three ways, one section each
+
+`/setup` opens with the three ways to connect as cards — INCY (recommended),
+another app that reads the subscription, and a WireGuard config — each linking
+to its own section further down, rather than a numbered list where the
+alternatives arrive as "3. Or…" and "4. Or…". The WireGuard section names the
+app per platform (`WIREGUARD_APPS` in `features/vpn/wireguard-config`):
+WireSock Secure Connect on Windows, which imports a `.conf` and can route only
+chosen programs; AmneziaVPN on iPhone and Android, which imports the file or
+its QR code; the official WireGuard app on macOS, Linux and routers. The same
+block sits on the account's WireGuard tab, so both places recommend the same
+apps.
+
+## Account tabs follow the URL hash
+
+`AccountTabs` selects the tab named by `location.hash` and writes the hash back
+with `history.replaceState` when a tab is picked, so `/account#wireguard` opens
+that tab, a reload keeps it, and an in-page link like the App tab's
+"on the WireGuard tab" switches to it. The hash is applied after mount and again
+whenever the set of tabs changes — the WireGuard and Devices tabs only appear
+once the subscription status has loaded, so a hash read on mount alone would
+miss them. The hash is never read during render, which keeps the server and the
+first client render identical. Tab names that other pages link to live in
+`ACCOUNT_TAB` (`shared/constants`).

@@ -1,5 +1,6 @@
 import { findPlan, MAX_EXTRA_DEVICES } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
+import { addDays } from 'date-fns';
 import { isNullish } from 'remeda';
 
 import type { ActivateInput, AttachMethodInput, AutoRenewInput, GrantExtraDevicesInput, SetAutoRenewServiceInput } from '../billing.types';
@@ -61,18 +62,21 @@ export class BillingSharedService {
         currentPeriodEnd: true,
         cancelAtPeriodEnd: true,
         savedCardId: true,
-        trialStartedAt: true
+        trialStartedAt: true,
+        bonusDays: true
       }
     });
 
     const plan = findPlan(planId);
+    const bonusDays = subscription?.bonusDays ?? 0;
     const currentPeriodEnd = subscription?.currentPeriodEnd;
     const isConsentGiven = periodKind(subscription) !== 'paid' && Boolean(method?.id);
     const hadLapsedWhenOrdered = !currentPeriodEnd || currentPeriodEnd <= orderedAt;
 
     const data = {
       plan: plan.id,
-      currentPeriodEnd: nextPeriodEnd({ currentPeriodEnd, months: plan.months }),
+      currentPeriodEnd: addDays(nextPeriodEnd({ currentPeriodEnd, months: plan.months }), bonusDays),
+      bonusDays: 0,
       ...(hadLapsedWhenOrdered && { extraDevices: 0 }),
       cancelAtPeriodEnd: this.resolveCancelAtPeriodEnd({
         hasMethod: Boolean(method?.id ?? subscription?.savedCardId),

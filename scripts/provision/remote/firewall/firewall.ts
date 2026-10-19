@@ -13,7 +13,7 @@ export const openTunnelPort = async (ssh: SshClient) => {
     return;
   }
 
-  const rules = [`${PORTS.hysteria}/udp`, `${PORTS.reality}/tcp`, `${PORTS.panel}/tcp`];
+  const rules = [`${PORTS.hysteria}/udp`, `${PORTS.reality}/tcp`, `${PORTS.wireguard}/udp`, `${PORTS.panel}/tcp`];
 
   log.step(`opening ${rules.join(', ')}`);
 

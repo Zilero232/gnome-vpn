@@ -39,6 +39,11 @@ const provisionAll = async (nodes: NodeConfig[]): Promise<ProvisionResult[]> => 
       log.warn('every VLESS entry issued for this node before now is dead');
     }
 
+    if (result.lostWireguardKeys) {
+      log.warn('the wireguard server key was missing and had to be regenerated');
+      log.warn('every WireGuard entry issued for this node before now is dead');
+    }
+
     log.untint();
   }
 

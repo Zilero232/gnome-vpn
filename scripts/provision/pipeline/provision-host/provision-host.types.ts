@@ -8,6 +8,7 @@ export type ProvisionResult = {
   status: ProvisionStatus;
   error?: string;
   lostRealityKeys?: boolean;
+  lostWireguardKeys?: boolean;
 };
 
 export type ProvisionHostInput = {

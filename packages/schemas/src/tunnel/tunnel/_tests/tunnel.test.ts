@@ -50,6 +50,16 @@ describe('tunnelConfigSchema bounds', () => {
     expect(tunnelConfigSchema.safeParse({ ...hysteria2Config, protocol: 'vless' }).success).toBe(false);
   });
 
+  it('rejects a wireguard config without its keys', () => {
+    expect(tunnelConfigSchema.safeParse({ ...hysteria2Config, protocol: 'wireguard' }).success).toBe(false);
+  });
+
+  it('accepts a wireguard config carrying its keys and address', () => {
+    const wireguard = { publicKey: 'pub', address: '10.9.0.2/32', mtu: 1360 };
+
+    expect(tunnelConfigSchema.safeParse({ ...hysteria2Config, protocol: 'wireguard', wireguard }).success).toBe(true);
+  });
+
   it('accepts a vless config carrying reality', () => {
     const reality = { publicKey: 'pub', shortId: 'ab', fingerprint: 'chrome' };
 

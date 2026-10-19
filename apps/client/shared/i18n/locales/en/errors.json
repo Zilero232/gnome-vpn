@@ -24,5 +24,8 @@
   "EMAIL_UNAVAILABLE": "The email could not be sent. Try again later or contact support.",
   "SUBSCRIPTION_LINK_NOT_FOUND": "This link no longer works. Get a new one in your account.",
   "TELEGRAM_LAST_SIGN_IN": "Telegram is the only way into this account. Add an email first, then unlink.",
-  "TELEGRAM_WIDGET_INVALID": "Telegram sign-in failed. Please try again."
+  "TELEGRAM_WIDGET_INVALID": "Telegram sign-in failed. Please try again.",
+  "REFERRAL_CODE_INVALID": "There is no such invite code — check it for typos.",
+  "REFERRAL_SELF": "This is your own code — send it to your friends.",
+  "REFERRAL_UNAVAILABLE": "An invite code only applies to a new account before its first payment."
 }

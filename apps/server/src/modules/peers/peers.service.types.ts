@@ -29,8 +29,14 @@ export type IssueAndPersistInput = IssuePeerInput & {
 
 export type CreatedPeer = {
   nodeCredential: string;
+  address: string | null;
   email: string;
   protocol: TunnelProtocol;
+};
+
+export type IssuedCredential = {
+  nodeCredential: string;
+  address?: string;
 };
 
 export type DeleteClientInput = {
@@ -41,6 +47,11 @@ export type DeleteClientInput = {
 export type DiscardPeerInput = {
   node: NodeAccess;
   email: string;
+};
+
+export type RestartCoreInput = {
+  node: NodeAccess;
+  reason: string;
 };
 
 export type SetPeerEnabledInput = {

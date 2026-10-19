@@ -9,6 +9,8 @@ export { bindCard, buyExtraDevices, cancelAutoRenew, createCheckout, resumeAutoR
 export { getDevices, removeDevice } from './devices';
 export { api, ApiError, apiErrorCode } from './http';
 export { queryClient } from './query-client';
+export { claimReferral, getReferrals } from './referrals';
 export { claimTrial, getSubscriptionStatus } from './subscription';
 export { getSubscriptionLink, rotateSubscriptionLink } from './subscription-link';
 export { getTelegramStatus, getTelegramWidget, issueTelegramCode, redeemTelegramLogin, signInWithTelegram, unlinkTelegram } from './telegram';
+export { createWireguardConfig, getWireguard, getWireguardConfig } from './wireguard';
