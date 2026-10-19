@@ -50,7 +50,7 @@ had already taken and revoked their keys; reconcile releases them on the nodes.
 ## A WireGuard config is a device too
 
 The official WireGuard apps and routers cannot read a subscription; they import
-a `.conf`. The account page's WireGuard tab makes one: `POST /wireguard/configs`
+a `.conf`. The WireGuard side of the account page's Connect tab makes one: `POST /wireguard/configs`
 (behind `SubscriptionGuard`) registers a device with the key
 `wg:<random uuid>`, the name the person typed as its model and `WireGuard` as
 its app, admits it through the same `DevicesService.admit` — so it takes a slot

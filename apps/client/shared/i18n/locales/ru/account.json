@@ -64,12 +64,11 @@
   },
   "tabs": {
     "subscription": "Подписка",
-    "app": "Приложение",
     "devices": "Устройства",
     "telegram": "Telegram",
     "label": "Разделы кабинета",
     "invite": "Пригласить",
-    "wireguard": "WireGuard"
+    "connect": "Подключение"
   },
   "meta": {
     "title": "Личный кабинет",
@@ -89,5 +88,10 @@
   "unbindConfirmTitle": "Отвязать сохранённую карту?",
   "unbindConfirmBody": "Вместе с ней отключится автопродление: когда оплаченный период закончится, доступ тоже закончится, если не оплатить вручную. Карту можно привязать снова в любой момент.",
   "unbindConfirmAction": "Отвязать карту",
-  "unbindConfirmCancel": "Оставить"
+  "unbindConfirmCancel": "Оставить",
+  "connect": {
+    "label": "Способ подключения",
+    "incy": "INCY",
+    "wireguard": "WireGuard"
+  }
 }

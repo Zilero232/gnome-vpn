@@ -64,12 +64,11 @@
   },
   "tabs": {
     "subscription": "Subscription",
-    "app": "App",
     "devices": "Devices",
     "telegram": "Telegram",
     "label": "Account sections",
     "invite": "Invite",
-    "wireguard": "WireGuard"
+    "connect": "Connect"
   },
   "meta": {
     "title": "Account",
@@ -89,5 +88,10 @@
   "unbindConfirmTitle": "Remove the saved card?",
   "unbindConfirmBody": "Auto-renewal stops with it: when the paid period ends, access ends too unless you pay again by hand. You can add a card again at any time.",
   "unbindConfirmAction": "Remove card",
-  "unbindConfirmCancel": "Keep it"
+  "unbindConfirmCancel": "Keep it",
+  "connect": {
+    "label": "How to connect",
+    "incy": "INCY",
+    "wireguard": "WireGuard"
+  }
 }

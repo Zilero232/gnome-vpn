@@ -2,11 +2,11 @@
 
 import type { WireguardConfigFile } from '@gnomevpn/schemas';
 
-import { KeyRound } from 'lucide-react';
+import { TriangleAlert } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
-import { ErrorBlock, LoadingBlock, Text } from '@/ui-kit';
+import { Badge, ErrorBlock, LoadingBlock, Text } from '@/ui-kit';
 
 import { useWireguard } from '../model/hooks';
 import { ConfigDialog, ConfigList, CreateConfigForm, WireguardApps } from './components';
@@ -27,12 +27,12 @@ export const WireguardPanel = () => {
     return <ErrorBlock isRetrying={isRefetching} message={t('unavailable')} retryLabel={t('retry')} onRetry={() => void refetch()} />;
   }
 
+  const isFull = overview.deviceCount >= overview.deviceLimit;
+
   return (
     <div className={s.root}>
       <header className={s.head}>
-        <KeyRound aria-hidden className={s.headIcon} size={22} />
-
-        <div className={s.headBody}>
+        <div className={s.headText}>
           <Text as='h2' className={s.title}>
             {t('title')}
           </Text>
@@ -41,27 +41,28 @@ export const WireguardPanel = () => {
             {t('intro')}
           </Text>
         </div>
+
+        <Badge className={s.slots} tone={isFull ? 'danger' : 'muted'}>
+          {t('slots', { count: overview.deviceCount, limit: overview.deviceLimit })}
+        </Badge>
       </header>
 
-      <Text as='p' className={s.note} size='sm'>
-        {t('note')}
-      </Text>
-
-      <Text as='p' size='xs' tone='muted'>
-        {t('slots', { count: overview.deviceCount, limit: overview.deviceLimit })}
-      </Text>
-
       {overview.nodes.length === 0 ? (
-        <Text as='p' className={s.note} size='sm'>
+        <Text as='p' className={s.empty} size='sm' tone='muted'>
           {t('noServers')}
         </Text>
       ) : (
-        <CreateConfigForm isFull={overview.deviceCount >= overview.deviceLimit} nodes={overview.nodes} onCreated={setShown} />
+        <CreateConfigForm isFull={isFull} nodes={overview.nodes} onCreated={setShown} />
       )}
 
-      <ConfigList configs={overview.configs} onShow={setShown} />
+      {overview.configs.length > 0 && <ConfigList configs={overview.configs} onShow={setShown} />}
 
       <WireguardApps />
+
+      <Text as='p' className={s.caution} size='xs' tone='muted'>
+        <TriangleAlert aria-hidden className={s.cautionIcon} size={14} />
+        {t('note')}
+      </Text>
 
       <ConfigDialog file={shown} onClose={() => setShown(null)} />
     </div>

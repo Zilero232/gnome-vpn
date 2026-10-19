@@ -1,37 +1,58 @@
+@use '@/shared/styles/mixins' as *;
+
 .root {
   display: flex;
   flex-direction: column;
-  gap: var(--gap-md);
+  gap: 28px;
 }
 
 .head {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  justify-content: space-between;
+  gap: 16px;
+
+  @include below(sm) {
+    flex-direction: column;
+    gap: 10px;
+  }
 }
 
-.headIcon {
-  flex-shrink: 0;
-  margin-top: 2px;
-  color: var(--color-accent);
-}
-
-.headBody {
+.headText {
   display: flex;
   min-width: 0;
+  max-width: 560px;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .title {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 600;
 }
 
-.note {
-  padding: 12px 14px;
-  border: 1px solid var(--color-border);
+.slots {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.empty {
+  padding: 14px 16px;
+  border: 1px dashed var(--color-border-bright);
   border-radius: var(--radius-md);
-  background-color: color-mix(in srgb, var(--color-surface-raised) 60%, transparent);
-  line-height: 1.45;
+}
+
+.caution {
+  display: flex;
+  align-items: flex-start;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+  gap: 8px;
+  line-height: 1.5;
+}
+
+.cautionIcon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-warning);
 }

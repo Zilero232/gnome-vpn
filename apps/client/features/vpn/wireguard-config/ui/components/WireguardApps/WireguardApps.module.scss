@@ -3,7 +3,7 @@
 .root {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .title {
@@ -14,25 +14,31 @@
   display: grid;
   padding: 0;
   margin: 0;
-  gap: 10px;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   list-style: none;
+
+  @include hairline-cards;
+
+  @include below(lg) {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .app {
   display: flex;
   flex-direction: column;
   padding: 14px 16px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
   gap: 6px;
 }
 
-.head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 8px;
+.platform {
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .name {
@@ -41,18 +47,15 @@
   font-weight: 600;
 }
 
-.platform {
-  padding: 1px 8px;
-  border: 1px solid rgb(53 240 160 / 25%);
-  border-radius: var(--radius-pill);
-  color: var(--color-accent);
-  font-size: 11px;
-  font-weight: 600;
+.hint {
+  flex: 1;
+  line-height: 1.5;
 }
 
 .links {
   display: flex;
   flex-wrap: wrap;
+  margin-top: 4px;
   gap: 4px 14px;
 }
 
@@ -62,10 +65,4 @@
   gap: 5px;
 
   @include text-link(13px);
-}
-
-@include from(xl) {
-  .list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
 }

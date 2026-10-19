@@ -22,9 +22,13 @@ export const AccountTabs = ({ items, label, panelClassName }: AccountTabsProps) 
 
   const [active, setActive] = useState(items[0]?.value ?? '');
 
+  const tabForHash = (hash: string) => items.find((item) => item.value === hash || item.aliases?.includes(hash))?.value;
+
   const selectFromHash = (hash: string) => {
-    if (items.some((item) => item.value === hash)) {
-      setActive(hash);
+    const tab = tabForHash(hash);
+
+    if (tab) {
+      setActive(tab);
     }
   };
 
@@ -33,17 +37,21 @@ export const AccountTabs = ({ items, label, panelClassName }: AccountTabsProps) 
     window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${value}`);
   };
 
-  const tabValues = items.map((item) => item.value).join(' ');
+  const tabHashes = items.map((item) => [item.value, ...(item.aliases ?? [])].join(',')).join(' ');
 
   useHash({ mode: 'initial', onChange: selectFromHash });
 
   useEffect(() => {
     const hash = getHash();
+    const tab = tabHashes
+      .split(' ')
+      .map((hashes) => hashes.split(','))
+      .find((hashes) => hashes.includes(hash));
 
-    if (tabValues.split(' ').includes(hash)) {
-      setActive(hash);
+    if (tab) {
+      setActive(tab[0]);
     }
-  }, [tabValues]);
+  }, [tabHashes]);
 
   const activeIndex = Math.max(
     items.findIndex((item) => item.value === active),

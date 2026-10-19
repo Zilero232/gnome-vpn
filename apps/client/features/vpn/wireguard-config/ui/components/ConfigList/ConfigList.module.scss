@@ -3,7 +3,7 @@
 .root {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .title {
@@ -15,27 +15,34 @@
   flex-direction: column;
   padding: 0;
   margin: 0;
-  gap: 10px;
   list-style: none;
+
+  @include hairline-cards;
 }
 
 .row {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   align-items: center;
-  justify-content: space-between;
   padding: 12px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  gap: 12px;
+  background-color: var(--color-surface);
+  gap: 12px 6px;
+  grid-template-areas: 'info actions remove';
+  grid-template-columns: minmax(0, 1fr) auto auto;
+
+  @include below(md) {
+    grid-template-areas:
+      'info remove'
+      'actions actions';
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
 }
 
 .info {
   display: flex;
   min-width: 0;
-  flex: 1 1 220px;
   align-items: center;
   gap: 12px;
+  grid-area: info;
 }
 
 .text {
@@ -46,29 +53,40 @@
 }
 
 .name {
-  overflow: hidden;
   color: var(--color-text);
   font-size: var(--step-sm);
   font-weight: 600;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+
+  @include truncate;
 }
 
 .meta {
   color: var(--color-text-muted);
   font-size: var(--step-xs);
+
+  @include truncate;
 }
 
 .actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
+  grid-area: actions;
+}
 
-  @include below(sm) {
-    width: 100%;
+.action {
+  @include below(md) {
+    flex: 1 1 0;
+  }
+}
 
-    > :not(:last-child) {
-      flex: 1;
+.row .remove {
+  color: var(--color-text-muted);
+  grid-area: remove;
+
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      border-color: color-mix(in srgb, var(--color-danger) 45%, transparent);
+      color: var(--color-danger);
     }
   }
 }

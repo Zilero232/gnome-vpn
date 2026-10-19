@@ -69,5 +69,5 @@
   "unavailable": "Could not load your subscription link. Check your connection and try again.",
   "retry": "Try again",
   "copyFailed": "Could not copy — select the link and copy it by hand.",
-  "wireguardHint": "Need a .conf file for the WireGuard app or a router? Create one on the <tab>WireGuard tab</tab>."
+  "wireguardHint": "Need a .conf for the WireGuard app or a router? <tab>Create a WireGuard config</tab>."
 }

@@ -47,3 +47,9 @@ full, the entry links to it. Part of the [documentation index](../README.md).
   `@/shared/config` barrel from `instrumentation.node.ts` pulled the font loaders
   in and every page failed with `non-ecmascript placeable asset`; it imports
   `@/shared/config/client-env` directly.
+- **`docker compose restart` keeps the old environment.** It restarts the same
+  container, so a changed `env_file` is never read; only `up -d` (recreating the
+  container) applies it. Together with provisioning rotating the panel's api
+  token, that left production calling every node with a revoked token and the
+  WireGuard configs answering "node unavailable"
+  ([provisioning](provisioning.md#what-a-run-does-to-a-node)).

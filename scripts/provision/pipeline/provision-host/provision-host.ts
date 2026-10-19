@@ -14,7 +14,7 @@ export const provisionHost = async ({ config, prisma, serverEnvPath, xrayCompose
   try {
     await ssh.connect({ host: config.host, username: config.sshUser, password: config.sshPassword });
 
-    const { password, panelPath } = await resolveNodeCredentials({
+    const { password, panelPath, apiToken } = await resolveNodeCredentials({
       envFilePath: serverEnvPath,
       countryCode: config.countryCode
     });
@@ -23,7 +23,7 @@ export const provisionHost = async ({ config, prisma, serverEnvPath, xrayCompose
 
     await prepareHost({ ssh, xrayComposeContent });
 
-    const panel = await startPanel({ ssh, host: config.host, password, panelPath });
+    const panel = await startPanel({ ssh, host: config.host, password, panelPath, knownToken: apiToken });
     const cert = await installInbounds({ ssh, panel, auth });
 
     const previous = await prisma.node.findFirst({ where: { host: config.host }, select: { wgPublicKey: true } });

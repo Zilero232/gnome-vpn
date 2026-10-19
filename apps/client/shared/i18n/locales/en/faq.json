@@ -22,7 +22,7 @@
     },
     "howToConnect": {
       "q": "How do I connect?",
-      "a": "Three steps: install INCY from your store, copy the link from the App tab in your account, paste it into INCY. From there the app pulls the server list and keeps it up to date on its own."
+      "a": "Three steps: install INCY from your store, copy the link from the Connect tab in your account, paste it into INCY. From there the app pulls the server list and keeps it up to date on its own."
     },
     "whichProtocol": {
       "q": "There are several servers per country — which one do I pick?",
@@ -58,7 +58,7 @@
     },
     "linkLeaked": {
       "q": "My link reached the wrong hands",
-      "a": "Open your account, go to the App tab and press Rotate link. The old one stops working immediately. Then paste the new link again on each of your devices."
+      "a": "Open your account, go to the Connect tab and press Rotate link. The old one stops working immediately. Then paste the new link again on each of your devices."
     },
     "changePhone": {
       "q": "I got a new phone — how do I move it over?",
@@ -82,7 +82,7 @@
     },
     "otherApps": {
       "q": "Can I use Hiddify or another app instead of INCY?",
-      "a": "Yes. Your subscription URL is a standard one, so Hiddify, v2rayNG, Streisand, NekoBox and Clash Meta all read it — the same servers, the same traffic counter, the same renewal date. Copy the subscription URL on the App tab (not the INCY link, which only INCY understands) and add it in the app as a subscription. We recommend INCY because we have tested it on every platform, but nothing binds you to it."
+      "a": "Yes. Your subscription URL is a standard one, so Hiddify, v2rayNG, Streisand, NekoBox and Clash Meta all read it — the same servers, the same traffic counter, the same renewal date. Copy the subscription URL on the Connect tab (not the INCY link, which only INCY understands) and add it in the app as a subscription. We recommend INCY because we have tested it on every platform, but nothing binds you to it."
     },
     "referral": {
       "q": "Is there a bonus for inviting friends?",
@@ -90,7 +90,7 @@
     },
     "wireguard": {
       "q": "Can I connect over WireGuard?",
-      "a": "Yes. WireGuard is already in the subscription for INCY, and for other apps and routers your account has a WireGuard tab: pick a country, name the device and download the .conf file or scan the QR code. On Windows WireSock Secure Connect works best, on iPhone and Android AmneziaVPN, on macOS, Linux and routers the official WireGuard app. Each config takes one place in your device limit. WireGuard is blocked in Russia more often than the other protocols: if it will not connect, use INCY."
+      "a": "Yes. WireGuard is already in the subscription for INCY, and for other apps and routers your account's Connect tab has a WireGuard side: pick a country, name the device and download the .conf file or scan the QR code. On Windows WireSock Secure Connect works best, on iPhone and Android AmneziaVPN, on macOS, Linux and routers the official WireGuard app. Each config takes one place in your device limit. WireGuard is blocked in Russia more often than the other protocols: if it will not connect, use INCY."
     }
   },
   "stillStuck": "Still stuck? Email us — we answer within a day."

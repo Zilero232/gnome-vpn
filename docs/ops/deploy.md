@@ -336,7 +336,8 @@ when a shell is enough.
 
 ```bash
 docker compose logs -f server     # API logs
-docker compose restart server     # restart
+docker compose restart server     # restart (keeps the old .env)
+docker compose up -d --force-recreate server   # restart with a changed .env / .env.nodes
 docker compose pull && docker compose up -d   # manual update
 ```
 

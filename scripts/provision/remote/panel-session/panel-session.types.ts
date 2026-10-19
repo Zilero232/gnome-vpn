@@ -10,6 +10,7 @@ export type StartPanelInput = {
   host: string;
   password: string;
   panelPath: string;
+  knownToken: string | null;
 };
 
 export type PanelUrlInput = {

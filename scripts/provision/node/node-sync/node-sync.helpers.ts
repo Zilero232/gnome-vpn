@@ -91,4 +91,5 @@ export const applySqlCommand = ({ deployPath, sql, delimiter }: ApplySqlCommandI
   return all([line(['cd', arg(deployPath)]), psql]);
 };
 
-export const restartServerCommand = (deployPath: string) => all([line(['cd', arg(deployPath)]), 'docker compose restart server']);
+export const restartServerCommand = (deployPath: string) =>
+  all([line(['cd', arg(deployPath)]), 'docker compose up -d --force-recreate --no-deps server']);
