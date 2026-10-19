@@ -9,5 +9,6 @@ export const RECONCILE_PEER_SELECT = {
   protocol: true,
   state: true,
   nodeCredential: true,
+  tunnelAddress: true,
   user: { select: { subscription: { select: { currentPeriodEnd: true, extraDevices: true } } } }
 } as const;

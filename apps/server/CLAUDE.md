@@ -15,6 +15,7 @@ src/
 │   ├── health/      # /health — also probes the database
 │   ├── peers/       # xray clients the subscription issues — config/ lib/ services/
 │   ├── platforms/   # the INCY download links, cached — config/ dto/ services/
+│   ├── referrals/   # invite codes, attribution and the reward on a first payment — config/ dto/ lib/ services/
 │   ├── scheduler/   # the seven cron jobs — config/ jobs/ lib/
 │   ├── subscription/# plan status, the trial and the access guard — dto/ guards/ lib/ services/
 │   ├── subscription-link/  # the INCY feed and its token — config/ dto/ lib/ services/
@@ -34,6 +35,7 @@ src/
 | The subscription feed: routes, token, headers, URIs, announce        | [docs/architecture/subscription-feed.md](../../docs/architecture/subscription-feed.md) |
 | `XrayClient`, the 3x-ui panel, device limits, liveness, releasing    | [docs/architecture/nodes-and-peers.md](../../docs/architecture/nodes-and-peers.md)     |
 | Billing, renewal, pending payments, the trial, deleting an account   | [docs/architecture/billing.md](../../docs/architecture/billing.md)                     |
+| Referrals: rewards, attribution, the cap                             | [docs/architecture/referrals.md](../../docs/architecture/referrals.md)                 |
 | The cron jobs                                                        | [docs/architecture/scheduler.md](../../docs/architecture/scheduler.md)                 |
 | The Telegram bot                                                     | [docs/architecture/telegram-bot.md](../../docs/architecture/telegram-bot.md)           |
 | Provisioning nodes                                                   | [docs/architecture/provisioning.md](../../docs/architecture/provisioning.md)           |
@@ -48,7 +50,7 @@ src/
 - **Errors** are the app exceptions from `common/exceptions` with a code from `@gnomevpn/schemas`; the code is a contract, the message is free text.
 - **`config/env.schema.ts` throws on boot** on a missing variable. Node panel API tokens are the exception: the `node` table stores the env var's _name_ (`apiTokenEnvVar`), and the values live in `.env.nodes`, written by `bun run provision:nodes`.
 - **Every outbound `fetch` carries `AbortSignal.timeout(MS)`.**
-- **`XrayClient` talks to the 3x-ui panel, not to Xray-core**: a client change needs an explicit `restartCore()`, batched once per pass.
+- **`XrayClient` talks to the 3x-ui panel, not to Xray-core**: a Hysteria2 or VLESS client change needs an explicit `restartCore()`, batched once per pass and coalesced per node; WireGuard clients apply live and must never be re-enabled through `bulkEnable`.
 - **A revocation needs a restore in the same sweep**, and every write path parses settings strictly.
 - **Use a raw cron string when the interval has no `CronExpression` constant** — an invented one crashes the server at boot.
 

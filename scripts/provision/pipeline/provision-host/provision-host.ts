@@ -26,14 +26,17 @@ export const provisionHost = async ({ config, prisma, serverEnvPath, xrayCompose
     const panel = await startPanel({ ssh, host: config.host, password, panelPath });
     const cert = await installInbounds({ ssh, panel, auth });
 
+    const previous = await prisma.node.findFirst({ where: { host: config.host }, select: { wgPublicKey: true } });
     const wasExisting = await registerNode({ config, prisma, serverEnvPath, panel, password, panelPath, auth, cert });
 
     const lostRealityKeys = wasExisting && cert.realityWasGenerated;
+    const lostWireguardKeys = Boolean(previous?.wgPublicKey) && cert.wgWasGenerated;
 
     return {
       ...outcome,
       status: wasExisting ? 'updated' : 'provisioned',
-      ...(lostRealityKeys && { lostRealityKeys })
+      ...(lostRealityKeys && { lostRealityKeys }),
+      ...(lostWireguardKeys && { lostWireguardKeys })
     };
   } catch (error) {
     return {

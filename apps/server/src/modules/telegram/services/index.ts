@@ -6,6 +6,7 @@ export { TelegramDevicesService } from './telegram-devices.service';
 export { TelegramLinkService } from './telegram-link.service';
 export { TelegramNotifyService } from './telegram-notify.service';
 export { TelegramProfileService } from './telegram-profile.service';
+export { TelegramReferralService } from './telegram-referral.service';
 export { TelegramSharedService } from './telegram-shared.service';
 export { TelegramSubscriptionService } from './telegram-subscription.service';
 export { TelegramWebLoginService } from './telegram-web-login.service';

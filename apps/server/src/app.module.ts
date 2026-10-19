@@ -12,6 +12,7 @@ import { DevicesModule } from './modules/devices';
 import { HealthModule } from './modules/health';
 import { PeersModule } from './modules/peers';
 import { PlatformsModule } from './modules/platforms';
+import { ReferralsModule } from './modules/referrals';
 import { SchedulerModule } from './modules/scheduler';
 import { SubscriptionModule } from './modules/subscription';
 import { SubscriptionLinkModule } from './modules/subscription-link';
@@ -30,6 +31,7 @@ import { TelegramModule } from './modules/telegram';
     DevicesModule,
     PeersModule,
     PlatformsModule,
+    ReferralsModule,
     SubscriptionLinkModule,
     TelegramModule,
     SchedulerModule

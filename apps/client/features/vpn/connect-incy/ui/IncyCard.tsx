@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { ROUTES } from '@/shared/constants';
+import { ACCOUNT_TAB, ROUTES } from '@/shared/constants';
 import { Link } from '@/shared/i18n/navigation';
 import { Button, ErrorBlock, LoadingBlock, Text } from '@/ui-kit';
 
@@ -68,6 +68,16 @@ export const IncyCard = () => {
         <Link className={s.setupLink} href={ROUTES.setup}>
           {t('setupLink')}
         </Link>
+
+        <Text size='xs' tone='muted'>
+          {t.rich('wireguardHint', {
+            tab: (chunks) => (
+              <a className={s.tabLink} href={`#${ACCOUNT_TAB.wireguard}`}>
+                {chunks}
+              </a>
+            )
+          })}
+        </Text>
       </div>
 
       <div className={s.actions}>

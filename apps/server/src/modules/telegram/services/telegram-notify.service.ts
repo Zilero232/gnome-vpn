@@ -2,7 +2,7 @@ import type { InlineKeyboard, Keyboard } from 'grammy';
 
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Bot } from 'grammy';
-import { isNullish } from 'remeda';
+import { isNonNullish, isNullish } from 'remeda';
 
 import type { ChatState } from '../lib';
 import type { MarkupForInput, NoticeSpec, NotifyInput } from '../telegram.types';
@@ -12,7 +12,7 @@ import { PrismaService } from '../../../core';
 import { TrialService } from '../../subscription';
 import { TELEGRAM_BOT } from '../bot';
 import { BOT_TEXT, NOTICES } from '../config';
-import { fillText, formatDate, mainKeyboard, menuButtons, resolveLocale } from '../lib';
+import { dayCount, fillText, formatDate, mainKeyboard, menuButtons, resolveLocale } from '../lib';
 
 @Injectable()
 export class TelegramNotifyService {
@@ -24,7 +24,7 @@ export class TelegramNotifyService {
     private readonly trial: TrialService
   ) {}
 
-  async tell({ userId, notice, fill, date }: NotifyInput): Promise<void> {
+  async tell({ userId, notice, fill, date, days }: NotifyInput): Promise<void> {
     if (isNullish(this.bot)) {
       return;
     }
@@ -41,7 +41,11 @@ export class TelegramNotifyService {
 
       const locale = resolveLocale(chat.locale ?? chat.languageCode);
       const spec: NoticeSpec = NOTICES[notice];
-      const tokens = { ...fill, ...(date && { date: formatDate({ iso: date.toISOString(), locale }) }) };
+      const tokens = {
+        ...fill,
+        ...(date && { date: formatDate({ iso: date.toISOString(), locale }) }),
+        ...(isNonNullish(days) && { days: dayCount({ days, locale }) })
+      };
 
       await this.bot.api.sendMessage(Number(chat.telegramId), fillText({ text: BOT_TEXT[locale][notice], fill: tokens }), {
         reply_markup: await this.markupFor({ userId, locale, markup: spec.markup }),

@@ -9,7 +9,7 @@ import { PrismaService } from '../../../../core';
 import { LEGACY_PEER } from '../../../devices';
 import { TelegramNotifyService } from '../../../telegram/services/telegram-notify.service';
 import { ALERT, SCHEDULE } from '../../config';
-import { collectOrphans, releaseLegacy, releaseRevoked, restoreMissing, syncEnabled } from './lib';
+import { collectOrphans, releaseLegacy, releaseRevoked, restartReasons, restoreMissing, syncEnabled } from './lib';
 import { RECONCILE_PEER_SELECT } from './reconcile-peers.job.constants';
 
 @Injectable()
@@ -38,13 +38,15 @@ export class ReconcilePeersJob {
     const retiredIds = new Set(retired.map((peer) => peer.id));
     const live = peers.filter((peer) => isNullish(peer.revokedAt) && !retiredIds.has(peer.id));
 
-    const restored = await restoreMissing({ logger: this.logger, xray, node, peers: live, nodeClients });
+    const restored = await restoreMissing({ prisma: this.prisma, logger: this.logger, xray, node, peers: live, nodeClients });
     const synced = await syncEnabled({ xray, peers: live, nodeClients });
 
     const collected = await collectOrphans({ prisma: this.prisma, xray, peers, nodeClients, online });
 
-    if (released || !isEmpty(retired) || restored || synced || collected) {
-      await xray.restartCore();
+    const changes = restartReasons({ released, retired: retired.length, restored, synced, collected });
+
+    if (!isEmpty(changes)) {
+      await xray.restartCore(`reconcile ${changes.join(', ')}`);
     }
 
     return unique(retired.map((peer) => peer.userId));

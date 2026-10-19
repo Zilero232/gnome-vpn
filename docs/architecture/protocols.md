@@ -1,7 +1,7 @@
 # Protocols and the client
 
-Why the tunnel is Hysteria2 first, why VLESS + Reality rides beside it, and why
-the user installs INCY rather than an app of ours. Part of the
+Why the tunnel is Hysteria2 first, why VLESS + Reality and WireGuard ride beside
+it, and why the user installs INCY rather than an app of ours. Part of the
 [documentation index](../README.md).
 
 ## Why Hysteria2 leads
@@ -43,9 +43,9 @@ VLESS + Reality is the way out: TCP on 443, wearing the TLS handshake of a real
 third-party site. The two share port 443 without conflict because one is UDP and
 the other TCP.
 
-Both ride in the same subscription. The user sees `🇳🇱 Netherlands` and
-`🇳🇱 Netherlands · TCP` and picks whichever connects; nothing has to be
-configured.
+Both ride in the same subscription under the same server name; INCY labels each
+entry with its protocol from the URI scheme, so the user picks whichever
+connects and nothing has to be configured.
 
 **This repo has measured REALITY failing before.** The TSPU fingerprinted the
 handshake over any TCP port and killed sessions within minutes — that is why the
@@ -55,6 +55,27 @@ Hysteria2 entry is still first in the list.
 
 Which nodes advertise VLESS is decided per node by `protocolsFor` — see
 [subscription-feed.md](subscription-feed.md#issuing-the-peers).
+
+## WireGuard as a third entry
+
+WireGuard came back as an option, not as a lead. It is the most recognisable
+of the three — a fixed-size handshake with no disguise — and Russian networks
+block it more than the others, mobile ones especially. It stays because on some
+networks it is the one that works best, and because it is what a lot of people
+already know. It is listed after Hysteria2 and VLESS for the same country.
+
+Plain WireGuard, not AmneziaWG: INCY reads `amneziawg://` on iOS and Android
+only and ignores it on desktop, the 3x-ui AmneziaWG backend is weeks old, and
+its parameters change with every TSPU wave. `wireguard://` works on every INCY
+platform.
+
+It was in the project once before, for the desktop client of ours, and was
+removed with it (`c77dbeb`). What broke then is what this version is built
+around: each device gets its own key pair and address rather than one shared
+peer; the client name carries `-wg`, so it never collides with the Hysteria2
+client of the same device; and the panel lists WireGuard clients with the
+others, so reconcile, the device limit and expiry see them. The mechanics are
+in [nodes-and-peers.md](nodes-and-peers.md#wireguard-clients).
 
 ## Why INCY and not our own client
 

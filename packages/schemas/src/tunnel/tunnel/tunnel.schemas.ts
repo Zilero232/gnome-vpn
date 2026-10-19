@@ -12,6 +12,12 @@ export const realityConfigSchema = z.object({
   serviceName: z.string().default('')
 });
 
+export const wireguardConfigSchema = z.object({
+  publicKey: z.string().min(1),
+  address: z.string().min(1),
+  mtu: z.number().int().positive()
+});
+
 export const tunnelConfigSchema = z
   .object({
     protocol: tunnelProtocolSchema.default(DEFAULT_TUNNEL_PROTOCOL),
@@ -22,9 +28,14 @@ export const tunnelConfigSchema = z
     insecure: z.boolean().default(false),
     certFingerprint: z.string().default(''),
     dns: z.array(z.string().min(1)),
-    reality: realityConfigSchema.optional()
+    reality: realityConfigSchema.optional(),
+    wireguard: wireguardConfigSchema.optional()
   })
   .refine(
-    (config) => config.auth.length > 0 && config.serverName.length > 0 && (config.protocol !== TUNNEL_PROTOCOL.vless || config.reality !== undefined),
-    { message: 'a tunnel config needs auth and serverName, and a vless one needs reality' }
+    (config) =>
+      config.auth.length > 0 &&
+      config.serverName.length > 0 &&
+      (config.protocol !== TUNNEL_PROTOCOL.vless || config.reality !== undefined) &&
+      (config.protocol !== TUNNEL_PROTOCOL.wireguard || config.wireguard !== undefined),
+    { message: 'a tunnel config needs auth and serverName, a vless one needs reality and a wireguard one its keys' }
   );

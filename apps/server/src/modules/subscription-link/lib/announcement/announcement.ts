@@ -6,7 +6,14 @@ import type { AnnouncementInput } from './announcement.types';
 import { ANNOUNCEMENTS, EXPIRY_WARNING_DAYS } from './announcement.constants';
 import { countryList, daysLeftLabel, isFresh, isStale } from './announcement.helpers';
 
-export const announcement = ({ currentPeriodEnd, hasSubscription, nodes, blockedAtLimit, now = new Date() }: AnnouncementInput): string | null => {
+export const announcement = ({
+  currentPeriodEnd,
+  hasSubscription,
+  nodes,
+  blockedAtLimit,
+  isPreparing = false,
+  now = new Date()
+}: AnnouncementInput): string | null => {
   if (!hasSubscription || isNullish(currentPeriodEnd)) {
     return ANNOUNCEMENTS.noSubscription;
   }
@@ -17,6 +24,10 @@ export const announcement = ({ currentPeriodEnd, hasSubscription, nodes, blocked
 
   if (isNonNullish(blockedAtLimit)) {
     return ANNOUNCEMENTS.deviceLimit(blockedAtLimit);
+  }
+
+  if (isPreparing) {
+    return ANNOUNCEMENTS.preparing;
   }
 
   const daysLeft = differenceInCalendarDays(currentPeriodEnd, now);

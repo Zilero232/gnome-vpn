@@ -6,8 +6,8 @@ import type { EnsuredRealityKeys } from './reality-keys.types';
 
 import { generateRealityKeys, generateRealityShortId } from '../../../../apps/server/src/modules/peers/lib/reality-keys';
 import { log, NODE_FILES } from '../../config';
+import { seedKeyFilesScript } from '../key-files';
 import { inContainer } from '../xray-stack';
-import { seedRealityKeysScript } from './reality-keys.helpers';
 
 export const ensureRealityKeys = async (ssh: SshClient): Promise<EnsuredRealityKeys> => {
   const fresh = generateRealityKeys();
@@ -20,7 +20,7 @@ export const ensureRealityKeys = async (ssh: SshClient): Promise<EnsuredRealityK
 
   log.step('ensuring the reality server keys');
 
-  const result = await ssh.exec(inContainer(seedRealityKeysScript({ dir: dirOf(NODE_FILES.realityKey), seed })));
+  const result = await ssh.exec(inContainer(seedKeyFilesScript({ dir: dirOf(NODE_FILES.realityKey), seed })));
 
   if (result.exitCode !== 0) {
     throw new Error(`cannot reach the panel container to read the Reality keys: ${result.stderr.trim() || 'no output'}`);

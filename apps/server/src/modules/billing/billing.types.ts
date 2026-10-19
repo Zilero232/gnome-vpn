@@ -1,6 +1,7 @@
 import type { Plan, PlanId } from '@gnomevpn/schemas';
 
 import type { PaymentKind, Prisma } from '../../../generated';
+import type { RewardOutcome } from '../referrals';
 
 export type PrismaExecutor = Prisma.TransactionClient;
 
@@ -73,4 +74,13 @@ export type SettledPayment = {
   kind: PaymentKind;
   isAutoCharge: boolean;
   amount: Prisma.Decimal;
+};
+
+export type SettleOutcome = {
+  referral: RewardOutcome | null;
+};
+
+export type AnnounceReferralInput = {
+  friendId: string;
+  outcome: RewardOutcome;
 };

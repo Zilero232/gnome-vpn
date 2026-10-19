@@ -4,5 +4,7 @@
   "emailInvalid": "Enter a valid email",
   "passwordMin": "At least 8 characters",
   "passwordsMismatch": "Passwords do not match",
-  "required": "This field is required"
+  "required": "This field is required",
+  "referralCodeInvalid": "An 8-character code of letters and digits",
+  "wireguardNameMax": "No longer than 24 characters"
 }

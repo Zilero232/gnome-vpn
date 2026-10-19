@@ -5,6 +5,8 @@ export { AccountTabs } from './AccountTabs';
 export type { AccountTab } from './AccountTabs';
 export { AppCard } from './AppCard';
 export { DevicesCard } from './DevicesCard';
+export { InviteCard } from './InviteCard';
 export { ProfileCard } from './ProfileCard';
 export { SubscriptionCard } from './SubscriptionCard';
 export { TelegramCard } from './TelegramCard';
+export { WireguardCard } from './WireguardCard';

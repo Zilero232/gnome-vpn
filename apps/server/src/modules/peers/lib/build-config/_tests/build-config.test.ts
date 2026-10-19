@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { TunnelNode } from '../build-config.types';
 
-import { REALITY, TUNNEL } from '../../../config';
+import { REALITY, TUNNEL, WIREGUARD } from '../../../config';
 import { buildTunnelConfig } from '../build-config';
 
 const node: TunnelNode = {
@@ -12,7 +12,8 @@ const node: TunnelNode = {
   serverName: 'cdn.example.com',
   certFingerprint: 'AA:BB:CC:DD',
   realityPublicKey: 'node-reality-key',
-  realityShortId: 'aabbccdd'
+  realityShortId: 'aabbccdd',
+  wgPublicKey: 'node-wg-key'
 };
 
 const hysteria2 = { auth: 'secret-auth', node, protocol: TUNNEL_PROTOCOL.hysteria2 };
@@ -70,5 +71,27 @@ describe('buildTunnelConfig over vless', () => {
     const bare = { ...node, realityPublicKey: null, realityShortId: null };
 
     expect(() => buildTunnelConfig({ ...vless, node: bare })).toThrow();
+  });
+});
+
+describe('buildTunnelConfig over wireguard', () => {
+  const wireguard = { auth: 'peer-private-key', node, protocol: TUNNEL_PROTOCOL.wireguard, address: '10.9.0.7' };
+
+  it('points at the wireguard port with the node key and the peer address as a host route', () => {
+    expect(buildTunnelConfig(wireguard)).toMatchObject({
+      protocol: TUNNEL_PROTOCOL.wireguard,
+      server: node.host,
+      port: WIREGUARD.listenPort,
+      auth: wireguard.auth,
+      wireguard: { publicKey: node.wgPublicKey, address: '10.9.0.7/32', mtu: WIREGUARD.mtu }
+    });
+  });
+
+  it('refuses a node without a wireguard key', () => {
+    expect(() => buildTunnelConfig({ ...wireguard, node: { ...node, wgPublicKey: null } })).toThrow();
+  });
+
+  it('refuses a peer that was never given an address', () => {
+    expect(() => buildTunnelConfig({ ...wireguard, address: null })).toThrow();
   });
 });

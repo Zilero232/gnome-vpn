@@ -24,7 +24,8 @@ model Payment {
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referral Referral?
 
   @@index([userId, isAutoCharge, status, createdAt])
   @@index([status, createdAt])

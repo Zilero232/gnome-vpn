@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { seedRealityKeysScript } from '../reality-keys.helpers';
+import { seedKeyFilesScript } from '../key-files';
 
 const dir = '/etc/gnomevpn';
 
@@ -10,15 +10,15 @@ const seed = [
   { path: `${dir}/reality.sid`, value: 'ab' }
 ];
 
-describe('seedRealityKeysScript', () => {
+describe('seedKeyFilesScript', () => {
   it('writes the keys only when any of them is missing, so a pair is never half replaced', () => {
     const guard = seed.map(({ path }) => `test -s ${path}`).join(' && ');
 
-    expect(seedRealityKeysScript({ dir, seed })).toContain(`{ { ${guard}; } || {`);
+    expect(seedKeyFilesScript({ dir, seed })).toContain(`{ { ${guard}; } || {`);
   });
 
   it('reads the keys back in the order they were seeded', () => {
-    const script = seedRealityKeysScript({ dir, seed });
+    const script = seedKeyFilesScript({ dir, seed });
     const reads = seed.map(({ path }) => script.lastIndexOf(`exit}' ${path}`));
 
     expect(reads.every((index) => index > 0)).toBe(true);
@@ -26,7 +26,7 @@ describe('seedRealityKeysScript', () => {
   });
 
   it('quotes a value, so a key is written as data and never run', () => {
-    const script = seedRealityKeysScript({ dir, seed: [{ path: seed[0].path, value: '$(reboot)' }] });
+    const script = seedKeyFilesScript({ dir, seed: [{ path: seed[0].path, value: '$(reboot)' }] });
 
     expect(script).toContain(`'$(reboot)' > ${seed[0].path}`);
   });

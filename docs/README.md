@@ -11,6 +11,7 @@ Design decisions — the "why" behind the code, and what has already gone wrong.
 - [architecture/devices.md](architecture/devices.md) — the device registry: HWID keys, per-device credentials, admission in the feed, revocation through reconcile.
 - [architecture/nodes-and-peers.md](architecture/nodes-and-peers.md) — `XrayClient` over the 3x-ui panel, device limits, liveness, client emails, releasing peers, core restarts.
 - [architecture/billing.md](architecture/billing.md) — prices and flags, webhooks, automatic renewal and its idempotence key, pending payments, declined cards, reminders, the trial, account deletion freeing the nodes.
+- [architecture/referrals.md](architecture/referrals.md) — invite a friend: days both ways for the first payment, the cap, first-touch attribution through a cookie or the bot's start payload, settling inside the payment transaction.
 - [architecture/scheduler.md](architecture/scheduler.md) — the seven cron jobs (eight schedules: reconcile-peers also runs a weekly orphan pass), node health, expired access in both directions.
 - [architecture/telegram-bot.md](architecture/telegram-bot.md) — the bot as a second door to the same account: services, account creation, linking, the webhook and its host, the keyboard, notifications, callback payloads.
 - [architecture/provisioning.md](architecture/provisioning.md) — why provisioning is local, `scripts/provision` and its `remote/` folders, narration, fail2ban, what a run does to a node.

@@ -1,0 +1,89 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.title {
+  font-weight: 600;
+}
+
+.list {
+  display: grid;
+  padding: 0;
+  margin: 0;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr);
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: color-mix(in srgb, var(--color-surface-raised) 55%, transparent);
+  gap: 8px;
+
+  &[data-best='true'] {
+    border-color: rgb(53 240 160 / 35%);
+    background: linear-gradient(160deg, rgb(53 240 160 / 10%) 0%, transparent 70%), var(--color-surface-raised);
+    box-shadow: var(--glow-accent);
+  }
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.plan {
+  color: var(--color-text);
+  font-size: var(--step-sm);
+  font-weight: 600;
+}
+
+.best {
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-accent);
+  color: var(--color-bg-deep);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.you {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.youLabel {
+  color: var(--color-text-muted);
+  font-size: var(--step-xs);
+}
+
+.youValue {
+  color: var(--color-accent);
+  font-size: var(--step-lg);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.friend {
+  color: var(--color-text-muted);
+  font-size: var(--step-xs);
+}
+
+@include from(xl) {
+  .list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

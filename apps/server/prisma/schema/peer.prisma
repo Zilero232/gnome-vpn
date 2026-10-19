@@ -6,6 +6,7 @@ enum PeerKind {
 enum TunnelProtocol {
   hysteria2
   vless
+  wireguard
 }
 
 enum PeerState {
@@ -26,7 +27,8 @@ model Peer {
 
   state PeerState @default(active)
 
-  nodeCredential String @map("node_credential")
+  nodeCredential String  @map("node_credential")
+  tunnelAddress  String? @map("tunnel_address")
 
   revokedAt DateTime? @map("revoked_at") @db.Timestamptz(3)
 
@@ -37,6 +39,7 @@ model Peer {
   node   Node    @relation(fields: [nodeId], references: [id], onDelete: Cascade)
 
   @@unique([userId, kind, name, nodeId, protocol])
+  @@unique([nodeId, tunnelAddress])
   @@index([userId])
   @@index([nodeId, state])
   @@index([deviceId])

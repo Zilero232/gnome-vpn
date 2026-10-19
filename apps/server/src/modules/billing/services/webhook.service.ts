@@ -3,11 +3,12 @@ import type { WebhookEvent } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
 import { isNullish } from 'remeda';
 
-import type { CanceledPayment, SettledPayment } from '../billing.types';
+import type { AnnounceReferralInput, CanceledPayment, SettledPayment, SettleOutcome } from '../billing.types';
 
 import { describeError } from '../../../common/lib';
 import { PrismaService, withSerializableRetry } from '../../../core';
 import { YooKassaClient } from '../../../lib';
+import { ReferralRewardService } from '../../referrals';
 import { SubscriptionAccessService } from '../../subscription-link';
 import { TelegramNotifyService } from '../../telegram/services/telegram-notify.service';
 import { CARD_LOST_REASONS, WEBHOOK_EVENT } from '../config';
@@ -24,7 +25,8 @@ export class WebhookService {
     private readonly shared: BillingSharedService,
     private readonly card: CardService,
     private readonly access: SubscriptionAccessService,
-    private readonly notify: TelegramNotifyService
+    private readonly notify: TelegramNotifyService,
+    private readonly referralReward: ReferralRewardService
   ) {}
 
   async handleWebhook(event: WebhookEvent): Promise<void> {
@@ -87,7 +89,7 @@ export class WebhookService {
 
     const settled = await withSerializableRetry(() =>
       this.prisma.$transaction(
-        async (tx) => {
+        async (tx): Promise<SettleOutcome | null> => {
           const claimed = await tx.payment.updateMany({
             where: { id: row.id, status: 'pending' },
             data: { status: 'succeeded' }
@@ -96,13 +98,13 @@ export class WebhookService {
           if (claimed.count === 0) {
             this.logger.debug(`payment ${paymentId} was claimed by a concurrent webhook`);
 
-            return false;
+            return null;
           }
 
           if (row.kind === 'extraDevices') {
             await this.shared.grantExtraDevices({ userId: row.userId, quantity: row.extraDevices, db: tx });
 
-            return true;
+            return { referral: null };
           }
 
           await this.shared.activate({
@@ -113,7 +115,9 @@ export class WebhookService {
             db: tx
           });
 
-          return true;
+          const referral = await this.referralReward.reward({ userId: row.userId, planId: row.plan, paymentId: row.id, db: tx });
+
+          return { referral };
         },
         { isolationLevel: 'Serializable' }
       )
@@ -128,6 +132,44 @@ export class WebhookService {
     });
 
     await this.announce(row);
+
+    if (settled.referral) {
+      await this.announceReferral({ friendId: row.userId, outcome: settled.referral });
+    }
+  }
+
+  private async announceReferral({ friendId, outcome }: AnnounceReferralInput): Promise<void> {
+    try {
+      await this.notify.tell({ userId: friendId, notice: 'referralBonus', days: outcome.friendDays });
+
+      if (outcome.referrerDays === 0) {
+        this.logger.log(`referral reward for ${outcome.referrerId} skipped: the cap is reached`);
+
+        return;
+      }
+
+      if (outcome.isBanked) {
+        await this.notify.tell({ userId: outcome.referrerId, notice: 'referralBanked', days: outcome.referrerDays });
+
+        return;
+      }
+
+      await this.access.setEnabledAll({ userId: outcome.referrerId, enabled: true });
+
+      const subscription = await this.prisma.subscription.findUnique({
+        where: { userId: outcome.referrerId },
+        select: { currentPeriodEnd: true }
+      });
+
+      await this.notify.tell({
+        userId: outcome.referrerId,
+        notice: 'referralRewarded',
+        days: outcome.referrerDays,
+        date: subscription?.currentPeriodEnd
+      });
+    } catch (error) {
+      this.logger.error(`the referral reward for ${outcome.referrerId} was not announced: ${describeError(error)}`);
+    }
   }
 
   private async cancel({ id, userId, isAutoCharge, paymentId, reason }: CanceledPayment): Promise<void> {

@@ -24,6 +24,7 @@ export type ReconcilePeer = PeerIdentity & {
   revokedAt: Date | null;
   state: PeerState;
   nodeCredential: string;
+  tunnelAddress: string | null;
   user: PeerOwner;
 };
 

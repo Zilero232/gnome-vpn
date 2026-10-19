@@ -31,9 +31,9 @@ same network, so the tunnel moved to **Hysteria2** — QUIC over UDP, masqueradi
 as an HTTP/3 site.
 
 QUIC is still UDP, and some networks drop UDP wholesale. So every node also
-serves **VLESS + Reality** on TCP/443 and the subscription lists both; the two
-share the port because one is UDP and the other TCP. The user picks whichever
-connects.
+serves **VLESS + Reality** on TCP/443, and **WireGuard** on UDP/51820 for those
+it works best for. The subscription lists all of them and the user picks
+whichever connects.
 
 ## One link, every platform
 

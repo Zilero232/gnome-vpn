@@ -2,6 +2,7 @@ import { DEFAULT_DEVICE_LIMIT } from '@gnomevpn/schemas';
 import { Logger } from '@nestjs/common';
 import { describe, expect, it, vi } from 'vitest';
 
+import type { PrismaService } from '../../../../../../../core';
 import type { XrayClient } from '../../../../../../../lib';
 import type { ReconcileNode, ReconcilePeer } from '../../../reconcile-peers.job.types';
 
@@ -23,11 +24,14 @@ const peer = (overrides: Partial<ReconcilePeer> = {}): ReconcilePeer => ({
   protocol: 'hysteria2',
   state: 'active',
   nodeCredential: 'the-stored-secret',
+  tunnelAddress: null,
   user: { subscription: null },
   ...overrides
 });
 
 const silentLogger = () => ({ log: vi.fn(), warn: vi.fn() }) as unknown as Logger;
+
+const fakePrisma = (update = vi.fn()) => ({ peer: { update } }) as unknown as PrismaService;
 
 describe('restoreMissing', () => {
   it('does nothing when the node already holds every peer', async () => {
@@ -35,6 +39,7 @@ describe('restoreMissing', () => {
     const present = peer();
 
     const restored = await restoreMissing({
+      prisma: fakePrisma(),
       logger: silentLogger(),
       xray: { createClient } as unknown as XrayClient,
       node: NODE,
@@ -51,6 +56,7 @@ describe('restoreMissing', () => {
     const missing = peer();
 
     const restored = await restoreMissing({
+      prisma: fakePrisma(),
       logger: silentLogger(),
       xray: { createClient } as unknown as XrayClient,
       node: NODE,
@@ -73,6 +79,7 @@ describe('restoreMissing', () => {
     const missing = peer({ protocol: 'vless' });
 
     await restoreMissing({
+      prisma: fakePrisma(),
       logger: silentLogger(),
       xray: { createVlessClient } as unknown as XrayClient,
       node: NODE,
@@ -88,6 +95,62 @@ describe('restoreMissing', () => {
     });
   });
 
+  it('restores a lost vless client even while the hysteria2 client of the same device is still there', async () => {
+    const createVlessClient = vi.fn();
+    const hysteria = peer({ id: 'peer-hy', name: 'd-abc' });
+    const vless = peer({ id: 'peer-vl', name: 'd-abc', protocol: 'vless' });
+
+    const restored = await restoreMissing({
+      prisma: fakePrisma(),
+      logger: silentLogger(),
+      xray: { createVlessClient } as unknown as XrayClient,
+      node: NODE,
+      peers: [hysteria, vless],
+      nodeClients: new Map([[peerClientName(hysteria), true]])
+    });
+
+    expect(restored).toBe(true);
+    expect(createVlessClient).toHaveBeenCalledWith(expect.objectContaining({ email: peerClientName(vless) }));
+  });
+
+  it('restores a lost wireguard client with its stored key and address, and needs no core restart for it', async () => {
+    const createWireguardClient = vi.fn().mockResolvedValue({ address: '10.9.0.7' });
+    const privateKey = Buffer.alloc(32, 7).toString('base64');
+    const lost = peer({ protocol: 'wireguard', nodeCredential: privateKey, tunnelAddress: '10.9.0.7' });
+
+    const needsRestart = await restoreMissing({
+      prisma: fakePrisma(),
+      logger: silentLogger(),
+      xray: { createWireguardClient } as unknown as XrayClient,
+      node: NODE,
+      peers: [lost],
+      nodeClients: new Map()
+    });
+
+    expect(needsRestart).toBe(false);
+
+    expect(createWireguardClient).toHaveBeenCalledWith(
+      expect.objectContaining({ email: peerClientName(lost), privateKey, address: '10.9.0.7', publicKey: expect.stringMatching(/=$/u) })
+    );
+  });
+
+  it('keeps the address the panel actually gave a restored wireguard client', async () => {
+    const update = vi.fn();
+    const createWireguardClient = vi.fn().mockResolvedValue({ address: '10.9.0.9' });
+    const lost = peer({ id: 'peer-wg', protocol: 'wireguard', nodeCredential: Buffer.alloc(32, 7).toString('base64'), tunnelAddress: null });
+
+    await restoreMissing({
+      prisma: fakePrisma(update),
+      logger: silentLogger(),
+      xray: { createWireguardClient } as unknown as XrayClient,
+      node: NODE,
+      peers: [lost],
+      nodeClients: new Map()
+    });
+
+    expect(update).toHaveBeenCalledWith({ where: { id: 'peer-wg' }, data: { tunnelAddress: '10.9.0.9' } });
+  });
+
   it('restores the device limit the owner paid for, not the default one', async () => {
     const createClient = vi.fn();
     const extraDevices = 3;
@@ -97,6 +160,7 @@ describe('restoreMissing', () => {
     });
 
     await restoreMissing({
+      prisma: fakePrisma(),
       logger: silentLogger(),
       xray: { createClient } as unknown as XrayClient,
       node: NODE,
@@ -115,6 +179,7 @@ describe('restoreMissing', () => {
     });
 
     await restoreMissing({
+      prisma: fakePrisma(),
       logger: silentLogger(),
       xray: { createClient } as unknown as XrayClient,
       node: NODE,
@@ -130,6 +195,7 @@ describe('restoreMissing', () => {
     const nodeClients = new Map<string, boolean>();
 
     await restoreMissing({
+      prisma: fakePrisma(),
       logger: silentLogger(),
       xray: { createClient: vi.fn() } as unknown as XrayClient,
       node: NODE,
@@ -144,6 +210,7 @@ describe('restoreMissing', () => {
     const createClient = vi.fn().mockRejectedValue(new Error('panel refused'));
 
     const restored = await restoreMissing({
+      prisma: fakePrisma(),
       logger: silentLogger(),
       xray: { createClient } as unknown as XrayClient,
       node: NODE,

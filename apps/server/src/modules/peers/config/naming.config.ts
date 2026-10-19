@@ -5,5 +5,6 @@ export const PEER_PREFIX = {
 
 export const PEER_PROTOCOL_SUFFIX = {
   hysteria2: '',
-  vless: '-vl'
+  vless: '-vl',
+  wireguard: '-wg'
 } as const;

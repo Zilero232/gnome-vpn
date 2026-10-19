@@ -28,7 +28,7 @@ const LocaleLayout = async ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <html className={clsx('dark', fontSans.variable, fontMono.variable)} lang={locale}>
+    <html className={clsx('dark', fontSans.variable, fontMono.variable)} data-scroll-behavior='smooth' lang={locale}>
       <body>
         <SiteJsonLd />
         <AppProviders locale={locale}>{children}</AppProviders>

@@ -15,12 +15,21 @@ const node: SyncableNode = {
   certFingerprint: null,
   realityPublicKey: null,
   realityShortId: null,
+  wgPublicKey: 'wg-pub+/=',
   apiUrl: 'http://203.0.113.10:2053/abc',
   apiTokenEnvVar: 'XRAY_KEY_NL',
   displayOrder: 0
 };
 
 describe('buildNodeSync', () => {
+  it('carries the wireguard key into both the update and the insert', () => {
+    const sql = buildNodeSync([node]);
+
+    expect(sql).toContain("'wg-pub+/='");
+    expect(sql).toContain('wg_public_key = i.wg_public_key');
+    expect(sql).toContain('i.wg_public_key');
+  });
+
   it('refuses an empty list, which would turn into deleting every production node', () => {
     expect(() => buildNodeSync([])).toThrow();
   });

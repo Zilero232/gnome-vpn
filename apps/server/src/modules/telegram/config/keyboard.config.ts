@@ -18,6 +18,7 @@ export const KEYBOARD_ROWS: KeyboardRow[] = [
 ];
 
 export const MORE_ROWS: KeyboardRow[] = [
+  [{ key: 'invite', when: 'always' }],
   [
     { key: 'autoRenew', when: 'subscribed' },
     { key: 'rotate', when: 'subscribed' }

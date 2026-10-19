@@ -33,7 +33,42 @@ The second rule is what keeps the limit from being a toggle: switching HWID off
 does not make a device invisible, it makes all of that user's HWID-less INCY
 installs share one slot.
 
-## Each device has keys of its own
+**A fetch that is not a VPN client is not a device.** The second rule used to
+take anything: opening the link in a browser registered `app:mozilla`, and
+sending it to oneself in Telegram registered `app:telegrambot` — the messenger
+fetches every link for its preview. Each held one of the two slots for good, so
+the owner's real phone was then refused with an empty list, and each was issued
+keys on every node, which restarted every core and dropped every session on it.
+`isClientFetch` (`subscription-link/lib/client-fetch`) now turns away a
+link-preview agent and a browser asking for a page (`Mozilla/…` with
+`Accept: text/html`); such a fetch gets the headers and no servers, registers
+nothing and does not touch `lastSeenAt`. A hardware id always counts as a
+client, and so does an app that borrows a browser user agent without asking for
+HTML. `20261018120000_referrals_and_device_cleanup` removed the slots those fetches
+had already taken and revoked their keys; reconcile releases them on the nodes.
+
+## A WireGuard config is a device too
+
+The official WireGuard apps and routers cannot read a subscription; they import
+a `.conf`. The account page's WireGuard tab makes one: `POST /wireguard/configs`
+(behind `SubscriptionGuard`) registers a device with the key
+`wg:<random uuid>`, the name the person typed as its model and `WireGuard` as
+its app, admits it through the same `DevicesService.admit` — so it takes a slot
+and is refused at the limit with `DEVICE_LIMIT_REACHED` — and issues only the
+WireGuard peer on the chosen node (`ensureNode({ protocols: [wireguard] })`).
+The response is the `.conf` and its file name, `gnome-<country>-<4 hex>.conf`,
+which stays within the 15 characters a tunnel name may have on Windows and
+Linux. `GET /wireguard/configs/:id` renders the same file again from the stored
+key and address, and `GET /wireguard` lists the WireGuard nodes and the configs.
+
+Such a device never fetches the feed, so `lastSeenAt` stays at its creation, and
+it behaves like every other device otherwise: it appears on the Devices tab,
+removing it there revokes its key, a lapsed subscription disables it and a
+renewal brings it back, and a shrinking limit releases the newest devices first.
+If the node will not take the peer, the device is removed again so the slot is
+not lost to a config that does not exist.
+
+
 
 A peer is issued per `(device, node, protocol)` and named `d-<12 hex of the
 device id>`, so its panel email is unique to the device. Removing a device

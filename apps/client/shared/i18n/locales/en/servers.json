@@ -1,11 +1,11 @@
 {
   "meta": {
-    "title": "Servers and protocols: Hysteria2 and VLESS Reality",
-    "description": "How Hysteria2 differs from VLESS + Reality, which protocol to pick when a network blocks UDP, and how the server list keeps itself current."
+    "title": "Servers and protocols: Hysteria2, VLESS Reality and WireGuard",
+    "description": "How Hysteria2, VLESS + Reality and WireGuard differ, which protocol to pick when a network blocks UDP, and how the server list keeps itself current."
   },
   "title": "Servers and protocols",
-  "intro": "Every country in your subscription appears twice: once over Hysteria2 and once over VLESS + Reality. They share port 443 because one is UDP and the other TCP, and you switch between them in the app without changing anything else.",
-  "tableTitle": "The two side by side",
+  "intro": "Every country in your subscription comes in several variants: over Hysteria2, over VLESS + Reality and, on the servers that run it, over WireGuard. The app labels each entry with its protocol, and you switch between them right there without changing anything else.",
+  "tableTitle": "Side by side",
   "rows": {
     "label": "Property",
     "transport": "Transport",
@@ -30,16 +30,24 @@
       "lossBehaviour": "Slows down like any TCP connection: one lost packet stalls everything behind it.",
       "blocking": "Passes where UDP is dropped, because it looks like an ordinary HTTPS connection to a real site.",
       "bestFor": "Networks that allow only TCP."
+    },
+    "wireguard": {
+      "name": "WireGuard",
+      "transport": "Its own protocol over UDP, with no disguise",
+      "port": "51820/UDP",
+      "lossBehaviour": "Keeps its speed: a small, light protocol that barely taxes the phone.",
+      "blocking": "Recognisable by its handshake — in Russia it is often blocked, especially on mobile networks.",
+      "bestFor": "Home internet and networks where it is not blocked, and apps that only speak WireGuard."
     }
   },
   "sections": {
-    "whyTwo": {
-      "title": "Why two and not one",
-      "body": "Hysteria2 is the better tunnel almost everywhere: QUIC keeps its speed on a network that loses packets, which is exactly what a phone on mobile data does. But QUIC is UDP, and some networks drop UDP wholesale — there the tunnel cannot come up at all. VLESS + Reality is the way through those: it is plain TCP on 443 wearing the TLS handshake of a real third-party site, so a network that allows HTTPS allows it too."
+    "whySeveral": {
+      "title": "Why several and not one",
+      "body": "Hysteria2 is the better tunnel almost everywhere: QUIC keeps its speed on a network that loses packets, which is exactly what a phone on mobile data does. But QUIC is UDP, and some networks drop UDP wholesale — there the tunnel cannot come up at all. VLESS + Reality is the way through those: it is plain TCP on 443 wearing the TLS handshake of a real third-party site, so a network that allows HTTPS allows it too. WireGuard is there for those who know it and for whom it works: simple and fast, but undisguised, so in Russia it is blocked more often than the others."
     },
     "whichToPick": {
       "title": "Which one to pick",
-      "body": "Start with the plain entry — that is Hysteria2, and on most networks it is the faster of the two. If it will not connect, switch to the entry marked TCP for the same country. Nothing needs configuring either way: both are already in your subscription, and the app remembers which one worked."
+      "body": "Start with Hysteria2 — on most networks it is the fastest. If it will not connect, switch to VLESS for the same country: it gets through where UDP is closed. Try WireGuard if it works better for you than the others. Nothing needs configuring: every variant is already in your subscription, and the app remembers which one worked."
     },
     "howMany": {
       "title": "How many devices",

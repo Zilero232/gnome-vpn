@@ -2,7 +2,7 @@ import type { TunnelProtocol } from '@gnomevpn/schemas';
 
 import { TUNNEL_PROTOCOL } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
-import { isEmpty, isNonNullish } from 'remeda';
+import { isEmpty, isNonNullish, partition } from 'remeda';
 
 import type { NodeTraffic } from '../../../lib';
 import type {
@@ -20,7 +20,7 @@ import { describeError, xrayClientForNode } from '../../../common/lib';
 import { PrismaService, withSerializableRetry } from '../../../core';
 import { NO_TRAFFIC, sumTraffic } from '../../../lib';
 import { DEVICE_PEER, devicePeerName } from '../../devices';
-import { hasReality, peerClientNames, PeersService } from '../../peers';
+import { hasReality, hasWireguard, peerClientName, PeersService } from '../../peers';
 
 @Injectable()
 export class SubscriptionPeersService {
@@ -32,21 +32,24 @@ export class SubscriptionPeersService {
   ) {}
 
   protocolsFor(node: SubscriptionNode): TunnelProtocol[] {
-    return hasReality(node) ? [TUNNEL_PROTOCOL.hysteria2, TUNNEL_PROTOCOL.vless] : [TUNNEL_PROTOCOL.hysteria2];
+    return [
+      TUNNEL_PROTOCOL.hysteria2,
+      ...(hasReality(node) ? [TUNNEL_PROTOCOL.vless] : []),
+      ...(hasWireguard(node) ? [TUNNEL_PROTOCOL.wireguard] : [])
+    ];
   }
 
-  async ensureNode({ userId, deviceId, node }: EnsureNodeInput): Promise<FeedPeer[]> {
+  async ensureNode({ userId, deviceId, node, canIssue, protocols = this.protocolsFor(node) }: EnsureNodeInput): Promise<FeedPeer[]> {
     const name = devicePeerName(deviceId);
-    const protocols = this.protocolsFor(node);
 
     const existing = await this.prisma.peer.findMany({
       where: { userId, kind: 'config', name, nodeId: node.id, protocol: { in: protocols }, revokedAt: null },
-      select: { protocol: true, nodeCredential: true }
+      select: { protocol: true, nodeCredential: true, tunnelAddress: true }
     });
 
     const missing = protocols.filter((protocol) => !existing.some((peer) => peer.protocol === protocol));
 
-    if (isEmpty(missing)) {
+    if (isEmpty(missing) || !canIssue) {
       return existing;
     }
 
@@ -56,14 +59,20 @@ export class SubscriptionPeersService {
       return existing;
     }
 
+    const [live, needRestart] = partition(issued, (peer) => peer.protocol === TUNNEL_PROTOCOL.wireguard);
+
+    if (isEmpty(needRestart)) {
+      return [...existing, ...live];
+    }
+
     try {
-      await this.peers.restartCore(node);
+      await this.peers.restartCore({ node, reason: `issued ${needRestart.length} client(s) for a new device` });
     } catch (error) {
       this.logger.warn(`node ${node.id} did not restart after issuing, its new peers wait for the next fetch: ${describeError(error)}`);
 
-      await this.forget({ userId, name, nodeId: node.id, protocols: issued.map((peer) => peer.protocol) });
+      await this.forget({ userId, name, nodeId: node.id, protocols: needRestart.map((peer) => peer.protocol) });
 
-      return existing;
+      return [...existing, ...live];
     }
 
     return [...existing, ...issued];
@@ -75,7 +84,7 @@ export class SubscriptionPeersService {
       select: { userId: true, kind: true, name: true, nodeId: true, protocol: true }
     });
 
-    const emails = new Set(peers.flatMap((peer) => peerClientNames(peer)));
+    const emails = new Set(peers.map((peer) => peerClientName(peer)));
 
     const perNode = await Promise.all(nodes.map((node) => this.nodeTraffic({ node, emails })));
 
@@ -95,10 +104,11 @@ export class SubscriptionPeersService {
         limitIp: DEVICE_PEER.ipsPerClient,
         name,
         deferRestart: true,
-        persist: (peer) => this.persist({ userId, deviceId, name, nodeId: node.id, protocol, nodeCredential: peer.nodeCredential })
+        persist: (peer) =>
+          this.persist({ userId, deviceId, name, nodeId: node.id, protocol, nodeCredential: peer.nodeCredential, tunnelAddress: peer.address })
       });
 
-      return { protocol, nodeCredential: created.nodeCredential };
+      return { protocol, nodeCredential: created.nodeCredential, tunnelAddress: created.address };
     } catch (error) {
       this.logger.warn(`subscription peer failed on node ${node.id} over ${protocol}: ${describeError(error)}`);
 
@@ -122,7 +132,7 @@ export class SubscriptionPeersService {
     }
   }
 
-  private persist({ userId, deviceId, name, nodeId, protocol, nodeCredential }: PersistPeerInput): Promise<void> {
+  private persist({ userId, deviceId, name, nodeId, protocol, nodeCredential, tunnelAddress }: PersistPeerInput): Promise<void> {
     const identity = { userId, kind: 'config', name, nodeId, protocol } as const;
 
     return withSerializableRetry(() =>
@@ -130,8 +140,8 @@ export class SubscriptionPeersService {
         async (tx) => {
           await tx.peer.upsert({
             where: { userId_kind_name_nodeId_protocol: identity },
-            update: { nodeCredential, deviceId, revokedAt: null, state: 'active' },
-            create: { ...identity, deviceId, nodeCredential }
+            update: { nodeCredential, tunnelAddress, deviceId, revokedAt: null, state: 'active' },
+            create: { ...identity, deviceId, nodeCredential, tunnelAddress }
           });
         },
         { isolationLevel: 'Serializable' }

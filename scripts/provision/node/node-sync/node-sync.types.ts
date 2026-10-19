@@ -9,6 +9,7 @@ export type SyncableNode = {
   certFingerprint: string | null;
   realityPublicKey: string | null;
   realityShortId: string | null;
+  wgPublicKey: string | null;
   apiUrl: string;
   apiTokenEnvVar: string;
   displayOrder: number;

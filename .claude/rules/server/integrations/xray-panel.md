@@ -13,13 +13,15 @@ paths:
 
 ## The panel does not restart its own core
 
-`XrayClient` talks to the **3x-ui panel**, not to Xray-core. Every mutating
-endpoint ends in `SetToNeedRestart()`, which only sets a flag — nothing acts on
-it. Any change to clients needs an explicit `restartCore()`, or the running core
-never learns about it.
+`XrayClient` talks to the **3x-ui panel**, not to Xray-core. A Hysteria2 or
+VLESS client change needs an explicit `restartCore()`, or the running core never
+learns about it. WireGuard clients are applied live and need none — and must be
+re-enabled by delete and add, never `bulkEnable`, which makes the panel restart
+the whole core.
 
 That restart drops every live session on the node, so batch it: one restart at
-the end of a pass, only when something actually changed.
+the end of a pass, only when a non-WireGuard client actually changed.
+`restartCore` is coalesced per node and takes a reason that is logged.
 
 ## A Hysteria2 client needs its full field set
 

@@ -19,6 +19,7 @@ import { AppBadRequestException, AppServiceUnavailableException } from '../../..
 import { AppConfigService } from '../../../config';
 import { isPrismaRequestError, PrismaService, UNIQUE_VIOLATION } from '../../../core';
 import { IdentityService } from '../../auth';
+import { ReferralService } from '../../referrals';
 import { LINK_CODE } from '../config';
 import { generateLinkCode, normaliseLinkCode, resolveLocale } from '../lib';
 
@@ -27,7 +28,8 @@ export class TelegramLinkService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: AppConfigService,
-    private readonly identity: IdentityService
+    private readonly identity: IdentityService,
+    private readonly referrals: ReferralService
   ) {}
 
   async issueCode(userId: string): Promise<IssueLinkCodeResult> {
@@ -79,6 +81,7 @@ export class TelegramLinkService {
       await tx.telegramAccount.deleteMany({ where: { userId, telegramId: { not: telegramId } } });
 
       if (heldByEmptyChat && isNonNullish(taken)) {
+        await this.referrals.adopt({ fromUserId: taken.userId, toUserId: userId, db: tx });
         await tx.user.delete({ where: { id: taken.userId } });
       }
 
@@ -95,14 +98,21 @@ export class TelegramLinkService {
   private async isUntouchedTelegramUser({ tx, userId }: UntouchedUserInput): Promise<boolean> {
     const user = await tx.user.findUnique({
       where: { id: userId },
-      select: { email: true, subscription: { select: { currentPeriodEnd: true, trialStartedAt: true } } }
+      select: {
+        email: true,
+        subscription: { select: { currentPeriodEnd: true, trialStartedAt: true, bonusDays: true } },
+        _count: { select: { payments: true, referralsMade: true } }
+      }
     });
 
     if (isNullish(user) || !isPlaceholderEmail(user.email)) {
       return false;
     }
 
-    return isNullish(user.subscription?.trialStartedAt) && isNullish(user.subscription?.currentPeriodEnd);
+    const hasNoPeriod = isNullish(user.subscription?.trialStartedAt) && isNullish(user.subscription?.currentPeriodEnd);
+    const hasNothingOwed = (user.subscription?.bonusDays ?? 0) === 0 && user._count.payments === 0 && user._count.referralsMade === 0;
+
+    return hasNoPeriod && hasNothingOwed;
   }
 
   async ensureChat(identity: TelegramIdentity): Promise<ResolvedChat> {

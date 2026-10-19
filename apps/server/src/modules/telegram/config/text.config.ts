@@ -11,7 +11,12 @@ export const TEXT_TOKEN = {
   site: '{site}',
   card: '{card}',
   days: '{days}',
-  percent: '{percent}'
+  percent: '{percent}',
+  invited: '{invited}',
+  rewarded: '{rewarded}',
+  link: '{link}',
+  referrer: '{referrer}',
+  friend: '{friend}'
 } as const;
 
 export const AUTO_RENEW_CHOICE = {

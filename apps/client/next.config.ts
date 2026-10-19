@@ -12,6 +12,7 @@ const withNextIntl = createNextIntlPlugin('./shared/i18n/request.ts');
 const nextConfig: NextConfig = {
   env: { NEXT_PUBLIC_APP_VERSION: rootPackage.version },
   cacheComponents: true,
+  partialPrefetching: true,
   output: 'standalone',
   outputFileTracingRoot: REPO_ROOT,
   reactCompiler: true,

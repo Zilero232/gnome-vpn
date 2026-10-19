@@ -1,0 +1,1 @@
+export const REFERRAL_CODE_ATTEMPTS = 3;

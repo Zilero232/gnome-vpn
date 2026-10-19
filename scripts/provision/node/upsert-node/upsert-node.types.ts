@@ -13,6 +13,7 @@ export type UpsertNodeInput = {
   certFingerprint: string | null;
   realityPublicKey: string;
   realityShortId: string;
+  wgPublicKey: string;
   apiUrl: string;
   apiTokenEnvVar: string;
 };

@@ -25,8 +25,8 @@
       "a": "Three steps: install INCY from your store, copy the link from the App tab in your account, paste it into INCY. From there the app pulls the server list and keeps it up to date on its own."
     },
     "whichProtocol": {
-      "q": "There are two servers per country — which one do I pick?",
-      "a": "Take the one without a tag: that is Hysteria2, faster and steadier on mobile. The entry marked \"TCP\" is for networks that block UDP — usually office Wi-Fi, hotels and some corporate networks. If the main one will not connect, switch to it."
+      "q": "There are several servers per country — which one do I pick?",
+      "a": "Start with Hysteria2: it is faster and steadier on mobile. VLESS is for networks that block UDP — usually office Wi-Fi, hotels and some corporate networks. WireGuard is in the subscription too: simple and fast, but blocked more often in Russia, so take it if it works better for you. The app labels each entry with its protocol."
     },
     "howManyDevices": {
       "q": "How many devices can I use?",
@@ -83,6 +83,14 @@
     "otherApps": {
       "q": "Can I use Hiddify or another app instead of INCY?",
       "a": "Yes. Your subscription URL is a standard one, so Hiddify, v2rayNG, Streisand, NekoBox and Clash Meta all read it — the same servers, the same traffic counter, the same renewal date. Copy the subscription URL on the App tab (not the INCY link, which only INCY understands) and add it in the app as a subscription. We recommend INCY because we have tested it on every platform, but nothing binds you to it."
+    },
+    "referral": {
+      "q": "Is there a bonus for inviting friends?",
+      "a": "Yes. Your personal link is on the “Invite” tab of your account and under “Invite a friend” in the bot. A friend who comes by it gets bonus days on their first payment, and you get days on your subscription as soon as they pay. The longer the plan your friend picks, the more days you both get — the exact numbers are shown right there. The bonus comes once per friend."
+    },
+    "wireguard": {
+      "q": "Can I connect over WireGuard?",
+      "a": "Yes. WireGuard is already in the subscription for INCY, and for other apps and routers your account has a WireGuard tab: pick a country, name the device and download the .conf file or scan the QR code. On Windows WireSock Secure Connect works best, on iPhone and Android AmneziaVPN, on macOS, Linux and routers the official WireGuard app. Each config takes one place in your device limit. WireGuard is blocked in Russia more often than the other protocols: if it will not connect, use INCY."
     }
   },
   "stillStuck": "Still stuck? Email us — we answer within a day."

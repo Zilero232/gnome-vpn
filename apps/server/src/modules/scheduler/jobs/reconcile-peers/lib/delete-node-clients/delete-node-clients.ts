@@ -1,9 +1,9 @@
 import type { DeleteNodeClientsInput } from './delete-node-clients.types';
 
-import { peerClientNames } from '../../../../../peers';
+import { peerClientName } from '../../../../../peers';
 
 export const deleteNodeClients = async ({ xray, peers, nodeClients }: DeleteNodeClientsInput): Promise<string[]> => {
-  const onNode = peers.flatMap((peer) => peerClientNames(peer)).filter((email) => nodeClients.has(email));
+  const onNode = peers.map((peer) => peerClientName(peer)).filter((email) => nodeClients.has(email));
 
   await Promise.all(onNode.map((email) => xray.deleteClient(email)));
 

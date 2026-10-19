@@ -4,9 +4,9 @@
     "description": "Setting up GnomeVPN on iPhone, Android, Windows, macOS, Linux and TV: install the app and add the subscription from one link in minutes."
   },
   "title": "How to connect",
-  "intro": "GnomeVPN runs through INCY, a free app you install once. After that a single link from your account does the rest.",
-  "downloadTitle": "1. Install INCY",
-  "stepsTitle": "2. Add your subscription",
+  "intro": "There are three ways to connect to GnomeVPN. If you are not sure, take INCY: one free app for every device and every protocol at once.",
+  "downloadTitle": "Download the app",
+  "stepsTitle": "Add your subscription",
   "steps": {
     "install": {
       "title": "Install the app"
@@ -52,7 +52,7 @@
     }
   },
   "other": {
-    "title": "3. Or use another app",
+    "title": "Another subscription app",
     "intro": "INCY is what we recommend, not what we require. Your subscription URL is a standard one, so any app that takes a subscription link reads it — the same servers, the same traffic counter, the same renewal date.",
     "clients": {
       "hiddify": {
@@ -87,9 +87,65 @@
       },
       "connect": {
         "title": "Pick a server and connect",
-        "body": "Each country appears twice: the plain entry is Hysteria2 over UDP, the one marked TCP is VLESS + Reality. Start with the first; if the network blocks UDP, switch to TCP."
+        "body": "Each country comes in several variants: Hysteria2 over UDP, VLESS + Reality over TCP and, on some servers, WireGuard. The app labels each entry with its protocol. Start with Hysteria2; if the network blocks UDP, switch to VLESS."
       }
     },
     "note": "Whatever app you pick, the link stays yours alone. If it leaks, rotate it in your account and the old one dies at once."
+  },
+  "wireguard": {
+    "title": "A WireGuard config",
+    "intro": "For people who prefer WireGuard, and for routers. Configs are made on the WireGuard tab of your account; each one is for one device and one country and takes a place in your subscription limit. WireGuard is blocked in Russia more often than the other protocols, mobile networks especially: if it will not connect, use INCY.",
+    "stepsTitle": "Connect the config",
+    "cta": "Open the WireGuard tab in your account →",
+    "platforms": {
+      "windows": {
+        "name": "Windows",
+        "create": "On the WireGuard tab of your account pick a country, name the device, press Create config and download the .conf file.",
+        "install": "Install WireSock Secure Connect from its official site — the link is in the app card above.",
+        "import": "Open WireSock and import the downloaded .conf as a connection profile.",
+        "connect": "Pick the profile and connect. In the profile settings you can send only chosen programs through the VPN and leave the rest direct."
+      },
+      "phone": {
+        "name": "iPhone and Android",
+        "create": "Create a config on the WireGuard tab of your account. It is easiest on a computer, opening the QR code — or download the .conf straight to the phone.",
+        "install": "Install AmneziaVPN from the App Store or Google Play — the links are above.",
+        "import": "In AmneziaVPN choose to add a configuration: scan the QR code on the computer screen or open the .conf file.",
+        "connect": "Connect. On first launch the phone asks to allow a VPN configuration — accept."
+      },
+      "other": {
+        "name": "macOS, Linux and routers",
+        "create": "Create a config on the WireGuard tab of your account and download the .conf file.",
+        "install": "On macOS install the official WireGuard app from the App Store, on Linux the wireguard-tools package. Routers that support WireGuard (Keenetic, MikroTik, OpenWrt) need nothing extra.",
+        "import": "In the app choose to import a tunnel from a file. On Linux put the file in /etc/wireguard/. On a router import the .conf where WireGuard connections are set up.",
+        "connect": "Turn the tunnel on. On Linux: sudo wg-quick up followed by the file name without .conf."
+      }
+    }
+  },
+  "ways": {
+    "title": "Pick a way",
+    "recommended": "Recommended",
+    "go": "To the guide",
+    "incy": {
+      "title": "The INCY app",
+      "body": "One link from your account and the app has every country and every protocol. Works on phones, computers and TVs."
+    },
+    "apps": {
+      "title": "Another subscription app",
+      "body": "Hiddify, v2rayNG, Streisand and others: the same subscription link, if you already have an app you like."
+    },
+    "wireguard": {
+      "title": "A WireGuard config",
+      "body": "A .conf file for WireSock on Windows, AmneziaVPN on a phone, the official WireGuard app and routers."
+    }
+  },
+  "incy": {
+    "title": "The INCY app",
+    "intro": "A free app for every platform. Install it once; from then on servers and protocols arrive through your subscription link by themselves."
+  },
+  "wireguardSteps": {
+    "create": "Create a config",
+    "install": "Install the app",
+    "import": "Import the config",
+    "connect": "Connect"
   }
 }

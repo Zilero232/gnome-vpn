@@ -1,0 +1,65 @@
+@use '@/shared/styles/mixins' as *;
+
+.button {
+  width: 100%;
+}
+
+.chevron {
+  opacity: 0.7;
+  transition: transform var(--duration-fast) ease;
+
+  [data-popup-open] > & {
+    transform: rotate(180deg);
+  }
+}
+
+.positioner {
+  z-index: 40;
+  outline: none;
+}
+
+.popup {
+  display: flex;
+  min-width: var(--anchor-width);
+  flex-direction: column;
+  padding: 6px;
+  border: 1px solid var(--color-border-bright);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-raised);
+  box-shadow: 0 18px 40px -12px rgb(0 0 0 / 60%);
+  outline: none;
+  transform-origin: var(--transform-origin);
+  transition:
+    opacity var(--duration-fast) ease,
+    transform var(--duration-fast) ease;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: var(--step-sm);
+  gap: 10px;
+  outline: none;
+  text-decoration: none;
+
+  @include touch-target;
+
+  svg {
+    flex-shrink: 0;
+    color: var(--color-accent);
+  }
+
+  &[data-highlighted] {
+    background-color: rgb(53 240 160 / 10%);
+  }
+}

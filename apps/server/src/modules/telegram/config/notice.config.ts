@@ -17,5 +17,8 @@ export const NOTICES = {
   deviceAdded: { markup: ['devices'] },
   deviceBlocked: { markup: ['devices'] },
   devicesShrunk: { markup: ['devices'] },
-  legacyRetired: { markup: ['devices'] }
+  legacyRetired: { markup: ['devices'] },
+  referralBonus: { markup: ['invite'] },
+  referralRewarded: { markup: ['invite'], effect: MESSAGE_EFFECT.celebrate },
+  referralBanked: { markup: ['buy'] }
 } as const satisfies Record<string, NoticeSpec>;

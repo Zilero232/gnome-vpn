@@ -2,9 +2,10 @@
 
 import type { KeyboardEvent } from 'react';
 
+import { getHash, useHash } from '@siberiacancode/reactuse';
 import { clsx } from 'clsx';
 import { motion } from 'motion/react';
-import { useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { isNullish } from 'remeda';
 import { match } from 'ts-pattern';
 
@@ -20,6 +21,29 @@ export const AccountTabs = ({ items, label, panelClassName }: AccountTabsProps) 
   const tabsRef = useRef<(HTMLButtonElement | null)[]>([]);
 
   const [active, setActive] = useState(items[0]?.value ?? '');
+
+  const selectFromHash = (hash: string) => {
+    if (items.some((item) => item.value === hash)) {
+      setActive(hash);
+    }
+  };
+
+  const select = (value: string) => {
+    setActive(value);
+    window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${value}`);
+  };
+
+  const tabValues = items.map((item) => item.value).join(' ');
+
+  useHash({ mode: 'initial', onChange: selectFromHash });
+
+  useEffect(() => {
+    const hash = getHash();
+
+    if (tabValues.split(' ').includes(hash)) {
+      setActive(hash);
+    }
+  }, [tabValues]);
 
   const activeIndex = Math.max(
     items.findIndex((item) => item.value === active),
@@ -53,7 +77,7 @@ export const AccountTabs = ({ items, label, panelClassName }: AccountTabsProps) 
 
     const index = (nextIndex + items.length) % items.length;
 
-    setActive(items[index].value);
+    select(items[index].value);
     tabsRef.current[index]?.focus();
   };
 
@@ -77,7 +101,7 @@ export const AccountTabs = ({ items, label, panelClassName }: AccountTabsProps) 
               role='tab'
               tabIndex={isActive ? 0 : -1}
               type='button'
-              onClick={() => setActive(value)}
+              onClick={() => select(value)}
             >
               {isActive && <motion.span aria-hidden className={s.pill} layoutId={`${baseId}-pill`} transition={PILL_MOTION} />}
 

@@ -8,6 +8,7 @@ import { isNonNullish, isNullish } from 'remeda';
 import type { BotAction, BotCallback, BotContext } from '../telegram.types';
 
 import { describeError } from '../../../common/lib';
+import { referralCodeFromStart } from '../../referrals';
 import { TELEGRAM_BOT } from '../bot';
 import { CALLBACK_PREFIX } from '../config';
 import { buttonFor, callbackPattern, looksLikeLinkCode } from '../lib';
@@ -16,6 +17,7 @@ import { TelegramAppsService } from './telegram-apps.service';
 import { TelegramBillingService } from './telegram-billing.service';
 import { TelegramDevicesService } from './telegram-devices.service';
 import { TelegramProfileService } from './telegram-profile.service';
+import { TelegramReferralService } from './telegram-referral.service';
 import { TelegramSharedService } from './telegram-shared.service';
 import { TelegramSubscriptionService } from './telegram-subscription.service';
 
@@ -32,7 +34,8 @@ export class TelegramBotService implements OnModuleInit {
     private readonly apps: TelegramAppsService,
     private readonly billing: TelegramBillingService,
     private readonly devices: TelegramDevicesService,
-    private readonly profile: TelegramProfileService
+    private readonly profile: TelegramProfileService,
+    private readonly referral: TelegramReferralService
   ) {
     if (this.bot) {
       this.register(this.bot);
@@ -81,6 +84,7 @@ export class TelegramBotService implements OnModuleInit {
       { command: 'apps', button: 'apps', run: (ctx) => this.apps.list(ctx) },
       { command: 'devices', button: 'devices', run: (ctx) => this.devices.list(ctx) },
       { button: 'more', run: (ctx) => this.account.more(ctx) },
+      { command: 'invite', button: 'invite', run: (ctx) => this.referral.invite(ctx) },
       { command: 'rotate', button: 'rotate', run: (ctx) => this.billing.askRotate(ctx) },
       { button: 'autoRenew', run: (ctx) => this.billing.autoRenew(ctx) },
       { command: 'website', button: 'website', run: (ctx) => this.account.openWebsite(ctx) },
@@ -125,8 +129,13 @@ export class TelegramBotService implements OnModuleInit {
 
   private start(ctx: BotContext): Promise<void> {
     const code = typeof ctx.match === 'string' ? ctx.match : '';
+    const referralCode = referralCodeFromStart(code);
 
-    return looksLikeLinkCode(code) ? this.account.consume({ ctx, text: code }) : this.account.welcome(ctx);
+    if (isNonNullish(referralCode)) {
+      return this.referral.arrive({ ctx, code: referralCode });
+    }
+
+    return looksLikeLinkCode(code) ? this.account.consume({ ctx, text: code }) : this.account.welcome({ ctx });
   }
 
   private async openMenu(ctx: BotContext): Promise<void> {

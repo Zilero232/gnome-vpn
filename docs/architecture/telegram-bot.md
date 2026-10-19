@@ -19,7 +19,9 @@ handler, `callbacks` each inline-button prefix — and nothing else.
 and `/trial`; `TelegramAppsService` `/apps`; `TelegramDevicesService`
 `/devices` — the device list, removing one and buying extra places;
 `TelegramBillingService` `/rotate` and auto-renewal; `TelegramAccountService` `/start`,
-linking, `/website`, `/language`, `/help`, `/unlink` and `/delete`.
+linking, `/website`, `/language`, `/help`, `/unlink` and `/delete`;
+`TelegramReferralService` `/invite` and a `/start ref_<code>` arrival
+([referrals.md](referrals.md)).
 `TelegramLinkService` owns the chat rows and link codes, `TelegramWebLoginService`
 the sign-in links, `TelegramProfileService` announces the bot to Telegram,
 `TelegramNotifyService` speaks first (below), and `TelegramSharedService` holds

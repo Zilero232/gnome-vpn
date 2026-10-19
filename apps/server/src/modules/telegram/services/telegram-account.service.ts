@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { isNonNullish, isNullish } from 'remeda';
 import { match } from 'ts-pattern';
 
-import type { BotContext, BotLocale, ChatCopy, ConsumeInput, RefusalInput, SpeakInput } from '../telegram.types';
+import type { BotContext, BotLocale, ChatCopy, ConsumeInput, RefusalInput, SpeakInput, WelcomeInput } from '../telegram.types';
 
 import { describeError, errorCodeOf } from '../../../common/lib';
 import { AppConfigService } from '../../../config';
@@ -28,7 +28,7 @@ export class TelegramAccountService {
     private readonly notify: TelegramNotifyService
   ) {}
 
-  async welcome(ctx: BotContext): Promise<void> {
+  async welcome({ ctx, note }: WelcomeInput): Promise<void> {
     const identity = identityOf(ctx.from);
 
     if (isNullish(identity)) {
@@ -37,7 +37,7 @@ export class TelegramAccountService {
 
     const chat = await this.link.ensureChat(identity);
 
-    await this.shared.reply({ ctx, chat, text: this.startText(chat.locale) });
+    await this.shared.reply({ ctx, chat, text: html.paragraphs([this.startText(chat.locale), note]) });
   }
 
   async help(ctx: BotContext): Promise<void> {

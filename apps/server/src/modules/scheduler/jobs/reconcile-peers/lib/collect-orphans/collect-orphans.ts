@@ -2,7 +2,7 @@ import { filter, isEmpty, isNonNullish, isNullish, pipe, unique } from 'remeda';
 
 import type { CollectOrphansInput, WithoutAnOwnerInput } from './collect-orphans.types';
 
-import { peerClientNames } from '../../../../../peers';
+import { isWireguardClient, peerClientName } from '../../../../../peers';
 import { ownerIdOf } from '../orphan-owner';
 import { isServerOwned } from './collect-orphans.helpers';
 
@@ -29,7 +29,7 @@ export const collectOrphans = async ({ prisma, xray, peers, nodeClients, online 
     return false;
   }
 
-  const known = new Set(peers.flatMap((peer) => peerClientNames(peer)));
+  const known = new Set(peers.map((peer) => peerClientName(peer)));
 
   const candidates = [...nodeClients.keys()].filter((email) => !known.has(email) && isServerOwned(email) && !online.has(email));
 
@@ -37,5 +37,5 @@ export const collectOrphans = async ({ prisma, xray, peers, nodeClients, online 
 
   await Promise.all(doomed.map((email) => xray.deleteClient(email)));
 
-  return !isEmpty(doomed);
+  return doomed.some((email) => !isWireguardClient(email));
 };

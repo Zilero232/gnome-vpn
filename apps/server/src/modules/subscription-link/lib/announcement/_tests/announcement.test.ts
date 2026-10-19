@@ -35,6 +35,14 @@ describe('announcement', () => {
     expect(announcement({ ...active, blockedAtLimit: 2 })).toBe(ANNOUNCEMENTS.deviceLimit(2));
   });
 
+  it('tells a device whose servers could not be issued yet to refresh, rather than leaving the list empty', () => {
+    expect(announcement({ ...active, isPreparing: true })).toBe(ANNOUNCEMENTS.preparing);
+  });
+
+  it('puts the device limit before the servers being prepared', () => {
+    expect(announcement({ ...active, blockedAtLimit: 2, isPreparing: true })).toBe(ANNOUNCEMENTS.deviceLimit(2));
+  });
+
   it('still reports a lapsed subscription before the device limit', () => {
     expect(announcement({ ...active, currentPeriodEnd: subDays(NOW, 1), blockedAtLimit: 2 })).toBe(ANNOUNCEMENTS.expired);
   });

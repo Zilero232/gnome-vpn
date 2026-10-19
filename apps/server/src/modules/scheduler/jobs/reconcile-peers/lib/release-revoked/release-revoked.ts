@@ -2,6 +2,7 @@ import { isEmpty, isNonNullish } from 'remeda';
 
 import type { ReleaseRevokedInput } from './release-revoked.types';
 
+import { isWireguardClient } from '../../../../../peers';
 import { deleteNodeClients } from '../delete-node-clients';
 
 export const releaseRevoked = async ({ prisma, xray, peers, nodeClients }: ReleaseRevokedInput): Promise<boolean> => {
@@ -17,5 +18,5 @@ export const releaseRevoked = async ({ prisma, xray, peers, nodeClients }: Relea
     where: { id: { in: revoked.map((peer) => peer.id) }, revokedAt: { not: null } }
   });
 
-  return !isEmpty(onNode);
+  return onNode.some((email) => !isWireguardClient(email));
 };

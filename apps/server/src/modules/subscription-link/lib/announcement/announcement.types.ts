@@ -14,5 +14,6 @@ export type AnnouncementInput = {
   hasSubscription: boolean;
   nodes: AnnouncementNode[];
   blockedAtLimit?: number | null;
+  isPreparing?: boolean;
   now?: Date;
 };

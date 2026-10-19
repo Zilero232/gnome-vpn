@@ -3,18 +3,17 @@ import { match } from 'ts-pattern';
 
 import type { DaysLeftInput, StatusTextInput } from './status-text.types';
 
-import { pluralize } from '../../../../common/lib';
 import { BOT_TEXT, NEW_LINE } from '../../config';
+import { dayCount } from '../day-count';
 import { fillText } from '../fill-text';
 import { formatDate } from '../format-date';
 import { html } from '../html';
 import { planLabel } from '../plan-label';
 
 export const daysLeft = ({ until, now, locale }: DaysLeftInput): string => {
-  const text = BOT_TEXT[locale];
   const days = Math.max(0, Math.ceil((until.getTime() - now.getTime()) / millisecondsInDay));
 
-  return `${days} ${pluralize({ count: days, forms: { one: text.dayOne, few: text.dayFew, many: text.dayMany }, locale })}`;
+  return dayCount({ days, locale });
 };
 
 export const statusText = ({

@@ -4,13 +4,3 @@ export type EnsuredRealityKeys = {
   shortId: string;
   wasGenerated: boolean;
 };
-
-export type RealityKeySeed = {
-  path: string;
-  value: string;
-};
-
-export type SeedRealityKeysScriptInput = {
-  dir: string;
-  seed: RealityKeySeed[];
-};

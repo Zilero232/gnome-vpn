@@ -65,6 +65,21 @@ export type { ApiError, ApiErrorCode } from './errors';
 export { PLATFORM_IDS, PLATFORMS, platformSchema } from './platforms';
 export type { Platform, PlatformId } from './platforms';
 
+export {
+  claimReferralSchema,
+  isReferralCode,
+  MAX_FRIEND_DAYS,
+  MAX_REFERRER_DAYS,
+  normaliseReferralCode,
+  REFERRAL_CODE,
+  REFERRAL_POLICY,
+  REFERRAL_REWARDS,
+  referralCodeSchema,
+  referralOverviewSchema,
+  referralReward
+} from './referrals';
+export type { ClaimReferralInput, ReferralOverview, ReferralReward } from './referrals';
+
 export { periodKindSchema, subscriptionStatusSchema } from './subscription';
 export type { PeriodKind, SubscriptionStatus } from './subscription';
 
@@ -76,3 +91,13 @@ export type { TelegramLinkCode, TelegramStatus, TelegramWebLogin, TelegramWidget
 
 export { DEFAULT_TUNNEL_PROTOCOL, TUNNEL_PROTOCOL, tunnelConfigSchema, tunnelProtocolSchema } from './tunnel';
 export type { TunnelConfig, TunnelProtocol } from './tunnel';
+
+export {
+  createWireguardConfigSchema,
+  WIREGUARD_CONFIG_NAME,
+  wireguardConfigFileSchema,
+  wireguardConfigSchema,
+  wireguardNodeSchema,
+  wireguardOverviewSchema
+} from './wireguard';
+export type { CreateWireguardConfigInput, WireguardConfig, WireguardConfigFile, WireguardNode, WireguardOverview } from './wireguard';
