@@ -1,3 +1,5 @@
+import { isNullish } from 'remeda';
+
 import type { DeviceHeaders, DeviceIdentity } from './device-identity.types';
 
 import { DEVICE_HEADER, DEVICE_KEY } from '../../config';
@@ -17,3 +19,5 @@ export const deviceIdentity = (headers: DeviceHeaders): DeviceIdentity => {
     app
   };
 };
+
+export const isKeylessIncy = (identity: DeviceIdentity): boolean => isNullish(identity.hwid) && identity.app === DEVICE_KEY.incyApp;

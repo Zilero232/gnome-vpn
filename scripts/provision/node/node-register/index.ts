@@ -1,2 +1,3 @@
-export { registerNode } from './node-register';
+export { registerNode, rememberNodeSecrets } from './node-register';
+
 export type { RegisterNodeInput, RememberNodeSecretsInput } from './node-register.types';

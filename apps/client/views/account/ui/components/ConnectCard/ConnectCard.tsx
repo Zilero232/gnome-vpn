@@ -1,54 +1,67 @@
 'use client';
 
-import { getHash, useHash } from '@siberiacancode/reactuse';
+import { getHash, useHash, useMount } from '@siberiacancode/reactuse';
 import { FileKey2, Smartphone } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { IncyCard } from '@/features/vpn/connect-incy';
 import { WireguardPanel } from '@/features/vpn/wireguard-config';
-import { ACCOUNT_TAB } from '@/shared/constants';
-import { Segmented } from '@/ui-kit';
+import { ErrorBlock, LoadingBlock, Segmented } from '@/ui-kit';
 
 import type { ConnectCardProps, ConnectWay } from './ConnectCard.types';
 
+import { AccessNotice } from './components';
+import { CONNECT_WAY_BY_HASH, CONNECT_WAY_HASH } from './ConnectCard.constants';
+
 import s from './ConnectCard.module.scss';
 
-export const ConnectCard = ({ hasWireguard }: ConnectCardProps) => {
+export const ConnectCard = ({ hasAccess, isLoading, isUnavailable, onRetry }: ConnectCardProps) => {
   const t = useTranslations('account.connect');
 
   const [way, setWay] = useState<ConnectWay>('incy');
+  const [shouldFocusWireguard, setShouldFocusWireguard] = useState(false);
 
   const followHash = (hash: string) => {
-    if (hash === ACCOUNT_TAB.wireguard) {
-      setWay('wireguard');
-    }
+    const next = CONNECT_WAY_BY_HASH.get(hash);
 
-    if (hash === ACCOUNT_TAB.connect) {
-      setWay('incy');
+    if (next) {
+      setWay(next);
     }
   };
 
   const select = (next: ConnectWay) => {
     setWay(next);
+    setShouldFocusWireguard(false);
 
-    window.history.replaceState(
-      null,
-      '',
-      `${window.location.pathname}${window.location.search}#${ACCOUNT_TAB[next === 'incy' ? 'connect' : 'wireguard']}`
-    );
+    window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${CONNECT_WAY_HASH[next]}`);
+  };
+
+  const openWireguard = () => {
+    select('wireguard');
+    setShouldFocusWireguard(true);
   };
 
   useHash({ mode: 'initial', onChange: followHash });
 
-  useEffect(() => {
-    if (getHash() === ACCOUNT_TAB.wireguard) {
-      setWay('wireguard');
-    }
-  }, []);
+  useMount(() => followHash(getHash()));
 
-  if (!hasWireguard) {
-    return <IncyCard />;
+  if (isLoading) {
+    return <LoadingBlock label={t('loading')} />;
+  }
+
+  if (isUnavailable) {
+    return <ErrorBlock message={t('unavailable')} retryLabel={t('retry')} onRetry={onRetry} />;
+  }
+
+  if (!hasAccess) {
+    return (
+      <div className={s.root}>
+        <AccessNotice isWireguard={way === 'wireguard'} />
+
+        <IncyCard />
+      </div>
+    );
   }
 
   return (
@@ -64,7 +77,7 @@ export const ConnectCard = ({ hasWireguard }: ConnectCardProps) => {
         onChange={select}
       />
 
-      {way === 'incy' ? <IncyCard onWireguard={() => select('wireguard')} /> : <WireguardPanel />}
+      {way === 'incy' ? <IncyCard onWireguard={openWireguard} /> : <WireguardPanel shouldFocusTitle={shouldFocusWireguard} />}
     </div>
   );
 };

@@ -1,14 +1,14 @@
 {
   "title": "Privacy Policy",
   "updated": "Updated {date}",
-  "intro": "GnomeVPN is a VPN service built on the Hysteria2 protocol. It is designed to know as little about you as possible: browsing history is never collected and is physically stored nowhere.",
+  "intro": "GnomeVPN is a VPN service built on the Hysteria2, VLESS + Reality and WireGuard protocols. It is designed to know as little about you as possible: we do not collect or store your connection history or the addresses you visit. Below is the full list of what is stored.",
   "collect": {
     "title": "What we collect",
-    "body": "Only what the service cannot run without: an email address and a hashed password for signing in; subscription details such as the plan and its expiry; the device identifier your VPN app sends (unrelated to any advertising ID), with the device model, system version and app name, so you can see your devices and their limit can be kept; and the country you picked."
+    "body": "Only what the service cannot run without. For signing in: your email address, name and a hashed password; if you sign in with Telegram or use the bot, your Telegram id, username and language. To protect signing in: the IP address and user agent of the browser or app behind each active session. For the subscription: the plan, its expiry, your payments and, if you were invited or invited someone, the link between those accounts, so the bonus days can be credited. For devices: the device identifier (HWID) your VPN app sends (unrelated to any advertising ID), the device model, platform, system version and app name; the time each device was last active, which the VPN node reports once a minute; the platform and time of the last subscription refresh; and for WireGuard configs, the country you picked."
   },
   "noLogs": {
     "title": "Connection logs",
-    "body": "We keep no logs of your traffic. Visited addresses, DNS queries, connection contents and browsing history are never recorded. Nodes count transferred bytes only, to show your usage in the app and to tell an active session apart from an abandoned one."
+    "body": "We keep no logs of your traffic: no connection history, visited addresses, DNS queries or connection contents. For each device we keep only the time it was last active — a single value that is overwritten, not a log. Nodes also count transferred bytes to show your usage in the app."
   },
   "payments": {
     "title": "Payments",
@@ -16,11 +16,11 @@
   },
   "storage": {
     "title": "Where data is stored",
-    "body": "Account data is stored on servers in Russia. Passwords are kept as irreversible hashes. Device and config records are removed together with the subscription or on your account deletion request."
+    "body": "Account data is stored on servers in Russia. Passwords are kept as irreversible hashes. A device record is kept while the device is in your list, and you can remove it in your account at any time. When a subscription ends, devices stay in the list so nothing has to be set up again after you pay. Deleting your account deletes all of its data, devices and configs; payment records may be kept longer where the law requires it."
   },
   "thirdParty": {
     "title": "Sharing with third parties",
-    "body": "We do not sell or share your data. The exceptions are the payment provider needed to process a payment, and cases where disclosure is explicitly required by law."
+    "body": "We do not sell your data. Part of it is processed by services the product cannot run without: YooKassa, to process payments; the email provider, to deliver emails to your address; and Telegram, if you sign in with Telegram or use the bot. There are no other recipients, except where disclosure is explicitly required by law."
   },
   "rights": {
     "title": "Your rights",

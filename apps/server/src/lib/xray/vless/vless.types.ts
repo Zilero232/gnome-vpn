@@ -14,7 +14,6 @@ export type CreateVlessClientInput = {
   email: string;
   id: string;
   limitIp: number;
-  deferRestart?: boolean;
 };
 
 export type CreateVlessClientResult = {

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { limitsSchema } from '../billing/addons';
+import { lastPaymentSchema } from '../billing/payment';
 import { planIdSchema } from '../billing/plans';
 
 export const periodKindSchema = z.enum(['none', 'trial', 'paid']);
@@ -15,5 +16,6 @@ export const subscriptionStatusSchema = z.object({
   isRecurringAvailable: z.boolean(),
   period: periodKindSchema,
   isTrialAvailable: z.boolean(),
-  limits: limitsSchema
+  limits: limitsSchema,
+  lastPayment: lastPaymentSchema.nullable()
 });

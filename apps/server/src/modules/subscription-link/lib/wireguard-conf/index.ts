@@ -1,3 +1,4 @@
-export { wireguardConf, wireguardFileName, wireguardNodeView } from './wireguard-conf';
+export { wireguardConf } from './wireguard-conf';
+export { wireguardFileName, wireguardNodeView } from './wireguard-conf.helpers';
 
-export type { WireguardConfInput, WireguardFileNameInput, WireguardNodeSource } from './wireguard-conf.types';
+export type { WireguardConfInput, WireguardFileNameInput, WireguardNodeSource, WireguardNodeViewInput } from './wireguard-conf.types';

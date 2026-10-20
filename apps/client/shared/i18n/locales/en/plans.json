@@ -13,5 +13,7 @@
   "feature1": "Every country, no extra fees",
   "feature2": "Unlimited traffic",
   "feature3": "Cancel auto-renewal in one click",
-  "feature4": "No connection logs"
+  "feature4": "No connection history",
+  "choose": "Choose",
+  "chooseLabel": "Choose the {plan} plan"
 }

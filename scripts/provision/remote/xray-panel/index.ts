@@ -1,3 +1,3 @@
-export { ensureInbound, ensureVlessInbound, ensureWireguardInbound, isPanelReachable } from './xray-panel';
+export { isPanelReachable, syncInbounds } from './xray-panel';
 
-export type { EnsureInboundInput, PanelCredentials } from './xray-panel.types';
+export type { PanelCredentials, SyncInboundsInput } from './xray-panel.types';

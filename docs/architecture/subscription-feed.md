@@ -12,12 +12,13 @@ renders the server list and the subscription state. Code:
 | Route                            | Auth     | Purpose                                             |
 | -------------------------------- | -------- | --------------------------------------------------- |
 | `GET /subscription-link`         | session  | the user's URL plus its `incy://crypt1/…` deep link |
-| `POST /subscription-link/rotate` | session  | mint a new token; the old URL dies immediately      |
+| `POST /subscription-link/rotate` | session  | new token; every device on the old one is revoked   |
 | `GET /sub/:token`                | **none** | what INCY (or any other client) fetches             |
 
 **The token is the credential.** INCY cannot log in, so the URL is all the
 authentication there is: 32 random bytes, `base64url`, one row per user. That is
-why rotation exists, and why the route sits on `/sub` rather than
+why rotation exists — and why it revokes the keys of every device that fetched
+the old link, not only the link ([devices.md](devices.md#revocation-converges-through-reconcile)) — and why the route sits on `/sub` rather than
 `/subscription` — `/subscription/status` already lives there, and a token whose
 value happened to be `status` would have shadowed it.
 
@@ -31,11 +32,15 @@ so INCY shows the state rather than an error. `expired-access` keeps its
 six-hour grace (`WINDOW.configGraceHours`), but that grace is for a payer whose
 renewal is late, not a substitute for this gate.
 
-**`/sub/:token` is throttled tighter than the rest of the API.** Every valid
-fetch is a round-trip to every node, so a leaked token in a loop is an
-amplifier against the panels; `FEED.throttle` overrides the global limit on
-that one route. INCY itself refetches every `UPDATE_INTERVAL_HOURS` (12), which
-the `profile-update-interval` header tells it.
+**`/sub/:token` is throttled tighter than the rest of the API, per token.** A
+fetch from a new device issues keys on every node, so a leaked token in a loop
+is an amplifier against the panels; `FEED.throttle` overrides the global limit
+on that one route. The limit is counted per subscription token (`feedTracker`,
+passed as the route's `getTracker`), not per IP: a mobile carrier's CGNAT puts
+many subscribers behind one address, and counting by IP made them share ten
+fetches a minute. An unknown token costs one indexed lookup and a `404`. INCY
+itself refetches every `UPDATE_INTERVAL_HOURS` (12), which the
+`profile-update-interval` header tells it.
 
 **The feed sends no ETag and `cache-control: no-store`.** Express hashes the
 body alone, and a renewal changes only `subscription-userinfo` — the server list
@@ -56,11 +61,11 @@ For an admitted one, `SubscriptionPeersService.ensureNode` ensures one
 `hysteria2://` or `vless://` URI. **A node that fails to issue is logged and
 skipped** — one unreachable node must not empty the user's whole server list.
 
-Missing peers on a node are issued with `deferRestart` and the core is restarted
-once afterwards through `PeersService.restartCore`. If that restart fails, the
-rows just written are deleted and the node is served with only the peers it
-already had; the next fetch issues the rest again. Why the restart is needed at
-all: [nodes-and-peers.md](nodes-and-peers.md#the-panel-does-not-restart-its-own-core).
+Issuing restarts no core: the panel pushes each new client into the running core
+itself, which was verified against v3.10.2 before the restart was removed
+([nodes-and-peers.md](nodes-and-peers.md#client-changes-apply-live-only-an-inbound-needs-a-restart)).
+The peers are issued with `limitIp` from `deviceIpLimit` — 1 for an app that
+sends no hardware id, 2 otherwise ([devices.md](devices.md#a-device-is-what-fetches-the-subscription)).
 
 `protocolsFor` decides what a node advertises. Hysteria2 always; VLESS only when
 the node carries `realityPublicKey` and `realityShortId`, which provisioning
@@ -170,27 +175,33 @@ but an instruction to hide the traffic block entirely, which is what a user
 without a period should see.
 
 `upload`/`download` are the bytes the nodes have counted for this user's peers,
-summed over every node by `SubscriptionPeersService.traffic` from the
-`clientStats` the panel already returns with `/panel/api/inbounds/list`. `total`
-stays `0` — it is the traffic **quota**, and the subscription has none. A node
-that fails to answer contributes zero rather than failing the response, the same
-rule the server list follows.
-
-Traffic is read **after** the peers are issued, not alongside them: a peer the
-panel has just been asked to create has no `clientStats` row yet.
+summed over every node. The feed no longer asks the nodes: every fetch used to
+list every inbound on every node just for these two numbers. `NodeHealthJob`
+reads each healthy node's `clientStats` (`/panel/api/inbounds/list`) once a
+minute into `NodeTrafficService`, an in-memory map of node → client → bytes, and
+`SubscriptionPeersService.traffic` sums the user's peers from it. The numbers
+are therefore up to a minute old; a node that stops answering keeps its last
+counters; a node no longer available is dropped from the map; and right after a
+server restart the map is empty until the first probe, so the header briefly
+reads zero. `total` stays `0` — it is the traffic **quota**, and the
+subscription has none.
 
 `announce` is a banner the app shows on every fetch, and nobody writes it by
 hand: `lib/announcement` derives it from what the request already knows. It
 returns **one** message, because the header is one — the order is the priority.
-A lapsed or missing subscription outranks everything, then an expiry inside
-`EXPIRY_WARNING_DAYS`, then a node that has gone quiet, then a node added inside
-`FRESH_NODE_DAYS`. Nothing to say returns `null` and the header is omitted rather
-than sent blank.
+A lapsed or missing subscription outranks everything, then the device limit, then
+`hwidRequired` (INCY without a hardware id refused a slot), then a device whose
+servers are still being prepared, then an expiry inside
+`ANNOUNCE.expiryWarningDays`, then `hwidNudge` (an INCY install without a
+hardware id that already holds a slot), then a node that has gone quiet, then a
+node added inside `ANNOUNCE.freshNodeDays`. Nothing to say returns `null` and
+the header is omitted rather than sent blank. The HWID rule itself is in
+[devices.md](devices.md#a-device-is-what-fetches-the-subscription).
 
 **A down node is found through `lastHealthyAt`, not `isAvailable`.** Nothing
 clears `isAvailable` — provisioning is the only thing that ever writes it — so a
 dead node keeps serving in the list. `node-health` stamps `lastHealthyAt` every
-minute, and a stamp older than `NODE_STALE_MINUTES` is what "down" means here. A
+minute, and a stamp older than `ANNOUNCE.nodeStaleMinutes` is what "down" means here. A
 node that has never reported counts as down rather than as new.
 
 **A down node keeps the servers it already issued and issues no new ones.** A
@@ -198,7 +209,7 @@ fetch from a new device used to call the panel of every node in the list, and a
 dead one held the whole response for `REQUEST_TIMEOUT_MS` per call — long
 enough for an app's first import to time out — and the traffic headers asked
 every node on every fetch the same way. A stale node is now skipped for issuing
-(`ensureNode({ canIssue })`) and for traffic; the URIs a device already holds
+(`ensureNode({ canIssue })`), and traffic comes from the cache above; the URIs a device already holds
 for it are still served, so it works again the moment the node comes back.
 When no node looks alive, `liveNodes` keeps them all: that means the health
 probe itself is down, not every node at once, and skipping them all would leave

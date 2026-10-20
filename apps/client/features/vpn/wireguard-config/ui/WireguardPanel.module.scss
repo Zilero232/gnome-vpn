@@ -27,8 +27,14 @@
 }
 
 .title {
+  margin: 0;
   font-size: 18px;
   font-weight: 600;
+  line-height: 1.55;
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
 }
 
 .slots {

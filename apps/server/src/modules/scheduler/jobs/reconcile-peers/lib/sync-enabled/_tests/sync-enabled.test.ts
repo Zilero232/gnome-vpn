@@ -18,6 +18,7 @@ const peer = (overrides: Partial<ReconcilePeer> = {}): ReconcilePeer => ({
   state: 'active',
   nodeCredential: 'secret',
   tunnelAddress: null,
+  device: null,
   user: { subscription: null },
   ...overrides
 });
@@ -26,7 +27,7 @@ const xrayFor = (setClientsEnabled = vi.fn()) => ({ setClientsEnabled }) as unkn
 
 describe('syncEnabled', () => {
   it('leaves the node alone when every peer already matches', async () => {
-    const setClientsEnabled = vi.fn().mockResolvedValue(true);
+    const setClientsEnabled = vi.fn().mockResolvedValue(undefined);
     const active = peer();
 
     const changed = await syncEnabled({
@@ -35,12 +36,12 @@ describe('syncEnabled', () => {
       nodeClients: new Map([[peerClientName(active), true]])
     });
 
-    expect(changed).toBe(false);
+    expect(changed).toBe(0);
     expect(setClientsEnabled).not.toHaveBeenCalled();
   });
 
   it('enables a peer the node is still holding disabled', async () => {
-    const setClientsEnabled = vi.fn().mockResolvedValue(true);
+    const setClientsEnabled = vi.fn().mockResolvedValue(undefined);
     const active = peer();
     const email = peerClientName(active);
 
@@ -50,12 +51,12 @@ describe('syncEnabled', () => {
       nodeClients: new Map([[email, false]])
     });
 
-    expect(changed).toBe(true);
+    expect(changed).toBe(1);
     expect(setClientsEnabled).toHaveBeenCalledWith({ emails: [email], enabled: true });
   });
 
   it('disables a peer whose subscription lapsed', async () => {
-    const setClientsEnabled = vi.fn().mockResolvedValue(true);
+    const setClientsEnabled = vi.fn().mockResolvedValue(undefined);
     const lapsed = peer({ state: 'disabled' });
     const email = peerClientName(lapsed);
 
@@ -65,12 +66,12 @@ describe('syncEnabled', () => {
       nodeClients: new Map([[email, true]])
     });
 
-    expect(changed).toBe(true);
+    expect(changed).toBe(1);
     expect(setClientsEnabled).toHaveBeenCalledWith({ emails: [email], enabled: false });
   });
 
   it('skips a peer the node has never heard of, leaving it to restoreMissing', async () => {
-    const setClientsEnabled = vi.fn().mockResolvedValue(true);
+    const setClientsEnabled = vi.fn().mockResolvedValue(undefined);
 
     const changed = await syncEnabled({
       xray: xrayFor(setClientsEnabled),
@@ -78,23 +79,7 @@ describe('syncEnabled', () => {
       nodeClients: new Map()
     });
 
-    expect(changed).toBe(false);
+    expect(changed).toBe(0);
     expect(setClientsEnabled).not.toHaveBeenCalled();
-  });
-});
-
-describe('syncEnabled restarts', () => {
-  it('asks for no restart when the node applied every change live, as it does for wireguard', async () => {
-    const setClientsEnabled = vi.fn().mockResolvedValue(false);
-    const active = peer({ protocol: 'wireguard' });
-
-    const needsRestart = await syncEnabled({
-      xray: xrayFor(setClientsEnabled),
-      peers: [active],
-      nodeClients: new Map([[peerClientName(active), false]])
-    });
-
-    expect(setClientsEnabled).toHaveBeenCalled();
-    expect(needsRestart).toBe(false);
   });
 });

@@ -8,6 +8,7 @@ import type {
   PanelClientInput,
   PanelClientStat,
   PanelInbound,
+  PanelLastOnline,
   PanelOnlines,
   PanelPostInput,
   PanelRequestInput,
@@ -20,7 +21,7 @@ import type {
 import { AppServiceUnavailableException } from '../../../common/exceptions';
 import { VLESS_FLOW } from '../vless/vless.constants';
 import { CLIENT_DEFAULTS, PANEL_ROUTES } from './panel-client.constants';
-import { collectOnlineEmails } from './panel-client.helpers';
+import { collectLastOnline, collectOnlineEmails } from './panel-client.helpers';
 
 export class PanelClient {
   private readonly baseUrl: string;
@@ -127,5 +128,11 @@ export class PanelClient {
     const payload = await this.post<PanelOnlines>({ path: PANEL_ROUTES.onlines });
 
     return collectOnlineEmails(payload);
+  }
+
+  async lastOnline(): Promise<Map<string, Date>> {
+    const payload = await this.post<PanelLastOnline>({ path: PANEL_ROUTES.lastOnline });
+
+    return collectLastOnline(payload);
   }
 }

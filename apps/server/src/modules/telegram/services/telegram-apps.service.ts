@@ -7,19 +7,7 @@ import type { BotContext, ShowClientInput } from '../telegram.types';
 import { SubscriptionService } from '../../subscription';
 import { SubscriptionLinkService } from '../../subscription-link';
 import { BOT_TEXT, CALLBACK_PREFIX, CLIENT_LIST, NEW_LINE } from '../config';
-import {
-  appsKeyboard,
-  clientLabel,
-  clientName,
-  fillLabel,
-  fillText,
-  html,
-  isButtonUrl,
-  menuButtons,
-  offerKeys,
-  parseClientId,
-  platformNames
-} from '../lib';
+import { appsKeyboard, clientLabel, clientName, fillLabel, fillText, html, isButtonUrl, noAccessMessage, parseClientId, platformNames } from '../lib';
 import { TelegramSharedService } from './telegram-shared.service';
 
 @Injectable()
@@ -34,14 +22,13 @@ export class TelegramAppsService {
     await this.shared.withUser({
       ctx,
       act: async (chat) => {
-        const text = BOT_TEXT[chat.locale];
         const status = await this.subscription.getStatus(chat.userId);
 
         if (status.period === 'none') {
-          return this.shared.reply({ ctx, chat, text: text.noSubscription, markup: menuButtons({ locale: chat.locale, keys: offerKeys(status) }) });
+          return this.shared.reply({ ctx, chat, ...noAccessMessage({ status, locale: chat.locale }) });
         }
 
-        return this.shared.reply({ ctx, chat, text: text.appsIntro, markup: appsKeyboard(chat.locale) });
+        return this.shared.reply({ ctx, chat, text: BOT_TEXT[chat.locale].appsIntro, markup: appsKeyboard(chat.locale) });
       }
     });
   }

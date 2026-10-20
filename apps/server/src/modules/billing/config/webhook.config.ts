@@ -15,5 +15,6 @@ export const WEBHOOK_ALLOWED_CIDRS: readonly string[] =
 
 export const WEBHOOK_EVENT = {
   methodActive: 'payment_method.active',
-  paymentPrefix: 'payment.'
+  paymentPrefix: 'payment.',
+  refundSucceeded: 'refund.succeeded'
 } as const;

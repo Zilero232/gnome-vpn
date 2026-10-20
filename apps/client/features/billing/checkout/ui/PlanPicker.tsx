@@ -3,23 +3,37 @@
 import type { PlanId } from '@gnomevpn/schemas';
 
 import { DEFAULT_PLAN_ID, findPlan, planDiscountPercent, planMonthlyRub, PLANS } from '@gnomevpn/schemas';
+import { useMount } from '@siberiacancode/reactuse';
 import { clsx } from 'clsx';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { useSubscriptionStatus } from '@/entities/billing/subscription';
 import { Badge, SelectableCard, Stack, Text } from '@/ui-kit';
 
 import type { PlanPickerProps } from './PlanPicker.types';
 
+import { planFromSearch } from '../lib';
 import { CheckoutButton } from './components';
 
 import s from './PlanPicker.module.scss';
 
-export const PlanPicker = ({ className }: PlanPickerProps) => {
+export const PlanPicker = ({ className, defaultPlan = DEFAULT_PLAN_ID, intent = 'buy' }: PlanPickerProps) => {
   const t = useTranslations('account.plans');
-  const [selected, setSelected] = useState<PlanId>(DEFAULT_PLAN_ID);
+  const { subscription } = useSubscriptionStatus();
+
+  const [selected, setSelected] = useState<PlanId>(defaultPlan);
+
+  useMount(() => {
+    const fromUrl = planFromSearch(window.location.search);
+
+    if (fromUrl) {
+      setSelected(fromUrl);
+    }
+  });
 
   const plan = findPlan(selected);
+  const isRenewalDisclosed = subscription?.isRecurringAvailable === true && subscription.period !== 'paid';
 
   return (
     <Stack className={clsx(s.root, className)} gap='md'>
@@ -51,8 +65,14 @@ export const PlanPicker = ({ className }: PlanPickerProps) => {
       </Stack>
 
       <CheckoutButton className={s.submit} planId={selected}>
-        {t('pay', { price: plan.priceRub })}
+        {intent === 'extend' ? t('extend', { price: plan.priceRub }) : t('pay', { price: plan.priceRub })}
       </CheckoutButton>
+
+      {isRenewalDisclosed && (
+        <Text align='center' size='xs' tone='muted'>
+          {t('renewalNote', { price: plan.priceRub, plan: plan.id })}
+        </Text>
+      )}
     </Stack>
   );
 };

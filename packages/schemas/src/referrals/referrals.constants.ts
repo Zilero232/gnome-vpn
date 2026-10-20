@@ -12,8 +12,6 @@ export const MAX_REFERRER_DAYS = Math.max(...Object.values(REFERRAL_REWARDS).map
 export const MAX_FRIEND_DAYS = Math.max(...Object.values(REFERRAL_REWARDS).map((reward) => reward.friendDays));
 
 export const REFERRAL_CODE = {
-  length: 8,
-  alphabet: 'ABCDEFGHJKMNPQRSTUVWXYZ23456789',
   param: 'ref'
 } as const;
 

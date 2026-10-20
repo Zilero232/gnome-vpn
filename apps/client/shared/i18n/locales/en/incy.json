@@ -8,9 +8,9 @@
   "qrHint": "Point a phone camera at it, or scan it from the app on a TV.",
   "qrNote": "The code carries your subscription link — keep it to yourself.",
   "rotate": "Rotate link",
-  "rotateHint": "If the link reached the wrong hands, rotate it. The old one stops working immediately.",
+  "rotateHint": "If the link got into the wrong hands, replace it. The old one stops working at once and every device using an app is disconnected — you will need to add the new link on each of them. WireGuard configs keep working.",
   "rotated": "Link rotated",
-  "rotatedHint": "Add the new link again in every app.",
+  "rotatedHint": "Every app is disconnected — add the new link on each of your devices. WireGuard configs work as before.",
   "platforms": {
     "ios": "iPhone and Mac",
     "android": "Android",
@@ -29,7 +29,7 @@
   },
   "setupLink": "How to install the app →",
   "rotateConfirmTitle": "Rotate the subscription link?",
-  "rotateConfirmBody": "The current link stops working the moment you confirm. Every device you have added it to loses the connection until you paste the new one.",
+  "rotateConfirmBody": "The current link stops working immediately. Every device connected through an app (INCY or another one) is removed from the list and disconnected — you will need to add the new link on each of them. WireGuard configs are not affected.",
   "rotateConfirmAction": "Rotate link",
   "rotateConfirmCancel": "Keep the current one",
   "copyUrl": "Copy subscription URL",
@@ -69,5 +69,6 @@
   "unavailable": "Could not load your subscription link. Check your connection and try again.",
   "retry": "Try again",
   "copyFailed": "Could not copy — select the link and copy it by hand.",
-  "wireguardHint": "Need a .conf for the WireGuard app or a router? <tab>Create a WireGuard config</tab>."
+  "wireguardHint": "Need a .conf for the WireGuard app or a router? <tab>Create a WireGuard config</tab>.",
+  "openInIncy": "Open in INCY"
 }

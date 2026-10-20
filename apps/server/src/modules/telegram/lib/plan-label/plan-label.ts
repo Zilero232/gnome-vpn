@@ -5,7 +5,7 @@ import { InlineKeyboard } from 'grammy';
 import { firstBy } from 'remeda';
 
 import type { BotLocale } from '../../telegram.types';
-import type { PlanButtonLabelInput, PlanLabelInput } from './plan-label.types';
+import type { PlanButtonLabelInput, PlanLabelInput, PlansTextInput } from './plan-label.types';
 
 import { BOT_TEXT, CALLBACK_PREFIX, NEW_LINE } from '../../config';
 import { fillLabel, fillText } from '../fill-text';
@@ -18,7 +18,7 @@ const HIGHLIGHTED_PLAN_ID = planDiscountPercent(BEST_PLAN.id) > 0 ? BEST_PLAN.id
 export const planButtonLabel = ({ plan, locale }: PlanButtonLabelInput): string => {
   const text = BOT_TEXT[locale];
   const discount = planDiscountPercent(plan.id);
-  const label = `${plan.months} ${text.monthShort} — ${plan.priceRub} ₽`;
+  const label = `${plan.months} ${text.monthShort} — ${fillLabel({ text: text.planPrice, fill: { price: String(plan.priceRub) } })}`;
 
   return discount > 0 ? `${label} · ${fillLabel({ text: text.planBest, fill: { percent: String(discount) } })}` : label;
 };
@@ -31,15 +31,16 @@ export const planLabel = ({ planId, locale }: PlanLabelInput): string => {
 
 export const parsePlanId = (raw: string): PlanId | null => PLANS.find((plan) => plan.id === raw)?.id ?? null;
 
-export const plansText = (locale: BotLocale): string => {
+export const plansText = ({ locale, isExtending }: PlansTextInput): string => {
   const text = BOT_TEXT[locale];
   const lines = PLANS.map((plan) => {
+    const price = fillText({ text: text.planPrice, fill: { price: String(plan.priceRub) } });
     const perMonth = fillText({ text: text.planPerMonth, fill: { price: String(planMonthlyRub(plan.id)) } });
 
-    return `${html.bold(planLabel({ planId: plan.id, locale }))} — ${plan.priceRub} ₽ · ${perMonth}`;
+    return `${html.bold(planLabel({ planId: plan.id, locale }))} — ${price} · ${perMonth}`;
   });
 
-  return html.paragraphs([text.choosePlan, html.quote(lines.join(NEW_LINE))]);
+  return html.paragraphs([isExtending ? text.choosePlanStacked : text.choosePlan, html.quote(lines.join(NEW_LINE))]);
 };
 
 export const planKeyboard = (locale: BotLocale): InlineKeyboard =>

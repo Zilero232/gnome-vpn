@@ -6,11 +6,10 @@ export {
   generateWireguardKeys,
   hasReality,
   hasWireguard,
-  isWireguardClient,
   peerClientName,
   wireguardPublicKey
 } from './lib';
-export type { TunnelNode } from './lib';
+export type { PeerNameInput, TunnelNode } from './lib';
 export { PeersModule } from './peers.module';
 
 export type { CreatedPeer, PeerRef } from './peers.service.types';

@@ -14,10 +14,7 @@ export type RememberNodeSecretsInput = {
 export type RegisterNodeInput = {
   config: NodeConfig;
   prisma: PrismaLike;
-  serverEnvPath: string;
   panel: PanelSession;
-  password: string;
-  panelPath: string;
   auth: string;
   cert: InstalledInbounds;
 };

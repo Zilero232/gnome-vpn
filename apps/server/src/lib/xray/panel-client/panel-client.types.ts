@@ -45,6 +45,8 @@ export type PanelServerStatus = {
 
 export type PanelOnlines = Record<string, string[]> | string[] | null;
 
+export type PanelLastOnline = Record<string, number> | null;
+
 export type SetClientsEnabledInput = {
   emails: string[];
   enabled: boolean;

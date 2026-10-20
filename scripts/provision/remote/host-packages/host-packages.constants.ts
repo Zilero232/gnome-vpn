@@ -3,7 +3,10 @@ export const DOCKER = {
   probe: 'docker --version'
 } as const;
 
-export const APT_ENV = 'DEBIAN_FRONTEND=noninteractive';
+export const APT = {
+  env: 'DEBIAN_FRONTEND=noninteractive',
+  lockTimeout: '-o DPkg::Lock::Timeout=300'
+} as const;
 
 export const FAIL2BAN = {
   jailPath: '/etc/fail2ban/jail.d/sshd.local',

@@ -1,6 +1,7 @@
 'use client';
 
 import { Menu } from '@base-ui/react/menu';
+import { useMediaQuery } from '@siberiacancode/reactuse';
 import { ChevronDown, Share2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -11,20 +12,30 @@ import type { ShareMenuProps } from './ShareMenu.types';
 
 import { SHARE_ICONS } from '../../../config';
 import { shareTargets } from '../../../lib';
+import { useCopyLink } from '../../../model/hooks';
+import { TOUCH_DEVICE_QUERY } from './ShareMenu.constants';
 
 import s from './ShareMenu.module.scss';
 
 export const ShareMenu = ({ url }: ShareMenuProps) => {
   const t = useTranslations('referrals');
   const isHydrated = useHydrated();
+  const isTouchDevice = useMediaQuery(TOUCH_DEVICE_QUERY);
+  const copy = useCopyLink();
 
   const text = t('shareText');
-  const canShareNatively = isHydrated && typeof navigator.share === 'function';
+  const canShareNatively = isHydrated && isTouchDevice && typeof navigator.share === 'function';
 
   const onNativeShare = async () => {
     try {
       await navigator.share({ url, text });
-    } catch {}
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        return;
+      }
+
+      await copy(url);
+    }
   };
 
   if (canShareNatively) {

@@ -22,73 +22,51 @@ const peer = (overrides: Partial<ReconcilePeer> = {}): ReconcilePeer => ({
   state: 'active',
   nodeCredential: 'secret',
   tunnelAddress: null,
+  device: null,
   user: { subscription: null },
   ...overrides
 });
 
-const prismaWith = (livingIds: string[]) =>
-  ({ user: { findMany: vi.fn().mockResolvedValue(livingIds.map((id) => ({ id }))) } }) as unknown as PrismaService;
+const prismaWith = (rows: ReconcilePeer[] = []) => ({ peer: { findMany: vi.fn().mockResolvedValue(rows) } }) as unknown as PrismaService;
 
-const orphanEmail = peerClientName({ userId: STRANGER, kind: 'config', name: 'incy', nodeId: 'node-1', protocol: 'hysteria2' });
+const orphanEmail = peerClientName({ userId: STRANGER, kind: 'config', name: 'd-3f2a9c1e7b44', nodeId: 'node-1', protocol: 'hysteria2' });
+
+const collect = (overrides: Partial<Parameters<typeof collectOrphans>[0]>) =>
+  collectOrphans({
+    prisma: prismaWith(),
+    xray: { deleteClient: vi.fn() } as unknown as XrayClient,
+    nodeId: 'node-1',
+    peers: [],
+    nodeClients: new Map([[orphanEmail, true]]),
+    online: new Set(),
+    ...overrides
+  });
 
 describe('collectOrphans', () => {
   it('refuses to delete anything when the node would not say who is online', async () => {
     const deleteClient = vi.fn();
 
-    const collected = await collectOrphans({
-      prisma: prismaWith([]),
-      xray: { deleteClient } as unknown as XrayClient,
-      peers: [],
-      nodeClients: new Map([[orphanEmail, true]]),
-      online: null
-    });
+    const collected = await collect({ xray: { deleteClient } as unknown as XrayClient, online: null });
 
-    expect(collected).toBe(false);
+    expect(collected).toBe(0);
     expect(deleteClient).not.toHaveBeenCalled();
   });
 
-  it('deletes a client whose owner is gone from the database', async () => {
+  it('deletes an offline client with no peer row, whether or not its owner still exists', async () => {
     const deleteClient = vi.fn();
 
-    const collected = await collectOrphans({
-      prisma: prismaWith([]),
-      xray: { deleteClient } as unknown as XrayClient,
-      peers: [],
-      nodeClients: new Map([[orphanEmail, true]]),
-      online: new Set()
-    });
+    const collected = await collect({ xray: { deleteClient } as unknown as XrayClient });
 
-    expect(collected).toBe(true);
+    expect(collected).toBe(1);
     expect(deleteClient).toHaveBeenCalledWith(orphanEmail);
   });
 
   it('spares a client that is carrying traffic right now, whatever the database says', async () => {
     const deleteClient = vi.fn();
 
-    const collected = await collectOrphans({
-      prisma: prismaWith([]),
-      xray: { deleteClient } as unknown as XrayClient,
-      peers: [],
-      nodeClients: new Map([[orphanEmail, true]]),
-      online: new Set([orphanEmail])
-    });
+    const collected = await collect({ xray: { deleteClient } as unknown as XrayClient, online: new Set([orphanEmail]) });
 
-    expect(collected).toBe(false);
-    expect(deleteClient).not.toHaveBeenCalled();
-  });
-
-  it('spares a client whose owner still exists, even with no peer row for it', async () => {
-    const deleteClient = vi.fn();
-
-    const collected = await collectOrphans({
-      prisma: prismaWith([STRANGER]),
-      xray: { deleteClient } as unknown as XrayClient,
-      peers: [],
-      nodeClients: new Map([[orphanEmail, true]]),
-      online: new Set()
-    });
-
-    expect(collected).toBe(false);
+    expect(collected).toBe(0);
     expect(deleteClient).not.toHaveBeenCalled();
   });
 
@@ -96,30 +74,35 @@ describe('collectOrphans', () => {
     const deleteClient = vi.fn();
     const mine = peer();
 
-    const collected = await collectOrphans({
-      prisma: prismaWith([]),
+    const collected = await collect({
       xray: { deleteClient } as unknown as XrayClient,
       peers: [mine],
-      nodeClients: new Map([[peerClientName(mine), true]]),
-      online: new Set()
+      nodeClients: new Map([[peerClientName(mine), true]])
     });
 
-    expect(collected).toBe(false);
+    expect(collected).toBe(0);
+    expect(deleteClient).not.toHaveBeenCalled();
+  });
+
+  it('spares a client whose row was written after the pass read the node', async () => {
+    const deleteClient = vi.fn();
+    const fresh = peer({ userId: STRANGER, name: 'd-3f2a9c1e7b44' });
+
+    const collected = await collect({ prisma: prismaWith([fresh]), xray: { deleteClient } as unknown as XrayClient });
+
+    expect(collected).toBe(0);
     expect(deleteClient).not.toHaveBeenCalled();
   });
 
   it('leaves a client this server never named alone', async () => {
     const deleteClient = vi.fn();
 
-    const collected = await collectOrphans({
-      prisma: prismaWith([]),
+    const collected = await collect({
       xray: { deleteClient } as unknown as XrayClient,
-      peers: [],
-      nodeClients: new Map([['someone-elses-client', true]]),
-      online: new Set()
+      nodeClients: new Map([['someone-elses-client', true]])
     });
 
-    expect(collected).toBe(false);
+    expect(collected).toBe(0);
     expect(deleteClient).not.toHaveBeenCalled();
   });
 });

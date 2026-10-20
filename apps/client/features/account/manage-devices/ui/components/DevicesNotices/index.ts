@@ -1,0 +1,1 @@
+export { DevicesNotices } from './DevicesNotices';

@@ -23,7 +23,12 @@ import { TelegramModule } from './modules/telegram';
     AppConfigModule,
     PrismaModule,
     CacheModule.register({ isGlobal: true }),
-    ThrottlerModule.forRoot({ throttlers: [{ name: 'default', ttl: 60_000, limit: 120 }] }),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        { name: 'default', ttl: 60_000, limit: 120 },
+        { name: 'perIp', ttl: 60_000, limit: 120 }
+      ]
+    }),
     AuthModule,
     HealthModule,
     SubscriptionModule,

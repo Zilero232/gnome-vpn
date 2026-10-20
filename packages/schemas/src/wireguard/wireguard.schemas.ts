@@ -15,7 +15,8 @@ export const wireguardNodeSchema = z.object({
   id: z.string(),
   country: z.string(),
   countryCode: z.string(),
-  city: z.string().nullable()
+  city: z.string().nullable(),
+  isDown: z.boolean()
 });
 
 export const wireguardConfigSchema = z.object({

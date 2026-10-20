@@ -1,3 +1,5 @@
-import { PEER_PREFIX } from '../../../../../peers';
+import { isNonNullish } from 'remeda';
 
-export const isServerOwned = (email: string): boolean => Object.values(PEER_PREFIX).some((prefix) => email.startsWith(prefix));
+import { ownerIdOf } from '../orphan-owner';
+
+export const isServerOwned = (email: string): boolean => isNonNullish(ownerIdOf(email));

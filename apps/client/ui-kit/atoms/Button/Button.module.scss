@@ -66,7 +66,7 @@
 
   @media (hover: hover) {
     &:hover:not(:disabled) {
-      box-shadow: 0 0 28px -6px rgb(53 240 160 / 55%);
+      box-shadow: 0 0 28px -6px color-mix(in srgb, var(--color-accent) 55%, transparent);
     }
   }
 }

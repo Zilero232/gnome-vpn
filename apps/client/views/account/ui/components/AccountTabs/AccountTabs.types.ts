@@ -7,7 +7,6 @@ export type AccountTab = {
   icon: LucideIcon;
   render: () => ReactNode;
   aliases?: readonly string[];
-  isBare?: boolean;
 };
 
 export type AccountTabsProps = {

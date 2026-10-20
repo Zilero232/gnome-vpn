@@ -1,14 +1,26 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { isNonNullish, isNullish } from 'remeda';
-import { match } from 'ts-pattern';
 
-import type { BotContext, BotLocale, ChatCopy, ConsumeInput, RefusalInput, SpeakInput, WelcomeInput } from '../telegram.types';
+import type { BotContext, BotLocale, BotMessage, ChatCopy, ConsumeInput, GreetInput, SpeakInput, WelcomeInput } from '../telegram.types';
 
 import { describeError, errorCodeOf } from '../../../common/lib';
 import { AppConfigService } from '../../../config';
 import { AccountService, IdentityService } from '../../auth';
 import { BOT_TEXT, CALLBACK_PREFIX, DEFAULT_BOT_LOCALE, MESSAGE_EFFECT } from '../config';
-import { deleteCopy, fillText, html, identityOf, languageKeyboard, moreKeyboard, resolveLocale, unlinkCopy, urlMessage } from '../lib';
+import {
+  botUrl,
+  deleteCopy,
+  fillText,
+  html,
+  identityOf,
+  isGroupJoin,
+  languageKeyboard,
+  moreKeyboard,
+  refusalText,
+  resolveLocale,
+  unlinkCopy,
+  urlMessage
+} from '../lib';
 import { TelegramLinkService } from './telegram-link.service';
 import { TelegramNotifyService } from './telegram-notify.service';
 import { TelegramSharedService } from './telegram-shared.service';
@@ -37,11 +49,33 @@ export class TelegramAccountService {
 
     const chat = await this.link.ensureChat(identity);
 
-    await this.shared.reply({ ctx, chat, text: html.paragraphs([this.startText(chat.locale), note]) });
+    await this.greet({ ctx, chat, note });
+  }
+
+  async greet({ ctx, chat, note }: GreetInput): Promise<void> {
+    const greeting = chat.isNew ? this.startText(chat.locale) : BOT_TEXT[chat.locale].welcomeBack;
+
+    await this.shared.reply({ ctx, chat, text: html.paragraphs([greeting, note]) });
   }
 
   async help(ctx: BotContext): Promise<void> {
     await this.speak({ ctx, pick: (copy) => copy.help });
+  }
+
+  async groupOnly(ctx: BotContext): Promise<void> {
+    const text = this.shared.textFor(ctx);
+    const url = botUrl(ctx.me.username);
+    const message: BotMessage = isNullish(url)
+      ? { text: text.groupOnly }
+      : urlMessage({ intro: text.groupOnly, url, label: text.groupOpen, style: 'primary' });
+
+    await ctx.reply(message.text, { reply_markup: message.markup });
+  }
+
+  async joined(ctx: BotContext): Promise<void> {
+    if (isNonNullish(ctx.myChatMember) && isGroupJoin(ctx.myChatMember)) {
+      await this.groupOnly(ctx);
+    }
   }
 
   async more(ctx: BotContext): Promise<void> {
@@ -90,7 +124,15 @@ export class TelegramAccountService {
       prefix: CALLBACK_PREFIX.deleteAccount,
       cancelled: (copy) => copy.deleteCancelled,
       act: async (chat) => {
-        await this.account.remove(chat.userId);
+        try {
+          await this.account.remove(chat.userId);
+        } catch (error) {
+          if (errorCodeOf(error) === 'ACCOUNT_PAYMENT_PENDING') {
+            return this.shared.reply({ ctx, chat, text: BOT_TEXT[chat.locale].deletePaymentPending });
+          }
+
+          throw error;
+        }
 
         return ctx.reply(BOT_TEXT[chat.locale].deleted, { reply_markup: { remove_keyboard: true } });
       }
@@ -102,11 +144,7 @@ export class TelegramAccountService {
       ctx,
       prefix: CALLBACK_PREFIX.unlink,
       cancelled: (copy) => copy.unlinkCancelled,
-      act: async (chat) => {
-        await this.link.unlink(chat.userId);
-
-        return ctx.reply(BOT_TEXT[chat.locale].unlinked, { reply_markup: { remove_keyboard: true } });
-      }
+      act: (chat) => this.link.unlink(chat.userId)
     });
   }
 
@@ -137,23 +175,28 @@ export class TelegramAccountService {
       return;
     }
 
-    const copy = this.shared.textFor(ctx);
     const known = await this.link.findChat(identity.telegramId);
+    const copy = isNonNullish(known) ? BOT_TEXT[known.locale] : this.shared.textFor(ctx);
 
     try {
       await this.link.consumeCode({ code: text, ...identity });
     } catch (error) {
-      await this.shared.reply({ ctx, chat: known, text: this.refusalFor({ error, copy }) });
+      const text = refusalText({
+        error,
+        copies: { TELEGRAM_ALREADY_LINKED: copy.alreadyLinked, TELEGRAM_CODE_INVALID: copy.codeInvalid },
+        fallback: copy.failed,
+        onUnknown: (reason) => this.logger.warn(`telegram link failed: ${describeError(reason)}`)
+      });
+
+      await this.shared.reply({ ctx, chat: known, text });
 
       return;
     }
 
     const chat = await this.link.findChat(identity.telegramId);
     const locale = chat?.locale ?? DEFAULT_BOT_LOCALE;
-    const linked = BOT_TEXT[locale].linked;
-    const greeting = isNonNullish(known) ? linked : html.paragraphs([this.startText(locale), linked]);
 
-    await this.shared.reply({ ctx, chat, text: greeting, effect: MESSAGE_EFFECT.celebrate });
+    await this.shared.reply({ ctx, chat, text: BOT_TEXT[locale].linked, effect: MESSAGE_EFFECT.celebrate });
   }
 
   private startText(locale: BotLocale): string {
@@ -163,6 +206,12 @@ export class TelegramAccountService {
   private async speak({ ctx, pick }: SpeakInput): Promise<void> {
     const { chat, copy } = await this.copyFor(ctx);
 
+    if (isNullish(chat)) {
+      await this.shared.notLinked(ctx);
+
+      return;
+    }
+
     await this.shared.reply({ ctx, chat, text: pick(copy) });
   }
 
@@ -171,16 +220,5 @@ export class TelegramAccountService {
     const chat = isNullish(identity) ? null : await this.link.findChat(identity.telegramId);
 
     return { chat, copy: chat ? BOT_TEXT[chat.locale] : this.shared.textFor(ctx) };
-  }
-
-  private refusalFor({ error, copy }: RefusalInput): string {
-    return match(errorCodeOf(error))
-      .with('TELEGRAM_ALREADY_LINKED', () => copy.alreadyLinked)
-      .with('TELEGRAM_CODE_INVALID', () => copy.codeInvalid)
-      .otherwise(() => {
-        this.logger.warn(`telegram link failed: ${describeError(error)}`);
-
-        return copy.failed;
-      });
   }
 }

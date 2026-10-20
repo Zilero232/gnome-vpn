@@ -10,7 +10,7 @@ import { Text } from '@/ui-kit';
 
 import type { ImportInput, OtherAppsListProps } from './OtherAppsList.types';
 
-import { TOUCH_DEVICE_QUERY } from './OtherAppsList.constants';
+import { TOUCH_DEVICE_QUERY } from '../../IncyCard.constants';
 
 import s from './OtherAppsList.module.scss';
 

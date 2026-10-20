@@ -29,8 +29,8 @@
   gap: 8px;
 
   &[data-best='true'] {
-    border-color: rgb(53 240 160 / 35%);
-    background: linear-gradient(160deg, rgb(53 240 160 / 10%) 0%, transparent 70%), var(--color-surface-raised);
+    border-color: color-mix(in srgb, var(--color-accent) 35%, transparent);
+    background: linear-gradient(160deg, color-mix(in srgb, var(--color-accent) 10%, transparent) 0%, transparent 70%), var(--color-surface-raised);
     box-shadow: var(--glow-accent);
   }
 }

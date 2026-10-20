@@ -2,24 +2,30 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { isNonNullish } from 'remeda';
 
-import type { NoteLoadInput, ProbeNodeRow } from './node-health.job.types';
+import type { NoteLoadInput, ProbeNodeRow, RecordNodeInput } from './node-health.job.types';
 
 import { describeError, xrayClientForNode } from '../../../../common/lib';
 import { PrismaService } from '../../../../core';
+import { NodeTrafficService } from '../../../subscription-link';
 import { ALERT } from '../../config';
+import { deviceActivity } from './lib';
+import { ACTIVITY_PEER_SELECT } from './node-health.job.constants';
 
 @Injectable()
 export class NodeHealthJob {
   private readonly logger = new Logger(NodeHealthJob.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly nodeTraffic: NodeTrafficService
+  ) {}
 
   private async probe(node: ProbeNodeRow): Promise<void> {
-    const health = await xrayClientForNode(node)
-      .health()
-      .catch((error: unknown) => {
-        throw new Error(`${node.id}: ${describeError(error)}`);
-      });
+    const xray = xrayClientForNode(node);
+
+    const health = await xray.health().catch((error: unknown) => {
+      throw new Error(`${node.id}: ${describeError(error)}`);
+    });
 
     this.noteLoad({ node, health });
 
@@ -33,6 +39,27 @@ export class NodeHealthJob {
       where: { id: node.id },
       data: { lastHealthyAt: new Date() }
     });
+
+    await Promise.all([this.recordActivity({ node, xray }), this.recordTraffic({ node, xray })]);
+  }
+
+  private async recordTraffic({ node, xray }: RecordNodeInput): Promise<void> {
+    this.nodeTraffic.record({ nodeId: node.id, traffic: await xray.clientTraffic() });
+  }
+
+  private async recordActivity({ node, xray }: RecordNodeInput): Promise<void> {
+    const [peers, lastOnline] = await Promise.all([
+      this.prisma.peer.findMany({ where: { nodeId: node.id, revokedAt: null, deviceId: { not: null } }, select: ACTIVITY_PEER_SELECT }),
+      xray.lastOnline()
+    ]);
+
+    const activity = deviceActivity({ peers, lastOnline });
+
+    await this.prisma.$transaction(
+      [...activity].map(([deviceId, at]) =>
+        this.prisma.device.updateMany({ where: { id: deviceId, lastSeenAt: { lt: at } }, data: { lastSeenAt: at } })
+      )
+    );
   }
 
   private noteLoad({ node, health }: NoteLoadInput): void {
@@ -51,6 +78,8 @@ export class NodeHealthJob {
       where: { isAvailable: true },
       select: { id: true, apiUrl: true, apiTokenEnvVar: true }
     });
+
+    this.nodeTraffic.keepOnly(new Set(nodes.map((node) => node.id)));
 
     const results = await Promise.allSettled(nodes.map((node) => this.probe(node)));
 

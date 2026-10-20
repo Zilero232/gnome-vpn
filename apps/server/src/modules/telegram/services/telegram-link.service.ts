@@ -1,14 +1,17 @@
 import type { TelegramStatus } from '@gnomevpn/schemas';
 
-import { isPlaceholderEmail } from '@gnomevpn/schemas';
+import { isPlaceholderEmail, normaliseShortCode } from '@gnomevpn/schemas';
 import { Injectable } from '@nestjs/common';
 import { addMinutes } from 'date-fns';
 import { isNonNullish, isNullish } from 'remeda';
 
+import type { PeerRef } from '../../peers';
 import type {
   ConsumeLinkCodeInput,
+  EnsuredChat,
   IssueLinkCodeResult,
   LinkedAccount,
+  MergeOutcome,
   ResolvedChat,
   SetLocaleInput,
   TelegramIdentity,
@@ -16,12 +19,16 @@ import type {
 } from '../telegram.types';
 
 import { AppBadRequestException, AppServiceUnavailableException } from '../../../common/exceptions';
+import { generateShortCode } from '../../../common/lib';
 import { AppConfigService } from '../../../config';
 import { isPrismaRequestError, PrismaService, UNIQUE_VIOLATION } from '../../../core';
 import { IdentityService } from '../../auth';
+import { PEER_REF_SELECT, PeersService } from '../../peers';
 import { ReferralService } from '../../referrals';
+import { TrialService } from '../../subscription';
 import { LINK_CODE } from '../config';
-import { generateLinkCode, normaliseLinkCode, resolveLocale } from '../lib';
+import { resolveLocale } from '../lib';
+import { TelegramNotifyService } from './telegram-notify.service';
 
 @Injectable()
 export class TelegramLinkService {
@@ -29,11 +36,14 @@ export class TelegramLinkService {
     private readonly prisma: PrismaService,
     private readonly config: AppConfigService,
     private readonly identity: IdentityService,
-    private readonly referrals: ReferralService
+    private readonly referrals: ReferralService,
+    private readonly trial: TrialService,
+    private readonly peers: PeersService,
+    private readonly notify: TelegramNotifyService
   ) {}
 
   async issueCode(userId: string): Promise<IssueLinkCodeResult> {
-    const code = generateLinkCode();
+    const code = generateShortCode();
     const expiresAt = addMinutes(new Date(), LINK_CODE.ttlMinutes);
 
     await this.prisma.$transaction([
@@ -49,7 +59,15 @@ export class TelegramLinkService {
   }
 
   async consumeCode({ code, telegramId, username, languageCode }: ConsumeLinkCodeInput): Promise<LinkedAccount> {
-    const normalised = normaliseLinkCode(code);
+    const { account, released } = await this.claimCode({ code, telegramId, username, languageCode });
+
+    await this.peers.releaseDetached(released);
+
+    return account;
+  }
+
+  private async claimCode({ code, telegramId, username, languageCode }: ConsumeLinkCodeInput): Promise<MergeOutcome> {
+    const normalised = normaliseShortCode(code);
 
     return this.prisma.$transaction(async (tx) => {
       const claimed = await tx.telegramLinkCode.updateMany({
@@ -80,8 +98,13 @@ export class TelegramLinkService {
 
       await tx.telegramAccount.deleteMany({ where: { userId, telegramId: { not: telegramId } } });
 
+      let released: PeerRef[] = [];
+
       if (heldByEmptyChat && isNonNullish(taken)) {
+        released = await tx.peer.findMany({ where: { userId: taken.userId }, select: PEER_REF_SELECT });
+
         await this.referrals.adopt({ fromUserId: taken.userId, toUserId: userId, db: tx });
+        await this.trial.transfer({ fromUserId: taken.userId, toUserId: userId, db: tx });
         await tx.user.delete({ where: { id: taken.userId } });
       }
 
@@ -91,7 +114,7 @@ export class TelegramLinkService {
         create: { userId, telegramId, username, languageCode }
       });
 
-      return { userId, telegramId, username };
+      return { account: { userId, telegramId, username }, released };
     });
   }
 
@@ -101,7 +124,7 @@ export class TelegramLinkService {
       select: {
         email: true,
         subscription: { select: { currentPeriodEnd: true, trialStartedAt: true, bonusDays: true } },
-        _count: { select: { payments: true, referralsMade: true } }
+        _count: { select: { payments: { where: { status: { not: 'canceled' } } }, referralsMade: true } }
       }
     });
 
@@ -109,17 +132,18 @@ export class TelegramLinkService {
       return false;
     }
 
-    const hasNoPeriod = isNullish(user.subscription?.trialStartedAt) && isNullish(user.subscription?.currentPeriodEnd);
-    const hasNothingOwed = (user.subscription?.bonusDays ?? 0) === 0 && user._count.payments === 0 && user._count.referralsMade === 0;
+    const subscription = user.subscription;
+    const isTrialOnly = isNonNullish(subscription?.trialStartedAt) || isNullish(subscription?.currentPeriodEnd);
+    const hasNothingOwed = (subscription?.bonusDays ?? 0) === 0 && user._count.payments === 0 && user._count.referralsMade === 0;
 
-    return hasNoPeriod && hasNothingOwed;
+    return isTrialOnly && hasNothingOwed;
   }
 
-  async ensureChat(identity: TelegramIdentity): Promise<ResolvedChat> {
+  async ensureChat(identity: TelegramIdentity): Promise<EnsuredChat> {
     const existing = await this.findChat(identity.telegramId);
 
     if (isNonNullish(existing)) {
-      return existing;
+      return { ...existing, isNew: false };
     }
 
     const { telegramId, username, languageCode } = identity;
@@ -134,10 +158,10 @@ export class TelegramLinkService {
 
       await this.identity.deleteUser(userId);
 
-      return this.findChatOrThrow(telegramId);
+      return { ...(await this.findChatOrThrow(telegramId)), isNew: false };
     }
 
-    return this.findChatOrThrow(telegramId);
+    return { ...(await this.findChatOrThrow(telegramId)), isNew: true };
   }
 
   async findChat(telegramId: bigint): Promise<ResolvedChat | null> {
@@ -175,6 +199,7 @@ export class TelegramLinkService {
       throw new AppBadRequestException('TELEGRAM_LAST_SIGN_IN', 'Telegram is the only way into this account');
     }
 
+    await this.notify.farewell(userId);
     await this.prisma.telegramAccount.deleteMany({ where: { userId } });
   }
 

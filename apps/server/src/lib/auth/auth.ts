@@ -10,10 +10,12 @@ import { describeError } from '../../common/lib';
 import { allowedOrigins } from '../../config/cors';
 import { validateEnv } from '../../config/env.schema';
 import { basePrisma } from '../../core';
-import { ChangeEmail, ResetPassword, sendEmail, VerifyEmail } from '../email';
+import { ChangeEmail, EMAIL_TEXT, ResetPassword, sendEmail, VerifyEmail } from '../email';
 import { withClientCallback } from './auth-callback-url';
-import { SESSION } from './auth.constants';
+import { AUTH_PATHS, SESSION } from './auth.constants';
 import { claimedEmail } from './claimed-email';
+import { returnedUserId } from './request-locale';
+import { emailLocaleFor, rememberLocale } from './user-locale';
 
 const env = validateEnv(process.env);
 const logger = new Logger('Auth');
@@ -27,11 +29,13 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
-    sendResetPassword: async ({ user, url }) => {
+    sendResetPassword: async ({ user, url }, request) => {
+      const locale = await emailLocaleFor({ userId: user.id, headers: request?.headers });
+
       await sendEmail({
         to: user.email,
-        subject: 'GnomeVPN password reset',
-        react: createElement(ResetPassword, { url })
+        subject: EMAIL_TEXT[locale].reset.subject,
+        react: createElement(ResetPassword, { url, locale })
       });
     }
   },
@@ -39,11 +43,13 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     sendOnSignIn: false,
     autoSignInAfterVerification: true,
-    sendVerificationEmail: async ({ user, url }) => {
+    sendVerificationEmail: async ({ user, url }, request) => {
+      const locale = await emailLocaleFor({ userId: user.id, headers: request?.headers });
+
       void sendEmail({
         to: user.email,
-        subject: 'Confirm your GnomeVPN email',
-        react: createElement(VerifyEmail, { url: withClientCallback({ url, path: '/account' }) })
+        subject: EMAIL_TEXT[locale].verify.subject,
+        react: createElement(VerifyEmail, { locale, url: withClientCallback({ url, locale, path: AUTH_PATHS.account }) })
       }).catch((error: unknown) => {
         logger.error(`verification email for ${user.id} failed: ${describeError(error)}`);
       });
@@ -53,13 +59,16 @@ export const auth = betterAuth({
     changeEmail: {
       enabled: true,
       updateEmailWithoutVerification: true,
-      sendChangeEmailConfirmation: async ({ user, url, newEmail }) => {
+      sendChangeEmailConfirmation: async ({ user, url, newEmail }, request) => {
+        const locale = await emailLocaleFor({ userId: user.id, headers: request?.headers });
+
         await sendEmail({
           to: user.email,
-          subject: 'Confirm your new GnomeVPN email',
+          subject: EMAIL_TEXT[locale].change.subject,
           react: createElement(ChangeEmail, {
             newEmail,
-            url: withClientCallback({ url, path: '/account' })
+            locale,
+            url: withClientCallback({ url, locale, path: AUTH_PATHS.account })
           })
         });
       }
@@ -72,6 +81,13 @@ export const auth = betterAuth({
       if (email && isPlaceholderEmail(email)) {
         throw new APIError('BAD_REQUEST', { message: 'This address cannot be used' });
       }
+    }),
+    after: createAuthMiddleware(async (ctx) => {
+      const userId = ctx.context.newSession?.user.id ?? returnedUserId(ctx.context.returned);
+
+      void rememberLocale({ path: ctx.path, headers: ctx.headers, userId }).catch((error: unknown) => {
+        logger.warn(`could not remember the locale of ${userId}: ${describeError(error)}`);
+      });
     })
   },
   databaseHooks: {

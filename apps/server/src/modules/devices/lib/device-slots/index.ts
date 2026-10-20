@@ -1,3 +1,3 @@
-export { slotHolders } from './device-slots';
+export { graceDeviceLimit, slotHolders } from './device-slots';
 
-export type { SlotDevice, SlotHoldersInput } from './device-slots.types';
+export type { GraceDeviceLimitInput, SlotDevice, SlotHoldersInput } from './device-slots.types';

@@ -6,6 +6,7 @@
   "overLimit": "Gets no servers",
   "unnamed": "Device",
   "lastSeen": "Last seen {time}",
+  "activeNow": "Active now",
   "remove": "Remove",
   "removeLabel": "Remove device {name}",
   "removed": "Device removed",
@@ -15,8 +16,12 @@
   "unavailable": "Could not load your devices. Check your connection and try again.",
   "retry": "Try again",
   "confirmTitle": "Remove “{name}”?",
-  "confirmBody": "Within a few minutes the app on this device stops connecting. You can bring it back at any time: refresh the subscription in the app and it takes a free slot again.",
+  "confirmBody": {
+    "app": "Within a few minutes the app on this device stops connecting. If the subscription is still in the app, its next refresh takes a place again — to free the place for good, delete the subscription in the app first, then remove the device here.",
+    "incyWithoutHwid": "Within a few minutes INCY on this device stops connecting. INCY without HWID sending cannot take a place again: to connect it later, turn on HWID sending in INCY's subscription settings and refresh the subscription.",
+    "wireguard": "The config stops working within a few minutes and is deleted for good, and its place in your limit is freed. To connect that device again, create a new config on the Connect tab."
+  },
   "confirmAction": "Remove",
   "confirmCancel": "Cancel",
-  "hwidTip": "INCY without HWID sending counts as one device however many phones use it. Turn on HWID sending in INCY's subscription settings and refresh the subscription — every device will then show up here on its own."
+  "hwidTip": "INCY without HWID sending counts as one device however many phones use it, and a new install without it gets no servers at all. Turn on HWID sending in INCY's subscription settings and refresh the subscription — every device will then show up here on its own. If places run out, remove the old INCY entry here."
 }

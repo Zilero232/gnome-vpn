@@ -1,9 +1,8 @@
-import type { Plan, PlanId } from '@gnomevpn/schemas';
+import type { CheckoutLocale, Plan, PlanId } from '@gnomevpn/schemas';
 
 import type { PaymentKind, Prisma } from '../../../generated';
-import type { RewardOutcome } from '../referrals';
-
-export type PrismaExecutor = Prisma.TransactionClient;
+import type { PrismaExecutor } from '../../core';
+import type { RevokeOutcome, RewardOutcome } from '../referrals';
 
 export type PaymentMethodRef = {
   id: string;
@@ -34,6 +33,7 @@ export type RecordPaymentInput = {
   paymentId: string;
   plan: Plan;
   isAutoCharge: boolean;
+  paymentMethodId?: string | null;
 };
 
 export type GrantExtraDevicesInput = {
@@ -42,14 +42,31 @@ export type GrantExtraDevicesInput = {
   db?: PrismaExecutor;
 };
 
-export type BuyExtraDevicesServiceInput = {
+export type CheckoutReturnInput = {
+  returnUrl?: string;
+  locale?: CheckoutLocale;
+};
+
+export type BuyExtraDevicesServiceInput = CheckoutReturnInput & {
   userId: string;
   quantity: number;
 };
 
-export type CreateCheckoutServiceInput = {
+export type CreateCheckoutServiceInput = CheckoutReturnInput & {
   userId: string;
   planId: PlanId;
+};
+
+export type ReusablePaymentInput = {
+  userId: string;
+  returnUrl: string;
+  where: Prisma.PaymentWhereInput;
+};
+
+export type RevokePeriodInput = {
+  userId: string;
+  months: number;
+  db: PrismaExecutor;
 };
 
 export type SetAutoRenewServiceInput = {
@@ -63,7 +80,7 @@ export type BindCardServiceInput = {
 
 export type CanceledPayment = {
   id: string;
-  userId: string;
+  userId: string | null;
   isAutoCharge: boolean;
   paymentId: string;
   reason: string | null;
@@ -80,7 +97,43 @@ export type SettleOutcome = {
   referral: RewardOutcome | null;
 };
 
+export type SettleResult = 'canceled' | 'refunded' | 'settled' | 'skipped' | 'unknown' | 'waiting';
+
+export type RefundReason = 'lapsed' | 'orphan';
+
+export type UnusablePayment = {
+  id: string;
+  userId: string | null;
+  kind: PaymentKind;
+};
+
+export type RefundUnusableInput = {
+  id: string;
+  paymentId: string;
+  amount: Prisma.Decimal;
+  reason: RefundReason;
+};
+
+export type RefundedPayment = {
+  id: string;
+  userId: string | null;
+  kind: PaymentKind;
+  plan: PlanId;
+  extraDevices: number;
+};
+
+export type RefundOutcome = {
+  userId: string;
+  kind: PaymentKind;
+  referral: RevokeOutcome | null;
+};
+
 export type AnnounceReferralInput = {
   friendId: string;
   outcome: RewardOutcome;
+};
+
+export type ReverseRefundInput = {
+  row: RefundedPayment;
+  db: PrismaExecutor;
 };

@@ -5,6 +5,7 @@ import { Throttle } from '@nestjs/throttler';
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 
 import { FEED } from './config';
+import { feedTracker } from './lib';
 import { SubscriptionFeedService } from './services';
 
 @Controller('sub')
@@ -12,7 +13,7 @@ export class SubscriptionFeedController {
   constructor(private readonly feed: SubscriptionFeedService) {}
 
   @AllowAnonymous()
-  @Throttle({ default: FEED.throttle })
+  @Throttle({ default: { ...FEED.throttle, getTracker: feedTracker } })
   @Get(':token')
   async serve(@Param('token') token: string, @Req() req: Request, @Res() res: Response): Promise<void> {
     const { body, headers } = await this.feed.build({ token, headers: req.headers });

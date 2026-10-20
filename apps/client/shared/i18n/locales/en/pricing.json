@@ -1,36 +1,36 @@
 {
   "meta": {
     "title": "VPN pricing and plans",
-    "description": "What a GnomeVPN subscription costs: monthly or discounted over a longer period. Paid by card, with a refund within fourteen days."
+    "description": "What a GnomeVPN subscription costs: monthly or discounted over a longer period. The first day is free, payment by card through YooKassa, a refund for the unused period within 14 days."
   },
   "title": "Pricing",
   "intro": "One plan, every server. The longer the term, the cheaper the month. Pay by card and turn auto-renewal off whenever you like.",
   "includedTitle": "Included in every plan",
   "included": {
     "servers": "Every server in every country",
-    "devices": "Two devices",
-    "protocol": "Hysteria2 over QUIC",
-    "noLogs": "No connection logs",
-    "support": "Email support",
-    "platforms": "iPhone, Android, Windows, Linux, TV"
+    "devices": "Two devices, more places on request",
+    "protocol": "Hysteria2, VLESS + Reality and WireGuard",
+    "noLogs": "No connection history",
+    "support": "Support by email and Telegram",
+    "platforms": "iPhone, Android, Windows, macOS, Linux, TV"
   },
   "sectionsTitle": "How the subscription works",
   "sections": {
     "oneplan": {
       "title": "One plan rather than several",
-      "body": "We do not split access into tiers: there is no separate price for \"fast\" servers or for particular countries. Any subscription opens every location and both protocols — Hysteria2 and VLESS + Reality. Only the term differs, and a longer one costs less per month. It is built that way because tiering usually serves the sales funnel rather than the user: the entry plan is made deliberately awkward to push you towards the expensive one."
+      "body": "We do not split access into tiers: there is no separate price for \"fast\" servers or for particular countries. Any subscription opens every location and all protocols — Hysteria2, VLESS + Reality and WireGuard. Only the term differs, and a longer one costs less per month. It is built that way because tiering usually serves the sales funnel rather than the user: the entry plan is made deliberately awkward to push you towards the expensive one."
     },
     "devices": {
       "title": "How many devices",
-      "body": "Two devices by default. There is one subscription link; a device takes a slot when its app fetches the subscription. A device over the limit gets no servers — remove one you no longer use in your account, or buy more slots there without changing plan."
+      "body": "Two devices by default. There is one subscription link; a device takes a place when its app fetches the subscription. A device over the limit gets no servers — remove one you no longer use in your account, or add device places there without changing plan."
     },
     "payment": {
       "title": "Paying and renewing",
-      "body": "By card on the site, through YooKassa. Access opens the moment the payment clears — the app sees the new expiry on its next subscription refresh, usually within a few minutes. Auto-renewal is one switch in your account: access stays until the end of the period you paid for, and nothing is charged after that."
+      "body": "By card on the site, through YooKassa. Access opens the moment the payment clears — the app sees the new expiry on its next subscription refresh, usually within a few minutes. If you save the card while paying, auto-renewal turns on at the price of the term you chose. It is one button to turn off in your account: access stays until the end of the period you paid for, and nothing is charged after that. You can also extend by hand at any time — the new term is added to the current one."
     },
     "refund": {
-      "title": "A refund within fourteen days",
-      "body": "If the service does not suit you, email us within two weeks of paying and we refund the unused period — no interrogation, no request to explain yourself. That is not a marketing line: a VPN cannot be judged from a description, because it behaves differently on different networks, and the only way to know is to try it on your own connection."
+      "title": "A refund within 14 days",
+      "body": "If the service does not suit you, write to us within 14 days of paying and we refund the unused period — no interrogation, no request to explain yourself. That is not a marketing line: a VPN cannot be judged from a description, because it behaves differently on different networks, and the only way to know is to try it on your own connection. If you plan to delete your account, request the refund before deleting it."
     },
     "expiry": {
       "title": "What happens when it ends",
@@ -41,5 +41,7 @@
     "faq": "Common questions about the service",
     "servers": "Servers and protocols: which to pick",
     "subscription": "What a subscription link is"
-  }
+  },
+  "trial": "Not sure yet? Start with a free day: full access for 24 hours, no card needed.",
+  "trialCta": "Try it free"
 }

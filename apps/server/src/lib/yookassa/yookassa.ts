@@ -5,10 +5,13 @@ import type {
   ChargeRecurringInput,
   CreatePaymentInput,
   CreatePaymentResult,
+  CreateRefundInput,
   PaymentInfo,
   PaymentMethodInfo,
   PaymentMethodResponse,
   PaymentResponse,
+  RefundInfo,
+  RefundResponse,
   YooKassaClientOptions,
   YooKassaRequestInput
 } from './yookassa.types';
@@ -117,8 +120,43 @@ export class YooKassaClient {
         card: payload.payment_method?.card,
         title: payload.payment_method?.title
       }),
-      cancellationReason: payload.cancellation_details?.reason ?? null
+      cancellationReason: payload.cancellation_details?.reason ?? null,
+      confirmationUrl: payload.confirmation?.confirmation_url ?? null,
+      returnUrl: payload.confirmation?.return_url ?? null,
+      refundedRub: Number(payload.refunded_amount?.value ?? 0)
     };
+  }
+
+  private toRefundInfo(payload: RefundResponse): RefundInfo {
+    return {
+      id: payload.id,
+      paymentId: payload.payment_id,
+      status: payload.status,
+      amountRub: Number(payload.amount.value)
+    };
+  }
+
+  async createRefund(input: CreateRefundInput): Promise<RefundInfo> {
+    const payload = await this.request<RefundResponse>({
+      path: '/refunds',
+      init: {
+        method: 'POST',
+        body: JSON.stringify({
+          payment_id: input.paymentId,
+          amount: this.amount(input.amountRub),
+          description: input.description
+        })
+      },
+      idempotenceKey: input.idempotenceKey
+    });
+
+    return this.toRefundInfo(payload);
+  }
+
+  async getRefund(refundId: string): Promise<RefundInfo> {
+    const payload = await this.request<RefundResponse>({ path: `/refunds/${encodeURIComponent(refundId)}`, init: { method: 'GET' } });
+
+    return this.toRefundInfo(payload);
   }
 
   private toPaymentMethodInfo(payload: PaymentMethodResponse): PaymentMethodInfo {

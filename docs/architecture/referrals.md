@@ -46,6 +46,11 @@ A friend is attributed when all of these hold, checked by
 - the code is not the account's own (`REFERRAL_SELF`, and a `CHECK` constraint
   under it), and the two accounts are not inviting each other.
 
+The eligibility check, the mutual check and the insert run in one serializable
+transaction (`withSerializableRetry`), so a payment settling or a reverse invite
+landing between the check and the insert cannot slip a referral past them; the
+unique violation still maps to `REFERRAL_UNAVAILABLE`.
+
 **The site keeps the code in a cookie, the account page claims it.** The API
 lives on another origin, so a cookie set by the site never reaches it. The
 client's `proxy.ts` therefore stores `?ref=<code>` from any page as
@@ -60,7 +65,10 @@ type the code on the Invite tab instead, for as long as the account is eligible.
 
 **The bot reads it from the start payload.** `t.me/<bot>?start=ref_<code>` —
 `referralCodeFromStart` strips the prefix, so the payload can never be mistaken
-for a link code (those have no underscore). `/start` from an unknown chat creates
+for a link code (those have no underscore). Any payload carrying the prefix
+(`isReferralStart`) takes the referral path, a malformed code included: it gets
+the "invite not found" line instead of a bare greeting that ignores the link the
+friend followed. `/start` from an unknown chat creates
 the account first, then attributes it, then greets with a line on what the invite
 gives or why it did not apply.
 
@@ -70,9 +78,10 @@ from, `ReferralService.adopt` moves the unrewarded referral onto the site accoun
 first, if that account is itself still eligible. Without it the invite would
 cascade away with the row it pointed at.
 
-The code is random (`REFERRAL_CODE`, the link-code alphabet without `0/O`,
-`1/I/l`), not a Telegram id or a user id: a guessable code lets anyone list who
-invited whom.
+The code is random (`generateShortCode`, the `SHORT_CODE` alphabet in
+`packages/schemas` without `0/O`, `1/I/l`, shared with the Telegram link code),
+not a Telegram id or a user id: a guessable code lets anyone list who invited
+whom.
 
 ## The reward is settled with the payment, in the same transaction
 
@@ -80,19 +89,16 @@ invited whom.
 claims the payment and calls `activate`. It claims the referral row with
 `updateMany … where rewardedAt is null`, so a webhook and the `pending-payments`
 sweep settling the same payment twice still pay once, and a second payment finds
-the row already rewarded. Both periods are extended with `extendPeriod` — on top
-of a running period, or from now when it had lapsed — and a lapsed period loses
-its extra devices, exactly as `activate` does.
-
-Re-enabling the inviter's peers happens after the commit, like the payer's, and
-is best-effort for the same reason: `expired-access` restores any `disabled`
-config of an owner with a live period, so the sweep is the guarantee.
+the row already rewarded. Both periods are extended with `extendPeriod`, on top
+of a period that is always running: the friend's was just made paid by
+`activate`, and the inviter's days are applied only to a running paid period
+(below). So no period is created or revived here, and nothing needs re-enabling
+afterwards — the inviter's peers are already live.
 
 **The inviter's days wait for a paid period.** They used to extend whatever the
 row held, and on a trial, a lapsed period or no period at all that minted a
 "paid" period: `periodKind` calls any period past `trialStartedAt + TRIAL_DAYS`
-paid, and the row carried the default `monthly`. So the inviter could no longer
-buy six or twelve months (`PLAN_CHANGE_LOCKED`) until the bonus ran out, lost
+paid, and the row carried the default `monthly`. So the inviter lost
 the trial for good, and a Telegram-born account stopped being "untouched", which
 broke merging it into a site account. Now `creditReferrer` extends only a
 running paid period; otherwise the days go to `subscription.bonus_days`, and
@@ -106,8 +112,22 @@ The friend is told by `referralBonus`, the inviter by `referralRewarded`, or by
 button, because someone who was just paid in days is the person most likely to
 send the link on; the banked one carries Subscribe, which is what releases them.
 
-## What it does not do yet
+## A refund takes the days back
 
-There is no hold period: YooKassa refunds are manual, so a refunded payment
-leaves its days in place. When refunds become a flow, they should take the
-referral's days back with the payment.
+A refund made in the YooKassa dashboard reaches `refund.succeeded`
+([billing.md](billing.md#refunds)), and for a fully refunded subscription
+payment `ReferralRewardService.revoke` takes back what that payment earned, as
+far as it still can: the friend's days come off their period, the inviter's off
+their banked `bonus_days` first and their period after — never before now, so
+days already used stay used. The referral keeps `rewarded_at`, so a later
+payment by the same friend does not reward a second time, and records zero
+days, which frees the inviter's cap window. There is no hold period: a refund
+is rare and manual, and holding every reward for weeks would make the honest
+wait for nothing.
+
+## What the friend sees
+
+`GET /referrals` carries `isReferralRewarded` and `referralRewardedDays` (the
+friend's days from their own referral, `0` when there is none or it was taken
+back by a refund), so the Invite tab stops promising "days on your first
+payment" once that payment has happened.

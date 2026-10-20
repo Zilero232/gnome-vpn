@@ -20,9 +20,10 @@ export const ConfirmDialog = ({
   tone = 'danger',
   className,
   onOpenChange,
-  onConfirm
+  onConfirm,
+  onOpenChangeComplete
 }: ConfirmDialogProps) => (
-  <Dialog open={isOpen} onOpenChange={onOpenChange}>
+  <Dialog open={isOpen} onOpenChange={onOpenChange} onOpenChangeComplete={onOpenChangeComplete}>
     <DialogContent className={clsx(s.content, className)}>
       <DialogHeader>
         <DialogTitle>{title}</DialogTitle>

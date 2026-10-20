@@ -1,19 +1,21 @@
-import type { SubscriptionStatus } from '@gnomevpn/schemas';
+import type { LastPayment, SubscriptionStatus } from '@gnomevpn/schemas';
 
 import { DEFAULT_PLAN_ID, resolveLimits } from '@gnomevpn/schemas';
 import { Injectable } from '@nestjs/common';
-import { isNonNullish } from 'remeda';
+import { isNonNullish, isNullish } from 'remeda';
 
 import { isPeriodActive, resolveStatus } from '../../../common/lib';
 import { AppConfigService } from '../../../config';
 import { PrismaService } from '../../../core';
 import { trialState } from '../lib';
+import { TrialGrantService } from './trial-grant.service';
 
 @Injectable()
 export class SubscriptionService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly config: AppConfigService
+    private readonly config: AppConfigService,
+    private readonly grants: TrialGrantService
   ) {}
 
   async hasActiveAccess(userId: string): Promise<boolean> {
@@ -28,18 +30,24 @@ export class SubscriptionService {
   async getStatus(userId: string): Promise<SubscriptionStatus> {
     const isRecurringAvailable = this.config.get('YOOKASSA_RECURRING');
 
-    const row = await this.prisma.subscription.findUnique({
-      where: { userId },
-      select: {
-        plan: true,
-        currentPeriodEnd: true,
-        cancelAtPeriodEnd: true,
-        savedCardId: true,
-        savedCardTitle: true,
-        extraDevices: true,
-        trialStartedAt: true
-      }
-    });
+    const [row, lastPayment] = await Promise.all([
+      this.prisma.subscription.findUnique({
+        where: { userId },
+        select: {
+          plan: true,
+          currentPeriodEnd: true,
+          cancelAtPeriodEnd: true,
+          savedCardId: true,
+          savedCardTitle: true,
+          extraDevices: true,
+          trialStartedAt: true
+        }
+      }),
+      this.lastPayment(userId)
+    ]);
+
+    const trial = trialState(row);
+    const isTrialAvailable = trial.isTrialAvailable && !(await this.grants.isGranted({ userId }));
 
     if (!row) {
       return {
@@ -51,12 +59,11 @@ export class SubscriptionService {
         savedCardTitle: null,
         isRecurringAvailable,
         period: 'none',
-        isTrialAvailable: true,
-        limits: resolveLimits(0)
+        isTrialAvailable,
+        limits: resolveLimits(0),
+        lastPayment
       };
     }
-
-    const trial = trialState(row);
 
     return {
       status: resolveStatus(row.currentPeriodEnd),
@@ -66,8 +73,24 @@ export class SubscriptionService {
       hasPaymentMethod: isNonNullish(row.savedCardId),
       savedCardTitle: row.savedCardTitle,
       isRecurringAvailable,
-      ...trial,
-      limits: resolveLimits(isPeriodActive(row.currentPeriodEnd) ? row.extraDevices : 0)
+      period: trial.period,
+      isTrialAvailable,
+      limits: resolveLimits(isPeriodActive(row.currentPeriodEnd) ? row.extraDevices : 0),
+      lastPayment
     };
+  }
+
+  private async lastPayment(userId: string): Promise<LastPayment | null> {
+    const payment = await this.prisma.payment.findFirst({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      select: { status: true, kind: true, isAutoCharge: true, createdAt: true }
+    });
+
+    if (isNullish(payment)) {
+      return null;
+    }
+
+    return { ...payment, createdAt: payment.createdAt.toISOString() };
   }
 }

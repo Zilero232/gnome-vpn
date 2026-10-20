@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { seedKeyFilesScript } from '../key-files';
+import { seedKeyFilesScript } from '../key-files.helpers';
 
 const dir = '/etc/gnomevpn';
 

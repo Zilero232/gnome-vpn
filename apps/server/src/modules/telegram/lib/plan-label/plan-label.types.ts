@@ -11,3 +11,8 @@ export type PlanLabelInput = {
   planId: PlanId;
   locale: BotLocale;
 };
+
+export type PlansTextInput = {
+  locale: BotLocale;
+  isExtending: boolean;
+};

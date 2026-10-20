@@ -1,6 +1,6 @@
 import { isNullish } from 'remeda';
 
-import type { PanelOnlines } from './panel-client.types';
+import type { PanelLastOnline, PanelOnlines } from './panel-client.types';
 
 export const collectOnlineEmails = (payload: PanelOnlines): Set<string> | null => {
   if (isNullish(payload)) {
@@ -13,3 +13,10 @@ export const collectOnlineEmails = (payload: PanelOnlines): Set<string> | null =
 
   return new Set(Object.values(payload).flat());
 };
+
+export const collectLastOnline = (payload: PanelLastOnline): Map<string, Date> =>
+  new Map(
+    Object.entries(payload ?? {})
+      .filter(([, at]) => at > 0)
+      .map(([email, at]) => [email, new Date(at)])
+  );

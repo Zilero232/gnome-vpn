@@ -12,13 +12,13 @@
   "autoRenewOn": "Auto-renewal is on",
   "cancelAutoRenew": "Turn off auto-renewal",
   "resumeAutoRenew": "Turn on auto-renewal",
-  "noPaymentMethod": "No card on file — auto-renewal is unavailable",
-  "bindCard": "Add a card",
+  "noPaymentMethod": "No card on file — auto-renewal is off",
+  "bindCard": "Add a card and turn on auto-renewal",
   "cardBound": "Card on file",
   "unbindCard": "Remove card",
-  "extraDevicesTitle": "Device slots",
+  "extraDevicesTitle": "Device places",
   "extraDevicesCount": "{limit, plural, one {# device} other {# devices}} on the subscription",
-  "extraDevicesHint": "An extra device costs {price} ₽ and lasts as long as the subscription.",
+  "extraDevicesHint": "An extra device place costs {price} ₽ and lasts as long as the subscription.",
   "extraDevicesResult": "After this purchase — {total, plural, one {# device} other {# devices}}",
   "extraDevicesBuy": "Add for {price} ₽",
   "extraDevicesMore": "One more",
@@ -33,7 +33,9 @@
     "perMonth": "{price} ₽ per month",
     "price": "{price} ₽",
     "save": "−{percent}%",
-    "pay": "Pay {price} ₽"
+    "pay": "Pay {price} ₽",
+    "extend": "Extend for {price} ₽",
+    "renewalNote": "If you save the card on the payment page, auto-renewal turns on — {price} ₽ {plan, select, monthly {every month} halfYearly {every six months} other {every year}}. You can turn it off right here in one click."
   },
   "profile": {
     "title": "Profile",
@@ -76,10 +78,10 @@
   },
   "danger": {
     "title": "Delete account",
-    "body": "Your subscription, devices and link stop working immediately. This cannot be undone.",
+    "body": "Your subscription, devices and link stop working immediately. This cannot be undone. If you want a refund for the unused period, write to us before deleting.",
     "action": "Delete",
     "confirmTitle": "Delete this account?",
-    "confirmBody": "The subscription ends with no refund for the remaining period, every device disconnects and the link stops working. We cannot bring the account back.",
+    "confirmBody": "The subscription ends at once, every device disconnects and the link stops working. We cannot bring the account back. A refund for the unused period has to be requested before deleting — afterwards we cannot match your payment.",
     "confirmCancel": "Cancel",
     "confirmAction": "Delete permanently"
   },
@@ -92,6 +94,32 @@
   "connect": {
     "label": "How to connect",
     "incy": "INCY",
-    "wireguard": "WireGuard"
+    "wireguard": "WireGuard",
+    "loading": "Loading…",
+    "wireguardLocked": "WireGuard configs appear once a free day or a subscription is active. <link>Go to Subscription</link>",
+    "noAccess": "Until a free day or a subscription is active, the link below delivers no servers — the app will show an empty list. <link>Go to Subscription</link>",
+    "unavailable": "Could not check the subscription status. Check your connection and try again.",
+    "retry": "Try again"
+  },
+  "hoursLeft": "{count, plural, one {hour left} other {hours left}}",
+  "lapsed": "Your access ended on {date}",
+  "renew": {
+    "title": "Extend your subscription",
+    "hint": "Pick a term — it is added to the current one, so the days you have left are kept. You can pick a different term, not only the current one.",
+    "soon": "{count, plural, =0 {Your subscription ends today} one {Your subscription ends in # day} other {Your subscription ends in # days}} — extend it now so the VPN does not stop.",
+    "chargeFailed": "The last automatic charge failed — extend your subscription manually."
+  },
+  "pending": {
+    "title": "Waiting for YooKassa to confirm the payment",
+    "body": "It usually takes under a minute. Please do not pay twice — the subscription updates here on its own.",
+    "cancel": "I cancelled the payment",
+    "settled": "Payment received — your subscription is updated",
+    "cancelled": "The payment was cancelled — nothing was charged. You can pay again."
+  },
+  "support": {
+    "title": "Need help?",
+    "body": "Cannot connect, a payment did not go through or you want a refund — write to us, we answer within a day.",
+    "email": "Email {email}",
+    "bot": "Message us on Telegram"
   }
 }

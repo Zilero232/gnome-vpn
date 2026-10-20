@@ -2,8 +2,8 @@ import type { BindCardResult, BuyExtraDevicesInput, CheckoutResult, CreateChecko
 
 import { api } from '../http';
 
-export const createCheckout = async ({ planId }: CreateCheckoutInput): Promise<CheckoutResult> => {
-  const { data } = await api.post('/billing/checkout', { planId });
+export const createCheckout = async ({ planId, locale }: CreateCheckoutInput): Promise<CheckoutResult> => {
+  const { data } = await api.post('/billing/checkout', { planId, locale });
 
   return data;
 };
@@ -26,8 +26,8 @@ export const unbindCard = async (): Promise<void> => {
   await api.post('/billing/unbind-card');
 };
 
-export const buyExtraDevices = async ({ quantity }: BuyExtraDevicesInput): Promise<CheckoutResult> => {
-  const { data } = await api.post('/billing/extra-devices', { quantity });
+export const buyExtraDevices = async ({ quantity, locale }: BuyExtraDevicesInput): Promise<CheckoutResult> => {
+  const { data } = await api.post('/billing/extra-devices', { quantity, locale });
 
   return data;
 };

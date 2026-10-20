@@ -4,7 +4,11 @@ import { env } from '@/shared/config';
 import { STORAGE_KEYS } from '@/shared/constants';
 import { isServer } from '@/shared/lib';
 
+import { LOCALE_HEADER } from './auth-client.constants';
+
 const STORAGE_KEY = STORAGE_KEYS.authToken;
+
+const pageLocale = (): string => (isServer() ? '' : document.documentElement.lang);
 
 export const getAuthToken = () => {
   if (isServer()) {
@@ -37,6 +41,13 @@ export const authClient = createAuthClient({
   basePath: '/auth',
   fetchOptions: {
     auth: { type: 'Bearer', token: getAuthToken },
+    onRequest: (context) => {
+      const locale = pageLocale();
+
+      if (locale) {
+        context.headers.set(LOCALE_HEADER, locale);
+      }
+    },
     onSuccess: (ctx) => {
       saveAuthToken(ctx.response.headers.get('set-auth-token'));
     }

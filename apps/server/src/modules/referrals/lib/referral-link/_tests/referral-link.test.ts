@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { referralCodeFromStart, telegramReferralLink, telegramStartPayload, webReferralLink } from '../referral-link';
+import { isReferralStart, referralCodeFromStart, telegramReferralLink, telegramStartPayload, webReferralLink } from '../referral-link';
 
 describe('webReferralLink', () => {
   it('puts the code on the landing page', () => {
@@ -45,5 +45,17 @@ describe('referralCodeFromStart', () => {
     expect(referralCodeFromStart('ref_')).toBeNull();
     expect(referralCodeFromStart('ref_NOPE')).toBeNull();
     expect(referralCodeFromStart('ref_ABCDEF23_extra')).toBeNull();
+  });
+});
+
+describe('isReferralStart', () => {
+  it('claims every payload carrying the referral prefix, a malformed code included', () => {
+    expect(isReferralStart(telegramStartPayload('ABCDEF23'))).toBe(true);
+    expect(isReferralStart('ref_NOPE')).toBe(true);
+  });
+
+  it('leaves a link code and an empty payload to the rest of /start', () => {
+    expect(isReferralStart('ABCDEF23')).toBe(false);
+    expect(isReferralStart('')).toBe(false);
   });
 });

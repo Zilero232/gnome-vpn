@@ -5,7 +5,7 @@ import { motion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 
 import { useSubscriptionStatus } from '@/entities/billing/subscription';
-import { useClaimPendingReferral } from '@/features/account/invite-friends';
+import { InvitePanel, useClaimPendingReferral } from '@/features/account/invite-friends';
 import { useSignOut } from '@/features/auth/sign-out';
 import { useVerifyEmailOutcome } from '@/features/auth/verify-email';
 import { ACCOUNT_TAB } from '@/shared/constants';
@@ -13,13 +13,13 @@ import { ACCOUNT_TAB } from '@/shared/constants';
 import type { AccountTab } from './components';
 
 import { BLOCK_MOTION, HEADER_MOTION, PAGE_MOTION } from './AccountPage.motion';
-import { AccountIdentity, AccountTabs, ConnectCard, DevicesCard, InviteCard, ProfileCard, SubscriptionCard, TelegramCard } from './components';
+import { AccountIdentity, AccountTabs, ConnectCard, DevicesCard, ProfileCard, SubscriptionCard, SupportCard, TelegramCard } from './components';
 
 import s from './AccountPage.module.scss';
 
 export const AccountPage = () => {
   const t = useTranslations('account');
-  const { subscription, isLoading, isError, refetch, hasAccess } = useSubscriptionStatus();
+  const { subscription, isLoading, isError, isUnavailable, refetch, hasAccess } = useSubscriptionStatus();
 
   const signOut = useSignOut();
 
@@ -28,7 +28,7 @@ export const AccountPage = () => {
 
   const tabs: AccountTab[] = [
     {
-      value: 'subscription',
+      value: ACCOUNT_TAB.subscription,
       label: t('tabs.subscription'),
       icon: CreditCard,
       render: () => <SubscriptionCard isError={isError} isLoading={isLoading} subscription={subscription} onRetry={() => void refetch()} />
@@ -37,13 +37,13 @@ export const AccountPage = () => {
       value: ACCOUNT_TAB.connect,
       label: t('tabs.connect'),
       icon: Plug,
-      aliases: [ACCOUNT_TAB.wireguard],
-      render: () => <ConnectCard hasWireguard={hasAccess} />
+      aliases: [ACCOUNT_TAB.wireguard, ACCOUNT_TAB.app],
+      render: () => <ConnectCard hasAccess={hasAccess} isLoading={isLoading} isUnavailable={isUnavailable} onRetry={() => void refetch()} />
     },
-    ...(hasAccess
+    ...(hasAccess || isUnavailable
       ? [
           {
-            value: 'devices',
+            value: ACCOUNT_TAB.devices,
             label: t('tabs.devices'),
             icon: MonitorSmartphone,
             render: () => <DevicesCard />
@@ -51,19 +51,19 @@ export const AccountPage = () => {
         ]
       : []),
     {
-      value: 'invite',
+      value: ACCOUNT_TAB.invite,
       label: t('tabs.invite'),
       icon: Gift,
-      render: () => <InviteCard />
+      render: () => <InvitePanel />
     },
     {
-      value: 'profile',
+      value: ACCOUNT_TAB.profile,
       label: t('profile.title'),
       icon: UserRound,
       render: () => <ProfileCard />
     },
     {
-      value: 'telegram',
+      value: ACCOUNT_TAB.telegram,
       label: t('tabs.telegram'),
       icon: Send,
       render: () => <TelegramCard />
@@ -83,6 +83,10 @@ export const AccountPage = () => {
 
       <motion.div className={s.body} variants={BLOCK_MOTION}>
         <AccountTabs items={tabs} label={t('tabs.label')} panelClassName={s.card} />
+      </motion.div>
+
+      <motion.div variants={BLOCK_MOTION}>
+        <SupportCard />
       </motion.div>
     </motion.main>
   );

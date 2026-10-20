@@ -13,16 +13,21 @@ deciding to add a node — not by a commit.
 What the provision scripts share lives in `@gnomevpn/scripts`, never copied
 between them: `reporter` (the `[scope] message` output), `ssh` (one `SshClient`)
 and `shell` (build remote commands — `arg()` quotes untrusted values, `quiet()`
-keeps stdout while `silent()` drops it).
+keeps stdout while `silent()` drops it, `dockerExec` quotes every argv entry
+itself, so a caller passes raw values). `SshClient.connect` retries a dropped
+connection but not a refused login — a wrong password fails at once instead of
+three times with backoff — and `exec`/`run` take `{ command, stdin }` when a
+secret has to reach the remote command without appearing in its argv.
 
 `nodes.json` and `.env.nodes` sit at the repo root — both gitignored, both
 holding secrets; `nodes.example.json` is the committed template.
 
 **`remote/` is one folder per thing done to the host**, not one file that grew:
 `host-packages` (docker, jq, fail2ban), `firewall`, `xray-stack`, `host-cert`,
-`key-files` (write a key file only when it is missing), `reality-keys`,
-`wireguard-keys`, `panel-config`, `panel-session`, `xray-panel`, and `host-prepare`,
-which runs the host-level steps (packages, firewall, the compose stack) in order.
+`key-files` (`ensureKeyFiles` writes a set of key files only when one is missing;
+`ensureRealityKeys` and `ensureWireguardKeys` are built on it), `panel-config`,
+`panel-session`, `xray-panel`, and `host-prepare`, which runs the host-level
+steps (packages, firewall, the compose stack) in order.
 They were a single 232-line `remote-setup.ts` holding five unrelated concerns.
 `inContainer` lives with the stack that defines the container name, so a
 concern needing it imports the stack rather than a shared shell helper.
@@ -47,21 +52,77 @@ re-provision rather than an ssh session.
 ## What a run does to a node
 
 `provisionHost` is staged: `prepareHost` (docker, jq, fail2ban, firewall, the
-3x-ui compose stack) → `startPanel` (configure the panel, wait for its api) →
-`installInbounds` (cert, Hysteria2 inbound, cert fingerprint, Reality keys,
-VLESS inbound, WireGuard keys, WireGuard inbound) → `registerNode` (`.env.nodes` secrets, the node's database row).
-Once every node has succeeded, `pruneNodes` drops nodes and keys missing from
-`nodes.json`, and `syncToProduction` copies `.env.nodes` and the node rows to
-the production VPS over SSH and recreates the server container there.
+3x-ui compose stack) → `configurePanel` (credentials, port and path, the api
+token) → `rememberNodeSecrets` (the three `.env.nodes` keys) → `openPanelSession`
+(wait for the api from the workstation) → `installInbounds` (cert, cert
+fingerprint, Reality keys, WireGuard keys, then `syncInbounds` for the
+Hysteria2, VLESS and WireGuard inbounds) → `registerNode` (the node's database
+row). The secrets are written the moment the token is known, not at the end: a
+run that failed after the panel rotated its token used to leave `.env.nodes`
+holding the revoked one.
+
+After the hosts, `pruneNodes` drops nodes and keys missing from `nodes.json` —
+only when every host succeeded, since a failed host proves nothing about the
+file being complete. `syncToProduction` runs either way, so a token rotated on
+a host that failed later still reaches production; with a failed host it is
+told not to delete production nodes the local database lacks
+(`buildNodeSync({ pruneMissing })`). It answers
+`{ status: 'synced' | 'skipped' | 'failed', message }`, and a failed sync makes
+the run exit 1 just like a failed host.
+
+## Re-running it is safe
+
+Production nodes carry live sessions, so a re-run of an unchanged node must
+change nothing a user can feel. Every restart it used to make was one too many:
+a single run restarted each node's container once and its core three times.
+
+- **The panel keeps running when it is already in place.** `x-ui setting
+  -username/-password` is applied every run — the panel reads both from its
+  database on each login and needs no restart. The port and the web base path
+  are what need one, so `configurePanel` first waits for the panel to answer at
+  `PORTS.panel` and the known path; only when it does not (a new node, or a path
+  that changed) does it set them and `docker restart` the container. A node
+  with no token in `.env.nodes` checks once rather than waiting out the boot
+  timeout.
+- **The inbounds are compared, not rewritten.** `syncInbounds` uses one
+  `XrayClient` for the host, lists the panel's inbounds once and, per inbound,
+  compares what provisioning would write with what is stored — every field
+  provisioning sets, the stored JSON parsed, `clients` left out, anything the
+  panel added on its own ignored (`inboundMatches`). An equal inbound is not
+  touched. The core is restarted once at the end, and only when the Hysteria2 or
+  the VLESS inbound was created or changed; the WireGuard inbound and its client
+  deletes apply live.
+- **The secrets reach production only when they changed.** `syncToProduction`
+  reads the VPS's `.env.nodes` first and uploads it only when it differs —
+  beside the old one, `chmod 600`'d, moved into place. Then it always runs
+  `docker compose up -d --no-deps --wait server`: compose hashes the values
+  loaded from `env_file` into the service config, so it recreates the container
+  exactly when they changed and leaves a current one running, and `--wait` holds
+  on the healthcheck. A failed run therefore needs no rollback — the file on the
+  VPS is what the panels now accept, and the next run's `up -d` still sees the
+  container lagging behind it and recreates it. Putting the old file back would
+  have restored a token the panel had already revoked.
 
 **The panel's api token survives a re-run.** `x-ui setting -getApiToken` mints a
 new token and revokes the old one, so a run that always asked for one cut
 production off every node until its server picked up the new `.env.nodes` — and
 `docker compose restart` never re-reads `env_file`, so it never did: every panel
 call answered 401 and the account page said the node was not responding.
-`startPanel` now keeps the token `.env.nodes` already holds when the panel still
-accepts it, and `syncToProduction` recreates the container
-(`up -d --force-recreate`) so a rotated token does reach it.
+`configurePanel` now keeps the token `.env.nodes` already holds when the panel
+still accepts it, and `syncToProduction` applies the file with `up -d`, which
+recreates the container when the token changed, so a rotated token does reach
+it.
+
+**A token is rotated only on a 401.** The check asks `inbounds/list` with the
+token and reads the http status curl reports beside the body. 3x-ui v3.10.2
+answers an unknown bearer token with a bare 401 (and a wrong base path with
+404), so 401 is the one answer that proves the token dead. A 200 has to be the
+panel's `{ success: true }` reply. Anything else — a timeout, a 5xx, a 404, a
+login page — fails the host instead of rotating, because rotating on a guess
+revokes the token production is using. The bearer header goes to curl on stdin
+(`-H @-`), never in the command line, and the settings body for
+`restartXrayOnClientDisable` goes through a file in a `mktemp -d` directory;
+the setting is written only when it is not already off.
 
 Remote commands are composed through `@gnomevpn/scripts/shell` rather than
 written as strings — `arg()` quotes anything untrusted, and `quiet()`/`silent()`
@@ -72,9 +133,10 @@ The node runs a **Hysteria2 inbound** (`protocol: hysteria`, `version: 2`) built
 
 Each client has its own `auth` password, generated by `generateAuth` (in
 `XrayClient.createClient` when the caller passes none) and stored as the peer's
-tunnel credential in the `nodeCredential` column. `ensureInbound` **updates** an
-existing inbound rather than replacing it, and `updateInbound` preserves the
-current client list so a re-provision does not strand live sessions.
+tunnel credential in the `nodeCredential` column. `syncInbounds` **updates** an
+existing inbound rather than replacing it — and only when it differs — and
+`updateInbound` preserves the current client list so a re-provision does not
+strand live sessions.
 
 **Adding a client goes through `POST /panel/api/clients/add`, never a rewrite of
 the inbound.** The old path read the whole client array, appended to it and wrote
@@ -86,9 +148,10 @@ The `auth` is still generated here rather than left to the panel: it mints one
 when the field is omitted, but it does not return it, and the credential has to
 be known to be handed to the device.
 
-**The explicit `restartCore()` afterwards is load-bearing** — both inbound steps
-and every client write end in one. Why the panel never restarts its own core is
-in [nodes-and-peers.md](nodes-and-peers.md#the-panel-does-not-restart-its-own-core).
+**The explicit `restartCore()` afterwards is load-bearing** — a created or
+changed Hysteria2 or VLESS inbound ends in one. Client writes do not need it:
+the panel applies them to the running core live — see
+[nodes-and-peers.md](nodes-and-peers.md#client-changes-apply-live-only-an-inbound-needs-a-restart).
 
 `MASQUERADE_HOST` in `scripts/provision/config` is the SNI the Hysteria2 inbound
 presents, the CN of the self-signed cert, the site an HTTP/3 prober is proxied to
@@ -102,7 +165,12 @@ in the server's peers config so both ends agree), with a `/16` client subnet
 address of its own. Its server key is seeded into `/etc/gnomevpn/wg.{key,pub}`
 like the Reality keys — written only when missing, so a re-provision keeps the
 key every issued config was built against; `lostWireguardKeys` warns when it
-had to mint a new one. The inbound keeps the remark and port of the one the old
+had to mint a new one, and the production sync then drops that node's
+WireGuard peers (a changed `wg_public_key`, like a changed port or server name
+for every peer). `lostRealityKeys` compares against the previous row's
+`realityPublicKey` the same way, and `lostCert` warns when the certificate had
+to be regenerated, since every Hysteria2 entry pins the old fingerprint until
+its subscription refreshes. The inbound keeps the remark and port of the one the old
 desktop client used, so a node that still carries that inbound gets it updated
 rather than a second one fighting for the port, and `ensureWireguardInbound`
 deletes the clients that inbound still held for the old desktop sessions

@@ -1,4 +1,4 @@
-import { isReferralCode, normaliseReferralCode, REFERRAL_CODE } from '@gnomevpn/schemas';
+import { isShortCode, normaliseShortCode, REFERRAL_CODE } from '@gnomevpn/schemas';
 
 import { REFERRAL_COOKIE } from '@/shared/constants';
 
@@ -7,7 +7,7 @@ import type { RememberReferralInput } from './referral-cookie.types';
 export const referralFromUrl = (url: URL): string | null => {
   const raw = url.searchParams.get(REFERRAL_CODE.param);
 
-  return raw && isReferralCode(raw) ? normaliseReferralCode(raw) : null;
+  return raw && isShortCode(raw) ? normaliseShortCode(raw) : null;
 };
 
 export const rememberReferral = ({ request, response }: RememberReferralInput): void => {

@@ -1,6 +1,7 @@
 import type { TunnelProtocol } from '@gnomevpn/schemas';
 
 import type { Prisma } from '../../../generated';
+import type { NodeTraffic } from '../../lib';
 import type { DeviceHeaders, DeviceIdentity } from '../devices';
 import type { TlsMode } from './lib';
 
@@ -49,6 +50,7 @@ export type ServerUrisInput = {
   nodes: SubscriptionNode[];
   tls: TlsMode;
   issuable: Set<string>;
+  limitIp: number;
 };
 
 export type EnsureNodeInput = {
@@ -56,18 +58,13 @@ export type EnsureNodeInput = {
   deviceId: string;
   node: SubscriptionNode;
   canIssue: boolean;
+  limitIp?: number;
   protocols?: TunnelProtocol[];
 };
 
-export type IssueFeedPeerInput = Omit<EnsureNodeInput, 'canIssue' | 'protocols'> & {
+export type IssueFeedPeerInput = Omit<EnsureNodeInput, 'canIssue' | 'limitIp' | 'protocols'> & {
   protocol: TunnelProtocol;
-};
-
-export type ForgetPeersInput = {
-  userId: string;
-  name: string;
-  nodeId: string;
-  protocols: TunnelProtocol[];
+  limitIp: number;
 };
 
 export type PersistPeerInput = {
@@ -80,25 +77,20 @@ export type PersistPeerInput = {
   tunnelAddress: string | null;
 };
 
-export type NodeTrafficInput = {
-  userId: string;
-  nodes: SubscriptionNode[];
+export type RecordNodeTrafficInput = {
+  nodeId: string;
+  traffic: Map<string, NodeTraffic>;
 };
 
-export type OneNodeTrafficInput = {
-  node: SubscriptionNode;
-  emails: Set<string>;
+export type TrafficClient = {
+  nodeId: string;
+  email: string;
 };
 
 export type SetEnabledAllInput = {
   userId: string;
   enabled: boolean;
   owner?: Prisma.UserWhereInput;
-};
-
-export type UpsertLinkInput = {
-  userId: string;
-  replaceToken: boolean;
 };
 
 export type PresentLinkInput = {
@@ -133,6 +125,7 @@ export type WireguardConfigFileInput = {
 
 export type RenderConfigInput = {
   deviceId: string;
+  name: string | null;
   node: SubscriptionNode;
   peer: FeedPeer;
 };

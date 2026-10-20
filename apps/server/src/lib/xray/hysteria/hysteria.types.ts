@@ -13,7 +13,6 @@ export type CreateClientInput = {
   email: string;
   auth: string;
   limitIp: number;
-  deferRestart?: boolean;
 };
 
 export type CreateClientResult = {

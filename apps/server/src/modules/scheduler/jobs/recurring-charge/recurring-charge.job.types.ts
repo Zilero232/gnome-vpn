@@ -11,4 +11,5 @@ export type DueSubscription = {
 export type ChargeAttemptInput = {
   userId: string;
   currentPeriodEnd: Date;
+  paymentMethodId: string;
 };

@@ -1,0 +1,11 @@
+.pitch {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  align-self: flex-start;
+  gap: 6px;
+}
+
+.picker {
+  width: 100%;
+}

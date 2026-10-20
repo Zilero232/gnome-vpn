@@ -1,22 +1,30 @@
 import { Logger } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { isNullish, partition } from 'remeda';
+import { isEmpty, isNullish, partition } from 'remeda';
 
 import type { CreateClientResult, SetClientsEnabledInput } from './hysteria';
 import type { CreateVlessClientResult } from './vless';
 import type { CreateWireguardClientInput, CreateWireguardClientResult } from './wireguard';
-import type { IssueClientInput, IssueVlessClientInput, NodeHealth, NodeTraffic, RewriteInboundInput, XrayClientOptions } from './xray.types';
+import type {
+  EnsureInboundInput,
+  IssueClientInput,
+  IssueVlessClientInput,
+  NodeHealth,
+  NodeTraffic,
+  RewriteInboundInput,
+  XrayClientOptions
+} from './xray.types';
 
 import { AppServiceUnavailableException } from '../../common/exceptions';
 import { coalesceByKey } from './coalesce';
 import { HysteriaClients } from './hysteria';
-import { inboundPayload, Inbounds } from './inbounds';
+import { inboundPayload, Inbounds, requireInbound } from './inbounds';
 import { PanelClient } from './panel-client';
 import { serializeByKey } from './serialize';
 import { VLESS_INBOUND_REMARK, VlessClients } from './vless';
-import { WIREGUARD_INBOUND_REMARK, WireguardClients } from './wireguard';
+import { WIREGUARD_INBOUND, WireguardClients } from './wireguard';
 import { REQUEST_TIMEOUT_MS, XRAY_STATE_RUNNING } from './xray.constants';
-import { generateAuth, readClients, sumTraffic, usageRatio } from './xray.helpers';
+import { generateAuth, readClients, usageRatio } from './xray.helpers';
 
 export class XrayClient {
   private static readonly logger = new Logger(XrayClient.name);
@@ -47,10 +55,6 @@ export class XrayClient {
     return Boolean(await this.inbounds.find());
   }
 
-  async hasVlessInbound(): Promise<boolean> {
-    return Boolean(await this.inbounds.find(VLESS_INBOUND_REMARK));
-  }
-
   async createInbound(inbound: Record<string, unknown>): Promise<void> {
     await this.inbounds.create({ inbound });
   }
@@ -79,35 +83,26 @@ export class XrayClient {
   }
 
   async ensureVlessInbound(inbound: Record<string, unknown>): Promise<void> {
-    return serializeByKey({
-      key: this.nodeKey,
-      task: async () => {
-        const current = await this.inbounds.find(VLESS_INBOUND_REMARK);
-
-        if (isNullish(current)) {
-          await this.inbounds.create({ inbound, remark: VLESS_INBOUND_REMARK });
-
-          return;
-        }
-
-        await this.rewriteInbound({ current, inbound, remark: VLESS_INBOUND_REMARK });
-      }
-    });
+    return this.ensureInboundByRemark({ inbound, remark: VLESS_INBOUND_REMARK });
   }
 
   async ensureWireguardInbound(inbound: Record<string, unknown>): Promise<void> {
+    return this.ensureInboundByRemark({ inbound, remark: WIREGUARD_INBOUND.remark });
+  }
+
+  private async ensureInboundByRemark({ inbound, remark }: EnsureInboundInput): Promise<void> {
     return serializeByKey({
       key: this.nodeKey,
       task: async () => {
-        const current = await this.inbounds.find(WIREGUARD_INBOUND_REMARK);
+        const current = await this.inbounds.find(remark);
 
         if (isNullish(current)) {
-          await this.inbounds.create({ inbound, remark: WIREGUARD_INBOUND_REMARK });
+          await this.inbounds.create({ inbound, remark });
 
           return;
         }
 
-        await this.rewriteInbound({ current, inbound, remark: WIREGUARD_INBOUND_REMARK });
+        await this.rewriteInbound({ current, inbound, remark });
       }
     });
   }
@@ -116,40 +111,48 @@ export class XrayClient {
     return this.wireguard.create(input);
   }
 
-  async createClient({ email, auth, limitIp, deferRestart }: IssueClientInput): Promise<CreateClientResult> {
-    return this.hysteria.create({ email, auth: auth ?? generateAuth(), limitIp, deferRestart });
+  async createClient({ email, auth, limitIp }: IssueClientInput): Promise<CreateClientResult> {
+    return this.hysteria.create({ email, auth: auth ?? generateAuth(), limitIp });
   }
 
-  async createVlessClient({ email, id, limitIp, deferRestart }: IssueVlessClientInput): Promise<CreateVlessClientResult> {
-    return this.vless.create({ email, id: id ?? randomUUID(), limitIp, deferRestart });
+  async createVlessClient({ email, id, limitIp }: IssueVlessClientInput): Promise<CreateVlessClientResult> {
+    return this.vless.create({ email, id: id ?? randomUUID(), limitIp });
   }
 
   async deleteClient(email: string): Promise<void> {
     return this.hysteria.delete(email);
   }
 
-  async setClientsEnabled({ emails, enabled }: SetClientsEnabledInput): Promise<boolean> {
-    const tunnelled = new Set((await this.wireguard.list()).map((client) => client.email));
-    const [wireguard, rest] = partition(emails, (email) => tunnelled.has(email));
+  async setClientsEnabled({ emails, enabled }: SetClientsEnabledInput): Promise<void> {
+    if (isEmpty(emails)) {
+      return;
+    }
 
     if (!enabled) {
       await this.hysteria.setEnabled({ emails, enabled });
 
-      return rest.length > 0;
+      return;
     }
+
+    const tunnelled = new Set((await this.wireguard.list()).map((client) => client.email));
+    const [wireguard, rest] = partition(emails, (email) => tunnelled.has(email));
 
     await this.hysteria.setEnabled({ emails: rest, enabled });
     await this.wireguard.enable(wireguard);
-
-    return rest.length > 0;
   }
 
   async clientEnabledByEmail(): Promise<Map<string, boolean>> {
-    const hasVless = await this.hasVlessInbound();
+    const inbounds = await this.inbounds.list();
+    const vless = inbounds.find((inbound) => inbound.remark === VLESS_INBOUND_REMARK);
+    const wireguard = inbounds.find((inbound) => inbound.remark === WIREGUARD_INBOUND.remark);
 
-    const [hysteria, vless, wireguard] = await Promise.all([this.hysteria.list(), hasVless ? this.vless.list() : [], this.wireguard.list()]);
+    const clients = [
+      ...this.hysteria.clientsIn(requireInbound({ inbounds })),
+      ...(vless ? this.vless.clientsIn(vless) : []),
+      ...(wireguard ? this.wireguard.clientsIn(wireguard) : [])
+    ];
 
-    return new Map([...hysteria, ...vless, ...wireguard].map((client) => [client.email, client.enable ?? true]));
+    return new Map(clients.map((client) => [client.email, client.enable ?? true]));
   }
 
   async wireguardEmails(): Promise<string[]> {
@@ -157,21 +160,28 @@ export class XrayClient {
   }
 
   async restartCore(reason: string): Promise<void> {
-    XrayClient.logger.log(`restarting the core on ${new URL(this.nodeKey).host}: ${reason}`);
+    await coalesceByKey({
+      key: this.nodeKey,
+      task: () => {
+        XrayClient.logger.log(`restarting the core on ${new URL(this.nodeKey).host}: ${reason}`);
 
-    await coalesceByKey({ key: this.nodeKey, task: () => this.panel.restartCore() });
+        return this.panel.restartCore();
+      }
+    });
   }
 
   async onlineEmails(): Promise<Set<string> | null> {
     return this.panel.onlineEmails();
   }
 
-  async trafficFor(emails: Set<string>): Promise<NodeTraffic> {
+  lastOnline(): Promise<Map<string, Date>> {
+    return this.panel.lastOnline();
+  }
+
+  async clientTraffic(): Promise<Map<string, NodeTraffic>> {
     const stats = await this.panel.clientTraffic();
 
-    const mine = stats.filter((stat) => emails.has(stat.email));
-
-    return sumTraffic(mine.map((stat) => ({ up: stat.up ?? 0, down: stat.down ?? 0 })));
+    return new Map(stats.map((stat) => [stat.email, { up: stat.up ?? 0, down: stat.down ?? 0 }]));
   }
 
   async isReachable(): Promise<boolean> {

@@ -6,10 +6,10 @@ import type { ReleaseLegacyInput } from './release-legacy.types';
 
 import { LEGACY_PEER } from '../../../../../devices';
 import { peerClientName } from '../../../../../peers';
-import { deleteNodeClients } from '../delete-node-clients';
+import { deleteNodeClients, peersGoneFromNode } from '../delete-node-clients';
 import { isReplacedLegacyPeer } from './release-legacy.helpers';
 
-export const releaseLegacy = async ({ prisma, xray, peers, nodeClients, online, now }: ReleaseLegacyInput): Promise<ReconcilePeer[]> => {
+export const releaseLegacy = async ({ prisma, xray, logger, peers, nodeClients, online, now }: ReleaseLegacyInput): Promise<ReconcilePeer[]> => {
   const owners = unique(peers.filter((peer) => peer.name === LEGACY_PEER.name).map((peer) => peer.userId));
 
   if (isNullish(online) || isEmpty(owners)) {
@@ -30,9 +30,15 @@ export const releaseLegacy = async ({ prisma, xray, peers, nodeClients, online, 
     return [];
   }
 
-  await deleteNodeClients({ xray, peers: idle, nodeClients });
+  await deleteNodeClients({ xray, logger, peers: idle, nodeClients });
 
-  await prisma.peer.deleteMany({ where: { id: { in: idle.map((peer) => peer.id) } } });
+  const released = peersGoneFromNode({ peers: idle, nodeClients });
 
-  return idle;
+  if (isEmpty(released)) {
+    return [];
+  }
+
+  await prisma.peer.deleteMany({ where: { id: { in: released.map((peer) => peer.id) } } });
+
+  return released;
 };

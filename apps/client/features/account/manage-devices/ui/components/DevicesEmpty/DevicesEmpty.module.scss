@@ -1,0 +1,8 @@
+.empty {
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+  border: 1px dashed var(--color-border-bright);
+  border-radius: var(--radius-md);
+  gap: 6px;
+}

@@ -1,7 +1,8 @@
 import type { ClientId, DeviceList } from '@gnomevpn/schemas';
 import type { Bot, Context, InlineKeyboard } from 'grammy';
 
-import type { Prisma } from '../../../generated';
+import type { PrismaExecutor } from '../../core';
+import type { PeerRef } from '../peers';
 import type { AUTO_RENEW_CHOICE, BOT_LOCALES, NOTICES } from './config';
 import type { TextFill } from './lib/fill-text';
 import type { ButtonKey } from './lib/keyboard';
@@ -52,6 +53,10 @@ export type ResolvedChat = {
   locale: BotLocale;
 };
 
+export type EnsuredChat = ResolvedChat & {
+  isNew: boolean;
+};
+
 export type LinkedAccount = {
   userId: string;
   telegramId: bigint;
@@ -77,8 +82,13 @@ export type SetLocaleInput = {
 };
 
 export type UntouchedUserInput = {
-  tx: Prisma.TransactionClient;
+  tx: PrismaExecutor;
   userId: string;
+};
+
+export type MergeOutcome = {
+  account: LinkedAccount;
+  released: PeerRef[];
 };
 
 export type BotMessage = {
@@ -157,19 +167,25 @@ export type WelcomeInput = {
   note?: string;
 };
 
+export type GreetInput = {
+  ctx: BotContext;
+  chat: EnsuredChat;
+  note?: string;
+};
+
+export type AcknowledgeInput = {
+  ctx: BotContext;
+  text?: string;
+};
+
 export type ArriveInput = {
   ctx: BotContext;
-  code: string;
+  code: string | null;
 };
 
 export type AttributeNoteInput = {
   chat: ResolvedChat;
-  code: string;
-};
-
-export type RefusalInput = {
-  error: unknown;
-  copy: BotText;
+  code: string | null;
 };
 
 export type ShowClientInput = {
@@ -193,6 +209,7 @@ export type DescribeInput = {
 export type NoticeSpec = {
   markup: 'main' | readonly ButtonKey[];
   effect?: string;
+  refreshHint?: boolean;
 };
 
 export type NoticeKey = keyof typeof NOTICES & keyof BotText;
@@ -209,6 +226,20 @@ export type NotifyInput = {
   fill?: TextFill;
   date?: Date | null;
   days?: number;
+};
+
+export type NoticeEmailInput = Pick<NotifyInput, 'date' | 'fill' | 'notice' | 'userId'>;
+
+export type NoticeTextInput = {
+  userId: string;
+  spec: NoticeSpec;
+  text: string;
+  hint: string;
+};
+
+export type NotifiedChat = {
+  telegramId: bigint;
+  locale: BotLocale;
 };
 
 export type RemovalInput = {

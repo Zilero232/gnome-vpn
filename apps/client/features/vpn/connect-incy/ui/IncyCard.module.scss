@@ -17,30 +17,6 @@
   font-weight: 600;
 }
 
-.actions {
-  display: flex;
-  align-items: stretch;
-  gap: 8px;
-
-  @include below(md) {
-    flex-direction: column;
-  }
-}
-
-.action {
-  min-width: 0;
-  height: auto;
-  min-height: 50px;
-  flex: 1 1 0;
-  padding-block: 10px;
-  text-align: center;
-  white-space: normal;
-
-  @include below(md) {
-    flex: 0 0 auto;
-  }
-}
-
 .other {
   display: flex;
   flex-direction: column;
@@ -92,11 +68,12 @@
 }
 
 .tabLink {
-  padding: 0;
+  padding: 4px 0;
   border: 0;
   background: none;
   cursor: pointer;
   font-family: inherit;
 
   @include text-link(12px);
+  @include touch-target;
 }

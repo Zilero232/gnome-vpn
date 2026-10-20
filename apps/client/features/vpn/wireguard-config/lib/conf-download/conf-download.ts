@@ -1,20 +1,18 @@
-import { isServer } from '@/shared/lib';
-
 import type { DownloadConfInput } from './conf-download.types';
 
-import { CONF_MIME } from './conf-download.constants';
+import { CONF_DOWNLOAD } from './conf-download.constants';
 
 export const downloadConf = ({ filename, conf }: DownloadConfInput): void => {
-  if (isServer()) {
-    return;
-  }
-
-  const url = URL.createObjectURL(new Blob([conf], { type: CONF_MIME }));
+  const url = URL.createObjectURL(new Blob([conf], { type: CONF_DOWNLOAD.mime }));
   const link = document.createElement('a');
 
   link.href = url;
   link.download = filename;
-  link.click();
+  link.hidden = true;
 
-  URL.revokeObjectURL(url);
+  document.body.append(link);
+  link.click();
+  link.remove();
+
+  setTimeout(URL.revokeObjectURL, CONF_DOWNLOAD.revokeDelayMs, url);
 };

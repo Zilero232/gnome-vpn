@@ -2,7 +2,7 @@
 
 import type { KeyboardEvent } from 'react';
 
-import { getHash, useHash } from '@siberiacancode/reactuse';
+import { getHash, useDidUpdate, useHash } from '@siberiacancode/reactuse';
 import { clsx } from 'clsx';
 import { motion } from 'motion/react';
 import { useEffect, useId, useRef, useState } from 'react';
@@ -18,6 +18,7 @@ import s from './AccountTabs.module.scss';
 
 export const AccountTabs = ({ items, label, panelClassName }: AccountTabsProps) => {
   const baseId = useId();
+  const navRef = useRef<HTMLDivElement>(null);
   const tabsRef = useRef<(HTMLButtonElement | null)[]>([]);
 
   const [active, setActive] = useState(items[0]?.value ?? '');
@@ -37,21 +38,12 @@ export const AccountTabs = ({ items, label, panelClassName }: AccountTabsProps) 
     window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${value}`);
   };
 
-  const tabHashes = items.map((item) => [item.value, ...(item.aliases ?? [])].join(',')).join(' ');
+  const tabsKey = items.map((item) => [item.value, ...(item.aliases ?? [])].join(',')).join('|');
 
   useHash({ mode: 'initial', onChange: selectFromHash });
 
-  useEffect(() => {
-    const hash = getHash();
-    const tab = tabHashes
-      .split(' ')
-      .map((hashes) => hashes.split(','))
-      .find((hashes) => hashes.includes(hash));
-
-    if (tab) {
-      setActive(tab[0]);
-    }
-  }, [tabHashes]);
+  // eslint-disable-next-line react/exhaustive-deps -- tabsKey stands for items, which is a fresh array on every render
+  useEffect(() => selectFromHash(getHash()), [tabsKey]);
 
   const activeIndex = Math.max(
     items.findIndex((item) => item.value === active),
@@ -59,6 +51,19 @@ export const AccountTabs = ({ items, label, panelClassName }: AccountTabsProps) 
   );
 
   const current = items[activeIndex];
+
+  useDidUpdate(() => {
+    const nav = navRef.current;
+    const tab = tabsRef.current[activeIndex];
+
+    if (!nav || !tab) {
+      return;
+    }
+
+    const offset = tab.getBoundingClientRect().left - nav.getBoundingClientRect().left;
+
+    nav.scrollTo({ left: nav.scrollLeft + offset - (nav.clientWidth - tab.offsetWidth) / 2, behavior: 'smooth' });
+  }, [current?.value]);
 
   const tabId = (value: string) => `${baseId}-tab-${value}`;
   const panelId = (value: string) => `${baseId}-panel-${value}`;
@@ -91,7 +96,7 @@ export const AccountTabs = ({ items, label, panelClassName }: AccountTabsProps) 
 
   return (
     <div className={s.root}>
-      <div aria-label={label} className={s.nav} role='tablist' tabIndex={-1} onKeyDown={onKeyDown}>
+      <div ref={navRef} aria-label={label} className={s.nav} role='tablist' tabIndex={-1} onKeyDown={onKeyDown}>
         {items.map(({ value, label: tabLabel, icon: Icon }, index) => {
           const isActive = value === current?.value;
 
@@ -127,7 +132,7 @@ export const AccountTabs = ({ items, label, panelClassName }: AccountTabsProps) 
           key={current.value}
           animate='visible'
           aria-labelledby={tabId(current.value)}
-          className={clsx(s.panel, !current.isBare && panelClassName)}
+          className={clsx(s.panel, panelClassName)}
           id={panelId(current.value)}
           initial='hidden'
           role='tabpanel'

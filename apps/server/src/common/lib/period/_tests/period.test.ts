@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { extendPeriod, isPeriodActive, nextPeriodEnd, resolveStatus } from '../period';
+import { extendPeriod, hasLapsedBeyondGrace, isPeriodActive, nextPeriodEnd, resolveStatus, rewindPeriod } from '../period';
+import { PERIOD_GRACE } from '../period.constants';
 
 const NOW = new Date('2026-01-15T12:00:00.000Z');
 
@@ -119,5 +120,56 @@ describe('extendPeriod', () => {
 
   it('counts the days from now when there was never a period', () => {
     expect(extendPeriod({ currentPeriodEnd: null, days: 3 })).toEqual(new Date('2026-01-18T12:00:00.000Z'));
+  });
+});
+
+describe('rewindPeriod', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('takes the months and days off a running period', () => {
+    expect(rewindPeriod({ currentPeriodEnd: new Date('2026-06-15T12:00:00.000Z'), months: 1, days: 3 })).toEqual(
+      new Date('2026-05-12T12:00:00.000Z')
+    );
+  });
+
+  it('never moves the end before now', () => {
+    expect(rewindPeriod({ currentPeriodEnd: new Date('2026-02-01T00:00:00.000Z'), months: 6 })).toEqual(NOW);
+  });
+
+  it('leaves a lapsed period alone', () => {
+    const lapsed = new Date('2026-01-01T00:00:00.000Z');
+
+    expect(rewindPeriod({ currentPeriodEnd: lapsed, days: 7 })).toBe(lapsed);
+  });
+
+  it('leaves a missing period alone', () => {
+    expect(rewindPeriod({ currentPeriodEnd: null, months: 1 })).toBeNull();
+  });
+});
+
+describe('hasLapsedBeyondGrace', () => {
+  const END = new Date('2026-01-15T12:00:00.000Z');
+
+  it('treats a missing period as lapsed', () => {
+    expect(hasLapsedBeyondGrace({ currentPeriodEnd: null, at: NOW })).toBe(true);
+  });
+
+  it('keeps a period inside the grace after its end', () => {
+    expect(hasLapsedBeyondGrace({ currentPeriodEnd: END, at: new Date(END.getTime() + (PERIOD_GRACE.hours - 1) * 3_600_000) })).toBe(false);
+  });
+
+  it('calls a period lapsed once the grace is over', () => {
+    expect(hasLapsedBeyondGrace({ currentPeriodEnd: END, at: new Date(END.getTime() + PERIOD_GRACE.hours * 3_600_000) })).toBe(true);
+  });
+
+  it('keeps a running period', () => {
+    expect(hasLapsedBeyondGrace({ currentPeriodEnd: END, at: new Date('2026-01-01T00:00:00.000Z') })).toBe(false);
   });
 });

@@ -6,7 +6,7 @@ Adding a VPN node, step by step. Why the pipeline is shaped the way it is:
 
 ## What it does
 
-`bun run provision:nodes` reads `nodes.json` from the repo root (gitignored — it holds root SSH passwords; `nodes.example.json` next to it is the committed template) and sets each host up over SSH: install Docker, jq and fail2ban, open the tunnel and panel ports, ship the 3x-ui compose stack, configure the panel, generate the TLS cert, the Reality keys and the WireGuard keys, install the Hysteria2, VLESS and WireGuard inbounds, register the node. When every host succeeded it prunes nodes missing from `nodes.json` and pushes the result to production.
+`bun run provision:nodes` reads `nodes.json` from the repo root (gitignored — it holds root SSH passwords; `nodes.example.json` next to it is the committed template) and sets each host up over SSH: install Docker, jq and fail2ban, open the tunnel and panel ports, ship the 3x-ui compose stack, configure the panel, generate the TLS cert, the Reality keys and the WireGuard keys, install the Hysteria2, VLESS and WireGuard inbounds, register the node. When every host succeeded it prunes nodes missing from `nodes.json`; either way it then pushes the result to production, so a token rotated on a host that failed later still gets there — with a failed host it only adds and updates production nodes, never deletes one, and the run exits 1.
 
 It runs on a workstation, never in CI: the node credentials live in
 `nodes.json` and `.env.nodes`, the production VPS credentials in the root
@@ -32,17 +32,30 @@ commit.
    bun run provision:nodes
    ```
 
-4. The run writes one `XRAY_KEY_<CC>` / `XRAY_PANEL_<CC>` pair per node into
-   **`.env.nodes`**, then copies that file and the node rows to the VPS over SSH
-   and restarts the server there. The server loads `.env.nodes` beside `.env`;
-   the `node` table stores only the variable's name (`apiTokenEnvVar`), never the
-   secret.
+4. The run writes three keys per node into **`.env.nodes`** —
+   `XRAY_KEY_<CC>` (the panel's api token), `XRAY_PANEL_<CC>` (its password) and
+   `XRAY_PATH_<CC>` (its random web path) — as soon as the panel hands over the
+   token, before the inbounds are touched. It then writes the node rows to the
+   VPS over SSH, uploads `.env.nodes` (`chmod 600`) when it differs from the
+   copy already there, and runs `docker compose up -d --no-deps --wait server`,
+   which **recreates** the server container when its environment changed — a
+   plain restart would keep the old one. The server loads `.env.nodes` beside
+   `.env`; the `node` table stores only the variable's name
+   (`apiTokenEnvVar`), never the secret.
 
-Re-running it on a node that is already set up is safe: every step is
-idempotent, an existing inbound is updated rather than replaced, and its client
-list is preserved. If a node's Reality key had gone missing and had to be
-regenerated, the run says so: every VLESS entry issued for that node before then
-is dead.
+Re-running it on a node that is already set up is safe, and on an unchanged
+node it drops no session: the panel container is restarted only when its port
+or web path has to change, an inbound is rewritten only when it differs from
+what provisioning would write (its client list is preserved either way), the
+core is restarted once and only for a created or changed Hysteria2 or VLESS
+inbound, the api token is kept unless the panel answers it with a 401, and the
+production server is recreated only when `.env.nodes` changed. Why each of these
+holds: [architecture/provisioning.md](../architecture/provisioning.md#re-running-it-is-safe).
+
+If a node's certificate, Reality key or WireGuard key had gone missing and had
+to be regenerated, the run warns: Hysteria2 entries pinned to the old
+certificate fail until their subscription refreshes, and every VLESS or
+WireGuard entry issued for that node before then is dead.
 
 ## Verifying it
 

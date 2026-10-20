@@ -7,17 +7,17 @@
   "CONFLICT": "This action conflicts with the current state — refresh the page.",
   "PAYMENT_REQUIRED": "An active subscription is required.",
   "PAYMENT_FAILED": "The payment could not be created. Please try again.",
-  "PLAN_CHANGE_LOCKED": "You can switch plans once the current period ends.",
   "RECURRING_UNAVAILABLE": "Automatic payments are temporarily unavailable.",
   "PAYMENT_METHOD_MISSING": "No card on file — add one first.",
   "WEBHOOK_INVALID": "Invalid request signature.",
+  "ACCOUNT_PAYMENT_PENDING": "A payment is still being processed. You can delete the account once it completes, usually within a few minutes.",
   "NODE_NOT_FOUND": "Country not found.",
   "NODE_UNAVAILABLE": "The node is not responding — try another country.",
-  "DEVICE_LIMIT_REACHED": "All device slots are in use — remove a device in your account first.",
+  "DEVICE_LIMIT_REACHED": "Every device place is taken — remove a device in your account or add a place.",
   "DEVICE_NOT_FOUND": "Device not found — it may already have been removed.",
   "SUBSCRIPTION_REQUIRED": "Extra devices can only be added to a paid subscription, not to the trial day.",
   "EXTRA_DEVICES_LIMIT": "You already have the maximum number of devices.",
-  "TRIAL_ALREADY_USED": "The trial has already been used",
+  "TRIAL_ALREADY_USED": "The free day was already used with this email or Telegram",
   "TRIAL_EMAIL_UNVERIFIED": "Confirm your email address first",
   "TELEGRAM_CODE_INVALID": "That code is unknown, already used or expired",
   "TELEGRAM_ALREADY_LINKED": "This Telegram account is linked to another subscription",
@@ -27,5 +27,5 @@
   "TELEGRAM_WIDGET_INVALID": "Telegram sign-in failed. Please try again.",
   "REFERRAL_CODE_INVALID": "There is no such invite code — check it for typos.",
   "REFERRAL_SELF": "This is your own code — send it to your friends.",
-  "REFERRAL_UNAVAILABLE": "An invite code only applies to a new account before its first payment."
+  "REFERRAL_UNAVAILABLE": "An invite code only applies to a new account — within 7 days of signing up and before its first payment."
 }

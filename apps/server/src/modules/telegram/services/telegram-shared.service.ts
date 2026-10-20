@@ -3,6 +3,7 @@ import { GrammyError } from 'grammy';
 import { isNullish } from 'remeda';
 
 import type {
+  AcknowledgeInput,
   AnsweredInput,
   AskInput,
   AttemptInput,
@@ -15,19 +16,26 @@ import type {
 } from '../telegram.types';
 
 import { describeError } from '../../../common/lib';
-import { BOT_TEXT, EDIT } from '../config';
-import { confirmKeyboard, identityOf, isConfirmed, mainKeyboard, resolveLocale } from '../lib';
+import { AppConfigService } from '../../../config';
+import { BOT_TEXT, CHECKOUT, EDIT } from '../config';
+import { botUrl, confirmKeyboard, createThrottle, identityOf, isConfirmed, mainKeyboard, resolveLocale } from '../lib';
 import { TelegramLinkService } from './telegram-link.service';
 import { TelegramNotifyService } from './telegram-notify.service';
 
 @Injectable()
 export class TelegramSharedService {
   private readonly logger = new Logger(TelegramSharedService.name);
+  private readonly checkoutThrottle = createThrottle(CHECKOUT.throttleMs);
 
   constructor(
     private readonly link: TelegramLinkService,
-    private readonly notify: TelegramNotifyService
+    private readonly notify: TelegramNotifyService,
+    private readonly config: AppConfigService
   ) {}
+
+  returnUrl(): string | undefined {
+    return botUrl(this.config.get('TELEGRAM_BOT_USERNAME'));
+  }
 
   textFor(ctx: BotContext): BotText {
     return BOT_TEXT[resolveLocale(ctx.from?.language_code)];
@@ -77,6 +85,20 @@ export class TelegramSharedService {
     });
   }
 
+  async acknowledge({ ctx, text }: AcknowledgeInput): Promise<void> {
+    await ctx.answerCallbackQuery(text).catch((error: unknown) => {
+      this.logger.debug(`could not answer a telegram button press: ${describeError(error)}`);
+    });
+  }
+
+  async notLinked(ctx: BotContext): Promise<void> {
+    await ctx.reply(this.textFor(ctx).notLinked, { reply_markup: { remove_keyboard: true } });
+  }
+
+  claimCheckout(ctx: BotContext): boolean {
+    return isNullish(ctx.from) || this.checkoutThrottle({ key: String(ctx.from.id) });
+  }
+
   async answered({ ctx, prefix, act }: AnsweredInput): Promise<void> {
     const identity = identityOf(ctx.from);
     const data = ctx.callbackQuery?.data;
@@ -85,9 +107,15 @@ export class TelegramSharedService {
       return;
     }
 
-    await ctx.answerCallbackQuery();
+    await this.acknowledge({ ctx });
 
-    const chat = await this.link.ensureChat(identity);
+    const chat = await this.link.findChat(identity.telegramId);
+
+    if (isNullish(chat)) {
+      await this.notLinked(ctx);
+
+      return;
+    }
 
     await this.attempt({ ctx, chat, act: () => act({ chat, value: data.slice(prefix.length) }) });
   }
@@ -124,9 +152,17 @@ export class TelegramSharedService {
       return;
     }
 
-    const chat = await this.link.ensureChat(identity);
+    const chat = await this.link.findChat(identity.telegramId);
 
-    void this.link.touch(identity);
+    if (isNullish(chat)) {
+      await this.notLinked(ctx);
+
+      return;
+    }
+
+    this.link.touch(identity).catch((error: unknown) => {
+      this.logger.debug(`could not record telegram activity: ${describeError(error)}`);
+    });
 
     await this.attempt({ ctx, chat, act: () => act(chat) });
   }

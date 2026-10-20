@@ -13,6 +13,10 @@ export const useRemoveDevice = () => {
   return useMutation({
     mutationFn: (id: string) => removeDevice({ id }),
     onError: toastError,
-    onSettled: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.devices() })
+    onSettled: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.devices() }),
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.wireguard() })
+      ])
   });
 };

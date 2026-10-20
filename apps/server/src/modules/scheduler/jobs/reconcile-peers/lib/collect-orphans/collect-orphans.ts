@@ -1,41 +1,35 @@
-import { filter, isEmpty, isNonNullish, isNullish, pipe, unique } from 'remeda';
+import { isEmpty, isNullish } from 'remeda';
 
-import type { CollectOrphansInput, WithoutAnOwnerInput } from './collect-orphans.types';
+import type { CollectOrphansInput, NamedOnNodeInput } from './collect-orphans.types';
 
-import { isWireguardClient, peerClientName } from '../../../../../peers';
-import { ownerIdOf } from '../orphan-owner';
+import { peerClientName } from '../../../../../peers';
 import { isServerOwned } from './collect-orphans.helpers';
 
-const withoutAnOwner = async ({ prisma, emails }: WithoutAnOwnerInput): Promise<string[]> => {
-  if (isEmpty(emails)) {
-    return [];
-  }
-
-  const owners = new Map(emails.map((email) => [email, ownerIdOf(email)]));
-  const named = pipe([...owners.values()], filter(isNonNullish), unique());
-
-  const alive = await prisma.user.findMany({ where: { id: { in: named } }, select: { id: true } });
-  const living = new Set(alive.map((user) => user.id));
-
-  return emails.filter((email) => {
-    const owner = owners.get(email);
-
-    return isNonNullish(owner) && !living.has(owner);
+const namedOnNode = async ({ prisma, nodeId }: NamedOnNodeInput): Promise<Set<string>> => {
+  const rows = await prisma.peer.findMany({
+    where: { nodeId },
+    select: { userId: true, kind: true, name: true, nodeId: true, protocol: true }
   });
+
+  return new Set(rows.map((row) => peerClientName(row)));
 };
 
-export const collectOrphans = async ({ prisma, xray, peers, nodeClients, online }: CollectOrphansInput): Promise<boolean> => {
+export const collectOrphans = async ({ prisma, xray, nodeId, peers, nodeClients, online }: CollectOrphansInput): Promise<number> => {
   if (isNullish(online)) {
-    return false;
+    return 0;
   }
 
   const known = new Set(peers.map((peer) => peerClientName(peer)));
-
   const candidates = [...nodeClients.keys()].filter((email) => !known.has(email) && isServerOwned(email) && !online.has(email));
 
-  const doomed = await withoutAnOwner({ prisma, emails: candidates });
+  if (isEmpty(candidates)) {
+    return 0;
+  }
+
+  const named = await namedOnNode({ prisma, nodeId });
+  const doomed = candidates.filter((email) => !named.has(email));
 
   await Promise.all(doomed.map((email) => xray.deleteClient(email)));
 
-  return doomed.some((email) => !isWireguardClient(email));
+  return doomed.length;
 };

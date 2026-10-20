@@ -20,13 +20,13 @@ export class BillingController {
   @Post('checkout')
   @ZodResponse({ type: CheckoutResultDto })
   createCheckout(@Body() body: CreateCheckoutDto, @CurrentUserId() userId: string) {
-    return this.checkout.createCheckout({ userId, planId: body.planId });
+    return this.checkout.createCheckout({ userId, planId: body.planId, locale: body.locale });
   }
 
   @Post('extra-devices')
   @ZodResponse({ type: CheckoutResultDto })
   buyExtraDevices(@Body() body: BuyExtraDevicesDto, @CurrentUserId() userId: string) {
-    return this.checkout.buyExtraDevices({ userId, quantity: body.quantity });
+    return this.checkout.buyExtraDevices({ userId, quantity: body.quantity, locale: body.locale });
   }
 
   @Post('cancel')

@@ -1,8 +1,7 @@
 import type { PlanId } from '@gnomevpn/schemas';
 
-import type { Prisma, ReferralSource } from '../../../generated';
-
-export type PrismaExecutor = Prisma.TransactionClient;
+import type { ReferralSource } from '../../../generated';
+import type { PrismaExecutor } from '../../core';
 
 export type AttributeInput = {
   userId: string;
@@ -18,6 +17,12 @@ export type AdoptInput = {
   fromUserId: string;
   toUserId: string;
   db: PrismaExecutor;
+};
+
+export type MutualInput = {
+  inviterId: string;
+  friendId: string;
+  db?: PrismaExecutor;
 };
 
 export type EligibilityInput = {
@@ -43,4 +48,16 @@ export type ExtendInput = {
   userId: string;
   days: number;
   db: PrismaExecutor;
+};
+
+export type RevokeInput = {
+  paymentId: string;
+  db: PrismaExecutor;
+};
+
+export type RevokeOutcome = {
+  referrerId: string;
+  referredId: string;
+  referrerDays: number;
+  friendDays: number;
 };

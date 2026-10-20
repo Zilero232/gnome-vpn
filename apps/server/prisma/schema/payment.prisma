@@ -2,6 +2,7 @@ enum PaymentStatus {
   pending
   succeeded
   canceled
+  refunded
 }
 
 enum PaymentKind {
@@ -10,24 +11,27 @@ enum PaymentKind {
 }
 
 model Payment {
-  id                String @id @default(dbgenerated("gen_random_uuid()"))
-  userId            String @map("user_id")
-  yookassaPaymentId String @unique @map("yookassa_payment_id")
+  id                String  @id @default(dbgenerated("gen_random_uuid()"))
+  userId            String? @map("user_id")
+  yookassaPaymentId String  @unique @map("yookassa_payment_id")
 
   amount       Decimal          @map("amount") @db.Decimal(10, 2)
   status       PaymentStatus    @default(pending)
   plan         SubscriptionPlan @default(monthly)
   isAutoCharge Boolean          @default(false) @map("is_auto_charge")
 
+  paymentMethodId String? @map("payment_method_id")
+
   kind         PaymentKind @default(subscription)
   extraDevices Int         @default(0) @map("extra_devices")
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   referral Referral?
 
   @@index([userId, isAutoCharge, status, createdAt])
+  @@index([userId, createdAt])
   @@index([status, createdAt])
   @@map("payment")
 }

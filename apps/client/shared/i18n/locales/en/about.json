@@ -8,7 +8,7 @@
   "facts": {
     "protocol": {
       "label": "Protocol",
-      "value": "Hysteria2 + VLESS + WireGuard"
+      "value": "Hysteria2, VLESS + Reality, WireGuard"
     },
     "transport": {
       "label": "Transport",
@@ -34,7 +34,7 @@
     },
     "noLogs": {
       "title": "What we do not store",
-      "body": "We keep no record of your connections: which sites you opened, which address you connected from, or when. Servers see how many bytes moved — that is how we tell whether a node is alive, and it is not tied to what you were doing."
+      "body": "We keep no record of your connections: which sites you opened, or when. For each device all that remains is the time it was last active — a single value that is overwritten — and the amount of data moved, for the counter in the app. The full list of what we store is in the privacy policy."
     },
     "infrastructure": {
       "title": "Infrastructure",
@@ -46,7 +46,7 @@
     },
     "honesty": {
       "title": "What we do not promise",
-      "body": "We do not promise it will work everywhere forever: blocking changes, and sometimes nodes have to change with it. We do not promise anonymity — a VPN hides traffic from your ISP, it does not make you invisible. If the service is not for you, we refund within 14 days."
+      "body": "We do not promise it will work everywhere forever: blocking changes, and sometimes nodes have to change with it. We do not promise anonymity — a VPN hides traffic from your ISP, it does not make you invisible. If the service is not for you, we refund the unused period — write to us within 14 days of paying."
     }
   }
 }

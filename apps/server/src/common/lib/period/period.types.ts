@@ -12,3 +12,14 @@ export type SubscriptionPeriod = {
   currentPeriodEnd: Date | null;
   extraDevices: number;
 };
+
+export type LapseInput = {
+  currentPeriodEnd: Date | null | undefined;
+  at: Date;
+};
+
+export type RewindPeriodInput = {
+  currentPeriodEnd: Date | null;
+  months?: number;
+  days?: number;
+};

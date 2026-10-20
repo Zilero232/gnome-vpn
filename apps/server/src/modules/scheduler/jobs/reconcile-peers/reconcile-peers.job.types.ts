@@ -1,5 +1,5 @@
 import type { PeerKind, PeerState, TunnelProtocol } from '../../../../../generated';
-import type { IdentifiedNode } from '../../../../common/lib';
+import type { IdentifiedNode, SubscriptionPeriod } from '../../../../common/lib';
 
 export type ReconcileNode = IdentifiedNode;
 
@@ -12,10 +12,7 @@ export type PeerIdentity = {
 };
 
 export type PeerOwner = {
-  subscription: {
-    currentPeriodEnd: Date | null;
-    extraDevices: number;
-  } | null;
+  subscription: SubscriptionPeriod | null;
 };
 
 export type ReconcilePeer = PeerIdentity & {
@@ -25,6 +22,7 @@ export type ReconcilePeer = PeerIdentity & {
   state: PeerState;
   nodeCredential: string;
   tunnelAddress: string | null;
+  device: { key: string } | null;
   user: PeerOwner;
 };
 

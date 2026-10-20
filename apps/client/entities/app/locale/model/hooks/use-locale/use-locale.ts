@@ -18,8 +18,10 @@ export const useLocale = (): UseLocale => {
   const [isPending, startTransition] = useTransition();
 
   const setLocale = (locale: Locale) => {
+    const { search, hash } = window.location;
+
     startTransition(() => {
-      router.replace(pathname, { locale });
+      router.replace(`${pathname}${search}${hash}`, { locale });
     });
   };
 

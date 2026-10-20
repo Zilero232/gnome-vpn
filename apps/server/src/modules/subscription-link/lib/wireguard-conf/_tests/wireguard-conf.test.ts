@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { wireguardConf, wireguardFileName } from '../wireguard-conf';
+import { wireguardConf } from '../wireguard-conf';
+import { wireguardFileName } from '../wireguard-conf.helpers';
 
 const INPUT = {
   privateKey: 'cHJpdmF0ZS1rZXk+/=',
@@ -39,18 +40,34 @@ describe('wireguardConf', () => {
 });
 
 describe('wireguardFileName', () => {
-  it('names the file the way it becomes the tunnel name in the app', () => {
-    expect(wireguardFileName({ countryCode: 'NL', deviceId: '3f2a91c0-0000-4000-8000-000000000000' })).toBe('gnome-nl-3f2a.conf');
+  const DEVICE_ID = '3f2a91c0-0000-4000-8000-000000000000';
+
+  it('names the file after the device, transliterated, then a short id and the country', () => {
+    expect(wireguardFileName({ name: 'Ноутбук', countryCode: 'NL', deviceId: DEVICE_ID })).toBe('noutbuk-3f2a-nl.conf');
+  });
+
+  it('keeps a brand name in one piece', () => {
+    expect(wireguardFileName({ name: 'iPhone', countryCode: 'FI', deviceId: DEVICE_ID })).toBe('iphone-3f2a-fi.conf');
+  });
+
+  it('gives two devices with the same name different files, so the apps do not refuse the second', () => {
+    const other = 'b71c0000-0000-4000-8000-000000000000';
+
+    expect(wireguardFileName({ name: 'Ноутбук', countryCode: 'NL', deviceId: DEVICE_ID })).not.toBe(
+      wireguardFileName({ name: 'Ноутбук', countryCode: 'NL', deviceId: other })
+    );
   });
 
   it('stays within the 15 characters an interface name may have', () => {
-    const name = wireguardFileName({ countryCode: 'DE', deviceId: 'abcdef12-0000-4000-8000-000000000000' }).replace('.conf', '');
+    const name = wireguardFileName({ name: 'Рабочий ноутбук мамы', countryCode: 'DE', deviceId: DEVICE_ID }).replace('.conf', '');
 
     expect(name.length).toBeLessThanOrEqual(15);
     expect(name).toMatch(/^[\w=+.-]{1,15}$/u);
+    expect(name).not.toMatch(/--/u);
   });
 
-  it('keeps only letters of the country code', () => {
-    expect(wireguardFileName({ countryCode: 'N/L', deviceId: 'abcd' })).toBe('gnome-nl-abcd.conf');
+  it('falls back to a short id when the name has no letters to keep', () => {
+    expect(wireguardFileName({ name: '😀', countryCode: 'NL', deviceId: DEVICE_ID })).toBe('gnome-3f2a-nl.conf');
+    expect(wireguardFileName({ name: null, countryCode: 'N/L', deviceId: DEVICE_ID })).toBe('gnome-3f2a-nl.conf');
   });
 });

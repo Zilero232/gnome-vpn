@@ -1,15 +1,19 @@
+import type { PlanId } from '@gnomevpn/schemas';
+
 import { planDiscountPercent, planMonthlyRub, PLANS } from '@gnomevpn/schemas';
 import { clsx } from 'clsx';
 import { Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-import { ROUTES } from '@/shared/constants';
+import { AUTH_MODE, QUERY_PARAMS, ROUTES } from '@/shared/constants';
 import { Link } from '@/shared/i18n/navigation';
 import { Badge, buttonVariants, Stack, Text } from '@/ui-kit';
 
 import { FEATURED_PLAN_ID, PRICING_FEATURES } from '../config';
 
 import s from './PricingCard.module.scss';
+
+const planHref = (plan: PlanId) => ({ pathname: ROUTES.account, query: { [QUERY_PARAMS.plan]: plan, [QUERY_PARAMS.mode]: AUTH_MODE.signup } });
 
 export const PricingCard = () => {
   const t = useTranslations('plans');
@@ -43,6 +47,14 @@ export const PricingCard = () => {
               <Text size='xs' tone='muted'>
                 {t('perMonth', { price: planMonthlyRub(plan.id) })}
               </Text>
+
+              <Link
+                aria-label={t('chooseLabel', { plan: t(`plans.${plan.id}`) })}
+                className={buttonVariants({ size: 'md', variant: plan.id === FEATURED_PLAN_ID ? 'primary' : 'ghost', class: s.choose })}
+                href={planHref(plan.id)}
+              >
+                {t('choose')}
+              </Link>
             </Stack>
           );
         })}
@@ -58,7 +70,7 @@ export const PricingCard = () => {
           ))}
         </ul>
 
-        <Link className={buttonVariants({ size: 'lg', class: s.cta })} href={ROUTES.account}>
+        <Link className={buttonVariants({ size: 'lg', class: s.cta })} href={planHref(FEATURED_PLAN_ID)}>
           {t('cta')}
         </Link>
       </Stack>

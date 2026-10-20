@@ -1,14 +1,13 @@
 import { MAX_FRIEND_DAYS } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
 import { isNullish } from 'remeda';
-import { match } from 'ts-pattern';
 
-import type { ArriveInput, AttributeNoteInput, BotContext, RefusalInput } from '../telegram.types';
+import type { ArriveInput, AttributeNoteInput, BotContext } from '../telegram.types';
 
-import { describeError, errorCodeOf } from '../../../common/lib';
+import { describeError } from '../../../common/lib';
 import { ReferralService } from '../../referrals';
 import { BOT_TEXT } from '../config';
-import { dayCount, fillText, identityOf, inviteView } from '../lib';
+import { dayCount, fillText, identityOf, inviteView, refusalText } from '../lib';
 import { TelegramAccountService } from './telegram-account.service';
 import { TelegramLinkService } from './telegram-link.service';
 import { TelegramSharedService } from './telegram-shared.service';
@@ -45,30 +44,27 @@ export class TelegramReferralService {
     const chat = await this.link.ensureChat(identity);
     const note = await this.attribute({ chat, code });
 
-    await this.account.welcome({ ctx, note });
+    await this.account.greet({ ctx, chat, note });
   }
 
   private async attribute({ chat, code }: AttributeNoteInput): Promise<string> {
     const text = BOT_TEXT[chat.locale];
 
+    if (isNullish(code)) {
+      return text.referralInvalid;
+    }
+
     try {
       await this.referrals.attribute({ userId: chat.userId, code, source: 'telegram' });
     } catch (error) {
-      return this.refusalFor({ error, copy: text });
+      return refusalText({
+        error,
+        copies: { REFERRAL_SELF: text.referralSelf, REFERRAL_UNAVAILABLE: text.referralUnavailable, REFERRAL_CODE_INVALID: text.referralInvalid },
+        fallback: text.referralUnavailable,
+        onUnknown: (reason) => this.logger.warn(`telegram referral failed: ${describeError(reason)}`)
+      });
     }
 
     return fillText({ text: text.referralWelcome, fill: { days: dayCount({ days: MAX_FRIEND_DAYS, locale: chat.locale }) } });
-  }
-
-  private refusalFor({ error, copy }: RefusalInput): string {
-    return match(errorCodeOf(error))
-      .with('REFERRAL_SELF', () => copy.referralSelf)
-      .with('REFERRAL_UNAVAILABLE', () => copy.referralUnavailable)
-      .with('REFERRAL_CODE_INVALID', () => copy.referralInvalid)
-      .otherwise(() => {
-        this.logger.warn(`telegram referral failed: ${describeError(error)}`);
-
-        return copy.referralUnavailable;
-      });
   }
 }

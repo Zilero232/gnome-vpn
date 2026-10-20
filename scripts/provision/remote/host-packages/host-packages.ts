@@ -5,7 +5,7 @@ import { all, arg, dirOf, line } from '@gnomevpn/scripts/shell';
 import type { EnsureAptInput, IsInstalledInput } from './host-packages.types';
 
 import { log } from '../../config';
-import { APT_ENV, DOCKER, FAIL2BAN } from './host-packages.constants';
+import { APT, DOCKER, FAIL2BAN } from './host-packages.constants';
 import { fail2banJail } from './host-packages.helpers';
 
 const isInstalled = async ({ ssh, probe }: IsInstalledInput): Promise<boolean> => {
@@ -23,8 +23,8 @@ const ensureApt = async ({ ssh, name, probe }: EnsureAptInput): Promise<void> =>
 
   log.step(`installing ${name}`);
 
-  await ssh.run(line([APT_ENV, 'apt-get', 'update', '-qq']));
-  await ssh.run(line([APT_ENV, 'apt-get', 'install', '-y', '-qq', arg(name)]));
+  await ssh.run(line([APT.env, 'apt-get', APT.lockTimeout, 'update', '-qq']));
+  await ssh.run(line([APT.env, 'apt-get', APT.lockTimeout, 'install', '-y', '-qq', arg(name)]));
 
   log.done(`${name} installed`);
 };

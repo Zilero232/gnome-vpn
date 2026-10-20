@@ -8,7 +8,7 @@ Part of the [documentation index](../README.md).
 ## One module talks to the panel
 
 `peers` owns everything that talks to the node's panel on a peer's behalf —
-creating a client, releasing it, restarting the core, building the tunnel config.
+creating a client, releasing it, building the tunnel config.
 `subscription-link` sits on top and never touches `XrayClient` directly: it
 calls `PeersService.issueAndPersist`, which is where the "create → persist →
 roll back on failure" dance is written once.
@@ -18,11 +18,10 @@ node and protocol, created by the subscription feed. `PeerKind` still has a
 `session` value and `peerClientName` still knows its prefix, but nothing in the
 server creates a session peer any more.
 
-**The feed restarts each node once, not once per client.** `SubscriptionPeersService.ensureNode`
-issues every missing peer on a node with `deferRestart`, then calls
-`PeersService.restartCore` once for that node. If the restart fails it deletes
-the rows it just wrote, so the next fetch issues them again rather than handing
-out clients the running core has never heard of.
+**Issuing a peer restarts nothing.** `SubscriptionPeersService.ensureNode`
+issues every missing peer on a node and is done: the panel pushes each new
+client into the running core itself (below), so no other session on the node is
+touched.
 
 `XrayClient` itself is a **facade over separate concerns**, each its own folder:
 
@@ -35,7 +34,7 @@ lib/xray/
 ├── vless/             # VLESS + Reality clients, in their own inbound
 ├── wireguard/         # WireGuard clients: keys, addresses, re-enable by delete and add
 ├── serialize/         # serializeByKey: one write at a time per node
-├── coalesce/          # coalesceByKey: one restart per node at a time, plus one follow-up
+├── coalesce/          # coalesceByKey: one inbound restart per node at a time, plus one follow-up
 └── xray.ts            # the facade the rest of the server calls
 ```
 
@@ -44,10 +43,10 @@ not to Xray-core. The panel runs the core; Hysteria2 is an inbound inside it,
 which is why a fix released for the standalone `apernet/hysteria` server does not
 reach these nodes.
 
-It was one 300-line class holding every protocol, and that is how a restart bug
-hid in it: each inbound needs the core restarted after its own kind of change,
-and with the paths interleaved one was easy to miss. Splitting by protocol makes
-each rule visible where it applies.
+It was one 300-line class holding every protocol, and the rules that differ by
+protocol (WireGuard's re-enable by delete and add, below) were easy to miss with
+the paths interleaved. Splitting by protocol makes each rule visible where it
+applies.
 
 Both protocols are ordinary panel clients, so one `deleteClient` removes either.
 A peer has exactly one client name, `peerClientName`. It used to answer a second,
@@ -76,17 +75,26 @@ of its own, and a device past the limit is refused in the feed. The whole
 mechanism, and why the panel's per-client `limitIp` could not do it, is in
 [devices.md](devices.md).
 
-`limitIp` is still set on every client, as `DEVICE_PEER.ipsPerClient` (2) for a
-device's keys: a net against one device's config being copied elsewhere, not a
-seat count. 3x-ui counts the IPs through Xray's online-stats API and has
-fail2ban drop the oldest IP over the limit — it bans the address for 30 minutes,
-it does not refuse the new connection.
+`limitIp` is still set on every client, from `deviceIpLimit`: 2
+(`DEVICE_PEER.ipsPerClient`) for a device with a hardware id or a WireGuard
+config, 1 (`ipsPerKeylessClient`) for an app that sends none — every install of
+such an app on the account shares the keys, so one network at a time is all one
+"device" gets. It is a net against a config being copied elsewhere, not a seat
+count. 3x-ui counts the IPs through Xray's online-stats API — no access log is
+involved since v3.x, the panel says so at boot (`using connection-based onlines
+and access-log-free IP limit`), and the generated core config carries
+`"access": "none"` — and has fail2ban drop the oldest IP over the limit, which
+needs `XUI_ENABLE_FAIL2BAN=true` (`infra/xray/docker-compose.yml` sets it). It
+bans the address for 30 minutes; it does not refuse the new connection. A limit
+is written when a client is created, so existing keyless-app clients keep the 2
+they were issued with until they are issued again.
 
 **A restored peer gets the limit it was issued with.** `restoreMissing` recreates
-a client the node has lost: a device's peer with `DEVICE_PEER.ipsPerClient`, a
-shared legacy `incy` peer with its owner's `activeDeviceLimit` — which is why
-`RECONCILE_PEER_SELECT` still pulls `user.subscription`. Revoked peers are never
-restored; `releaseRevoked` deletes them first.
+a client the node has lost: a device's peer with `deviceIpLimit` of its device
+key (`RECONCILE_PEER_SELECT` pulls `device.key`), a shared legacy `incy` peer
+with its owner's `activeDeviceLimit` — which is why it still pulls
+`user.subscription`. Revoked peers are never restored; `releaseRevoked` deletes
+them first.
 
 **Liveness comes from the Xray core.** `onlineEmails()` reads
 `/panel/api/clients/onlines` — the sessions the core itself proxies. A node that
@@ -96,6 +104,16 @@ positively reports as offline, never one it has no evidence about. Orphans are
 collected by the weekly `reconcile-peers` pass only (see
 [scheduler.md](scheduler.md)); the five-minute pass does not ask for onlines.
 
+**An orphan is any server-named client with no row, owner or not.** It used to
+be only a client whose owner was gone from the database, so a client leaked by
+a detached release, a failed persist or a node-sync change sat on the node for
+good as long as its owner had an account. `collectOrphans` now deletes every
+client whose name carries a server prefix and an owner id, that the node
+reports offline and that no peer row names. The pass's snapshot of the rows may
+be minutes old, so it re-reads the node's rows right before deleting and spares
+any client a row now names — a peer the feed issued meanwhile. A client with a
+row is never touched, and neither is one that is online.
+
 **The client email is scoped by protocol, and it has to be.** The database is
 unique on `(userId, kind, name, nodeId, protocol)` — five fields — while the
 email was built from four. One user issuing two protocols under the same name on
@@ -103,6 +121,15 @@ the same node therefore produced two rows and one email, and
 `clientEnabledByEmail` merges every protocol into a single map keyed on it: one
 client overwrote the other, and `syncEnabled` then disabled a live config against
 the wrong client's state.
+
+**A revoked peer is re-read before its client is deleted.** `releaseRevoked`
+works from the pass's snapshot, and the feed may have issued the same peer again
+since (a device past a shrunken limit that got its place back, a node-sync
+revocation): the upsert clears `revokedAt` and re-enables the panel client. The
+release now re-reads `revokedAt` for its candidates and deletes only the clients
+whose rows are still revoked, so it does not delete a key the feed has just
+handed out. The window that remains — between the panel add and the row write —
+is milliseconds, and `restoreMissing` puts such a client back on the next pass.
 
 **Releasing a peer deletes the row first and the panel client afterwards.**
 Deleting a client is an HTTP call to the node, so waiting for it means a slow or
@@ -130,10 +157,8 @@ restore sends both back, so a config already on a phone keeps working.
 `allowedIPs` is always a single `/32` — since v3.9.0 the panel rejects
 overlapping ranges, and a wider one would capture other clients' traffic.
 
-**Adding a WireGuard client needs no core restart.** The panel applies it live
-through xray's `AlterInbound`, so `ensureNode` restarts the core only when a
-Hysteria2 or VLESS client was issued too; a node that only gained WireGuard
-keeps its sessions. A failed restart forgets only the clients that needed it.
+**Adding a WireGuard client needs no core restart**, like every other client
+(below). The panel applies it live through xray's `AlterInbound`.
 
 **Re-enabling a WireGuard client is a delete and an add, never `bulkEnable`.**
 The panel's `bulkEnable` calls xray's `AddUser` without the key and the
@@ -144,42 +169,52 @@ the others go through `bulkEnable`, the WireGuard ones are deleted and added
 back with the same keys and address, both of which apply live. Disabling goes
 through `bulkDisable` for everyone, which removes the peer live.
 
-Every step that only touched WireGuard clients reports that no restart is
-needed: `setClientsEnabled` returns whether a non-WireGuard email changed, and
-`syncEnabled`, `restoreMissing`, `releaseRevoked` and `collectOrphans` pass that
-on, so reconcile and `pushEnabled` restart a node only for Hysteria2 or VLESS
-work. Re-adding a client drops its traffic counter on the panel, so the usage a
+Re-adding a client drops its traffic counter on the panel, so the usage a
 device reports starts over after a renewal that had disabled it; access is not
 affected.
 
-## The panel does not restart its own core
+## Client changes apply live; only an inbound needs a restart
 
-For Hysteria2 and VLESS clients, a mutating panel endpoint ends in
-`SetToNeedRestart()` and the running core does not learn about the change on
-its own: the client sits in the panel's database while the core has never heard
-of it, and the very first connection fails auth with a 404. Those changes need
-an explicit `restartCore()`. Newer panels run a 30-second job that restarts on
-that flag when an API apply failed — which is exactly what `bulkEnable` on a
-WireGuard client sets off — so a flag is never something to rely on, and never
-something to raise by accident. WireGuard adds and deletes are applied live and
-need no restart (above).
+**3x-ui v3.10.2 pushes every client change into the running core.**
+`/panel/api/clients/add` ends in xray's `AlterInbound` → `AddUser`, and the
+panel's `buildUserAccount` has a case for `hysteria`, `vless` and `wireguard`
+alike; `del`, `bulkDisable` and `bulkEnable` go through `RemoveUser`/`AddUser`
+the same way. A delete or disable restarts the core only when
+`restartXrayOnClientDisable` is on, and provisioning turns it off. The panel
+flags `needRestart` only when an API apply fails, and its own 30-second job
+then restarts — so a flag is never something to rely on, and never something to
+raise by accident (`bulkEnable` on a WireGuard client does exactly that, above).
 
-That restart drops every live session on the node, so batch it: one restart at
-the end of a pass, only when something actually changed. `reconcile-peers`
-restarts once per node per pass, and the feed once per node per fetch
-(`deferRestart`, above).
+The server therefore restarts nothing for a client: not after issuing peers in
+the feed, not in `pushEnabled`, not after reconcile released, retired,
+restored, synced or collected clients — each of those used to drop every tunnel
+on the node, several times a day. Reconcile logs what it changed per node
+instead (`reconciled node …: released 1, restored 2`). `XrayClient.restartCore`
+is left for provisioning, after it creates or changes a Hysteria2 or VLESS
+**inbound**; it is coalesced per node (`coalesceByKey`) and logs its reason.
 
-**Concurrent restarts of one node collapse into at most two.** Batching per
-fetch was not enough: three new devices importing at once were three fetches,
-three restarts back to back, and a restart that failed while another was
-running made the feed forget the peers it had just issued. `restartCore` goes
-through `coalesceByKey` (`lib/xray/coalesce`), keyed on the node: with nothing
-running it restarts at once; every call made while a restart runs shares one
-follow-up restart, which starts only after the running one ends — a client
-added mid-restart may not be in the running one, so it cannot simply join it.
-Every restart is logged with its reason (`reconcile synced, restored`,
-`issued 2 client(s) for a new device`, …), so a node that keeps dropping
-sessions shows why.
+This was proved against the image the nodes run, `ghcr.io/mhsanaei/3x-ui:v3.10.2`
+(Xray 26.10.10), before the restarts were removed. A local container was set up
+the way provisioning does it — `restartXrayOnClientDisable` off, then
+`syncInbounds` with the real `buildHysteriaInbound` (UDP/443, self-signed
+certificate), `buildRealityInbound` (gRPC) and `buildWireguardInbound`, which
+restarts once for the new inbounds. Then, with the core's PID recorded:
+
+- Hysteria2, VLESS and WireGuard clients were added through `XrayClient` with
+  no restart; xray clients in sibling containers (`hysteria` outbound pinned
+  with `pinnedPeerCertSha256`, `vless` + Reality gRPC, `wireguard`) behind a
+  socks inbound fetched a page through each at once (HTTP 200, all three in the
+  panel's online list), and a client with a wrong password or UUID was refused;
+- deleting the Hysteria2 client and disabling the VLESS and WireGuard ones
+  refused every new connection, still without a restart. The VLESS and
+  WireGuard tunnels already up stopped carrying traffic at once; a Hysteria2
+  QUIC connection authenticated before the delete kept carrying new requests
+  until the client reconnected — the session survives, a new one is refused;
+- re-enabling (VLESS through `bulkEnable`, WireGuard by delete and add) and
+  re-adding a disabled Hysteria2 client through `create` worked again live;
+- the core's PID never changed across twenty minutes of this, through many
+  ticks of the panel's 30-second restart job, and the panel logged no start
+  after the inbound one.
 
 **Paying re-enables the node clients at once, not on the next sweep.**
 `setEnabledAll` used to flip `peer.state` in the database only; the panel
@@ -187,7 +222,5 @@ client stayed disabled until `reconcile-peers` ran `syncEnabled`, up to five
 minutes later, while the feed already served its credentials — so a reader who
 had just paid got auth failures. On enable it now calls
 `PeersService.pushEnabled` detached: per node, it enables only the clients the
-panel still holds disabled and restarts only if there were any, so a renewal of
-an account that never lapsed restarts nothing. Disabling stays with the sweep —
-a few minutes of grace cost nothing, and a restart per expiry would. The sweep
-is still the guarantee for both directions.
+panel still holds disabled. Disabling stays with the sweep — a few minutes of
+grace cost nothing. The sweep is still the guarantee for both directions.

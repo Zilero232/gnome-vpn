@@ -3,11 +3,12 @@ import { AuthModule as BetterAuthModule } from '@thallesp/nestjs-better-auth';
 
 import { auth } from '../../lib';
 import { PeersModule } from '../peers';
+import { SubscriptionModule } from '../subscription';
 import { AccountController } from './account.controller';
 import { AccountService, IdentityService } from './services';
 
 @Module({
-  imports: [BetterAuthModule.forRoot({ auth, isGlobal: true }), PeersModule],
+  imports: [BetterAuthModule.forRoot({ auth, isGlobal: true }), PeersModule, SubscriptionModule],
   controllers: [AccountController],
   providers: [AccountService, IdentityService],
   exports: [AccountService, IdentityService]

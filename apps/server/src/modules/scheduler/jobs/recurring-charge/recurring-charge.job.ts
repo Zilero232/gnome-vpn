@@ -1,18 +1,19 @@
 import { findPlan } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { addHours, subHours } from 'date-fns';
+import { addHours, subHours, subMinutes } from 'date-fns';
 import { isNonNullish } from 'remeda';
 
 import type { ChargeAttemptInput, DueSubscription } from './recurring-charge.job.types';
 
 import { describeError } from '../../../../common/lib';
+import { AppConfigService } from '../../../../config';
 import { PrismaService } from '../../../../core';
 import { YooKassaClient } from '../../../../lib';
 import { CardService, CheckoutService, describeRenewal, renewalIdempotenceKey, WebhookService } from '../../../billing';
 import { periodKind } from '../../../subscription';
 import { TelegramNotifyService } from '../../../telegram/services/telegram-notify.service';
-import { WINDOW } from '../../config';
+import { PENDING, WINDOW } from '../../config';
 
 @Injectable()
 export class RecurringChargeJob {
@@ -20,6 +21,7 @@ export class RecurringChargeJob {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly config: AppConfigService,
     private readonly yookassa: YooKassaClient,
     private readonly checkout: CheckoutService,
     private readonly card: CardService,
@@ -27,13 +29,14 @@ export class RecurringChargeJob {
     private readonly notify: TelegramNotifyService
   ) {}
 
-  private async wasAttempted({ userId, currentPeriodEnd }: ChargeAttemptInput): Promise<boolean> {
+  private async wasAttempted({ userId, currentPeriodEnd, paymentMethodId }: ChargeAttemptInput): Promise<boolean> {
     const attempt = await this.prisma.payment.findFirst({
       where: {
         userId,
         isAutoCharge: true,
         status: { in: ['pending', 'canceled'] },
-        createdAt: { gt: subHours(currentPeriodEnd, WINDOW.renewHours) }
+        createdAt: { gt: subHours(currentPeriodEnd, WINDOW.renewHours) },
+        OR: [{ paymentMethodId }, { paymentMethodId: null }]
       },
       select: { id: true }
     });
@@ -41,12 +44,29 @@ export class RecurringChargeJob {
     return isNonNullish(attempt);
   }
 
+  private async isPaidByHand(userId: string): Promise<boolean> {
+    const pending = await this.prisma.payment.findFirst({
+      where: {
+        userId,
+        kind: 'subscription',
+        isAutoCharge: false,
+        status: 'pending',
+        createdAt: { gt: subMinutes(new Date(), PENDING.manualHoldMinutes) }
+      },
+      select: { id: true }
+    });
+
+    return isNonNullish(pending);
+  }
+
   private async chargeIfDue(subscription: DueSubscription): Promise<void> {
     if (!subscription.savedCardId || !subscription.currentPeriodEnd || periodKind(subscription) === 'trial') {
       return;
     }
 
-    if (await this.wasAttempted({ userId: subscription.userId, currentPeriodEnd: subscription.currentPeriodEnd })) {
+    const attempt = { userId: subscription.userId, currentPeriodEnd: subscription.currentPeriodEnd, paymentMethodId: subscription.savedCardId };
+
+    if ((await this.wasAttempted(attempt)) || (await this.isPaidByHand(subscription.userId))) {
       return;
     }
 
@@ -68,7 +88,8 @@ export class RecurringChargeJob {
       userId: subscription.userId,
       paymentId: payment.id,
       plan,
-      isAutoCharge: true
+      isAutoCharge: true,
+      paymentMethodId: subscription.savedCardId
     });
 
     if (payment.status === 'pending') {
@@ -102,6 +123,10 @@ export class RecurringChargeJob {
 
   @Cron(CronExpression.EVERY_HOUR)
   async run(): Promise<void> {
+    if (!this.config.get('YOOKASSA_RECURRING')) {
+      return;
+    }
+
     const due = await this.prisma.subscription.findMany({
       where: {
         cancelAtPeriodEnd: false,

@@ -1,3 +1,4 @@
 export const PENDING_CHECKOUT = {
-  windowMs: 15 * 60_000
+  windowMs: 15 * 60_000,
+  clockSlackMs: 15 * 60_000
 } as const;

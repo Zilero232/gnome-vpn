@@ -2,18 +2,19 @@
 
 import type { ClaimReferralInput } from '@gnomevpn/schemas';
 
-import { claimReferralSchema } from '@gnomevpn/schemas';
+import { claimReferralSchema, REFERRAL_POLICY } from '@gnomevpn/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useBoolean } from '@siberiacancode/reactuse';
+import { useBoolean, useDidUpdate } from '@siberiacancode/reactuse';
 import { ChevronDown, Ticket } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useId } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { useFieldError, useToastError } from '@/entities/app/locale';
+import { useErrorMessage, useFieldError, useToastError } from '@/entities/app/locale';
 import { FormField, Input, SubmitButton, Text } from '@/ui-kit';
 
+import { isFinalRefusal } from '../../../lib';
 import { useClaimReferral } from '../../../model/hooks';
 import { DEFAULT_VALUES } from './ClaimReferralForm.constants';
 
@@ -23,6 +24,7 @@ export const ClaimReferralForm = () => {
   const t = useTranslations('referrals');
   const fieldError = useFieldError();
   const toastError = useToastError();
+  const errorMessage = useErrorMessage();
   const panelId = useId();
   const inputId = useId();
   const { isPending, mutate } = useClaimReferral();
@@ -32,18 +34,36 @@ export const ClaimReferralForm = () => {
   const {
     formState: { errors, isDirty },
     handleSubmit,
-    register
+    register,
+    setError,
+    setFocus
   } = useForm<ClaimReferralInput>({
     resolver: zodResolver(claimReferralSchema),
     defaultValues: DEFAULT_VALUES
   });
 
+  useDidUpdate(() => {
+    if (isOpen) {
+      setFocus('code');
+    }
+  }, [isOpen]);
+
   const onSubmit = handleSubmit((values) => {
     mutate(values, {
       onSuccess: () => toast.success(t('claimed')),
-      onError: toastError
+      onError: (error) => {
+        if (!isFinalRefusal(error)) {
+          toastError(error);
+
+          return;
+        }
+
+        setError('code', { type: 'server', message: errorMessage(error) }, { shouldFocus: true });
+      }
     });
   });
+
+  const codeError = errors.code?.type === 'server' ? errors.code.message : fieldError(errors.code);
 
   return (
     <section className={s.root} data-open={isOpen}>
@@ -55,11 +75,11 @@ export const ClaimReferralForm = () => {
 
       <form noValidate className={s.form} hidden={!isOpen} id={panelId} onSubmit={onSubmit}>
         <Text as='p' size='xs' tone='muted'>
-          {t('claimHint')}
+          {t('claimHint', { days: REFERRAL_POLICY.claimWindowDays })}
         </Text>
 
         <div className={s.row}>
-          <FormField className={s.field} error={fieldError(errors.code)} htmlFor={inputId} label={t('claimLabel')}>
+          <FormField className={s.field} error={codeError} htmlFor={inputId} label={t('claimLabel')}>
             <Input autoCapitalize='characters' autoComplete='off' className={s.input} id={inputId} spellCheck={false} {...register('code')} />
           </FormField>
 

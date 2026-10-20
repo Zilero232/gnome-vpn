@@ -3,6 +3,7 @@ import { isNullish } from 'remeda';
 
 import type { BotContext } from '../telegram.types';
 
+import { errorCodeOf } from '../../../common/lib';
 import { AutoRenewService } from '../../billing';
 import { SubscriptionService } from '../../subscription';
 import { SubscriptionLinkService } from '../../subscription-link';
@@ -58,7 +59,13 @@ export class TelegramBillingService {
           return;
         }
 
-        await (choice === AUTO_RENEW_CHOICE.on ? this.autoRenewal.resumeAutoRenew(chat.userId) : this.autoRenewal.cancelAutoRenew(chat.userId));
+        try {
+          await (choice === AUTO_RENEW_CHOICE.on ? this.autoRenewal.resumeAutoRenew(chat.userId) : this.autoRenewal.cancelAutoRenew(chat.userId));
+        } catch (error) {
+          if (errorCodeOf(error) !== 'PAYMENT_METHOD_MISSING') {
+            throw error;
+          }
+        }
 
         const status = await this.subscription.getStatus(chat.userId);
 

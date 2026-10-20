@@ -6,15 +6,16 @@ export const MESSAGE_EFFECT = {
 } as const;
 
 export const NOTICES = {
-  paid: { markup: 'main', effect: MESSAGE_EFFECT.celebrate },
+  paid: { markup: 'main', effect: MESSAGE_EFFECT.celebrate, refreshHint: true },
   expired: { markup: 'main' },
-  renewed: { markup: ['autoRenew'], effect: MESSAGE_EFFECT.thumbsUp },
+  renewed: { markup: ['autoRenew'], effect: MESSAGE_EFFECT.thumbsUp, refreshHint: true },
   renewSoon: { markup: ['autoRenew'] },
   chargeFailed: { markup: ['renew'] },
   endingSoon: { markup: ['renew'] },
   trialEndingSoon: { markup: ['renew'] },
   devicesAdded: { markup: ['devices'], effect: MESSAGE_EFFECT.thumbsUp },
   deviceAdded: { markup: ['devices'] },
+  wireguardAdded: { markup: ['devices'] },
   deviceBlocked: { markup: ['devices'] },
   devicesShrunk: { markup: ['devices'] },
   legacyRetired: { markup: ['devices'] },

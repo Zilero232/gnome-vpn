@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
-import { isReferralCode, normaliseReferralCode } from './referrals';
+import { isShortCode, normaliseShortCode } from '../short-code';
 
 export const referralCodeSchema = z
   .string()
   .max(64, 'validation.referralCodeInvalid')
-  .refine(isReferralCode, 'validation.referralCodeInvalid')
-  .transform(normaliseReferralCode);
+  .refine(isShortCode, 'validation.referralCodeInvalid')
+  .transform(normaliseShortCode);
 
 export const claimReferralSchema = z.object({
   code: referralCodeSchema
@@ -21,5 +21,7 @@ export const referralOverviewSchema = z.object({
   daysEarned: z.number().int().nonnegative(),
   pendingDays: z.number().int().nonnegative(),
   isReferred: z.boolean(),
+  isReferralRewarded: z.boolean(),
+  referralRewardedDays: z.number().int().nonnegative(),
   canBeReferred: z.boolean()
 });

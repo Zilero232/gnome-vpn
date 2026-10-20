@@ -1,8 +1,11 @@
 export type { CreateClientResult } from './hysteria';
+export { INBOUND_REMARK } from './inbounds';
+export { PanelClient } from './panel-client';
+export type { PanelInbound } from './panel-client';
 export { VLESS_INBOUND_REMARK } from './vless';
-export { hostOf, WIREGUARD_INBOUND_REMARK } from './wireguard';
+export { hostOf, hostRoute, WIREGUARD_INBOUND } from './wireguard';
 export type { CreateWireguardClientResult } from './wireguard';
 export { XrayClient } from './xray';
-export { AUTH_BYTES, NO_TRAFFIC, PANEL_USERNAME } from './xray.constants';
+export { AUTH_BYTES, NO_TRAFFIC, PANEL_USERNAME, REQUEST_TIMEOUT_MS } from './xray.constants';
 export { generateAuth, sumTraffic } from './xray.helpers';
 export type { NodeHealth, NodeTraffic } from './xray.types';

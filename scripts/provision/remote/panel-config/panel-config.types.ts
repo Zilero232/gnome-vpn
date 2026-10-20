@@ -14,15 +14,28 @@ export type IssueTokenInput = {
   knownToken: string | null;
 };
 
-export type TokenWorksInput = {
+export type ProbeTokenInput = {
   ssh: SshClient;
   panelPath: string;
   token: string;
 };
 
-export type WaitForPanelInput = {
+export type TokenVerdict = 'accepted' | 'rejected';
+
+export type WaitForPanelListeningInput = {
   ssh: SshClient;
   panelPath: string;
+  timeoutMs: number;
+};
+
+export type RunPanelCliInput = {
+  ssh: SshClient;
+  args: string[];
+};
+
+export type PanelApiUrlInput = {
+  panelPath: string;
+  route: string;
 };
 
 export type KeepCoreRunningInput = {

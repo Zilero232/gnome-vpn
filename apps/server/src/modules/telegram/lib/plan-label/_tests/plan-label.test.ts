@@ -2,7 +2,8 @@ import { PLANS } from '@gnomevpn/schemas';
 import { describe, expect, it } from 'vitest';
 
 import { BOT_LOCALES, BOT_TEXT } from '../../../config';
-import { parsePlanId, planButtonLabel } from '../plan-label';
+import { fillLabel } from '../../fill-text';
+import { parsePlanId, planButtonLabel, plansText } from '../plan-label';
 
 const [plan] = PLANS;
 
@@ -24,6 +25,24 @@ describe('planButtonLabel', () => {
     const labels = PLANS.map((each) => planButtonLabel({ plan: each, locale: 'ru' }));
 
     expect(new Set(labels).size).toBe(PLANS.length);
+  });
+});
+
+describe('plansText', () => {
+  it('writes every price in the currency notation of its locale', () => {
+    for (const locale of BOT_LOCALES) {
+      const price = fillLabel({ text: BOT_TEXT[locale].planPrice, fill: { price: String(plan.priceRub) } });
+
+      expect(plansText({ locale, isExtending: false })).toContain(price);
+      expect(planButtonLabel({ plan, locale })).toContain(price);
+    }
+  });
+
+  it('says the new term stacks on the current one while a paid period runs', () => {
+    for (const locale of BOT_LOCALES) {
+      expect(plansText({ locale, isExtending: true })).toContain(BOT_TEXT[locale].choosePlanStacked);
+      expect(plansText({ locale, isExtending: false })).toContain(BOT_TEXT[locale].choosePlan);
+    }
   });
 });
 

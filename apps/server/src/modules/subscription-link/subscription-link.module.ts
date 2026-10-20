@@ -6,6 +6,7 @@ import { SubscriptionModule } from '../subscription';
 import { TelegramNotifyModule } from '../telegram/telegram-notify.module';
 import {
   FeedNoticeService,
+  NodeTrafficService,
   SubscriptionAccessService,
   SubscriptionFeedService,
   SubscriptionLinkService,
@@ -21,12 +22,13 @@ import { WireguardConfigController } from './wireguard-config.controller';
   controllers: [SubscriptionLinkController, SubscriptionFeedController, WireguardConfigController],
   providers: [
     FeedNoticeService,
+    NodeTrafficService,
     SubscriptionLinkService,
     SubscriptionFeedService,
     SubscriptionPeersService,
     SubscriptionAccessService,
     WireguardConfigService
   ],
-  exports: [SubscriptionLinkService, SubscriptionAccessService]
+  exports: [NodeTrafficService, SubscriptionLinkService, SubscriptionAccessService]
 })
 export class SubscriptionLinkModule {}

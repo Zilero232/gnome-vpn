@@ -6,6 +6,13 @@ export type SshConnectOptions = {
   privateKeyPath?: string;
 };
 
+export type SshExecInput = {
+  command: string;
+  stdin?: string;
+};
+
+export type SshCommand = string | SshExecInput;
+
 export type SshExecResult = {
   stdout: string;
   stderr: string;

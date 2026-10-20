@@ -1,5 +1,6 @@
 'use client';
 
+import { useMount } from '@siberiacancode/reactuse';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { match } from 'ts-pattern';
@@ -8,6 +9,7 @@ import { ForgotPasswordForm } from '@/features/auth/forgot-password';
 import { SignInForm } from '@/features/auth/sign-in';
 import { SignUpForm } from '@/features/auth/sign-up';
 import { TelegramLoginButton } from '@/features/auth/telegram-sign-in';
+import { AUTH_MODE, QUERY_PARAMS } from '@/shared/constants';
 import { Text } from '@/ui-kit';
 
 import type { AuthMode } from './AuthPage.types';
@@ -17,7 +19,13 @@ import s from './AuthPage.module.scss';
 export const AuthPage = () => {
   const t = useTranslations('auth');
 
-  const [mode, setMode] = useState<AuthMode>('signin');
+  const [mode, setMode] = useState<AuthMode>(AUTH_MODE.signin);
+
+  useMount(() => {
+    if (new URLSearchParams(window.location.search).get(QUERY_PARAMS.mode) === AUTH_MODE.signup) {
+      setMode(AUTH_MODE.signup);
+    }
+  });
 
   const isSignUp = mode === 'signup';
 

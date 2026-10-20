@@ -9,7 +9,7 @@ import { useToastError } from '@/entities/app/locale';
 import { useAccountIdentity } from '@/entities/auth/user';
 import { ErrorBlock, LoadingBlock } from '@/ui-kit';
 
-import { useIssueCode, useTelegramStatus, useUnlinkTelegram } from '../model/hooks';
+import { useCodeExpiry, useIssueCode, useTelegramStatus, useUnlinkTelegram } from '../model/hooks';
 import { TelegramCode, TelegramInvite, TelegramLinked, TelegramUnlinkDialog } from './components';
 
 import s from './TelegramPanel.module.scss';
@@ -18,7 +18,8 @@ export const TelegramPanel = () => {
   const t = useTranslations('telegram');
   const toastError = useToastError();
   const issue = useIssueCode();
-  const { data: status, isPending, isError, isRefetching, refetch } = useTelegramStatus({ isAwaitingLink: isNonNullish(issue.data) });
+  const isExpired = useCodeExpiry(issue.data?.expiresAt);
+  const { data: status, isPending, isError, isRefetching, refetch } = useTelegramStatus({ isAwaitingLink: isNonNullish(issue.data) && !isExpired });
   const { hasEmail } = useAccountIdentity();
   const unlink = useUnlinkTelegram();
 
@@ -63,12 +64,13 @@ export const TelegramPanel = () => {
   return (
     <div className={s.root}>
       <TelegramInvite
+        isExpired={isExpired}
         isIssued={isNonNullish(issued)}
         isPending={issue.isPending}
         onConnect={() => issue.mutate(undefined, { onError: toastError })}
       />
 
-      {isNonNullish(issued) && <TelegramCode bot={issued.botUsername} code={issued.code} />}
+      {isNonNullish(issued) && !isExpired && <TelegramCode bot={issued.botUsername} code={issued.code} />}
     </div>
   );
 };

@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { prop } from 'remeda';
 
-import type { NodeConfig } from './node';
+import type { NodeConfig, SyncResult } from './node';
 import type { ProvisionResult } from './pipeline';
 
 import { basePrisma } from '../../apps/server/src/core';
@@ -12,12 +12,32 @@ import { loadNodesConfig, pruneNodes, syncToProduction } from './node';
 import { formatSummary, provisionHost } from './pipeline';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
-const NODES_CONFIG_PATH = resolve(ROOT, 'nodes.json');
-const SERVER_ENV_PATH = resolve(ROOT, '.env.nodes');
-const XRAY_COMPOSE_PATH = resolve(ROOT, 'infra', 'xray', 'docker-compose.yml');
+
+const PATHS = {
+  nodesConfig: resolve(ROOT, 'nodes.json'),
+  serverEnv: resolve(ROOT, '.env.nodes'),
+  xrayCompose: resolve(ROOT, 'infra', 'xray', 'docker-compose.yml')
+} as const;
+
+const warnLosses = (result: ProvisionResult) => {
+  if (result.lostCert) {
+    log.warn('the node certificate was missing and had to be regenerated');
+    log.warn('every Hysteria2 entry pinned to the old fingerprint fails until its subscription refreshes');
+  }
+
+  if (result.lostRealityKeys) {
+    log.warn('the reality server key was missing and had to be regenerated');
+    log.warn('every VLESS entry issued for this node before now is dead');
+  }
+
+  if (result.lostWireguardKeys) {
+    log.warn('the wireguard server key was missing and had to be regenerated');
+    log.warn('every WireGuard entry issued for this node before now is dead');
+  }
+};
 
 const provisionAll = async (nodes: NodeConfig[]): Promise<ProvisionResult[]> => {
-  const xrayComposeContent = await readFile(XRAY_COMPOSE_PATH, 'utf8');
+  const xrayComposeContent = await readFile(PATHS.xrayCompose, 'utf8');
   const results: ProvisionResult[] = [];
 
   for (const config of nodes) {
@@ -27,23 +47,13 @@ const provisionAll = async (nodes: NodeConfig[]): Promise<ProvisionResult[]> => 
     const result = await provisionHost({
       config,
       prisma: basePrisma,
-      serverEnvPath: SERVER_ENV_PATH,
+      serverEnvPath: PATHS.serverEnv,
       xrayComposeContent
     });
 
     results.push(result);
     log.done(`${result.status}${result.error ? `: ${result.error}` : ''}`);
-
-    if (result.lostRealityKeys) {
-      log.warn('the reality server key was missing and had to be regenerated');
-      log.warn('every VLESS entry issued for this node before now is dead');
-    }
-
-    if (result.lostWireguardKeys) {
-      log.warn('the wireguard server key was missing and had to be regenerated');
-      log.warn('every WireGuard entry issued for this node before now is dead');
-    }
-
+    warnLosses(result);
     log.untint();
   }
 
@@ -54,7 +64,7 @@ const pruneStale = async (nodes: NodeConfig[]) => {
   const { removedKeys, removedNodes } = await pruneNodes({
     prisma: basePrisma,
     nodes,
-    serverEnvPath: SERVER_ENV_PATH
+    serverEnvPath: PATHS.serverEnv
   });
 
   if (removedKeys.length > 0) {
@@ -66,16 +76,25 @@ const pruneStale = async (nodes: NodeConfig[]) => {
   }
 };
 
-const pushToProduction = async () => {
+const pushToProduction = async (pruneMissing: boolean): Promise<SyncResult> => {
   const nodes = await basePrisma.node.findMany({ orderBy: { createdAt: 'asc' } });
-  const envNodes = await readFile(SERVER_ENV_PATH, 'utf8');
+  const envNodes = await readFile(PATHS.serverEnv, 'utf8');
 
   log.step('syncing production');
-  log.done(await syncToProduction({ nodes, envNodes }));
+
+  const result = await syncToProduction({ nodes, envNodes, pruneMissing });
+
+  if (result.status === 'failed') {
+    log.warn(`production sync failed: ${result.message}`);
+  } else {
+    log.done(`${result.status}: ${result.message}`);
+  }
+
+  return result;
 };
 
 const main = async () => {
-  const nodes = await loadNodesConfig(NODES_CONFIG_PATH);
+  const nodes = await loadNodesConfig(PATHS.nodesConfig);
 
   try {
     const results = await provisionAll(nodes);
@@ -83,12 +102,15 @@ const main = async () => {
 
     log.info(`\nsummary:\n${formatSummary(results)}`);
 
-    if (!hasFailed) {
+    if (hasFailed) {
+      log.warn('a host failed, so nodes missing from nodes.json are kept until a clean run');
+    } else {
       await pruneStale(nodes);
-      await pushToProduction();
     }
 
-    process.exitCode = hasFailed ? 1 : 0;
+    const sync = await pushToProduction(!hasFailed);
+
+    process.exitCode = hasFailed || sync.status === 'failed' ? 1 : 0;
   } finally {
     await basePrisma.$disconnect();
   }

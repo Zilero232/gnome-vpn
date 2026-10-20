@@ -2,10 +2,13 @@ import type { SshClient } from '@gnomevpn/scripts/ssh';
 
 import { all, arg, dirOf, line, orElse } from '@gnomevpn/scripts/shell';
 
+import type { EnsuredCert } from './host-cert.types';
+
 import { log, MASQUERADE_HOST, NODE_FILES } from '../../config';
 import { inContainer } from '../xray-stack';
+import { CERT_STATE } from './host-cert.constants';
 
-export const ensureCert = async (ssh: SshClient) => {
+export const ensureCert = async (ssh: SshClient): Promise<EnsuredCert> => {
   const generate = line([
     'openssl req -x509 -nodes -newkey ec',
     '-pkeyopt ec_paramgen_curve:prime256v1',
@@ -17,23 +20,27 @@ export const ensureCert = async (ssh: SshClient) => {
 
   log.step('ensuring the node certificate');
 
-  await ssh.run(
+  const result = await ssh.run(
     inContainer(
       all([
         line(['mkdir', '-p', dirOf(NODE_FILES.cert)]),
-        `(${orElse([all([`test -s ${NODE_FILES.cert}`, `test -s ${NODE_FILES.key}`]), generate])})`
+        `{ ${orElse([
+          `{ ${all([`test -s ${NODE_FILES.cert}`, `test -s ${NODE_FILES.key}`, `echo ${CERT_STATE.kept}`])}; }`,
+          `{ ${all([generate, `echo ${CERT_STATE.generated}`])}; }`
+        ])}; }`
       ])
     )
   );
+
+  const wasGenerated = result.stdout.trim().split('\n').at(-1) === CERT_STATE.generated;
+
+  log.done(wasGenerated ? 'certificate generated' : 'certificate already on the node');
+
+  return { wasGenerated };
 };
 
 export const readCertFingerprint = async (ssh: SshClient): Promise<string> => {
-  const result = await ssh.exec(inContainer(line([`openssl x509 -in ${NODE_FILES.cert}`, '-noout -fingerprint -sha256'])));
-
-  if (result.exitCode !== 0) {
-    throw new Error(`cannot read the node certificate fingerprint: ${result.stderr.trim() || 'no output'}`);
-  }
-
+  const result = await ssh.run(inContainer(line([`openssl x509 -in ${NODE_FILES.cert}`, '-noout -fingerprint -sha256'])));
   const fingerprint = result.stdout.trim().split('=')[1];
 
   if (!fingerprint) {

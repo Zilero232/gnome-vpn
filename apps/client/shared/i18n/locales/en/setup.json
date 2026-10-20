@@ -31,14 +31,14 @@
     },
     "android": {
       "name": "Android",
-      "install": "Install INCY from Google Play. If Play is unavailable, the INCY releases page has an APK.",
+      "install": "Install INCY from Google Play. The app is free and needs no sign-up.",
       "copyLink": "Open your account on this site, go to the Connect tab and press Copy INCY link.",
-      "import": "In INCY tap + and import from the clipboard. Easier still: tap the link on the site — it opens the app and adds the subscription for you.",
+      "import": "The easiest way: open your account on the same phone and press Open in INCY on the Connect tab — the app opens and adds the subscription itself. Or tap + in INCY and import from the clipboard.",
       "connect": "Pick a country and connect. Android asks permission to set up a VPN connection — confirm it."
     },
     "desktop": {
       "name": "Windows, macOS and Linux",
-      "install": "Download the installer above: exe for Windows, dmg for Mac, deb or rpm for Linux.",
+      "install": "Download the installer above: .exe for Windows, .dmg for Apple Silicon Macs, .deb for Ubuntu and Debian.",
       "copyLink": "Open your account in a browser, go to the Connect tab and copy the link.",
       "import": "Start INCY, press + and paste the link. Add it as a subscription rather than a single server, so the server list keeps updating itself.",
       "connect": "Pick a country and connect. On Windows you will be asked to approve an elevation prompt — it is needed to create the network adapter."
@@ -90,7 +90,7 @@
         "body": "Each country comes in several variants: Hysteria2 over UDP, VLESS + Reality over TCP and, on some servers, WireGuard. The app labels each entry with its protocol. Start with Hysteria2; if the network blocks UDP, switch to VLESS."
       }
     },
-    "note": "Whatever app you pick, the link stays yours alone. If it leaks, rotate it in your account and the old one dies at once."
+    "note": "Whatever app you pick, the link stays yours alone. If it leaks, rotate it in your account: the old one dies at once, every app is disconnected and you add the new link on each device. WireGuard configs keep working."
   },
   "wireguard": {
     "title": "A WireGuard config",

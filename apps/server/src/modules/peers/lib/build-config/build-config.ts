@@ -6,6 +6,7 @@ import { match } from 'ts-pattern';
 import type { BuildConfigInput } from './build-config.types';
 
 import { AppServiceUnavailableException } from '../../../../common/exceptions';
+import { hostRoute } from '../../../../lib/xray';
 import { REALITY, TUNNEL, WIREGUARD } from '../../config';
 import { hasReality, hasWireguard } from './build-config.helpers';
 
@@ -60,7 +61,7 @@ const buildWireguardConfig = ({ node, auth, address }: BuildConfigInput): Tunnel
     dns: [...TUNNEL.dns],
     wireguard: {
       publicKey: node.wgPublicKey,
-      address: `${address}${WIREGUARD.hostMask}`,
+      address: hostRoute(address),
       mtu: WIREGUARD.mtu
     }
   };

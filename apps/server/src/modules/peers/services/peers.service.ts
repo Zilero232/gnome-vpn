@@ -12,14 +12,13 @@ import type {
   IssuedCredential,
   IssuePeerInput,
   PeerRef,
-  RestartCoreInput,
   SetPeerEnabledInput
 } from '../peers.service.types';
 
 import { AppServiceUnavailableException } from '../../../common/exceptions';
 import { describeError, IDENTIFIED_NODE_SELECT, xrayClientForNode } from '../../../common/lib';
 import { PrismaService } from '../../../core';
-import { generateWireguardKeys, isWireguardClient, peerClientName } from '../lib';
+import { generateWireguardKeys, peerClientName } from '../lib';
 
 @Injectable()
 export class PeersService {
@@ -41,15 +40,15 @@ export class PeersService {
     return created;
   }
 
-  async issue({ node, nodeId, userId, kind, protocol, limitIp, name, deferRestart }: IssuePeerInput): Promise<CreatedPeer> {
+  async issue({ node, nodeId, userId, kind, protocol, limitIp, name }: IssuePeerInput): Promise<CreatedPeer> {
     const email = peerClientName({ userId, kind, name, nodeId, protocol });
     const client = xrayClientForNode(node);
 
     const create = match(protocol)
       .returnType<() => Promise<IssuedCredential>>()
-      .with(TUNNEL_PROTOCOL.vless, () => () => client.createVlessClient({ email, limitIp, deferRestart }))
+      .with(TUNNEL_PROTOCOL.vless, () => () => client.createVlessClient({ email, limitIp }))
       .with(TUNNEL_PROTOCOL.wireguard, () => () => client.createWireguardClient({ email, limitIp, ...generateWireguardKeys() }))
-      .otherwise(() => () => client.createClient({ email, limitIp, deferRestart }));
+      .otherwise(() => () => client.createClient({ email, limitIp }));
 
     try {
       const created = await create();
@@ -80,12 +79,6 @@ export class PeersService {
         const emails = nodePeers.map((peer) => peerClientName(peer));
 
         await Promise.all(emails.map((email) => this.deleteClient({ client, email })));
-
-        if (emails.some((email) => !isWireguardClient(email))) {
-          await client.restartCore(`released ${emails.length} client(s) of a deleted account`).catch((error: unknown) => {
-            this.logger.warn(`a node did not restart after releasing an account: ${describeError(error)}`);
-          });
-        }
       }
     });
   }
@@ -136,20 +129,12 @@ export class PeersService {
             return;
           }
 
-          const needsRestart = await client.setClientsEnabled({ emails, enabled: true });
-
-          if (needsRestart) {
-            await client.restartCore(`enabled ${emails.length} client(s) of a renewed account`);
-          }
+          await client.setClientsEnabled({ emails, enabled: true });
         } catch (error) {
           this.logger.warn(`could not enable the clients of ${userId} on a node, the sweep will: ${describeError(error)}`);
         }
       }
     });
-  }
-
-  async restartCore({ node, reason }: RestartCoreInput): Promise<void> {
-    await xrayClientForNode(node).restartCore(reason);
   }
 
   async discard({ node, email }: DiscardPeerInput): Promise<void> {

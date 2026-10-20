@@ -1,7 +1,10 @@
-import { all, arg, line } from '@gnomevpn/scripts/shell';
+import { all, arg, line, quiet } from '@gnomevpn/scripts/shell';
 import { escapeLiteral } from 'pg';
 
-import type { ApplySqlCommandInput, SyncableNode } from './node-sync.types';
+import type { ApplySqlCommandInput, BuildNodeSyncInput, InstallEnvFileCommandInput, IsSameEnvFileInput, SyncableNode } from './node-sync.types';
+
+import { DEVICE_KEY } from '../../../../apps/server/src/modules/devices/config';
+import { ENV_NODES, NODE_SYNC_SQL } from './node-sync.constants';
 
 const quote = (value: string | null) => (value === null ? 'NULL' : escapeLiteral(value));
 
@@ -23,13 +26,15 @@ const row = (node: SyncableNode) =>
     String(node.displayOrder)
   ].join(', ');
 
-export const buildNodeSync = (nodes: SyncableNode[]) => {
+export const buildNodeSync = ({ nodes, pruneMissing }: BuildNodeSyncInput) => {
   if (nodes.length === 0) {
     throw new Error('refusing to sync an empty node list, which would delete every production node');
   }
 
   const values = nodes.map((node) => `  (${row(node)})`).join(',\n');
   const hosts = nodes.map((node) => quote(node.host)).join(', ');
+  const wireguardDevices = escapeLiteral(`${DEVICE_KEY.wireguard}%`);
+  const revoke = NODE_SYNC_SQL.revokePeer;
 
   return [
     'BEGIN;',
@@ -44,11 +49,33 @@ export const buildNodeSync = (nodes: SyncableNode[]) => {
     'INSERT INTO incoming_node VALUES',
     `${values};`,
     '',
-    `DELETE FROM node WHERE host NOT IN (${hosts});`,
+    ...(pruneMissing
+      ? [
+          `DELETE FROM device WHERE key LIKE ${wireguardDevices} AND id IN (`,
+          '  SELECT p.device_id FROM peer p JOIN node n ON n.id = p.node_id',
+          `  WHERE p.protocol = 'wireguard' AND n.host NOT IN (${hosts})`,
+          ');',
+          '',
+          `DELETE FROM node WHERE host NOT IN (${hosts});`,
+          ''
+        ]
+      : []),
+    `DELETE FROM device WHERE key LIKE ${wireguardDevices} AND id IN (`,
+    '  SELECT p.device_id FROM peer p',
+    '  JOIN node n ON n.id = p.node_id JOIN incoming_node i ON n.host = i.host',
+    "  WHERE p.protocol = 'wireguard' AND (",
+    '    n.port <> i.port OR n.server_name <> i.server_name OR n.wg_public_key IS DISTINCT FROM i.wg_public_key',
+    '  )',
+    ');',
     '',
-    'DELETE FROM peer WHERE node_id IN (',
+    `UPDATE peer SET ${revoke} WHERE revoked_at IS NULL AND node_id IN (`,
     '  SELECT n.id FROM node n JOIN incoming_node i ON n.host = i.host',
     '  WHERE n.port <> i.port OR n.server_name <> i.server_name',
+    ');',
+    '',
+    `UPDATE peer SET ${revoke} WHERE protocol = 'wireguard' AND revoked_at IS NULL AND node_id IN (`,
+    '  SELECT n.id FROM node n JOIN incoming_node i ON n.host = i.host',
+    '  WHERE n.wg_public_key IS DISTINCT FROM i.wg_public_key',
     ');',
     '',
     'UPDATE node SET',
@@ -91,5 +118,11 @@ export const applySqlCommand = ({ deployPath, sql, delimiter }: ApplySqlCommandI
   return all([line(['cd', arg(deployPath)]), psql]);
 };
 
-export const restartServerCommand = (deployPath: string) =>
-  all([line(['cd', arg(deployPath)]), 'docker compose up -d --force-recreate --no-deps server']);
+export const applyServerEnvCommand = (deployPath: string) => all([line(['cd', arg(deployPath)]), 'docker compose up -d --no-deps --wait server']);
+
+export const readFileCommand = (path: string) => quiet(line(['cat', arg(path)]));
+
+export const installEnvFileCommand = ({ uploadPath, targetPath }: InstallEnvFileCommandInput) =>
+  all([line(['chmod', ENV_NODES.mode, arg(uploadPath)]), line(['mv', '-f', arg(uploadPath), arg(targetPath)])]);
+
+export const isSameEnvFile = ({ previous, next }: IsSameEnvFileInput) => previous !== null && previous.trim() === next.trim();

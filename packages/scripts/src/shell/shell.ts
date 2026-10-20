@@ -24,7 +24,7 @@ export const silent = (command: string) => `${command} >/dev/null 2>&1`;
 
 export const quiet = (command: string) => `${command} 2>/dev/null`;
 
-export const dockerExec = ({ container, argv }: DockerExecInput) => line(['docker', 'exec', container, ...argv]);
+export const dockerExec = ({ container, argv }: DockerExecInput) => line(['docker', 'exec', arg(container), ...argv.map(arg)]);
 
 export const dockerShell = ({ container, script }: DockerShellInput) => line(['docker', 'exec', container, 'sh', '-lc', arg(script)]);
 

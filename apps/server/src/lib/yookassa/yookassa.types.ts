@@ -8,10 +8,17 @@ export type CardData = {
   card_type?: string;
 };
 
+export type AmountData = {
+  value: string;
+  currency: string;
+};
+
 export type PaymentResponse = {
   id: string;
   status: string;
-  confirmation?: { confirmation_url?: string };
+  amount?: AmountData;
+  refunded_amount?: AmountData;
+  confirmation?: { confirmation_url?: string; return_url?: string };
   payment_method?: {
     id?: string;
     saved?: boolean;
@@ -48,6 +55,30 @@ export type PaymentInfo = {
   paymentMethodId: string | null;
   paymentMethodTitle: string | null;
   cancellationReason: string | null;
+  confirmationUrl: string | null;
+  returnUrl: string | null;
+  refundedRub: number;
+};
+
+export type RefundResponse = {
+  id: string;
+  payment_id: string;
+  status: string;
+  amount: AmountData;
+};
+
+export type RefundInfo = {
+  id: string;
+  paymentId: string;
+  status: string;
+  amountRub: number;
+};
+
+export type CreateRefundInput = {
+  paymentId: string;
+  amountRub: number;
+  description: string;
+  idempotenceKey: string;
 };
 
 export type BindPaymentMethodInput = {

@@ -10,6 +10,7 @@ export type WireguardConfInput = {
 };
 
 export type WireguardFileNameInput = {
+  name: string | null;
   countryCode: string;
   deviceId: string;
 };
@@ -19,4 +20,9 @@ export type WireguardNodeSource = {
   country: string;
   countryCode: string;
   city: string | null;
+};
+
+export type WireguardNodeViewInput = {
+  node: WireguardNodeSource;
+  live: Set<string>;
 };

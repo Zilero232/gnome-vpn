@@ -1,19 +1,20 @@
 'use client';
 
-import { Check, ChevronDown, Link2, QrCode, RefreshCw, Smartphone } from 'lucide-react';
+import { ChevronDown, RefreshCw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { toast } from 'sonner';
 
 import { ROUTES } from '@/shared/constants';
 import { Link } from '@/shared/i18n/navigation';
+import { writeClipboard } from '@/shared/lib';
 import { Button, ErrorBlock, LoadingBlock, Text } from '@/ui-kit';
 
 import type { CopyInput, IncyCardProps } from './IncyCard.types';
 
 import { useRotateLink, useSubscriptionLink } from '../model/hooks';
-import { IncyQrDialog, IncyRotateDialog, OtherAppsList } from './components';
-import { COPIED_RESET_MS } from './IncyCard.constants';
+import { IncyActions, IncyQrDialog, IncyRotateDialog, OtherAppsList } from './components';
+import { INCY_COPY } from './IncyCard.constants';
 
 import s from './IncyCard.module.scss';
 
@@ -21,11 +22,22 @@ export const IncyCard = ({ onWireguard }: IncyCardProps) => {
   const t = useTranslations('incy');
   const { data: link, isPending, isError, isRefetching, refetch } = useSubscriptionLink();
   const rotate = useRotateLink();
+  const otherAppsId = useId();
 
   const [isQrOpen, setIsQrOpen] = useState(false);
   const [isRotateOpen, setIsRotateOpen] = useState(false);
   const [isOtherOpen, setIsOtherOpen] = useState(false);
-  const [copied, setCopied] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!copiedId) {
+      return;
+    }
+
+    const timer = setTimeout(setCopiedId, INCY_COPY.resetMs, null);
+
+    return () => clearTimeout(timer);
+  }, [copiedId]);
 
   const onRotate = () => {
     rotate.mutate(undefined, { onSettled: () => setIsRotateOpen(false) });
@@ -33,17 +45,15 @@ export const IncyCard = ({ onWireguard }: IncyCardProps) => {
 
   const onCopy = async ({ value, message, id }: CopyInput) => {
     try {
-      await navigator.clipboard.writeText(value);
+      await writeClipboard(value);
     } catch {
       toast.error(t('copyFailed'));
 
       return;
     }
 
-    setCopied(id);
+    setCopiedId(id);
     toast.success(message);
-
-    setTimeout(setCopied, COPIED_RESET_MS, null);
   };
 
   if (isPending) {
@@ -82,26 +92,11 @@ export const IncyCard = ({ onWireguard }: IncyCardProps) => {
         )}
       </div>
 
-      <div className={s.actions}>
-        <Button className={s.action} size='lg' onClick={() => void onCopy({ value: link.deepLink, message: t('deepLinkCopied'), id: 'incy' })}>
-          {copied === 'incy' ? <Check aria-hidden size={16} /> : <Smartphone aria-hidden size={16} />}
-          {t('copyDeepLink')}
-        </Button>
-
-        <Button className={s.action} size='lg' variant='ghost' onClick={() => void onCopy({ value: link.url, message: t('urlCopied'), id: 'url' })}>
-          {copied === 'url' ? <Check aria-hidden size={16} /> : <Link2 aria-hidden size={16} />}
-          {t('copyUrl')}
-        </Button>
-
-        <Button aria-haspopup='dialog' className={s.action} size='lg' variant='ghost' onClick={() => setIsQrOpen(true)}>
-          <QrCode aria-hidden size={16} />
-          {t('showQr')}
-        </Button>
-      </div>
+      <IncyActions copiedId={copiedId} deepLink={link.deepLink} url={link.url} onCopy={onCopy} onShowQr={() => setIsQrOpen(true)} />
 
       <div className={s.other}>
         <button
-          aria-controls='incy-other-apps'
+          aria-controls={otherAppsId}
           aria-expanded={isOtherOpen}
           className={s.otherToggle}
           type='button'
@@ -112,7 +107,7 @@ export const IncyCard = ({ onWireguard }: IncyCardProps) => {
         </button>
 
         {isOtherOpen && (
-          <div id='incy-other-apps'>
+          <div id={otherAppsId}>
             <OtherAppsList clients={link.clients} url={link.url} onCopy={onCopy} />
           </div>
         )}

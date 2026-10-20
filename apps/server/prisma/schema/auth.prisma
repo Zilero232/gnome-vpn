@@ -5,6 +5,7 @@ model User {
   email         String  @unique
   emailVerified Boolean @default(false) @map("email_verified")
   image         String?
+  locale        String?
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)

@@ -21,6 +21,6 @@ export const resolveNodeCredentials = async ({ envFilePath, countryCode }: Resol
   return {
     password: password ?? randomBytes(CREDENTIAL_BYTES.password).toString('hex'),
     panelPath: panelPath ?? randomBytes(CREDENTIAL_BYTES.panelPath).toString('hex'),
-    apiToken: apiToken || null
+    apiToken
   };
 };

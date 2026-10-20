@@ -10,5 +10,6 @@ export const AUTH_ERROR_KEY = {
   USER_NOT_FOUND: 'errors.userNotFound',
   SESSION_EXPIRED: 'errors.sessionExpired',
   FAILED_TO_CREATE_USER: 'errors.signUpFailed',
-  FAILED_TO_CREATE_SESSION: 'errors.signInFailed'
+  FAILED_TO_CREATE_SESSION: 'errors.signInFailed',
+  TOO_MANY_REQUESTS: 'errors.tooManyRequests'
 } as const;

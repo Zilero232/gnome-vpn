@@ -30,7 +30,7 @@
     },
     "howManyDevices": {
       "q": "How many devices can I use?",
-      "a": "Two by default. There is one link per account; a device takes a slot the first time its app fetches the subscription. Remove a device you no longer use on the Devices tab of your account or with /devices in the Telegram bot, or buy more slots. In INCY, turn on HWID sending in the subscription settings so each device is counted on its own; without it every copy of INCY counts as one device."
+      "a": "Two by default. There is one link per account; a device takes a place the first time its app fetches the subscription. Remove a device you no longer use on the Devices tab of your account or with /devices in the Telegram bot, or add more device places. In INCY, make sure HWID sending is on in the subscription settings: a new device without an HWID is not accepted, because it cannot be told apart from the others."
     },
     "whichCountries": {
       "q": "Which countries do you have servers in?",
@@ -50,7 +50,7 @@
     },
     "notConnecting": {
       "q": "The app will not connect. What now?",
-      "a": "In order: check the subscription is active (INCY shows it), pull down to refresh the server list, try a different country. Still stuck? Rotate the link in your account and paste the new one. If that fails too, email us with a screenshot."
+      "a": "In order: check in your account that the subscription or the free day is active; refresh the subscription in the app (in INCY, with the refresh button or by pulling down on the server list); try another country or protocol — VLESS if the network blocks UDP. If INCY says the device was not accepted, turn on HWID sending in the subscription settings or remove a device you no longer use on the Devices tab. Still stuck? Write to us with a screenshot."
     },
     "slowSpeed": {
       "q": "It used to be fast and now it is slow",
@@ -58,11 +58,11 @@
     },
     "linkLeaked": {
       "q": "My link reached the wrong hands",
-      "a": "Open your account, go to the Connect tab and press Rotate link. The old one stops working immediately. Then paste the new link again on each of your devices."
+      "a": "Open your account, go to the Connect tab and press Rotate link. The old link stops working at once, and every device using an app (INCY or another) is disconnected and removed from the list — add the new link again on each of your devices. WireGuard configs keep working: if one of them may have leaked too, delete it on the Devices tab."
     },
     "changePhone": {
       "q": "I got a new phone — how do I move it over?",
-      "a": "Nothing to move. Install INCY on the new device and paste the same link from your account. If you are done with the old device, remove it on the Devices tab of your account to free its slot."
+      "a": "Nothing to move. Install INCY on the new device and paste the same link from your account. If you are done with the old device, remove it on the Devices tab of your account to free its place."
     },
     "howToPay": {
       "q": "How do I pay?",
@@ -70,15 +70,15 @@
     },
     "refund": {
       "q": "Can I get a refund?",
-      "a": "Yes. If the service is not for you, email us within 14 days of paying and we will refund the unused period without an interrogation."
+      "a": "Yes. If the service is not for you, write to us within 14 days of paying and we will refund the unused period without an interrogation. Planning to delete your account? Request the refund before deleting it."
     },
     "autoRenew": {
-      "q": "How do I turn off auto-renewal?",
-      "a": "In your account, in the subscription block, with the Auto-renewal switch. Access stays until the end of the period you paid for; after that nothing is charged."
+      "q": "How does auto-renewal work, and how do I turn it off?",
+      "a": "Auto-renewal only turns on if you saved the card while paying or added it in your account. To turn it off, press Turn off auto-renewal on the Subscription tab of your account: access stays until the end of the period you paid for, and nothing is charged after that."
     },
     "trial": {
       "q": "Is there a free trial?",
-      "a": "Yes — one full day of complete access: every country, both protocols, no speed limits. No card, and nothing renews on its own. Start it in your account once your email is confirmed; it is given once per account. A day is enough to install the app and test the speed on your own connection, which is the only honest way to judge a VPN. You can subscribe before the day is over — the paid period starts right after it, so the hours left are not lost. If it still is not right after you subscribe, the 14-day refund is there too."
+      "a": "Yes — one full day of complete access: every country, all protocols, no speed limits. No card, and nothing renews on its own. Start it in your account once your email is confirmed (straight away if you signed in with Telegram); it is given once. A day is enough to install the app and test the speed on your own connection, which is the only honest way to judge a VPN. You can subscribe before the day is over — the paid period starts right after it, so the hours left are not lost. If it still is not right after you subscribe, you can get a refund for the unused period within 14 days."
     },
     "otherApps": {
       "q": "Can I use Hiddify or another app instead of INCY?",
