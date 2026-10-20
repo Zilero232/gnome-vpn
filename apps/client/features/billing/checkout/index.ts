@@ -1,3 +1,4 @@
+export { planFromSearch } from './lib';
 export {
   useBindCard,
   useBuyExtraDevices,
@@ -8,6 +9,6 @@ export {
   useUnbindCard
 } from './model/hooks';
 export { AutoRenewControl, CheckoutButton, ExtraDevicesControl, PendingCheckoutBanner, RenewPanel } from './ui/components';
-export { PlanPicker } from './ui/PlanPicker';
 
+export { PlanPicker } from './ui/PlanPicker';
 export type { PlanPickerProps } from './ui/PlanPicker.types';

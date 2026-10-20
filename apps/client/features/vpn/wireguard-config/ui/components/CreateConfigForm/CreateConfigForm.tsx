@@ -8,11 +8,10 @@ import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useId } from 'react';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 
 import { useFieldError, useToastError } from '@/entities/app/locale';
 import { useSubscriptionStatus } from '@/entities/billing/subscription';
-import { FormField, Input, SubmitButton, Text } from '@/ui-kit';
+import { celebrate, FormField, Input, SubmitButton, Text } from '@/ui-kit';
 
 import type { CreateConfigFormProps } from './CreateConfigForm.types';
 
@@ -48,7 +47,7 @@ export const CreateConfigForm = ({ nodes, isFull, onCreated }: CreateConfigFormP
   const onSubmit = handleSubmit((values) => {
     mutate(values, {
       onSuccess: (file) => {
-        toast.success(t('created'));
+        celebrate(t('created'));
         reset({ nodeId: values.nodeId, name: '' });
         onCreated(file);
       },

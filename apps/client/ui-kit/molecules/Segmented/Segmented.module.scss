@@ -48,12 +48,14 @@
     opacity: 0.7;
   }
 
-  &:hover:not([data-active='true']) {
-    color: var(--color-text);
+  @media (hover: hover) {
+    &:hover:not([data-active='true']) {
+      color: var(--color-text);
+    }
   }
 
   &[data-active='true'] {
-    color: var(--color-bg-deep);
+    color: var(--color-on-accent);
 
     svg {
       opacity: 1;

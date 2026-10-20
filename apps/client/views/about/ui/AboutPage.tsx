@@ -1,7 +1,8 @@
 import { useTranslations } from 'next-intl';
 
-import { ABOUT_FACTS, ABOUT_SECTIONS } from '@/entities/app/about';
-import { Text } from '@/ui-kit';
+import { ABOUT_CLOSING, ABOUT_FACTS, ABOUT_STORY } from '@/entities/app/about';
+import { GnomeBadge, Reveal, Text } from '@/ui-kit';
+import { PageIntro } from '@/widgets/site/page-intro';
 
 import s from './AboutPage.module.scss';
 
@@ -10,15 +11,7 @@ export const AboutPage = () => {
 
   return (
     <main className={s.root}>
-      <header className={s.head}>
-        <Text as='h1' className={s.title}>
-          {t('title')}
-        </Text>
-
-        <Text as='p' className={s.intro} tone='muted'>
-          {t('intro')}
-        </Text>
-      </header>
+      <PageIntro aside={<GnomeBadge className={s.badge} size={148} />} intro={t('intro')} title={t('title')} />
 
       <dl className={s.facts}>
         {ABOUT_FACTS.map((fact) => (
@@ -29,17 +22,35 @@ export const AboutPage = () => {
         ))}
       </dl>
 
-      {ABOUT_SECTIONS.map((section) => (
-        <section key={section} className={s.section}>
-          <Text as='h2' className={s.heading}>
-            {t(`sections.${section}.title`)}
-          </Text>
+      <div className={s.story}>
+        {ABOUT_STORY.map((section, index) => (
+          <Reveal key={section} as='section' className={s.section}>
+            <span aria-hidden className={s.index}>
+              {index + 1}
+            </span>
+            <div className={s.sectionText}>
+              <Text as='h2' className={s.heading}>
+                {t(`sections.${section}.title`)}
+              </Text>
+              <Text as='p' className={s.body}>
+                {t(`sections.${section}.body`)}
+              </Text>
+            </div>
+          </Reveal>
+        ))}
+      </div>
 
-          <Text as='p' className={s.body}>
-            {t(`sections.${section}.body`)}
+      <Reveal as='section' className={s.closing}>
+        <GnomeBadge className={s.closingBadge} size={56} />
+        <div className={s.sectionText}>
+          <Text as='h2' className={s.heading}>
+            {t(`sections.${ABOUT_CLOSING}.title`)}
           </Text>
-        </section>
-      ))}
+          <Text as='p' className={s.body}>
+            {t(`sections.${ABOUT_CLOSING}.body`)}
+          </Text>
+        </div>
+      </Reveal>
     </main>
   );
 };

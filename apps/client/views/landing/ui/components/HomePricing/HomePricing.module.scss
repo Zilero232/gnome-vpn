@@ -1,0 +1,64 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  @include stack(40px);
+
+  padding: 112px 0 0;
+
+  @include below(md) {
+    padding-top: 72px;
+    gap: 32px;
+  }
+}
+
+.head {
+  @include stack(12px);
+
+  max-width: 640px;
+}
+
+.title {
+  @include section-title;
+}
+
+.intro {
+  @include marketing-lead;
+}
+
+.notes {
+  display: grid;
+  align-items: start;
+  padding-top: 24px;
+  border-top: 1px dashed var(--color-border-bright);
+  gap: 12px 40px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+
+  @include below(2xl) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.trial {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.renew {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+
+  @include text-link(15px);
+  @include touch-target;
+}

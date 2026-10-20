@@ -12,14 +12,15 @@ paths:
 ## SCSS modules only
 
 `<Name>.module.scss` beside the component, no CSS-in-JS. Tokens are CSS
-variables on `:root` in `app/globals.scss`; the app is dark-only. `clsx` joins a
+variables on `:root` in `app/globals.scss`; one light "paper" theme for the whole app. `clsx` joins a
 module class with an incoming `className`. Stylelint owns property order —
 `bun run lint:css:fix`.
 
 ## Breakpoints
 
-Seven steps in `shared/styles/_breakpoints.scss` — `xs` 420, `sm` 520, `md` 560,
-`lg` 640, `wide` 700, `xl` 760, `2xl` 900 — used as `@include below(md)` /
+Eight steps in `shared/styles/_breakpoints.scss` — `xs` 420, `sm` 520, `md` 560,
+`lg` 640, `wide` 700, `xl` 760, `2xl` 900, `3xl` 1180 (where the site header's
+full nav fits) — used as `@include below(md)` /
 `@include from(2xl)` and forwarded by `shared/styles/mixins`. Never write a raw
 `@media (width <= 620px)`: add a step to the map instead.
 

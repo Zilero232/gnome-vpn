@@ -1,8 +1,9 @@
 {
   "title": "Pricing",
-  "amount": "{price} ₽",
+  "amount": "{price, number}\u00a0₽",
   "period": "/ month",
-  "perMonth": "{price} ₽ per month",
+  "perMonth": "{price, number}\u00a0₽ per month",
+  "noDiscount": "no discount",
   "save": "−{percent}%",
   "plans": {
     "monthly": "1 month",
@@ -15,5 +16,6 @@
   "feature3": "Cancel auto-renewal in one click",
   "feature4": "No connection history",
   "choose": "Choose",
-  "chooseLabel": "Choose the {plan} plan"
+  "chooseLabel": "Choose the {plan} plan",
+  "best": "Best value"
 }

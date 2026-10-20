@@ -2,10 +2,9 @@
 
 import { Gift } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { toast } from 'sonner';
 
 import { useToastError } from '@/entities/app/locale';
-import { SubmitButton, Text } from '@/ui-kit';
+import { celebrate, SubmitButton, Text } from '@/ui-kit';
 
 import { useClaimTrial } from '../model/hooks';
 
@@ -18,21 +17,23 @@ export const TrialBanner = () => {
 
   const onClaim = () => {
     claim.mutate(undefined, {
-      onSuccess: () => toast.success(t('granted')),
+      onSuccess: () => celebrate(t('granted')),
       onError: toastError
     });
   };
 
   return (
     <div className={s.root}>
-      <Gift aria-hidden className={s.icon} size={20} />
+      <span aria-hidden className={s.icon}>
+        <Gift size={22} />
+      </span>
 
       <div className={s.body}>
-        <Text as='p' className={s.title}>
+        <Text as='h2' className={s.title}>
           {t('title')}
         </Text>
 
-        <Text size='xs' tone='muted'>
+        <Text as='p' className={s.text}>
           {t('hint')}
         </Text>
       </div>

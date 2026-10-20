@@ -3,87 +3,78 @@
 .root {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .title {
   font-weight: 600;
 }
 
-.list {
-  display: grid;
-  padding: 0;
-  margin: 0;
-  gap: 10px;
-  grid-template-columns: minmax(0, 1fr);
-  list-style: none;
+.hint {
+  margin: 0 0 4px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 1.5;
 }
 
-.card {
-  display: flex;
-  flex-direction: column;
-  padding: 14px 16px;
+.table {
+  overflow: hidden;
+  width: 100%;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background-color: color-mix(in srgb, var(--color-surface-raised) 55%, transparent);
-  gap: 8px;
+  background-color: var(--color-surface-raised);
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
 
-  &[data-best='true'] {
-    border-color: color-mix(in srgb, var(--color-accent) 35%, transparent);
-    background: linear-gradient(160deg, color-mix(in srgb, var(--color-accent) 10%, transparent) 0%, transparent 70%), var(--color-surface-raised);
-    box-shadow: var(--glow-accent);
+  th,
+  td {
+    padding: 10px 14px;
+    border-top: 1px solid var(--color-border);
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  thead th {
+    border-top: none;
+    background-color: var(--color-surface);
+    color: var(--color-text-muted);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  tbody th {
+    font-weight: 600;
+    white-space: normal;
+  }
+
+  tr[data-best='true'] {
+    background-color: color-mix(in srgb, var(--color-highlight) 12%, transparent);
+  }
+
+  @include below(sm) {
+    th,
+    td {
+      padding: 10px;
+    }
   }
 }
 
-.head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.plan {
-  color: var(--color-text);
-  font-size: var(--step-sm);
-  font-weight: 600;
-}
-
 .best {
-  padding: 2px 8px;
+  display: inline-block;
+  padding: 1px 7px;
   border-radius: var(--radius-pill);
-  background-color: var(--color-accent);
-  color: var(--color-bg-deep);
+  margin-left: 8px;
+  background-color: var(--color-peach);
+  color: var(--color-text);
   font-size: 11px;
   font-weight: 700;
+  vertical-align: 1px;
   white-space: nowrap;
 }
 
 .you {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-}
-
-.youLabel {
-  color: var(--color-text-muted);
-  font-size: var(--step-xs);
-}
-
-.youValue {
   color: var(--color-accent);
-  font-size: var(--step-lg);
-  font-variant-numeric: tabular-nums;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-
-.friend {
-  color: var(--color-text-muted);
-  font-size: var(--step-xs);
-}
-
-@include from(xl) {
-  .list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+  font-weight: 700;
 }

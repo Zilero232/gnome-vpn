@@ -1,0 +1,1 @@
+export { GnomeCanvas } from './GnomeCanvas';

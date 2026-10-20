@@ -9,10 +9,9 @@ import { ChevronDown, Ticket } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useId } from 'react';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 
 import { useErrorMessage, useFieldError, useToastError } from '@/entities/app/locale';
-import { FormField, Input, SubmitButton, Text } from '@/ui-kit';
+import { celebrate, FormField, Input, SubmitButton, Text } from '@/ui-kit';
 
 import { isFinalRefusal } from '../../../lib';
 import { useClaimReferral } from '../../../model/hooks';
@@ -50,7 +49,7 @@ export const ClaimReferralForm = () => {
 
   const onSubmit = handleSubmit((values) => {
     mutate(values, {
-      onSuccess: () => toast.success(t('claimed')),
+      onSuccess: () => celebrate(t('claimed')),
       onError: (error) => {
         if (!isFinalRefusal(error)) {
           toastError(error);

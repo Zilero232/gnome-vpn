@@ -1,0 +1,27 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  @include stack(40px);
+
+  @include below(md) {
+    gap: 28px;
+  }
+}
+
+.controls {
+  @include stack(14px);
+
+  position: sticky;
+  z-index: 5;
+  top: var(--header-height);
+  padding: 12px 0 14px;
+  margin: -12px 0 -14px;
+  background-color: var(--color-bg);
+}
+
+.count {
+  min-height: 1.5em;
+  margin: -16px 0;
+  color: var(--color-text-muted);
+  font-size: 15px;
+}

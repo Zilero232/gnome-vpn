@@ -64,6 +64,10 @@
       "q": "I got a new phone — how do I move it over?",
       "a": "Nothing to move. Install INCY on the new device and paste the same link from your account. If you are done with the old device, remove it on the Devices tab of your account to free its place."
     },
+    "price": {
+      "q": "How much does it cost?",
+      "a": "One plan — every country, every protocol, no speed limits; only the term differs. 1 month is {monthly} ₽, 6 months {halfYearly} ₽ ({halfYearlyPerMonth} ₽ a month), 12 months {yearly} ₽ ({yearlyPerMonth} ₽ a month). Two devices are included, and you can add seats in your account. Before paying you can take a free day — no card needed for it."
+    },
     "howToPay": {
       "q": "How do I pay?",
       "a": "By card on the site, through YooKassa. Access starts the moment the payment goes through, and the app picks up the new expiry date."
@@ -93,5 +97,18 @@
       "a": "Yes. WireGuard is already in the subscription for INCY, and for other apps and routers your account's Connect tab has a WireGuard side: pick a country, name the device and download the .conf file or scan the QR code. On Windows WireSock Secure Connect works best, on iPhone and Android AmneziaVPN, on macOS, Linux and routers the official WireGuard app. Each config takes one place in your device limit. WireGuard is blocked in Russia more often than the other protocols: if it will not connect, use INCY."
     }
   },
-  "stillStuck": "Still stuck? Email us — we answer within a day."
+  "stillStuck": "Still stuck? Email us — we answer within a day.",
+  "search": {
+    "label": "Search the questions",
+    "placeholder": "For example, \"refund\" or \"TV\"",
+    "clear": "Clear search",
+    "topics": "Topics",
+    "count": "{count, plural, one {# answer found} other {# answers found}}",
+    "empty": "Nothing found. Try another word.",
+    "emptyContact": "Or write to us — a person will answer:",
+    "telegram": "Telegram bot",
+    "shortcut": "Press \"/\" to search",
+    "results": "Search results",
+    "showMore": "{count, plural, one {Show # more answer} other {Show # more answers}}"
+  }
 }

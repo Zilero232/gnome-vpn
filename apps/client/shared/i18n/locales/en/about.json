@@ -7,7 +7,7 @@
   "intro": "Short and without the marketing: how this works inside and why we made these choices.",
   "facts": {
     "protocol": {
-      "label": "Protocol",
+      "label": "Protocols",
       "value": "Hysteria2, VLESS + Reality, WireGuard"
     },
     "transport": {

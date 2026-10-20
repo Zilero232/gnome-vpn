@@ -6,6 +6,7 @@
 
 .forgot {
   align-self: flex-end;
+  margin-top: -6px;
 
-  @include text-button(12px);
+  @include text-button(13px);
 }

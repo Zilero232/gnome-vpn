@@ -1,0 +1,37 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid var(--color-border-bright);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface-raised);
+  color: var(--color-text);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  transition:
+    border-color var(--duration-fast) ease,
+    background-color var(--duration-fast) ease,
+    color var(--duration-fast) ease;
+
+  @include pressable;
+  @include touch-target(40px);
+
+  &:hover {
+    border-color: var(--color-accent);
+  }
+
+  &[aria-pressed='true'] {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+}

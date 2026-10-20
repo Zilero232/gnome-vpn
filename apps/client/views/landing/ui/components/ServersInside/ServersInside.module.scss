@@ -1,0 +1,129 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  display: grid;
+  align-items: start;
+  padding: 128px 0 0;
+  gap: 48px 72px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+
+  @include below(2xl) {
+    padding-top: 80px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.map {
+  @include stack(8px);
+
+  @include from(2xl) {
+    position: sticky;
+    top: calc(var(--header-height) + 32px);
+  }
+
+  @include below(2xl) {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+}
+
+.places {
+  display: grid;
+  padding: 0;
+  margin: 0;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  list-style: none;
+}
+
+.place {
+  display: grid;
+  align-items: center;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-raised);
+  column-gap: 12px;
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.flag {
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px rgb(var(--color-tint) / 12%);
+  grid-row: span 2;
+}
+
+.country {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.city {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.text {
+  @include stack(28px);
+
+  align-items: flex-start;
+}
+
+.head {
+  @include stack(12px);
+}
+
+.title {
+  @include section-title;
+}
+
+.intro {
+  @include marketing-lead;
+}
+
+.points {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.point {
+  display: flex;
+  padding: 20px 0;
+  border-top: 1px solid var(--color-border);
+  gap: 16px;
+}
+
+.icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-accent);
+}
+
+.pointText {
+  @include stack(4px);
+}
+
+.pointTitle {
+  @include display-heading(19px, 600);
+}
+
+.pointBody {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  @include text-link(15px);
+  @include touch-target;
+}

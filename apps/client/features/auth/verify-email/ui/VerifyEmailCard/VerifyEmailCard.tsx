@@ -27,19 +27,21 @@ export const VerifyEmailCard = () => {
 
   return (
     <div className={s.root}>
-      <MailCheck aria-hidden className={s.icon} size={20} />
+      <span aria-hidden className={s.icon}>
+        <MailCheck size={22} />
+      </span>
 
       <div className={s.body}>
-        <Text as='p' className={s.title}>
+        <Text as='h2' className={s.title}>
           {t('title')}
         </Text>
 
-        <Text size='xs' tone='muted'>
+        <Text as='p' className={s.text}>
           {t('body', { email })}
         </Text>
       </div>
 
-      <SubmitButton className={s.action} isPending={resend.isPending} size='md' type='button' variant='ghost' onClick={onResend}>
+      <SubmitButton className={s.action} isPending={resend.isPending} size='md' type='button' onClick={onResend}>
         {t('resend')}
       </SubmitButton>
     </div>

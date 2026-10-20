@@ -27,10 +27,19 @@
   margin: 0;
 }
 
+.signOut {
+  justify-self: start;
+
+  @include below(md) {
+    width: 100%;
+  }
+}
+
 .subtitle {
   margin: 0;
   color: var(--color-text);
-  font-size: var(--step-sm);
+  font-family: var(--font-display);
+  font-size: var(--step-lg);
   font-weight: 600;
 }
 

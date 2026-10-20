@@ -20,28 +20,79 @@
   @include safe-padding($top, $right, $bottom, $left);
 }
 
-@mixin marketing-page($max-width, $gap: 36px, $gap-narrow: 26px) {
-  display: flex;
-  max-width: $max-width;
-  flex-direction: column;
-  padding: 64px 20px 80px;
-  margin: 0 auto;
-  gap: $gap;
+@mixin shell-container {
+  width: 100%;
+  max-width: var(--shell-width);
+  margin-inline: auto;
+  padding-inline: 24px;
 
   @include below(md) {
-    padding: 40px 16px 56px;
-    gap: $gap-narrow;
+    padding-inline: 16px;
   }
 }
 
-@mixin marketing-title {
-  font-size: 34px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+@mixin marketing-page($measure, $gap: 36px, $gap-narrow: 26px) {
+  @include shell-container;
+
+  display: flex;
+  flex-direction: column;
+  gap: $gap;
+  padding-block: 72px 96px;
 
   @include below(md) {
-    font-size: 26px;
+    gap: $gap-narrow;
+    padding-block: 44px 64px;
   }
+
+  > * {
+    max-width: $measure;
+  }
+}
+
+@mixin display-heading($size: 28px, $weight: 500) {
+  font-family: var(--font-display);
+  font-size: $size;
+  font-weight: $weight;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+@mixin marketing-title {
+  @include display-heading(clamp(32px, 2.2vw + 22px, 48px));
+
+  line-height: 1.1;
+}
+
+@mixin section-title {
+  @include display-heading(clamp(28px, 1.4vw + 22px, 40px));
+
+  margin: 0;
+  line-height: 1.15;
+}
+
+@mixin marketing-lead {
+  max-width: 62ch;
+  color: var(--color-text-muted);
+  font-size: 17px;
+  line-height: 1.65;
+
+  @include below(md) {
+    font-size: 16px;
+  }
+}
+
+@mixin marker {
+  padding: 0 0.12em;
+  margin: 0 -0.04em;
+  background-image: linear-gradient(
+    176deg,
+    transparent 58%,
+    color-mix(in srgb, var(--color-highlight) 85%, transparent) 58%,
+    color-mix(in srgb, var(--color-highlight) 85%, transparent) 88%,
+    transparent 88%
+  );
+  box-decoration-break: clone;
 }
 
 @mixin tab-button {
@@ -77,17 +128,19 @@
 }
 
 @mixin text-link($font-size: 14px) {
+  padding-bottom: 2px;
+  background-image: linear-gradient(currentcolor, currentcolor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0% 1.5px;
   color: var(--color-accent);
   font-size: $font-size;
-  font-weight: 500;
-  text-decoration: underline;
-  text-decoration-color: transparent;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-  transition: text-decoration-color var(--duration-fast) ease;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-size var(--duration-base) var(--ease-out);
 
   &:hover {
-    text-decoration-color: currentcolor;
+    background-size: 100% 1.5px;
   }
 }
 
@@ -164,13 +217,13 @@
   @include touch-target;
 
   &:hover:not(:disabled) {
-    border-color: rgb(230 240 236 / 10%);
-    background-color: rgb(230 240 236 / 7%);
+    border-color: rgb(var(--color-tint) / 10%);
+    background-color: rgb(var(--color-tint) / 7%);
     color: var(--color-text);
   }
 
   &:active:not(:disabled) {
-    background-color: rgb(230 240 236 / 4%);
+    background-color: rgb(var(--color-tint) / 4%);
   }
 }
 

@@ -8,8 +8,8 @@ import type { AccordionProps } from './Accordion.types';
 
 import s from './Accordion.module.scss';
 
-export const Accordion = ({ items, className }: AccordionProps) => (
-  <BaseAccordion.Root className={clsx(s.root, className)}>
+export const Accordion = ({ items, value, onValueChange, className }: AccordionProps) => (
+  <BaseAccordion.Root multiple className={clsx(s.root, className)} value={value} onValueChange={onValueChange}>
     {items.map(({ value, title, content }) => (
       <BaseAccordion.Item key={value} className={s.item} value={value}>
         <BaseAccordion.Header className={s.header}>

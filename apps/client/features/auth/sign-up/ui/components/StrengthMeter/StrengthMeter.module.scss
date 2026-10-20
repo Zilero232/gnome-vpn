@@ -1,0 +1,48 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  display: flex;
+  align-items: center;
+  margin-top: -6px;
+  gap: 10px;
+}
+
+.bar {
+  overflow: hidden;
+  width: 72px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  background-color: var(--color-bg-deep);
+}
+
+.fill {
+  display: block;
+  width: 33%;
+  height: 100%;
+  border-radius: inherit;
+  background-color: var(--color-danger);
+  transform-origin: left;
+  transition:
+    width var(--duration-base) var(--ease-out),
+    background-color var(--duration-base) ease;
+
+  .root[data-strength='fair'] & {
+    width: 66%;
+    background-color: var(--color-warning);
+  }
+
+  .root[data-strength='strong'] & {
+    width: 100%;
+    background-color: var(--color-success);
+  }
+}
+
+.text {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.label {
+  @include visually-hidden;
+}

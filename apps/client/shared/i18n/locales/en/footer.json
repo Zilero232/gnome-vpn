@@ -8,5 +8,14 @@
   "support": "Support",
   "servers": "Servers",
   "ariaLabel": "Footer navigation",
-  "blog": "Blog"
+  "blog": "Blog",
+  "note": "A small VPN service running its own servers. If something misbehaves, write to us — a person answers.",
+  "telegram": "Telegram bot",
+  "contacts": "Get in touch",
+  "groups": {
+    "product": "Service",
+    "help": "Help",
+    "legal": "Legal"
+  },
+  "language": "Language"
 }

@@ -1,0 +1,1 @@
+export { GlobeRig } from './GlobeRig';

@@ -1,0 +1,30 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  position: sticky;
+  z-index: 4;
+  top: var(--header-height);
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  background-color: var(--color-bg);
+  gap: 14px;
+
+  @include below(md) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+}
+
+.label {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.control {
+  min-width: 0;
+  flex: 1 1 auto;
+}

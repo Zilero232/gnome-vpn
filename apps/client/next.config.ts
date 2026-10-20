@@ -20,7 +20,7 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
   images: IMAGES,
-  experimental: { optimizePackageImports: OPTIMIZED_PACKAGES },
+  experimental: { optimizePackageImports: OPTIMIZED_PACKAGES, inlineCss: true },
   sassOptions: { implementation: 'sass-embedded', loadPaths: [CLIENT_ROOT] },
   turbopack: { resolveAlias: { '@': CLIENT_ROOT } },
   headers: () => Promise.resolve([{ source: '/:path*', headers: SECURITY_HEADERS }])

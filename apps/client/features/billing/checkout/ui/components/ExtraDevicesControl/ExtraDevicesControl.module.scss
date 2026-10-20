@@ -74,9 +74,8 @@
 
 .count {
   color: var(--color-text-muted);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.02em;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
 }
 
 .slots {
@@ -94,13 +93,8 @@
     background-color var(--duration-fast) ease,
     box-shadow var(--duration-fast) ease;
 
-  &[data-state='owned'] {
+  &[data-state='used'] {
     background-color: var(--color-accent);
-  }
-
-  &[data-state='pending'] {
-    background-color: color-mix(in srgb, var(--color-accent) 45%, transparent);
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 40%, transparent);
   }
 }
 
@@ -159,7 +153,6 @@
 
   align-items: center;
   justify-content: center;
-  font-family: var(--font-mono);
   font-size: 14px;
   font-variant-numeric: tabular-nums;
 }

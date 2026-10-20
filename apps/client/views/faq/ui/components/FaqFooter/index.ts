@@ -1,0 +1,1 @@
+export { FaqFooter } from './FaqFooter';

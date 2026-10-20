@@ -1,31 +1,19 @@
-'use client';
-
-import { botttsNeutral } from '@dicebear/collection';
-import { createAvatar } from '@dicebear/core';
 import { clsx } from 'clsx';
-import { useMemo } from 'react';
 
 import { AVATAR } from '@/shared/config';
 
 import type { AvatarProps } from './Avatar.types';
 
+import { GnomeBadge } from '../GnomeBadge';
+
 import s from './Avatar.module.scss';
 
 export const Avatar = ({ seed, size = AVATAR.size, className, ...props }: AvatarProps) => {
-  const source = useMemo(
-    () =>
-      createAvatar(botttsNeutral, {
-        seed,
-        size,
-        radius: AVATAR.radius,
-        backgroundColor: [...AVATAR.backgrounds]
-      }).toDataUri(),
-    [seed, size]
-  );
+  const palette = AVATAR.palettes[Number.parseInt(seed.slice(-6), 16) % AVATAR.palettes.length] ?? AVATAR.palettes[0];
 
   return (
     <span aria-hidden className={clsx(s.root, className)} style={{ width: size, height: size }} {...props}>
-      <img alt='' className={s.image} height={size} src={source} width={size} />
+      <GnomeBadge className={s.image} palette={palette} size={size} />
     </span>
   );
 };

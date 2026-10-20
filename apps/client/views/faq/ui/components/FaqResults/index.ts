@@ -1,0 +1,1 @@
+export { FaqResults } from './FaqResults';

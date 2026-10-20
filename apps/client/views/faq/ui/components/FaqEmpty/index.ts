@@ -1,0 +1,1 @@
+export { FaqEmpty } from './FaqEmpty';

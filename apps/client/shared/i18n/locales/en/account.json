@@ -121,5 +121,6 @@
     "body": "Cannot connect, a payment did not go through or you want a refund — write to us, we answer within a day.",
     "email": "Email {email}",
     "bot": "Message us on Telegram"
-  }
+  },
+  "subscribeNow": "Subscribe right away"
 }

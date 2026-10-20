@@ -1,0 +1,139 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  overflow: hidden;
+}
+
+.inner {
+  display: flex;
+  width: 100%;
+  max-width: var(--shell-width);
+  flex-direction: column;
+  padding: 32px 24px 48px;
+  margin: 0 auto;
+  gap: var(--gap-lg);
+
+  @include below(md) {
+    padding: 20px 16px 40px;
+  }
+}
+
+.bone {
+  display: block;
+  border-radius: var(--radius-sm);
+  animation: pulse 1.4s ease-in-out infinite;
+  background-color: var(--color-bg-deep);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.who {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title {
+  width: min(340px, 80%);
+  height: var(--step-xl);
+}
+
+.email {
+  width: min(240px, 60%);
+  height: 14px;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+
+  @include from(2xl) {
+    display: grid;
+    align-items: start;
+    gap: var(--gap-lg);
+    grid-template-columns: minmax(0, 210px) minmax(0, 1fr);
+  }
+}
+
+.tabs {
+  display: flex;
+  height: 52px;
+  padding: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  gap: 4px;
+
+  @include from(2xl) {
+    height: auto;
+    flex-direction: column;
+    padding: 0;
+    border-color: transparent;
+  }
+}
+
+.tab {
+  height: 100%;
+  flex: 1;
+
+  @include from(2xl) {
+    height: 36px;
+    flex: none;
+  }
+}
+
+.card {
+  display: flex;
+  min-height: 420px;
+  flex-direction: column;
+  padding: var(--pad-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface-raised);
+  gap: var(--gap-md);
+}
+
+.cardTitle {
+  width: min(260px, 70%);
+  height: 28px;
+}
+
+.line {
+  width: min(420px, 90%);
+  height: 14px;
+}
+
+.block {
+  height: 160px;
+  border-radius: var(--radius-md);
+}
+
+.button {
+  height: 50px;
+  margin-top: auto;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bone {
+    animation: none;
+  }
+}

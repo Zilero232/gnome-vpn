@@ -1,29 +1,15 @@
 {
-  "eyebrow": "No traffic logs",
-  "titleLine1": "A connection",
-  "titleLine2": "that stays",
-  "titleAccent": "yours",
-  "lead": "GnomeVPN builds a tunnel to a node in another country. From the outside it looks like ordinary HTTPS. No logs, no ads, no traffic caps.",
+  "titleStart": "A",
+  "titleAccent": "gnome",
+  "titleEnd": "of your own on the internet",
+  "lead": "Encrypts your traffic, keeps no logs and doesn't slow down in the evening.",
   "cta": "Try it free for a day",
-  "ctaSecondary": "How it works",
+  "ctaSecondary": "How to connect",
   "account": "Account",
-  "metrics": {
-    "protocol": "protocol",
-    "price": "a month, billed yearly",
-    "devices": "devices"
-  },
-  "how": {
-    "title": "How it works",
-    "step1Title": "Start with a free day",
-    "step1Body": "A full day of access with no card. Then a subscription from {price} ₽ a month: pay by card through YooKassa, turn auto-renewal off in one click.",
-    "step2Title": "Install INCY",
-    "step2Body": "A free app from your own store: iPhone, Android, Windows, macOS, Linux, TV. We neither build it nor charge for it.",
-    "step3Title": "Paste the link",
-    "step3Body": "One link from your account and the app fills up with every server on every protocol: Hysteria2, VLESS + Reality and WireGuard. The list keeps itself up to date."
-  },
-  "faq": {
-    "title": "Questions",
-    "more": "All questions"
+  "facts": {
+    "price": "From {price} ₽ a month, billed yearly",
+    "devices": "{count, plural, one {# device} other {# devices}} per subscription, more if you need them",
+    "label": "In short"
   },
   "nav": {
     "ariaLabel": "Page sections",
@@ -32,60 +18,77 @@
     "faq": "Questions",
     "features": "Features"
   },
-  "features": {
-    "title": "What you get",
-    "protocolTitle": "Three protocols",
-    "protocolBody": "Hysteria2 over QUIC leads, because it holds up better on mobile networks. Where UDP is blocked outright the list also carries VLESS + Reality over TCP, and WireGuard for those who prefer it — one tap away.",
-    "devicesTitle": "Two devices",
-    "devicesBody": "Phone and computer at the same time on one subscription. Need more? Add device places in your account.",
-    "platformsTitle": "Every platform",
-    "platformsBody": "iPhone, Mac, Android, Windows, Linux, Android TV and Apple TV. The same link works on all of them.",
-    "locationsTitle": "Several countries",
-    "locationsBody": "Switch country in one tap at no extra cost. New nodes appear in the app on their own.",
-    "noLogsTitle": "No logs",
-    "noLogsBody": "We keep no connection history and none of the addresses you open. All that remains per device is the time it was last active — so it can be shown in your device list.",
-    "openFormatTitle": "The link stays yours",
-    "openFormatBody": "The subscription format is standard: paste it into Hiddify, Streisand or v2rayNG. You are locked into neither the app nor us."
+  "phone": {
+    "title": "GnomeVPN",
+    "connected": "Connected",
+    "protocol": "Hysteria2"
   },
-  "platforms": {
-    "title": "Where it runs",
-    "iosBody": "INCY from the App Store. The same subscription works on Mac and Apple TV.",
-    "androidBody": "INCY from Google Play. Add the subscription with the \"Open in INCY\" button in your account on the phone.",
-    "windowsBody": "An .exe installer. It only asks for admin rights while installing.",
-    "macosBody": "A .dmg installer for Macs on Apple Silicon (M1 and later).",
-    "linuxBody": "A .deb package for Ubuntu, Debian and their derivatives.",
-    "tvBody": "INCY for Android TV and Apple TV. The subscription is added by scanning a QR code from your phone — no typing with a remote."
+  "meta": {
+    "title": "GnomeVPN — a fast Hysteria2 VPN",
+    "description": "A no-logs VPN on its own servers: Hysteria2, VLESS + Reality and WireGuard. Servers in several countries, one link for every device, the first day free."
   },
   "locations": {
-    "title": "Where the servers are",
     "netherlandsName": "Netherlands",
     "netherlandsCity": "Amsterdam",
     "finlandName": "Finland",
     "finlandCity": "Helsinki"
   },
-  "comparison": {
-    "title": "Why not a free VPN",
-    "free": "Free ones",
-    "speedLabel": "Line speed",
-    "speedHint": "A node is not shared with thousands of people at once",
-    "adsLabel": "No ads or trackers",
-    "adsHint": "Free services have to earn from something",
-    "blockingLabel": "Works where VPNs are blocked",
-    "blockingHint": "Hysteria2 hides as ordinary HTTPS traffic",
-    "limitsLabel": "No traffic cap",
-    "limitsHint": "No gigabyte limits and no evening slowdown",
-    "feature": "Feature",
-    "yes": "Yes",
-    "no": "No"
+  "connect": {
+    "title": "Connected in three minutes",
+    "intro": "Pick your device and we'll show what to press. No settings, no config files.",
+    "platformsLabel": "Device",
+    "step": "Step {number}",
+    "download": "Get INCY",
+    "getLink": "Get your link",
+    "connected": "Connected",
+    "setupLink": "Full guide and other apps",
+    "wireguard": "Need a plain WireGuard config? That's in your account too."
   },
-  "guarantee": {
-    "title": "Cancel in one click",
-    "body": "Turn renewal off whenever you like — access stays until the end of the paid period. No phone calls, no emails to support.",
+  "pricing": {
+    "title": "One plan, three terms",
+    "intro": "Every term includes everything: all servers, all protocols, {count, plural, one {# device} other {# devices}}. The longer the term, the cheaper the month.",
+    "trial": "First comes a free day, no card.",
+    "renew": "The subscription renews itself while auto-renewal is on. One button in your account turns it off; access stays until the end of the paid term.",
+    "more": "Everything about plans and payment"
+  },
+  "inside": {
+    "title": "Where the servers are, and what's inside",
+    "intro": "Our own nodes in two countries. Switch between them in the app at no extra cost.",
+    "you": "You",
+    "more": "Servers and protocols in detail",
+    "points": {
+      "protocol": {
+        "title": "Three protocols",
+        "body": "Hysteria2 is fast and holds up on mobile networks. VLESS + Reality covers networks where UDP doesn't get through. WireGuard, if that's what you're used to."
+      },
+      "noLogs": {
+        "title": "No logs",
+        "body": "We keep no connection history and none of the addresses you open. All that remains per device is when it was last active."
+      },
+      "devices": {
+        "title": "{count, plural, one {# device} other {# devices}}, and more",
+        "body": "Phone and computer at once on one subscription. Need more? Add places in your account."
+      },
+      "platforms": {
+        "title": "Every platform",
+        "body": "iPhone, Android, Windows, macOS, Linux, Android TV and Apple TV — one link for all of them."
+      },
+      "openFormat": {
+        "title": "The link stays yours",
+        "body": "The subscription format is standard: paste it into Hiddify, Streisand or v2rayNG. You are locked into neither the app nor us."
+      }
+    }
+  },
+  "note": {
+    "title": "A word from the gnome",
+    "why": "We charge for a subscription because a free VPN has to earn from something else — ads, its users' data, or overloaded servers. We'd rather not.",
+    "cancel": "Not for you? Turn renewal off in your account with one button. Access stays until the end of the paid term; no calls or emails needed.",
+    "refund": "And within 14 days of paying we'll refund the unused part — just write to us.",
+    "signature": "Your gnome",
     "cta": "Try it free"
   },
-  "meta": {
-    "title": "GnomeVPN — a fast Hysteria2 VPN",
-    "description": "A VPN on the Hysteria2 protocol: it works where the others are blocked. Servers in several countries, one link for every device."
-  },
-  "ctaNote": "No card needed. Then from {price} ₽ a month."
+  "faq": {
+    "title": "Common questions",
+    "more": "All questions"
+  }
 }

@@ -3,4 +3,5 @@ import type { InputProps } from '../Input';
 export type PasswordInputProps = Omit<InputProps, 'type'> & {
   showLabel: string;
   hideLabel: string;
+  capsLockLabel?: string;
 };

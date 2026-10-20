@@ -13,24 +13,9 @@
   "copyFailed": "Could not copy — select the link by hand",
   "shareText": "I use GnomeVPN — a fast VPN with no speed limits. Take my link and get bonus days on your first payment.",
   "stepsTitle": "How it works",
-  "steps": {
-    "send": {
-      "title": "Send the link",
-      "text": "In a messenger, on social media or by email — whatever suits you."
-    },
-    "pay": {
-      "title": "Your friend subscribes",
-      "text": "Their bonus days come with their very first payment."
-    },
-    "earn": {
-      "title": "You get days",
-      "text": "They extend your subscription — nothing to press."
-    }
-  },
-  "rewardsTitle": "How many days",
-  "rewardYouLabel": "for you",
+  "rewardYouLabel": "You",
   "rewardYou": "+{days, plural, one {# day} other {# days}}",
-  "rewardFriend": "your friend +{days, plural, one {# day} other {# days}}",
+  "rewardFriend": "+{days, plural, one {# day} other {# days}}",
   "rewardBest": "The most",
   "statsTitle": "Your invites",
   "stats": {
@@ -58,5 +43,8 @@
   },
   "share": "Share",
   "referredRewarded": "Your friend's invite added +{days, plural, one {# day} other {# days}} to your subscription.",
-  "pendingRefused": "The invite from your link did not apply"
+  "pendingRefused": "The invite from your link did not apply",
+  "rewardsHint": "Your friend subscribes through your link — you both get days, nothing to press.",
+  "rewardPlanLabel": "Friend subscribes for",
+  "rewardFriendLabel": "Friend"
 }

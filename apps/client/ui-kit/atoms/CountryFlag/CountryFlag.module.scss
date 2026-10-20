@@ -1,19 +1,21 @@
 .root {
+  display: inline-block;
   flex-shrink: 0;
   border-radius: 3px;
+  aspect-ratio: 4 / 3;
+  background-color: var(--color-border);
+  background-position: center;
+  background-size: cover;
 }
 
 .sm {
   width: 18px;
-  line-height: 13px;
 }
 
 .md {
   width: 22px;
-  line-height: 16px;
 }
 
 .lg {
   width: 28px;
-  line-height: 21px;
 }

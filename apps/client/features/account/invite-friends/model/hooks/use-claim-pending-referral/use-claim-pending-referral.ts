@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 
 import { useErrorMessage } from '@/entities/app/locale';
 import { apiErrorCode } from '@/shared/api';
+import { celebrate } from '@/ui-kit';
 
 import { clearPendingReferral, isFinalRefusal, readPendingReferral } from '../../../lib';
 import { useClaimReferral } from '../use-claim-referral';
@@ -27,7 +28,7 @@ export const useClaimPendingReferral = () => {
       {
         onSuccess: () => {
           clearPendingReferral();
-          toast.success(t('claimed'));
+          celebrate(t('claimed'));
         },
         onError: (error) => {
           if (!isFinalRefusal(error)) {

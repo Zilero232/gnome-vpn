@@ -1,0 +1,20 @@
+@use '@/shared/styles/mixins' as *;
+
+.quiet {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  @include text-button(14px);
+
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      color: var(--color-danger);
+    }
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+}

@@ -1,66 +1,26 @@
-import type { PlanId } from '@gnomevpn/schemas';
-
-import { planDiscountPercent, planMonthlyRub, PLANS } from '@gnomevpn/schemas';
-import { clsx } from 'clsx';
+import { PLANS } from '@gnomevpn/schemas';
 import { Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-import { AUTH_MODE, QUERY_PARAMS, ROUTES } from '@/shared/constants';
-import { Link } from '@/shared/i18n/navigation';
-import { Badge, buttonVariants, Stack, Text } from '@/ui-kit';
+import type { PricingCardProps } from './PricingCard.types';
 
 import { FEATURED_PLAN_ID, PRICING_FEATURES } from '../config';
+import { PlanCard } from './components';
 
 import s from './PricingCard.module.scss';
 
-const planHref = (plan: PlanId) => ({ pathname: ROUTES.account, query: { [QUERY_PARAMS.plan]: plan, [QUERY_PARAMS.mode]: AUTH_MODE.signup } });
-
-export const PricingCard = () => {
+export const PricingCard = ({ withFeatures = true }: PricingCardProps) => {
   const t = useTranslations('plans');
 
   return (
-    <Stack className={s.root} gap='lg'>
+    <div className={s.root}>
       <ul className={s.plans}>
-        {PLANS.map((plan) => {
-          const discount = planDiscountPercent(plan.id);
-
-          return (
-            <Stack key={plan.id} as='li' className={clsx(s.plan, plan.id === FEATURED_PLAN_ID && s.featured)} gap='md'>
-              <div className={s.head}>
-                <Text as='span' className={s.term}>
-                  {t(`plans.${plan.id}`)}
-                </Text>
-                {discount > 0 && <Badge>{t('save', { percent: discount })}</Badge>}
-              </div>
-
-              <div className={s.price}>
-                <Text as='span' className={s.amount}>
-                  {t('amount', { price: plan.priceRub })}
-                </Text>
-                {plan.months === 1 && (
-                  <Text as='span' className={s.period}>
-                    {t('period')}
-                  </Text>
-                )}
-              </div>
-
-              <Text size='xs' tone='muted'>
-                {t('perMonth', { price: planMonthlyRub(plan.id) })}
-              </Text>
-
-              <Link
-                aria-label={t('chooseLabel', { plan: t(`plans.${plan.id}`) })}
-                className={buttonVariants({ size: 'md', variant: plan.id === FEATURED_PLAN_ID ? 'primary' : 'ghost', class: s.choose })}
-                href={planHref(plan.id)}
-              >
-                {t('choose')}
-              </Link>
-            </Stack>
-          );
-        })}
+        {PLANS.map((plan) => (
+          <PlanCard key={plan.id} isFeatured={plan.id === FEATURED_PLAN_ID} plan={plan} />
+        ))}
       </ul>
 
-      <Stack className={s.footer} gap='md'>
+      {withFeatures && (
         <ul className={s.list}>
           {PRICING_FEATURES.map((feature) => (
             <li key={feature} className={s.item}>
@@ -69,11 +29,7 @@ export const PricingCard = () => {
             </li>
           ))}
         </ul>
-
-        <Link className={buttonVariants({ size: 'lg', class: s.cta })} href={planHref(FEATURED_PLAN_ID)}>
-          {t('cta')}
-        </Link>
-      </Stack>
-    </Stack>
+      )}
+    </div>
   );
 };

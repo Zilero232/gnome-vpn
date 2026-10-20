@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { deviceDetails, deviceName } from '../device-label';
+import { deviceDetails, deviceName, platformLabel } from '../device-label';
 
 const EMPTY = { model: null, platform: null, osVersion: null, app: null };
 
@@ -34,5 +34,21 @@ describe('deviceDetails', () => {
 
   it('answers an empty list when nothing is known', () => {
     expect(deviceDetails(EMPTY)).toEqual([]);
+  });
+});
+
+describe('platformLabel', () => {
+  it.each([
+    ['android', 'Android'],
+    ['ios', 'iOS'],
+    ['macOS', 'macOS'],
+    ['android_tv', 'Android TV'],
+    ['harmonyos', 'Harmonyos']
+  ])('shows %s as %s', (platform, label) => {
+    expect(platformLabel(platform)).toBe(label);
+  });
+
+  it('is applied to the system line', () => {
+    expect(deviceDetails({ ...EMPTY, platform: 'ios', osVersion: '18' })).toEqual(['iOS 18']);
   });
 });

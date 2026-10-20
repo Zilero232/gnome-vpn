@@ -1,8 +1,10 @@
+import { PLANS } from '@gnomevpn/schemas';
+import { createTranslator } from 'next-intl';
 import { describe, expect, it } from 'vitest';
 
 import { messages } from '@/shared/i18n';
 
-import { FAQ_GROUPS, FAQ_HIGHLIGHTS, FAQ_QUESTIONS } from '../config';
+import { FAQ_ANSWER_VALUES, FAQ_GROUPS, FAQ_HIGHLIGHTS, FAQ_QUESTIONS } from '../config';
 
 describe('FAQ_QUESTIONS', () => {
   it('flattens every group without losing or repeating a question', () => {
@@ -29,6 +31,19 @@ describe('translations', () => {
     for (const { key } of FAQ_GROUPS) {
       expect(messages.ru.faq.groups).toHaveProperty(key);
       expect(messages.en.faq.groups).toHaveProperty(key);
+    }
+  });
+});
+
+describe('FAQ_ANSWER_VALUES', () => {
+  it('puts every plan price into the price answer, in both locales', () => {
+    for (const locale of ['ru', 'en'] as const) {
+      const t = createTranslator({ locale, messages: messages[locale], namespace: 'faq' });
+      const answer = t('questions.price.a', FAQ_ANSWER_VALUES).replaceAll(/\s/gu, '');
+
+      for (const plan of PLANS) {
+        expect(answer).toContain(String(plan.priceRub));
+      }
     }
   });
 });

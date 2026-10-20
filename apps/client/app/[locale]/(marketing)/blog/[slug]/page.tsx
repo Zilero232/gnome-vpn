@@ -10,6 +10,8 @@ import { BlogPostPage } from '@/views/blog-post';
 
 import type { BlogPostParams } from './page.types';
 
+export const ensureStatic = 'navigation';
+
 export const generateStaticParams = () => LOCALES.flatMap((locale) => BLOG_SLUGS.map((slug) => ({ locale, slug })));
 
 export const generateMetadata = async ({ params }: BlogPostParams) => {

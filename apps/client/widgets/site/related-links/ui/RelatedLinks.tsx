@@ -1,3 +1,4 @@
+import { ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { Link } from '@/shared/i18n/navigation';
@@ -20,7 +21,8 @@ export const RelatedLinks = ({ links }: RelatedLinksProps) => {
         {links.map(({ href, label }) => (
           <li key={href}>
             <Link className={s.link} href={href}>
-              {label}
+              <span>{label}</span>
+              <ArrowRight aria-hidden className={s.arrow} size={18} />
             </Link>
           </li>
         ))}

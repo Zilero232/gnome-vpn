@@ -41,40 +41,16 @@ describe('signInSchema', () => {
 
 describe('signUpSchema', () => {
   const valid = {
-    name: 'Alex',
     email: 'user@gnomevpn.ru',
-    password: 'password1',
-    confirmPassword: 'password1'
+    password: 'password1'
   };
 
-  it('accepts a complete form', () => {
+  it('accepts an email and a password, and nothing more is asked', () => {
     expect(signUpSchema.safeParse(valid).success).toBe(true);
   });
 
-  it('reports a mismatch on the confirmation field', () => {
-    const result = signUpSchema.safeParse({ ...valid, confirmPassword: 'password2' });
-    const issue = firstIssue(result);
-
-    expect(issue?.message).toBe('validation.passwordsMismatch');
-    expect(issue?.path).toEqual(['confirmPassword']);
-  });
-
-  it('rejects a name shorter than two characters', () => {
-    const result = signUpSchema.safeParse({ ...valid, name: 'A' });
-
-    expect(firstIssue(result)?.message).toBe('validation.nameMin');
-  });
-
-  it('rejects a name longer than thirty-two characters', () => {
-    const result = signUpSchema.safeParse({ ...valid, name: 'a'.repeat(33) });
-
-    expect(firstIssue(result)?.message).toBe('validation.nameMax');
-  });
-
-  it('trims the name before measuring it', () => {
-    const result = signUpSchema.parse({ ...valid, name: '  Alex  ' });
-
-    expect(result.name).toBe('Alex');
+  it('rejects a short password', () => {
+    expect(firstIssue(signUpSchema.safeParse({ ...valid, password: 'short' }))?.message).toBe('validation.passwordMin');
   });
 });
 
@@ -87,6 +63,14 @@ describe('updateNameSchema', () => {
     const result = updateNameSchema.safeParse({ name: '   ' });
 
     expect(firstIssue(result)?.message).toBe('validation.nameMin');
+  });
+
+  it('rejects a name longer than thirty-two characters', () => {
+    expect(firstIssue(updateNameSchema.safeParse({ name: 'a'.repeat(33) }))?.message).toBe('validation.nameMax');
+  });
+
+  it('trims the name before measuring it', () => {
+    expect(updateNameSchema.parse({ name: '  Alex  ' }).name).toBe('Alex');
   });
 });
 
@@ -163,10 +147,8 @@ describe('changePasswordSchema', () => {
 describe('the shared email rule', () => {
   it('refuses an address in the placeholder domain, which would skip the trial email check', () => {
     const result = signUpSchema.safeParse({
-      name: 'Alex',
       email: telegramPlaceholderEmail(123n),
-      password: 'password1',
-      confirmPassword: 'password1'
+      password: 'password1'
     });
 
     expect(firstIssue(result)?.message).toBe('validation.emailInvalid');

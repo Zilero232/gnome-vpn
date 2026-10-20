@@ -1,8 +1,9 @@
 {
   "title": "Тарифы",
-  "amount": "{price} ₽",
+  "amount": "{price, number}\u00a0₽",
   "period": "/ месяц",
-  "perMonth": "{price} ₽ в месяц",
+  "perMonth": "{price, number}\u00a0₽ в месяц",
+  "noDiscount": "без скидки",
   "save": "−{percent}%",
   "plans": {
     "monthly": "1 месяц",
@@ -15,5 +16,6 @@
   "feature3": "Отмена автопродления в один клик",
   "feature4": "Без истории подключений",
   "choose": "Выбрать",
-  "chooseLabel": "Выбрать тариф «{plan}»"
+  "chooseLabel": "Выбрать тариф «{plan}»",
+  "best": "Выгоднее всего"
 }

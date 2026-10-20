@@ -20,7 +20,7 @@ export const AccountIdentity = () => {
           {t('title')}
         </Text>
 
-        <Text size='xs' tone='muted'>
+        <Text as='p' className={s.email}>
           {hasEmail ? email : t('profile.noEmail')}
         </Text>
       </div>

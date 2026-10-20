@@ -1,0 +1,8 @@
+.root {
+  cursor: grab;
+  touch-action: pan-y;
+
+  &:active {
+    cursor: grabbing;
+  }
+}

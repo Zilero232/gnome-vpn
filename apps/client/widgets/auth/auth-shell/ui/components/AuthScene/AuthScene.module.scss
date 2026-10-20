@@ -1,0 +1,55 @@
+.root {
+  position: relative;
+  overflow: hidden;
+  border-radius: 240px 240px 28px 28px;
+  aspect-ratio: 400 / 460;
+  background-color: var(--color-night);
+  box-shadow: var(--shadow-soft);
+  isolation: isolate;
+}
+
+.layer {
+  position: absolute;
+  display: block;
+  width: 108%;
+  height: 108%;
+  inset: -4%;
+}
+
+.door {
+  transform-box: fill-box;
+  transform-origin: 0 50%;
+  transition: transform 0.55s var(--ease-out);
+
+  .root[data-open='true'] & {
+    transform: scaleX(0.3) skewY(-8deg);
+  }
+}
+
+.gnome {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+
+  .root[data-entering='true'] & {
+    animation: hop 0.55s var(--ease-out);
+  }
+}
+
+@keyframes hop {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  45% {
+    transform: translateY(-14px) rotate(-3deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .door,
+  .gnome {
+    animation: none;
+    transition: none;
+  }
+}

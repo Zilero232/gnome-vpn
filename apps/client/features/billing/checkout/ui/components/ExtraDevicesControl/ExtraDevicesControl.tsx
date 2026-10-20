@@ -1,6 +1,6 @@
 'use client';
 
-import { DEFAULT_DEVICE_LIMIT, extraDevicesPriceRub } from '@gnomevpn/schemas';
+import { extraDevicesPriceRub } from '@gnomevpn/schemas';
 import { MonitorSmartphone } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -13,22 +13,15 @@ import { useBuyExtraDevices } from '../../../model/hooks';
 
 import s from './ExtraDevicesControl.module.scss';
 
-export const ExtraDevicesControl = ({ limits }: ExtraDevicesControlProps) => {
+export const ExtraDevicesControl = ({ limits, usedSeats }: ExtraDevicesControlProps) => {
   const t = useTranslations('account');
   const buy = useBuyExtraDevices();
   const [quantity, setQuantity] = useState(1);
 
   const remaining = limits.maxExtraDevices - limits.extraDevices;
-  const pending = remaining > 0 ? quantity : 0;
-  const slots = Array.from({ length: limits.maxExtraDevices + DEFAULT_DEVICE_LIMIT });
+  const slots = Array.from({ length: limits.deviceLimit });
 
-  const stateOf = (index: number): SlotState => {
-    if (index < limits.deviceLimit) {
-      return 'owned';
-    }
-
-    return index < limits.deviceLimit + pending ? 'pending' : 'empty';
-  };
+  const stateOf = (index: number): SlotState => (index < usedSeats ? 'used' : 'free');
 
   return (
     <section className={s.root}>

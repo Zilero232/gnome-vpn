@@ -5,8 +5,8 @@ import { hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
 import * as rootParams from 'next/root-params';
 
-import { fontMono, fontSans } from '@/shared/config';
-import { routing } from '@/shared/i18n';
+import { fontMono, fontSans, fontSerif } from '@/shared/config';
+import { clientMessages, routing } from '@/shared/i18n';
 import { defaultMetadata, defaultViewport, SiteJsonLd } from '@/shared/seo';
 
 import { AppProviders } from '../providers/AppProviders';
@@ -28,10 +28,12 @@ const LocaleLayout = async ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <html className={clsx('dark', fontSans.variable, fontMono.variable)} data-scroll-behavior='smooth' lang={locale}>
+    <html className={clsx(fontSans.variable, fontSerif.variable, fontMono.variable)} data-scroll-behavior='smooth' lang={locale}>
       <body>
         <SiteJsonLd />
-        <AppProviders locale={locale}>{children}</AppProviders>
+        <AppProviders locale={locale} messages={clientMessages(locale)}>
+          {children}
+        </AppProviders>
       </body>
     </html>
   );

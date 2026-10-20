@@ -1,0 +1,1 @@
+export { FooterTelegram } from './FooterTelegram';

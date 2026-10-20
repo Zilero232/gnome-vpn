@@ -4,12 +4,11 @@ import { clsx } from 'clsx';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 
-import { LocaleSwitcher } from '@/features/app/switch-locale';
 import { ROUTES, SITE_NAV } from '@/shared/constants';
 import { Link, usePathname } from '@/shared/i18n/navigation';
-import { BrandMark, buttonVariants } from '@/ui-kit';
+import { BrandMark } from '@/ui-kit';
 
-import { SiteNavMenu } from './components';
+import { HeaderActions, SiteNavMenu } from './components';
 import { CONTENT_ID } from './SiteHeader.constants';
 
 import s from './SiteHeader.module.scss';
@@ -60,11 +59,7 @@ export const SiteHeader = () => {
           </nav>
 
           <div className={s.actions}>
-            <LocaleSwitcher />
-
-            <Link className={buttonVariants({ class: s.accountLink })} href={ROUTES.account}>
-              {t('account')}
-            </Link>
+            <HeaderActions />
 
             <SiteNavMenu />
           </div>

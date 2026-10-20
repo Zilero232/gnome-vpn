@@ -32,8 +32,10 @@
 
   @include touch-target(40px);
 
-  &:hover:not([data-active]) {
-    color: var(--color-text);
+  @media (hover: hover) {
+    &:hover:not([data-active]) {
+      color: var(--color-text);
+    }
   }
 
   &[data-active] {

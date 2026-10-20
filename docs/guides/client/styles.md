@@ -30,9 +30,14 @@ The principle: the JSX reads, and `s.root`/`s.panel` tell you the structure.
   radii, type scale, spacing, the safe-area insets. There is no `_tokens.scss`
   and no separate token file: `shared/styles/` holds only `_animations.scss`,
   `_breakpoints.scss` and `_mixins.scss`.
-- The app is dark-only. There is no theme switch, no `.dark` class and no
-  `next-themes` — one palette, defined once on `:root`, declared with
-  `color-scheme: dark` so native controls and scrollbars match.
+- There is one theme, a light "paper" palette, for the marketing site, the
+  account and the auth pages alike. There is no theme switch, no `.dark` class
+  and no `next-themes` — one palette, defined once on `:root`, declared with
+  `color-scheme: light` so native controls and scrollbars match. Colour a
+  component through the tokens (`--color-on-accent` for text on an accent fill,
+  `rgb(var(--color-tint) / 7%)` for a hover wash, `--shadow-soft`,
+  `--color-overlay`), never a raw `rgb()`; the reasons are in
+  [web-client.md](../../architecture/web-client.md#one-theme-paper-and-a-gnome).
 - Component styles are `*.module.scss`. Shared mixins come in through
   `@use '@/shared/styles/mixins' as *`, which works because `next.config.ts`
   sets `sassOptions.loadPaths` to the client root and aliases `@` for Turbopack.
@@ -47,8 +52,9 @@ not a warning — `bun run lint:css:fix` sorts it.
 
 ## Breakpoints
 
-Seven steps in `shared/styles/_breakpoints.scss` — `xs` 420, `sm` 520, `md` 560,
-`lg` 640, `wide` 700, `xl` 760, `2xl` 900 — used as `@include below(md)` /
+Eight steps in `shared/styles/_breakpoints.scss` — `xs` 420, `sm` 520, `md` 560,
+`lg` 640, `wide` 700, `xl` 760, `2xl` 900, `3xl` 1180 (where the site header's
+full nav fits) — used as `@include below(md)` /
 `@include from(2xl)` and forwarded by `shared/styles/mixins`. Never write a raw
 `@media (width <= 620px)`: add a step to the map instead.
 
@@ -60,7 +66,9 @@ a layout away from every viewport in between. `wide` exists for exactly that.
 `motion` is already a dependency and is the way to animate. Presets shared by
 several components live in `shared/lib/motion`; one-off presets go in a sibling
 `<Component>.motion.ts`. Do not hand-roll a CSS `transition` for something
-motion is already driving.
+motion is already driving. Under `prefers-reduced-motion` the page is static,
+not slower: no parallax, no tilt, no looping animation (see
+[web-client.md](../../architecture/web-client.md#motion)).
 
 **Never put `backdrop-filter` under an opaque background.** It composites and
 blurs a layer nobody can see through, and a panel that also animates `scale`

@@ -8,7 +8,7 @@
   padding: 10px 14px;
   border-radius: var(--radius-sm);
   background-color: var(--color-accent);
-  color: var(--color-bg-deep);
+  color: var(--color-on-accent);
   font-size: 14px;
   font-weight: 700;
   transform: translateY(calc(-100% - 24px));
@@ -37,22 +37,20 @@
 
 .scrolled {
   border-bottom-color: var(--color-border);
-  backdrop-filter: blur(12px);
-  background-color: rgb(7 11 10 / 82%);
+  background-color: var(--color-bg);
+  box-shadow: 0 6px 20px -16px rgb(74 56 28 / 35%);
 }
 
 .inner {
+  @include shell-container;
+
   display: flex;
-  width: 100%;
-  max-width: 1080px;
+  height: var(--header-height);
   align-items: center;
   justify-content: space-between;
-  padding: 14px 24px;
-  margin: 0 auto;
   gap: 20px;
 
   @include below(md) {
-    padding: 10px 12px;
     gap: 10px;
   }
 }
@@ -60,21 +58,21 @@
 .brand {
   display: inline-flex;
   align-items: center;
+  border-radius: var(--radius-sm);
   text-decoration: none;
 }
 
 .brandLabel {
-  @include below(lg) {
-    display: none;
-  }
+  white-space: nowrap;
 }
 
 .nav {
   display: flex;
   align-items: center;
-  gap: 26px;
+  gap: 24px;
+  white-space: nowrap;
 
-  @include below(xl) {
+  @include below(3xl) {
     display: none;
   }
 }
@@ -82,13 +80,23 @@
 .navLink {
   color: var(--color-text-muted);
   font-family: var(--font-sans);
-  font-size: 13px;
-  text-decoration: none;
-  transition: color var(--duration-fast) ease;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+  transition:
+    color var(--duration-fast) ease,
+    text-decoration-color var(--duration-fast) ease;
 
-  &:hover,
+  &:hover {
+    color: var(--color-text);
+  }
+
   &[aria-current='page'] {
     color: var(--color-text);
+    text-decoration-color: var(--color-highlight);
   }
 
   &:focus-visible {
@@ -105,11 +113,5 @@
 
   @include below(md) {
     gap: 6px;
-  }
-}
-
-.accountLink {
-  @include below(sm) {
-    display: none;
   }
 }

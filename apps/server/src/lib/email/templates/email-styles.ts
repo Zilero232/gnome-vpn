@@ -2,7 +2,7 @@ export const emailStyles = {
   body: {
     margin: 0,
     padding: '32px 0',
-    backgroundColor: '#0a0a0a',
+    backgroundColor: '#f4efe4',
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
   },
   outer: {
@@ -12,54 +12,54 @@ export const emailStyles = {
   },
   card: {
     padding: '36px 32px',
-    borderRadius: '16px',
-    border: '1px solid #1f1f1f',
-    backgroundColor: '#111111'
+    borderRadius: '18px',
+    border: '1px solid #e2d9c8',
+    backgroundColor: '#ffffff'
   },
   brand: {
     margin: '0 0 24px',
-    fontSize: '13px',
+    fontFamily: "Georgia, 'Times New Roman', serif",
+    fontSize: '18px',
     fontWeight: 600,
-    letterSpacing: '0.08em',
-    textTransform: 'uppercase' as const,
-    color: '#34d399'
+    color: '#16201c'
   },
   heading: {
     margin: '0 0 14px',
-    fontSize: '21px',
-    fontWeight: 600,
-    lineHeight: '1.3',
-    color: '#f5f5f5'
+    fontFamily: "Georgia, 'Times New Roman', serif",
+    fontSize: '24px',
+    fontWeight: 500,
+    lineHeight: '1.25',
+    color: '#16201c'
   },
   text: {
     margin: '0 0 12px',
     fontSize: '15px',
-    lineHeight: '1.6',
-    color: '#a3a3a3'
+    lineHeight: '1.65',
+    color: '#3d4842'
   },
   button: {
     display: 'inline-block',
-    padding: '12px 26px',
+    padding: '13px 26px',
     borderRadius: '10px',
     fontSize: '15px',
-    fontWeight: 600,
-    color: '#04140d',
-    backgroundColor: '#34d399',
+    fontWeight: 700,
+    color: '#ffffff',
+    backgroundColor: '#146b47',
     textDecoration: 'none'
   },
   hr: {
     margin: '28px 0 18px',
     border: 'none',
-    borderTop: '1px solid #1f1f1f'
+    borderTop: '1px dashed #d3c7b1'
   },
   footnote: {
     margin: 0,
     fontSize: '13px',
     lineHeight: '1.6',
-    color: '#737373'
+    color: '#56625b'
   },
   link: {
-    color: '#34d399',
+    color: '#146b47',
     wordBreak: 'break-all' as const
   }
 } as const;

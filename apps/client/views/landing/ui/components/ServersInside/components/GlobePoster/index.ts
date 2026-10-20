@@ -1,0 +1,1 @@
+export { GlobePoster } from './GlobePoster';

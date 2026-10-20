@@ -2,30 +2,8 @@
 
 .root {
   display: flex;
-  min-height: var(--viewport-height);
+  min-height: 100dvh;
   flex-direction: column;
-
-  @include safe-padding(24px);
-
-  @include below(sm) {
-    @include safe-padding(16px);
-  }
-}
-
-.brand {
-  display: inline-flex;
-  align-items: center;
-  border-radius: var(--radius-sm);
-}
-
-.header {
-  display: flex;
-  width: 100%;
-  max-width: 1080px;
-  align-items: center;
-  justify-content: space-between;
-  margin: 0 auto;
-  gap: 16px;
 }
 
 .main {
@@ -33,27 +11,13 @@
   flex: 1;
   align-items: center;
   justify-content: center;
-  padding: 32px 0;
+  padding: 32px 24px max(32px, var(--safe-area-bottom));
 
-  @include below(sm) {
-    padding: 20px 0;
+  &:focus {
+    outline: none;
   }
-}
-
-.panel {
-  display: flex;
-  width: 100%;
-  max-width: 400px;
-  flex-direction: column;
-  padding: 34px;
-
-  @include surface-card;
-  @include rise(0.4s, 0s, 8px);
-
-  box-shadow: 0 30px 80px -40px rgb(0 0 0 / 80%);
-  gap: 22px;
 
   @include below(sm) {
-    padding: 24px 20px;
+    padding: 20px 16px max(24px, var(--safe-area-bottom));
   }
 }

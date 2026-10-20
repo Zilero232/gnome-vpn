@@ -1,0 +1,1 @@
+export { HomePricing } from './HomePricing';

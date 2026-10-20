@@ -18,12 +18,6 @@ export const TelegramLoginButton = () => {
 
   return (
     <div className={s.root}>
-      <span className={s.divider}>
-        <Text size='xs' tone='muted'>
-          {t('orContinueWith')}
-        </Text>
-      </span>
-
       <div ref={slotRef} className={s.slot} />
 
       {isPending && (
@@ -41,6 +35,12 @@ export const TelegramLoginButton = () => {
           {t('telegramSignInFailed')}
         </Text>
       )}
+
+      <span className={s.divider}>
+        <Text size='sm' tone='muted'>
+          {t('orEmail')}
+        </Text>
+      </span>
     </div>
   );
 };

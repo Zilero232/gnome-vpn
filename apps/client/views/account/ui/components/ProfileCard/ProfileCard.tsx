@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { DeleteAccountCard } from '@/features/account/delete-account';
 import { ChangeEmailForm } from '@/features/auth/change-email';
 import { ChangePasswordForm } from '@/features/auth/change-password';
+import { SignOutButton } from '@/features/auth/sign-out';
 import { UpdateNameForm } from '@/features/auth/update-name';
 import { Text } from '@/ui-kit';
 
@@ -34,6 +35,10 @@ export const ProfileCard = () => {
 
         <ChangePasswordForm />
       </div>
+
+      <hr className={s.divider} />
+
+      <SignOutButton className={s.signOut} variant='block' />
 
       <DeleteAccountCard />
     </div>

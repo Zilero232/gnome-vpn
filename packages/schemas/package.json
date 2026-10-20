@@ -19,6 +19,7 @@
     ".": "./src/index.ts"
   },
   "main": "src/index.ts",
+  "sideEffects": false,
   "scripts": {
     "typecheck": "tsc --noEmit"
   },

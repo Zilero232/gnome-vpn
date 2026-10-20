@@ -7,10 +7,7 @@ export const SITE = {
   ogImage: '/brand/og.png',
   locale: 'ru_RU',
   lang: 'ru-RU',
-  themeColor: {
-    light: '#070b0a',
-    dark: '#070b0a'
-  },
+  themeColor: '#f4efe4',
   en: {
     title: 'GnomeVPN',
     description: 'A Hysteria2 VPN: a fast QUIC tunnel, servers in several countries, one link for every device.',

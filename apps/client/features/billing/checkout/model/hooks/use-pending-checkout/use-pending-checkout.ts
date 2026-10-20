@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { clearCheckoutPending, pendingOutcome, readPendingCheckout, useSubscriptionStatus } from '@/entities/billing/subscription';
+import { celebrate } from '@/ui-kit';
 
 export const usePendingCheckout = () => {
   const t = useTranslations('account.pending');
@@ -17,7 +18,7 @@ export const usePendingCheckout = () => {
 
     if (outcome === 'settled') {
       clearCheckoutPending();
-      toast.success(t('settled'));
+      celebrate(t('settled'));
     }
 
     if (outcome === 'cancelled') {

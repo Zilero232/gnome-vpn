@@ -4,9 +4,11 @@
   "loading": "Открываем кабинет…",
   "showPassword": "Показать пароль",
   "hidePassword": "Скрыть пароль",
-  "ogTitle": "VPN на Hysteria2",
-  "ogDescription": "Быстрый туннель по QUIC. Серверы в нескольких странах, одна ссылка на все устройства.",
+  "ogTitle": "Свой гном в интернете",
+  "ogDescription": "VPN без логов на своих серверах: Hysteria2, VLESS + Reality и WireGuard. Одна ссылка на все устройства.",
   "relatedTitle": "Читайте также",
   "language": "Язык",
-  "skipToContent": "Перейти к содержимому"
+  "skipToContent": "Перейти к содержимому",
+  "ogAccent": "гном",
+  "ogOffer": "Первый день бесплатно · от {price} ₽ в месяц"
 }

@@ -1,63 +1,68 @@
+@use '@/shared/styles/mixins' as *;
+
 .root {
-  position: relative;
   display: flex;
-  overflow: hidden;
   min-height: var(--viewport-height);
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 24px;
-  gap: 22px;
+  gap: 18px;
   text-align: center;
 }
 
-.code {
+.inline {
+  min-height: 0;
+  padding: 72px 24px 24px;
+}
+
+.mark {
   position: relative;
-  animation: flicker 4.5s ease-in-out infinite;
-  font-family: var(--font-mono);
-  font-size: clamp(88px, 22vw, 190px);
-  font-weight: 700;
-  letter-spacing: -0.06em;
-  line-height: 0.85;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 6px;
+
+  @include rise(0.6s, 0s, 10px);
+}
+
+.badge {
+  animation: tilt 5s ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+
+.code {
+  padding: 4px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  margin-top: -14px;
+  background-color: var(--color-surface-raised);
+  box-shadow: var(--shadow-soft);
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
 }
 
 .codeAccent {
   color: var(--color-accent);
-  text-shadow: 0 0 60px rgb(53 240 160 / 40%);
 }
 
 .codeDanger {
   color: var(--color-danger);
-  text-shadow: 0 0 60px rgb(255 77 94 / 40%);
-}
-
-.scan {
-  --scan-travel: 0.8em;
-
-  position: absolute;
-  top: 0.1em;
-  right: 0;
-  left: 0;
-  height: 2px;
-  animation: sweep 3.2s ease-in-out infinite;
-  background: linear-gradient(90deg, transparent, currentcolor, transparent);
-  opacity: 0.55;
-  pointer-events: none;
 }
 
 .title {
+  @include display-heading(clamp(26px, 2vw + 18px, 38px));
+
   margin: 0;
-  font-size: clamp(22px, 4vw, 30px);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  text-wrap: balance;
 }
 
 .body {
   max-width: 46ch;
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.6;
 }
 
@@ -69,36 +74,19 @@
   gap: 12px;
 }
 
-@keyframes flicker {
+@keyframes tilt {
   0%,
-  92%,
   100% {
-    opacity: 1;
-  }
-
-  94% {
-    opacity: 0.55;
-  }
-
-  96% {
-    opacity: 1;
-  }
-
-  98% {
-    opacity: 0.7;
-  }
-}
-
-@keyframes sweep {
-  0% {
-    transform: translateY(0);
+    transform: rotate(-4deg);
   }
 
   50% {
-    transform: translateY(var(--scan-travel));
+    transform: rotate(4deg);
   }
+}
 
-  100% {
-    transform: translateY(0);
+@media (prefers-reduced-motion: reduce) {
+  .badge {
+    animation: none;
   }
 }

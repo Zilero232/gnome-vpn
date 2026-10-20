@@ -1,0 +1,1 @@
+export { GnomeHead } from './GnomeHead';
