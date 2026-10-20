@@ -1,40 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import { PLANS } from '../../billing/plans';
-import { isReferralCode, normaliseReferralCode, referralReward } from '../referrals';
-import { MAX_FRIEND_DAYS, MAX_REFERRER_DAYS, REFERRAL_CODE } from '../referrals.constants';
+import { referralReward } from '../referrals';
+import { MAX_FRIEND_DAYS, MAX_REFERRER_DAYS } from '../referrals.constants';
 import { claimReferralSchema } from '../referrals.schemas';
-
-describe('normaliseReferralCode', () => {
-  it('upper-cases and drops whitespace someone typed or pasted', () => {
-    expect(normaliseReferralCode('  ab cd\tef 23 ')).toBe('ABCDEF23');
-  });
-});
-
-describe('isReferralCode', () => {
-  it('accepts a code of the right length from the alphabet', () => {
-    expect(isReferralCode('ABCDEF23')).toBe(true);
-    expect(isReferralCode('abcdef23')).toBe(true);
-  });
-
-  it('refuses the characters a person confuses on screen', () => {
-    expect(isReferralCode('ABCDEF0O')).toBe(false);
-    expect(isReferralCode('ABCDEF1I')).toBe(false);
-  });
-
-  it('refuses a code of the wrong length', () => {
-    expect(isReferralCode('ABCDEF2')).toBe(false);
-    expect(isReferralCode('ABCDEF234')).toBe(false);
-  });
-
-  it('refuses a Telegram start payload that was not stripped of its prefix', () => {
-    expect(isReferralCode('ref_ABCDEF23')).toBe(false);
-  });
-
-  it('builds on an alphabet without the ambiguous characters', () => {
-    expect(REFERRAL_CODE.alphabet).not.toMatch(/[01IOL]/u);
-  });
-});
 
 describe('claimReferralSchema', () => {
   it('normalises the code it accepts', () => {

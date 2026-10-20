@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { isNullish } from 'remeda';
 
-import { ROUTES } from '@/shared/constants';
 import { useRouter } from '@/shared/i18n/navigation';
+import { postAuthHref } from '@/shared/lib';
 
 import type { TelegramLoginState } from './use-telegram-login.types';
 
@@ -33,7 +33,7 @@ export const useTelegramLogin = (): TelegramLoginState => {
     }
 
     window[TELEGRAM_LOGIN.callbackName] = (user) => {
-      signInRef.current(payloadOf(user), { onSuccess: () => router.replace(ROUTES.account) });
+      signInRef.current(payloadOf(user), { onSuccess: () => router.replace(postAuthHref(window.location.search)) });
     };
 
     slot.append(widgetScript({ botUsername, onError: () => setIsUnreachable(true) }));

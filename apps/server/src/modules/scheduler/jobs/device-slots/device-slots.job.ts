@@ -27,13 +27,15 @@ export class DeviceSlotsJob {
       this.logger.log(`Revoked the keys of devices over the limit on ${revocations.length} account(s)`);
 
       await Promise.all(
-        revocations.map(({ userId, deviceLimit, titles }) =>
-          this.notify.tell({
-            userId,
-            notice: 'devicesShrunk',
-            fill: { limit: String(deviceLimit), names: titles.join(DEVICE_TITLE.listSeparator) }
-          })
-        )
+        revocations
+          .filter((revocation) => revocation.isActive)
+          .map(({ userId, deviceLimit, titles }) =>
+            this.notify.tell({
+              userId,
+              notice: 'devicesShrunk',
+              fill: { limit: String(deviceLimit), names: titles.join(DEVICE_TITLE.listSeparator) }
+            })
+          )
       );
     } catch (error) {
       this.logger.warn(`Device slot sweep failed: ${describeError(error)}`);

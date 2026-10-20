@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { SyncableNode } from '../node-sync.types';
 
-import { applySqlCommand, buildNodeSync, restartServerCommand } from '../node-sync.helpers';
+import { applyServerEnvCommand, applySqlCommand, buildNodeSync, installEnvFileCommand, isSameEnvFile } from '../node-sync.helpers';
 
 const node: SyncableNode = {
   country: 'Netherlands',
@@ -23,7 +23,7 @@ const node: SyncableNode = {
 
 describe('buildNodeSync', () => {
   it('carries the wireguard key into both the update and the insert', () => {
-    const sql = buildNodeSync([node]);
+    const sql = buildNodeSync({ nodes: [node], pruneMissing: true });
 
     expect(sql).toContain("'wg-pub+/='");
     expect(sql).toContain('wg_public_key = i.wg_public_key');
@@ -31,22 +31,59 @@ describe('buildNodeSync', () => {
   });
 
   it('refuses an empty list, which would turn into deleting every production node', () => {
-    expect(() => buildNodeSync([])).toThrow();
+    expect(() => buildNodeSync({ nodes: [], pruneMissing: true })).toThrow();
   });
 
   it('runs inside one transaction', () => {
-    const sql = buildNodeSync([node]);
+    const sql = buildNodeSync({ nodes: [node], pruneMissing: true });
 
     expect(sql.startsWith('BEGIN;')).toBe(true);
     expect(sql.trimEnd().endsWith('COMMIT;')).toBe(true);
   });
 
   it('escapes a quote in a value rather than ending the literal', () => {
-    expect(buildNodeSync([{ ...node, city: "Hof van 's-Hertogenbosch" }])).toContain("'Hof van ''s-Hertogenbosch'");
+    expect(buildNodeSync({ nodes: [{ ...node, city: "Hof van 's-Hertogenbosch" }], pruneMissing: true })).toContain("'Hof van ''s-Hertogenbosch'");
   });
 
   it('writes a missing value as NULL, not as the text null', () => {
-    expect(buildNodeSync([node])).toContain("'Netherlands', 'NL', NULL,");
+    expect(buildNodeSync({ nodes: [node], pruneMissing: true })).toContain("'Netherlands', 'NL', NULL,");
+  });
+
+  it('deletes production nodes missing from the list only when asked to', () => {
+    expect(buildNodeSync({ nodes: [node], pruneMissing: true })).toContain('DELETE FROM node WHERE host NOT IN');
+    expect(buildNodeSync({ nodes: [node], pruneMissing: false })).not.toContain('DELETE FROM node');
+  });
+
+  it('removes the WireGuard config devices whose peers it revokes, so they do not hold a slot with no config', () => {
+    const sql = buildNodeSync({ nodes: [node], pruneMissing: false });
+
+    expect(sql).toContain("DELETE FROM device WHERE key LIKE 'wg:%' AND id IN (");
+    expect(sql.indexOf('DELETE FROM device')).toBeLessThan(sql.indexOf('UPDATE peer'));
+  });
+
+  it('removes the WireGuard config devices of a pruned node before the node takes their peers with it', () => {
+    const sql = buildNodeSync({ nodes: [node], pruneMissing: true });
+    const pruneDevices = sql.indexOf("WHERE p.protocol = 'wireguard' AND n.host NOT IN ('203.0.113.10')");
+
+    expect(pruneDevices).toBeGreaterThan(-1);
+    expect(pruneDevices).toBeLessThan(sql.indexOf('DELETE FROM node'));
+  });
+
+  it('revokes the peers of a changed node rather than deleting them, so reconcile removes their clients from the panel', () => {
+    const sql = buildNodeSync({ nodes: [node], pruneMissing: true });
+
+    expect(sql).not.toContain('DELETE FROM peer');
+    expect(sql).toContain("UPDATE peer SET revoked_at = now(), state = 'disabled' WHERE revoked_at IS NULL AND node_id IN (");
+  });
+
+  it('revokes only the wireguard peers of a node whose wireguard key changed', () => {
+    const sql = buildNodeSync({ nodes: [node], pruneMissing: true });
+
+    expect(sql).toContain(
+      "UPDATE peer SET revoked_at = now(), state = 'disabled' WHERE protocol = 'wireguard' AND revoked_at IS NULL AND node_id IN ("
+    );
+
+    expect(sql).toContain('n.wg_public_key IS DISTINCT FROM i.wg_public_key');
   });
 });
 
@@ -71,8 +108,30 @@ describe('applySqlCommand', () => {
   });
 });
 
-describe('restartServerCommand', () => {
-  it('recreates the server from inside the deploy path, so it reads the new node secrets', () => {
-    expect(restartServerCommand('/opt/gnomevpn')).toBe('cd /opt/gnomevpn && docker compose up -d --force-recreate --no-deps server');
+describe('applyServerEnvCommand', () => {
+  it('lets compose recreate the server only when its env changed, from inside the deploy path, and waits for its healthcheck', () => {
+    expect(applyServerEnvCommand('/opt/gnomevpn')).toBe('cd /opt/gnomevpn && docker compose up -d --no-deps --wait server');
+  });
+});
+
+describe('installEnvFileCommand', () => {
+  it('locks the uploaded file down before moving it into place', () => {
+    expect(installEnvFileCommand({ uploadPath: '/opt/gnomevpn/.env.nodes.upload', targetPath: '/opt/gnomevpn/.env.nodes' })).toBe(
+      'chmod 600 /opt/gnomevpn/.env.nodes.upload && mv -f /opt/gnomevpn/.env.nodes.upload /opt/gnomevpn/.env.nodes'
+    );
+  });
+});
+
+describe('isSameEnvFile', () => {
+  it('treats a file that differs only by the trailing newline as the same', () => {
+    expect(isSameEnvFile({ previous: 'XRAY_KEY_NL=a', next: 'XRAY_KEY_NL=a\n' })).toBe(true);
+  });
+
+  it('sees a rotated token as a change', () => {
+    expect(isSameEnvFile({ previous: 'XRAY_KEY_NL=a', next: 'XRAY_KEY_NL=b\n' })).toBe(false);
+  });
+
+  it('sees a missing remote file as a change', () => {
+    expect(isSameEnvFile({ previous: null, next: '' })).toBe(false);
   });
 });

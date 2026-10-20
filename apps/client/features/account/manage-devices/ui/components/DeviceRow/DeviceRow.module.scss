@@ -50,3 +50,17 @@
     @include visually-hidden;
   }
 }
+
+.active {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  &:before {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: currentcolor;
+    content: '';
+  }
+}

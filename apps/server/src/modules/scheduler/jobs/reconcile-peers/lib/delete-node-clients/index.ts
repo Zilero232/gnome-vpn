@@ -1,1 +1,1 @@
-export { deleteNodeClients } from './delete-node-clients';
+export { deleteNodeClients, peersGoneFromNode } from './delete-node-clients';

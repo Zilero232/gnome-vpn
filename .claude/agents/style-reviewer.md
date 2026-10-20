@@ -49,7 +49,7 @@ Check, in this order:
 
 - **Hand-rolled retry loops** where `p-retry` is already a dependency.
 - **A `fetch` without a timeout.** Every outbound call carries `AbortSignal.timeout(MS)`; a hand-rolled `AbortController` + `setTimeout` is the older shape and should be replaced.
-- **A mutation of panel clients without `restartCore()`** — the 3x-ui panel only sets a flag and never restarts its own core, so the change never reaches the running core. Equally, a restart _per mutation_ inside a loop: it drops every live session on the node and must be batched.
+- **A `restartCore()` after a client add/delete/enable change** — on 3x-ui v3.10.2 client changes apply live in the running core, and a restart drops every live session on the node; only provisioning restarts, after an inbound changed. WireGuard clients are never re-enabled through `bulkEnable`.
 - **A panel client written without its full field set**, or a tolerant JSON parse on a write path — both have erased or broken live clients before ([docs/architecture/pitfalls.md](../../docs/architecture/pitfalls.md)).
 - **A revocation without a matching restore in the same sweep** ([docs/guides/server/data.md](../../docs/guides/server/data.md)).
 - **A node's `apiUrl` interpolated into a log line** — log `node.id` ([docs/architecture/logging.md](../../docs/architecture/logging.md)).

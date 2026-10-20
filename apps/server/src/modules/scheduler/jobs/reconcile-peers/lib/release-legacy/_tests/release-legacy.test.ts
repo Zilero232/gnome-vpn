@@ -1,3 +1,5 @@
+import type { Logger } from '@nestjs/common';
+
 import { describe, expect, it, vi } from 'vitest';
 
 import type { PrismaService } from '../../../../../../../core';
@@ -22,12 +24,15 @@ const peer = (overrides: Partial<ReconcilePeer> = {}): ReconcilePeer => ({
   state: 'active',
   nodeCredential: 'shared',
   tunnelAddress: null,
+  device: null,
   user: { subscription: null },
   ...overrides
 });
 
 const prismaWith = ({ settled = [{ userId: OWNER }], deleteMany = vi.fn().mockResolvedValue({ count: 1 }) } = {}) =>
   ({ device: { findMany: vi.fn().mockResolvedValue(settled) }, peer: { deleteMany } }) as unknown as PrismaService;
+
+const silentLogger = () => ({ log: vi.fn(), warn: vi.fn() }) as unknown as Logger;
 
 describe('releaseLegacy', () => {
   it('does nothing outside the weekly pass, when nobody is known to be online or offline', async () => {
@@ -36,6 +41,7 @@ describe('releaseLegacy', () => {
     const retired = await releaseLegacy({
       prisma: prismaWith(),
       xray: { deleteClient } as unknown as XrayClient,
+      logger: silentLogger(),
       peers: [peer()],
       nodeClients: new Map([[peerClientName(peer()), true]]),
       online: null,
@@ -56,6 +62,7 @@ describe('releaseLegacy', () => {
     const retired = await releaseLegacy({
       prisma: prismaWith({ deleteMany }),
       xray: { deleteClient } as unknown as XrayClient,
+      logger: silentLogger(),
       peers: [shared],
       nodeClients,
       online: new Set(),
@@ -75,6 +82,7 @@ describe('releaseLegacy', () => {
     const retired = await releaseLegacy({
       prisma: prismaWith(),
       xray: { deleteClient } as unknown as XrayClient,
+      logger: silentLogger(),
       peers: [shared],
       nodeClients: new Map([[peerClientName(shared), true]]),
       online: new Set([peerClientName(shared)]),
@@ -91,6 +99,7 @@ describe('releaseLegacy', () => {
     const retired = await releaseLegacy({
       prisma: prismaWith({ settled: [] }),
       xray: { deleteClient } as unknown as XrayClient,
+      logger: silentLogger(),
       peers: [peer()],
       nodeClients: new Map([[peerClientName(peer()), true]]),
       online: new Set(),
@@ -108,6 +117,7 @@ describe('releaseLegacy', () => {
     const retired = await releaseLegacy({
       prisma: prismaWith(),
       xray: { deleteClient } as unknown as XrayClient,
+      logger: silentLogger(),
       peers: [devicePeer],
       nodeClients: new Map([[peerClientName(devicePeer), true]]),
       online: new Set(),

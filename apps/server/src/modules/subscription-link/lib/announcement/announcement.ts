@@ -3,7 +3,7 @@ import { isEmpty, isNonNullish, isNullish } from 'remeda';
 
 import type { AnnouncementInput } from './announcement.types';
 
-import { ANNOUNCEMENTS, EXPIRY_WARNING_DAYS } from './announcement.constants';
+import { ANNOUNCE, ANNOUNCEMENTS, HWID_HINT } from './announcement.constants';
 import { countryList, daysLeftLabel, isFresh, isStale } from './announcement.helpers';
 
 export const announcement = ({
@@ -11,6 +11,7 @@ export const announcement = ({
   hasSubscription,
   nodes,
   blockedAtLimit,
+  hwidHint = null,
   isPreparing = false,
   now = new Date()
 }: AnnouncementInput): string | null => {
@@ -26,6 +27,10 @@ export const announcement = ({
     return ANNOUNCEMENTS.deviceLimit(blockedAtLimit);
   }
 
+  if (hwidHint === HWID_HINT.required) {
+    return ANNOUNCEMENTS.hwidRequired;
+  }
+
   if (isPreparing) {
     return ANNOUNCEMENTS.preparing;
   }
@@ -36,8 +41,12 @@ export const announcement = ({
     return ANNOUNCEMENTS.expiringToday;
   }
 
-  if (daysLeft <= EXPIRY_WARNING_DAYS) {
+  if (daysLeft <= ANNOUNCE.expiryWarningDays) {
     return ANNOUNCEMENTS.expiringInDays(daysLeftLabel(daysLeft));
+  }
+
+  if (hwidHint === HWID_HINT.nudge) {
+    return ANNOUNCEMENTS.hwidNudge;
   }
 
   const down = nodes.filter((node) => isStale({ node, now }));

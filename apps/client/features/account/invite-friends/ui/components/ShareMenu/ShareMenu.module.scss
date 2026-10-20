@@ -60,6 +60,6 @@
   }
 
   &[data-highlighted] {
-    background-color: rgb(53 240 160 / 10%);
+    background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
   }
 }

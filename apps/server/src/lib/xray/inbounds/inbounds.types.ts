@@ -32,3 +32,8 @@ export type InboundPayloadInput = {
   inbound: Record<string, unknown>;
   remark?: string;
 };
+
+export type RequireInboundInput = {
+  inbounds: XrayInbound[];
+  remark?: string;
+};

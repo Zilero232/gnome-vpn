@@ -12,7 +12,7 @@ import { SUBSCRIPTION_POLL } from './use-subscription-status.constants';
 export const useSubscriptionStatus = () => {
   const hasSession = useHasSession();
 
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, dataUpdatedAt, isLoading, isError, refetch } = useQuery({
     queryKey: QUERY_KEYS.subscriptionStatus(),
     queryFn: getSubscriptionStatus,
     enabled: hasSession,
@@ -23,9 +23,7 @@ export const useSubscriptionStatus = () => {
         return Math.min(SUBSCRIPTION_POLL.errorMs * 2 ** query.state.fetchFailureCount, SUBSCRIPTION_POLL.maxErrorMs);
       }
 
-      const isAwaitingPayment = query.state.data?.status !== 'active' || isCheckoutPending();
-
-      return isAwaitingPayment ? SUBSCRIPTION_POLL.inactiveMs : SUBSCRIPTION_POLL.activeMs;
+      return isCheckoutPending() ? SUBSCRIPTION_POLL.pendingMs : SUBSCRIPTION_POLL.idleMs;
     }
   });
 
@@ -33,8 +31,10 @@ export const useSubscriptionStatus = () => {
 
   return {
     subscription: data ?? null,
+    dataUpdatedAt,
     isLoading,
     isError,
+    isUnavailable: isError && !data,
     refetch,
     hasAccess,
     limits: data?.limits ?? resolveLimits(0)

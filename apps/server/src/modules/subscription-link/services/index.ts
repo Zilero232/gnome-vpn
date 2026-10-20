@@ -1,4 +1,5 @@
 export { FeedNoticeService } from './feed-notice.service';
+export { NodeTrafficService } from './node-traffic.service';
 export { SubscriptionAccessService } from './subscription-access.service';
 export { SubscriptionFeedService } from './subscription-feed.service';
 export { SubscriptionLinkService } from './subscription-link.service';

@@ -1,0 +1,83 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  display: grid;
+  align-items: center;
+  padding: 12px 14px;
+  background-color: var(--color-surface);
+  gap: 12px 6px;
+  grid-template-areas: 'info actions remove';
+  grid-template-columns: minmax(0, 1fr) auto auto;
+
+  @include below(md) {
+    grid-template-areas:
+      'info remove'
+      'actions actions';
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+.info {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+  grid-area: info;
+}
+
+.text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.name {
+  color: var(--color-text);
+  font-size: var(--step-sm);
+  font-weight: 600;
+
+  @include truncate;
+}
+
+.meta {
+  color: var(--color-text-muted);
+  font-size: var(--step-xs);
+
+  @include truncate;
+}
+
+.actions {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 6px;
+  grid-area: actions;
+}
+
+.action {
+  min-width: 0;
+
+  @include below(md) {
+    flex: 1 1 auto;
+  }
+}
+
+.root .remove {
+  color: var(--color-text-muted);
+  grid-area: remove;
+
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      border-color: color-mix(in srgb, var(--color-danger) 45%, transparent);
+      color: var(--color-danger);
+    }
+  }
+}
+
+.down {
+  color: var(--color-danger);
+  font-size: var(--step-xs);
+
+  @include truncate;
+}

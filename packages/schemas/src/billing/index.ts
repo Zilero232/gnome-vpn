@@ -1,7 +1,17 @@
 export { DEFAULT_DEVICE_LIMIT, EXTRA_DEVICE_PRICE_RUB, extraDevicesPriceRub, limitsSchema, MAX_EXTRA_DEVICES, resolveLimits } from './addons';
 export type { Limits } from './addons';
-export { bindCardResultSchema, buyExtraDevicesSchema, checkoutResultSchema, createCheckoutSchema } from './checkout';
-export type { BindCardResult, BuyExtraDevicesInput, CheckoutResult, CreateCheckoutInput } from './checkout';
+export {
+  bindCardResultSchema,
+  buyExtraDevicesSchema,
+  CHECKOUT_LOCALES,
+  checkoutLocaleSchema,
+  checkoutResultSchema,
+  createCheckoutSchema,
+  DEFAULT_CHECKOUT_LOCALE
+} from './checkout';
+export type { BindCardResult, BuyExtraDevicesInput, CheckoutLocale, CheckoutResult, CreateCheckoutInput } from './checkout';
+export { lastPaymentSchema, paymentKindSchema, paymentStatusSchema } from './payment';
+export type { LastPayment, PaymentKind, PaymentStatus } from './payment';
 export {
   DEFAULT_PLAN_ID,
   findPlan,

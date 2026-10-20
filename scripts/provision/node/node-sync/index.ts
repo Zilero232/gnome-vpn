@@ -1,3 +1,3 @@
 export { syncToProduction } from './node-sync';
 
-export type { SyncableNode, SyncToProductionInput } from './node-sync.types';
+export type { SyncableNode, SyncResult, SyncToProductionInput } from './node-sync.types';

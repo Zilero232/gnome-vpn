@@ -94,6 +94,12 @@
   gap: 14px;
 }
 
+.ctaNote {
+  margin: 14px 0 0;
+
+  @include rise(0.6s, 0.28s, 16px);
+}
+
 .meta {
   display: flex;
   flex-wrap: wrap;

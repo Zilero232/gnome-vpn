@@ -6,8 +6,10 @@ export type {
   ChargeRecurringInput,
   CreatePaymentInput,
   CreatePaymentResult,
+  CreateRefundInput,
   PaymentInfo,
   PaymentMethodInfo,
   PaymentMethodStatus,
+  RefundInfo,
   YooKassaClientOptions
 } from './yookassa.types';

@@ -2,7 +2,7 @@
 
 import type { CreateWireguardConfigInput } from '@gnomevpn/schemas';
 
-import { createWireguardConfigSchema } from '@gnomevpn/schemas';
+import { createWireguardConfigSchema, WIREGUARD_CONFIG_NAME } from '@gnomevpn/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -11,11 +11,13 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { useFieldError, useToastError } from '@/entities/app/locale';
-import { CountryFlag, FormField, Input, SelectableCard, SubmitButton, Text } from '@/ui-kit';
+import { useSubscriptionStatus } from '@/entities/billing/subscription';
+import { FormField, Input, SubmitButton, Text } from '@/ui-kit';
 
 import type { CreateConfigFormProps } from './CreateConfigForm.types';
 
 import { useCreateWireguardConfig } from '../../../model/hooks';
+import { CountryPicker } from './components';
 import { NO_NODE } from './CreateConfigForm.constants';
 
 import s from './CreateConfigForm.module.scss';
@@ -25,8 +27,8 @@ export const CreateConfigForm = ({ nodes, isFull, onCreated }: CreateConfigFormP
   const fieldError = useFieldError();
   const toastError = useToastError();
   const nameId = useId();
-  const countryId = useId();
   const { isPending, mutate } = useCreateWireguardConfig();
+  const { subscription } = useSubscriptionStatus();
 
   const {
     formState: { errors },
@@ -37,10 +39,11 @@ export const CreateConfigForm = ({ nodes, isFull, onCreated }: CreateConfigFormP
     watch
   } = useForm<CreateWireguardConfigInput>({
     resolver: zodResolver(createWireguardConfigSchema),
-    defaultValues: { nodeId: nodes[0]?.id ?? NO_NODE, name: '' }
+    defaultValues: { nodeId: nodes.find((node) => !node.isDown)?.id ?? NO_NODE, name: '' }
   });
 
   const selected = watch('nodeId');
+  const isSelectedDown = nodes.find((node) => node.id === selected)?.isDown ?? true;
 
   const onSubmit = handleSubmit((values) => {
     mutate(values, {
@@ -59,40 +62,20 @@ export const CreateConfigForm = ({ nodes, isFull, onCreated }: CreateConfigFormP
         {t('createTitle')}
       </Text>
 
-      <div aria-labelledby={countryId} className={s.group} role='radiogroup'>
-        <span className={s.groupLabel} id={countryId}>
-          {t('countryLabel')}
-        </span>
-
-        <div className={s.countryList}>
-          {nodes.map((node) => (
-            <SelectableCard
-              key={node.id}
-              aria-checked={selected === node.id}
-              className={s.country}
-              isSelected={selected === node.id}
-              role='radio'
-              size='sm'
-              type='button'
-              onClick={() => setValue('nodeId', node.id, { shouldValidate: true })}
-            >
-              <CountryFlag countryCode={node.countryCode} size='md' />
-
-              <span className={s.countryText}>
-                <span className={s.countryName}>{node.country}</span>
-                {node.city && <span className={s.city}>{node.city}</span>}
-              </span>
-            </SelectableCard>
-          ))}
-        </div>
-      </div>
+      <CountryPicker nodes={nodes} selected={selected} onSelect={(nodeId) => setValue('nodeId', nodeId, { shouldValidate: true })} />
 
       <div className={s.row}>
-        <FormField hasFloatingError className={s.field} error={fieldError(errors.name)} htmlFor={nameId} label={t('nameLabel')}>
-          <Input autoComplete='off' id={nameId} placeholder={t('namePlaceholder')} {...register('name')} />
+        <FormField className={s.field} error={fieldError(errors.name)} htmlFor={nameId} label={t('nameLabel')}>
+          <Input
+            autoComplete='off'
+            id={nameId}
+            maxLength={WIREGUARD_CONFIG_NAME.maxLength}
+            placeholder={t('namePlaceholder')}
+            {...register('name')}
+          />
         </FormField>
 
-        <SubmitButton className={s.submit} disabled={isFull} isPending={isPending} size='lg'>
+        <SubmitButton className={s.submit} disabled={isFull || isSelectedDown} isPending={isPending} size='lg'>
           <Plus aria-hidden size={18} />
           {t('create')}
         </SubmitButton>
@@ -100,7 +83,13 @@ export const CreateConfigForm = ({ nodes, isFull, onCreated }: CreateConfigFormP
 
       {isFull && (
         <Text as='p' className={s.full} size='sm'>
-          {t('full')}
+          {subscription?.period === 'trial' ? t('fullTrial') : t('full')}
+        </Text>
+      )}
+
+      {!isFull && nodes.every((node) => node.isDown) && (
+        <Text as='p' className={s.full} size='sm'>
+          {t('allDown')}
         </Text>
       )}
     </form>

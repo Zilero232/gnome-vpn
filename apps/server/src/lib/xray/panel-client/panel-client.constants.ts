@@ -19,6 +19,7 @@ export const PANEL_ROUTES = {
   restartCore: `${SERVER}/restartXrayService`,
   serverStatus: `${SERVER}/status`,
   onlines: `${CLIENTS}/onlines`,
+  lastOnline: `${CLIENTS}/lastOnline`,
   addClient: `${CLIENTS}/add`,
   deleteClient: (email: string) => `${CLIENTS}/del/${encodeURIComponent(email)}`,
   setEnabled: (enabled: boolean) => `${CLIENTS}/${enabled ? 'bulkEnable' : 'bulkDisable'}`

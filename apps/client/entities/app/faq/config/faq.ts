@@ -5,7 +5,7 @@ export const FAQ_GROUPS = [
   { key: 'billing', questions: ['howToPay', 'refund', 'autoRenew', 'trial', 'referral'] }
 ] as const;
 
-export const FAQ_HIGHLIGHTS = ['whatIsIncy', 'whyNotOwnApp', 'howManyDevices', 'refund'] as const;
+export const FAQ_HIGHLIGHTS = ['whatIsIncy', 'trial', 'whyNotOwnApp', 'howManyDevices', 'refund'] as const;
 
 export const FAQ_QUESTIONS = FAQ_GROUPS.flatMap((group) => group.questions);
 

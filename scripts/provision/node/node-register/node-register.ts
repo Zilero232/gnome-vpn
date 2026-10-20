@@ -5,8 +5,8 @@ import { upsertEnvGroup } from '../env-file';
 import { nodeKeyName, panelPasswordName, panelPathName } from '../node-credentials';
 import { upsertNode } from '../upsert-node';
 
-const rememberNodeSecrets = async ({ serverEnvPath, countryCode, apiToken, panelPassword, panelPath }: RememberNodeSecretsInput) =>
-  upsertEnvGroup({
+export const rememberNodeSecrets = async ({ serverEnvPath, countryCode, apiToken, panelPassword, panelPath }: RememberNodeSecretsInput) => {
+  await upsertEnvGroup({
     filePath: serverEnvPath,
     entries: [
       { key: panelPathName(countryCode), value: panelPath },
@@ -15,25 +15,11 @@ const rememberNodeSecrets = async ({ serverEnvPath, countryCode, apiToken, panel
     ]
   });
 
-export const registerNode = async ({
-  config,
-  prisma,
-  serverEnvPath,
-  panel,
-  password,
-  panelPath,
-  auth,
-  cert
-}: RegisterNodeInput): Promise<boolean> => {
-  log.step('writing the node row and its secrets');
+  log.done('the panel secrets are saved to .env.nodes');
+};
 
-  await rememberNodeSecrets({
-    serverEnvPath,
-    countryCode: config.countryCode,
-    apiToken: panel.token,
-    panelPassword: password,
-    panelPath
-  });
+export const registerNode = async ({ config, prisma, panel, auth, cert }: RegisterNodeInput): Promise<boolean> => {
+  log.step('writing the node row');
 
   const { wasExisting } = await upsertNode({
     prisma,

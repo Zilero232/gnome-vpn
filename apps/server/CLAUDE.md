@@ -50,7 +50,7 @@ src/
 - **Errors** are the app exceptions from `common/exceptions` with a code from `@gnomevpn/schemas`; the code is a contract, the message is free text.
 - **`config/env.schema.ts` throws on boot** on a missing variable. Node panel API tokens are the exception: the `node` table stores the env var's _name_ (`apiTokenEnvVar`), and the values live in `.env.nodes`, written by `bun run provision:nodes`.
 - **Every outbound `fetch` carries `AbortSignal.timeout(MS)`.**
-- **`XrayClient` talks to the 3x-ui panel, not to Xray-core**: a Hysteria2 or VLESS client change needs an explicit `restartCore()`, batched once per pass and coalesced per node; WireGuard clients apply live and must never be re-enabled through `bulkEnable`.
+- **`XrayClient` talks to the 3x-ui panel, not to Xray-core**: client adds, deletes and disables apply live in the running core, so never call `restartCore()` after a client change — only provisioning restarts, after an inbound changed; WireGuard clients must never be re-enabled through `bulkEnable`.
 - **A revocation needs a restore in the same sweep**, and every write path parses settings strictly.
 - **Use a raw cron string when the interval has no `CronExpression` constant** — an invented one crashes the server at boot.
 

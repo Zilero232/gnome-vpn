@@ -1,17 +1,29 @@
 import type { WebhookEvent } from '@gnomevpn/schemas';
 
+import { findPlan } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
 import { isNullish } from 'remeda';
 
-import type { AnnounceReferralInput, CanceledPayment, SettledPayment, SettleOutcome } from '../billing.types';
+import type {
+  AnnounceReferralInput,
+  CanceledPayment,
+  RefundOutcome,
+  RefundReason,
+  RefundUnusableInput,
+  ReverseRefundInput,
+  SettledPayment,
+  SettleOutcome,
+  SettleResult,
+  UnusablePayment
+} from '../billing.types';
 
-import { describeError } from '../../../common/lib';
+import { describeError, hasLapsedBeyondGrace } from '../../../common/lib';
 import { PrismaService, withSerializableRetry } from '../../../core';
 import { YooKassaClient } from '../../../lib';
 import { ReferralRewardService } from '../../referrals';
 import { SubscriptionAccessService } from '../../subscription-link';
 import { TelegramNotifyService } from '../../telegram/services/telegram-notify.service';
-import { CARD_LOST_REASONS, WEBHOOK_EVENT } from '../config';
+import { CARD_LOST_REASONS, REFUND, REFUND_DESCRIPTION, WEBHOOK_EVENT } from '../config';
 import { BillingSharedService } from './billing-shared.service';
 import { CardService } from './card.service';
 
@@ -36,6 +48,12 @@ export class WebhookService {
       return;
     }
 
+    if (event.event === WEBHOOK_EVENT.refundSucceeded) {
+      await this.handleRefund(event.object.id);
+
+      return;
+    }
+
     if (!event.event.startsWith(WEBHOOK_EVENT.paymentPrefix)) {
       this.logger.debug(`ignoring webhook event ${event.event}`);
 
@@ -45,7 +63,7 @@ export class WebhookService {
     await this.settlePayment(event.object.id);
   }
 
-  async settlePayment(paymentId: string): Promise<void> {
+  async settlePayment(paymentId: string): Promise<SettleResult> {
     const row = await this.prisma.payment.findUnique({
       where: { yookassaPaymentId: paymentId },
       select: {
@@ -64,13 +82,13 @@ export class WebhookService {
     if (isNullish(row)) {
       this.logger.warn(`webhook for an unknown payment ${paymentId}`);
 
-      return;
+      return 'unknown';
     }
 
     if (row.status !== 'pending') {
       this.logger.debug(`payment ${paymentId} is already ${row.status}`);
 
-      return;
+      return 'skipped';
     }
 
     const payment = await this.yookassa.getPayment(paymentId);
@@ -78,13 +96,32 @@ export class WebhookService {
     if (payment.status === 'canceled') {
       await this.cancel({ ...row, paymentId, reason: payment.cancellationReason });
 
-      return;
+      return 'canceled';
     }
 
     if (payment.status !== 'succeeded') {
       this.logger.debug(`payment ${paymentId} is still ${payment.status}`);
 
-      return;
+      return 'waiting';
+    }
+
+    if (payment.refundedRub > 0) {
+      await this.prisma.payment.updateMany({ where: { id: row.id, status: 'pending' }, data: { status: 'refunded' } });
+      this.logger.log(`payment ${paymentId} was refunded before it settled, nothing is granted`);
+
+      return 'refunded';
+    }
+
+    const refundReason = await this.unusableReason(row);
+
+    if (refundReason) {
+      return this.refundUnusable({ id: row.id, paymentId, amount: row.amount, reason: refundReason });
+    }
+
+    const userId = row.userId;
+
+    if (isNullish(userId)) {
+      return 'skipped';
     }
 
     const settled = await withSerializableRetry(() =>
@@ -102,20 +139,20 @@ export class WebhookService {
           }
 
           if (row.kind === 'extraDevices') {
-            await this.shared.grantExtraDevices({ userId: row.userId, quantity: row.extraDevices, db: tx });
+            await this.shared.grantExtraDevices({ userId, quantity: row.extraDevices, db: tx });
 
             return { referral: null };
           }
 
           await this.shared.activate({
-            userId: row.userId,
+            userId,
             planId: row.plan,
             method: payment.paymentMethodId ? { id: payment.paymentMethodId, title: payment.paymentMethodTitle } : null,
             orderedAt: row.createdAt,
             db: tx
           });
 
-          const referral = await this.referralReward.reward({ userId: row.userId, planId: row.plan, paymentId: row.id, db: tx });
+          const referral = await this.referralReward.reward({ userId, planId: row.plan, paymentId: row.id, db: tx });
 
           return { referral };
         },
@@ -124,18 +161,128 @@ export class WebhookService {
     );
 
     if (!settled) {
-      return;
+      return 'skipped';
     }
 
-    await this.access.setEnabledAll({ userId: row.userId, enabled: true }).catch((error: unknown) => {
-      this.logger.error(`paid access for ${row.userId} was not re-enabled, the sweep will retry: ${describeError(error)}`);
+    await this.access.setEnabledAll({ userId, enabled: true }).catch((error: unknown) => {
+      this.logger.error(`paid access for ${userId} was not re-enabled, the sweep will retry: ${describeError(error)}`);
     });
 
-    await this.announce(row);
+    await this.announce({ ...row, userId });
 
     if (settled.referral) {
-      await this.announceReferral({ friendId: row.userId, outcome: settled.referral });
+      await this.announceReferral({ friendId: userId, outcome: settled.referral });
     }
+
+    return 'settled';
+  }
+
+  async handleRefund(refundId: string): Promise<RefundOutcome | null> {
+    const refund = await this.yookassa.getRefund(refundId);
+
+    if (refund.status !== 'succeeded') {
+      this.logger.debug(`refund ${refundId} is still ${refund.status}`);
+
+      return null;
+    }
+
+    const row = await this.prisma.payment.findUnique({
+      where: { yookassaPaymentId: refund.paymentId },
+      select: { id: true, userId: true, status: true, kind: true, plan: true, extraDevices: true, amount: true }
+    });
+
+    if (isNullish(row)) {
+      this.logger.warn(`refund ${refundId} for an unknown payment ${refund.paymentId}`);
+
+      return null;
+    }
+
+    if (row.status !== 'succeeded') {
+      this.logger.debug(`refund ${refundId}: payment ${refund.paymentId} is ${row.status}, nothing to take back`);
+
+      return null;
+    }
+
+    const payment = await this.yookassa.getPayment(refund.paymentId);
+
+    if (payment.refundedRub < row.amount.toNumber()) {
+      this.logger.warn(
+        `payment ${refund.paymentId} was refunded in part (${payment.refundedRub} of ${row.amount.toFixed(2)}): the period is left as it is, review it by hand`
+      );
+
+      return null;
+    }
+
+    const outcome = await withSerializableRetry(() =>
+      this.prisma.$transaction((tx) => this.reverse({ row, db: tx }), { isolationLevel: 'Serializable' })
+    );
+
+    if (outcome) {
+      this.logger.log(`payment ${refund.paymentId} was refunded: ${outcome.kind} taken back from ${outcome.userId}`);
+    }
+
+    return outcome;
+  }
+
+  private async reverse({ row, db }: ReverseRefundInput): Promise<RefundOutcome | null> {
+    const claimed = await db.payment.updateMany({
+      where: { id: row.id, status: 'succeeded' },
+      data: { status: 'refunded' }
+    });
+
+    if (claimed.count === 0 || isNullish(row.userId)) {
+      return null;
+    }
+
+    if (row.kind === 'extraDevices') {
+      await this.shared.revokeExtraDevices({ userId: row.userId, quantity: row.extraDevices, db });
+
+      return { userId: row.userId, kind: row.kind, referral: null };
+    }
+
+    await this.shared.revokePeriod({ userId: row.userId, months: findPlan(row.plan).months, db });
+
+    const referral = await this.referralReward.revoke({ paymentId: row.id, db });
+
+    return { userId: row.userId, kind: row.kind, referral };
+  }
+
+  private async unusableReason({ userId, kind }: UnusablePayment): Promise<RefundReason | null> {
+    if (isNullish(userId)) {
+      return 'orphan';
+    }
+
+    if (kind !== 'extraDevices') {
+      return null;
+    }
+
+    const subscription = await this.prisma.subscription.findUnique({ where: { userId }, select: { currentPeriodEnd: true } });
+
+    return hasLapsedBeyondGrace({ currentPeriodEnd: subscription?.currentPeriodEnd, at: new Date() }) ? 'lapsed' : null;
+  }
+
+  private async refundUnusable({ id, paymentId, amount, reason }: RefundUnusableInput): Promise<SettleResult> {
+    const refund = await this.yookassa.createRefund({
+      paymentId,
+      amountRub: amount.toNumber(),
+      description: REFUND_DESCRIPTION[reason],
+      idempotenceKey: `${REFUND.idempotencePrefix}${id}`
+    });
+
+    if (refund.status === 'canceled') {
+      this.logger.error(`the automatic refund of ${paymentId} (${reason}) was canceled by YooKassa — refund it by hand`);
+
+      return 'waiting';
+    }
+
+    await this.prisma.payment.updateMany({
+      where: { id, status: 'pending' },
+      data: { status: 'refunded' }
+    });
+
+    this.logger.warn(`payment ${paymentId} was refunded automatically: ${reason}`);
+
+    return 'refunded';
   }
 
   private async announceReferral({ friendId, outcome }: AnnounceReferralInput): Promise<void> {
@@ -153,8 +300,6 @@ export class WebhookService {
 
         return;
       }
-
-      await this.access.setEnabledAll({ userId: outcome.referrerId, enabled: true });
 
       const subscription = await this.prisma.subscription.findUnique({
         where: { userId: outcome.referrerId },
@@ -184,7 +329,7 @@ export class WebhookService {
 
     this.logger.log(`payment ${paymentId} was canceled: ${reason ?? 'no reason given'}`);
 
-    if (!isAutoCharge) {
+    if (!isAutoCharge || isNullish(userId)) {
       return;
     }
 

@@ -13,12 +13,13 @@ import type {
 } from '../subscription-link.service.types';
 
 import { AppBadRequestException, AppNotFoundException, AppServiceUnavailableException } from '../../../common/exceptions';
-import { activeDeviceLimit } from '../../../common/lib';
+import { activeDeviceLimit, SUBSCRIPTION_PERIOD_SELECT } from '../../../common/lib';
 import { PrismaService } from '../../../core';
+import { WIREGUARD_INBOUND } from '../../../lib/xray';
 import { DEVICE_KEY, DEVICE_ORDER, DevicesService } from '../../devices';
-import { buildTunnelConfig, hasWireguard, WIREGUARD } from '../../peers';
+import { buildTunnelConfig, hasWireguard } from '../../peers';
 import { NODE_FEED_SELECT } from '../config';
-import { wireguardConf, wireguardFileName, wireguardNodeView } from '../lib';
+import { liveNodes, wireguardConf, wireguardFileName, wireguardNodeView } from '../lib';
 import { FeedNoticeService } from './feed-notice.service';
 import { SubscriptionPeersService } from './subscription-peers.service';
 
@@ -33,7 +34,7 @@ export class WireguardConfigService {
 
   async overview(userId: string): Promise<WireguardOverview> {
     const [nodes, devices, subscription] = await Promise.all([
-      this.wireguardNodes(),
+      this.peers.availableNodes(),
       this.prisma.device.findMany({
         where: { userId },
         orderBy: [...DEVICE_ORDER],
@@ -45,8 +46,10 @@ export class WireguardConfigService {
           peers: { where: { protocol: TUNNEL_PROTOCOL.wireguard, revokedAt: null }, select: { node: { select: NODE_FEED_SELECT } }, take: 1 }
         }
       }),
-      this.prisma.subscription.findUnique({ where: { userId }, select: { currentPeriodEnd: true, extraDevices: true } })
+      this.prisma.subscription.findUnique({ where: { userId }, select: SUBSCRIPTION_PERIOD_SELECT })
     ]);
+
+    const live = this.liveIds(nodes);
 
     const configs = devices.flatMap((device) => {
       const [peer] = device.peers;
@@ -59,23 +62,32 @@ export class WireguardConfigService {
         {
           deviceId: device.id,
           name: device.model ?? DEVICE_KEY.wireguardApp,
-          node: wireguardNodeView(peer.node),
+          node: wireguardNodeView({ node: peer.node, live }),
           createdAt: device.createdAt.toISOString()
         }
       ];
     });
 
-    return { nodes: nodes.map(wireguardNodeView), configs, deviceCount: devices.length, deviceLimit: activeDeviceLimit(subscription) };
+    return {
+      nodes: nodes.filter((node) => hasWireguard(node)).map((node) => wireguardNodeView({ node, live })),
+      configs,
+      deviceCount: devices.length,
+      deviceLimit: activeDeviceLimit(subscription)
+    };
   }
 
   async create({ userId, nodeId, name }: CreateWireguardConfigServiceInput): Promise<WireguardConfigFile> {
     const [node, subscription] = await Promise.all([
       this.prisma.node.findFirst({ where: { id: nodeId, isAvailable: true }, select: NODE_FEED_SELECT }),
-      this.prisma.subscription.findUnique({ where: { userId }, select: { currentPeriodEnd: true, extraDevices: true } })
+      this.prisma.subscription.findUnique({ where: { userId }, select: SUBSCRIPTION_PERIOD_SELECT })
     ]);
 
     if (isNullish(node) || !hasWireguard(node)) {
       throw new AppNotFoundException('NODE_NOT_FOUND', 'No WireGuard server with this id');
+    }
+
+    if (!this.liveIds(await this.peers.availableNodes()).has(node.id)) {
+      throw new AppServiceUnavailableException('NODE_UNAVAILABLE', 'The WireGuard server is down right now');
     }
 
     const deviceLimit = activeDeviceLimit(subscription);
@@ -105,33 +117,29 @@ export class WireguardConfigService {
 
     void this.notice.deviceAdded({ userId, identity, deviceCount: admitted.deviceCount, deviceLimit });
 
-    return this.render({ deviceId, node, peer });
+    return this.render({ deviceId, name, node, peer });
   }
 
   async file({ userId, deviceId }: WireguardConfigFileInput): Promise<WireguardConfigFile> {
     const peer = await this.prisma.peer.findFirst({
       where: { userId, deviceId, protocol: TUNNEL_PROTOCOL.wireguard, revokedAt: null, device: { key: { startsWith: DEVICE_KEY.wireguard } } },
-      select: { protocol: true, nodeCredential: true, tunnelAddress: true, node: { select: NODE_FEED_SELECT } }
+      select: { protocol: true, nodeCredential: true, tunnelAddress: true, node: { select: NODE_FEED_SELECT }, device: { select: { model: true } } }
     });
 
     if (isNullish(peer)) {
       throw new AppNotFoundException('DEVICE_NOT_FOUND', 'No WireGuard config with this id');
     }
 
-    const { node, ...feedPeer } = peer;
+    const { node, device, ...feedPeer } = peer;
 
-    return this.render({ deviceId, node, peer: feedPeer });
+    return this.render({ deviceId, name: device?.model ?? null, node, peer: feedPeer });
   }
 
-  private wireguardNodes(): Promise<SubscriptionNode[]> {
-    return this.prisma.node.findMany({
-      where: { isAvailable: true, wgPublicKey: { not: null } },
-      orderBy: { displayOrder: 'asc' },
-      select: NODE_FEED_SELECT
-    });
+  private liveIds(nodes: SubscriptionNode[]): Set<string> {
+    return new Set(liveNodes({ nodes, now: new Date() }).map((node) => node.id));
   }
 
-  private render({ deviceId, node, peer }: RenderConfigInput): WireguardConfigFile {
+  private render({ deviceId, name, node, peer }: RenderConfigInput): WireguardConfigFile {
     const config = buildTunnelConfig({ node, protocol: TUNNEL_PROTOCOL.wireguard, auth: peer.nodeCredential, address: peer.tunnelAddress });
 
     if (isNullish(config.wireguard)) {
@@ -140,7 +148,7 @@ export class WireguardConfigService {
 
     return {
       deviceId,
-      filename: wireguardFileName({ countryCode: node.countryCode, deviceId }),
+      filename: wireguardFileName({ name, countryCode: node.countryCode, deviceId }),
       conf: wireguardConf({
         privateKey: config.auth,
         address: config.wireguard.address,
@@ -149,7 +157,7 @@ export class WireguardConfigService {
         serverPublicKey: config.wireguard.publicKey,
         host: config.server,
         port: config.port,
-        keepAlive: WIREGUARD.keepAlive
+        keepAlive: WIREGUARD_INBOUND.keepAlive
       })
     };
   }

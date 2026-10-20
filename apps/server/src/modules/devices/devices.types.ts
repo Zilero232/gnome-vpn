@@ -4,6 +4,7 @@ export type AdmitDeviceInput = {
   userId: string;
   identity: DeviceIdentity;
   deviceLimit: number;
+  canRegister?: boolean;
 };
 
 export type AdmittedDevice = {
@@ -16,6 +17,7 @@ export type AdmittedDevice = {
 export type SurplusRevocation = {
   userId: string;
   deviceLimit: number;
+  isActive: boolean;
   titles: string[];
 };
 

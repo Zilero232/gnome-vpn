@@ -3,20 +3,23 @@ import type { SubscriptionStatus } from '@gnomevpn/schemas';
 import { DEFAULT_PLAN_ID, isPlaceholderEmail, TRIAL_DAYS } from '@gnomevpn/schemas';
 import { Injectable } from '@nestjs/common';
 import { addDays } from 'date-fns';
+import { isNonNullish, isNullish } from 'remeda';
 
-import type { TrialEligibility, TrialStanding } from '../subscription.types';
+import type { TransferTrialInput, TrialEligibility, TrialGrantLookupInput, TrialStanding } from '../subscription.types';
 
 import { AppBadRequestException } from '../../../common/exceptions';
 import { isPeriodActive } from '../../../common/lib';
 import { isPrismaRequestError, PrismaService, UNIQUE_VIOLATION } from '../../../core';
 import { trialState } from '../lib';
 import { SubscriptionService } from './subscription.service';
+import { TrialGrantService } from './trial-grant.service';
 
 @Injectable()
 export class TrialService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly subscription: SubscriptionService
+    private readonly subscription: SubscriptionService,
+    private readonly grants: TrialGrantService
   ) {}
 
   async eligibility(userId: string): Promise<TrialEligibility> {
@@ -37,7 +40,9 @@ export class TrialService {
       return { eligibility: 'emailUnverified', hasAccess };
     }
 
-    return { eligibility: trialState(user.subscription).isTrialAvailable ? 'available' : 'used', hasAccess };
+    const isAvailable = trialState(user.subscription).isTrialAvailable && !(await this.grants.isGranted({ userId }));
+
+    return { eligibility: isAvailable ? 'available' : 'used', hasAccess };
   }
 
   async claim(userId: string): Promise<SubscriptionStatus> {
@@ -56,21 +61,63 @@ export class TrialService {
     return this.subscription.getStatus(userId);
   }
 
+  async remember({ userId, db = this.prisma }: TrialGrantLookupInput): Promise<void> {
+    const subscription = await db.subscription.findUnique({ where: { userId }, select: { trialStartedAt: true } });
+
+    if (isNullish(subscription?.trialStartedAt)) {
+      return;
+    }
+
+    await this.grants.record({ userId, db, isStrict: false });
+  }
+
+  async transfer({ fromUserId, toUserId, db }: TransferTrialInput): Promise<void> {
+    const from = await db.subscription.findUnique({
+      where: { userId: fromUserId },
+      select: { trialStartedAt: true, currentPeriodEnd: true }
+    });
+
+    if (isNullish(from?.trialStartedAt)) {
+      return;
+    }
+
+    await this.grants.record({ userId: fromUserId, db, isStrict: false });
+
+    const to = await db.subscription.findUnique({
+      where: { userId: toUserId },
+      select: { trialStartedAt: true, currentPeriodEnd: true }
+    });
+
+    if (isNonNullish(to?.trialStartedAt) || isNonNullish(to?.currentPeriodEnd)) {
+      return;
+    }
+
+    const period = { trialStartedAt: from.trialStartedAt, currentPeriodEnd: from.currentPeriodEnd };
+
+    await db.subscription.upsert({
+      where: { userId: toUserId },
+      create: { userId: toUserId, plan: DEFAULT_PLAN_ID, ...period },
+      update: period
+    });
+  }
+
   private async grant(userId: string): Promise<void> {
     const startedAt = new Date();
     const period = { trialStartedAt: startedAt, currentPeriodEnd: addDays(startedAt, TRIAL_DAYS) };
 
-    const updated = await this.prisma.subscription.updateMany({
-      where: { userId, trialStartedAt: null, currentPeriodEnd: null },
-      data: period
-    });
-
-    if (updated.count > 0) {
-      return;
-    }
-
     try {
-      await this.prisma.subscription.create({ data: { userId, plan: DEFAULT_PLAN_ID, ...period } });
+      await this.prisma.$transaction(async (tx) => {
+        const updated = await tx.subscription.updateMany({
+          where: { userId, trialStartedAt: null, currentPeriodEnd: null },
+          data: period
+        });
+
+        if (updated.count === 0) {
+          await tx.subscription.create({ data: { userId, plan: DEFAULT_PLAN_ID, ...period } });
+        }
+
+        await this.grants.record({ userId, db: tx, isStrict: true });
+      });
     } catch (error) {
       if (isPrismaRequestError(error) && error.code === UNIQUE_VIOLATION) {
         return;

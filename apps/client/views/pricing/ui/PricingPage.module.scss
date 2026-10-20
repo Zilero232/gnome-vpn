@@ -80,3 +80,12 @@
   font-size: 15px;
   line-height: 1.7;
 }
+
+.trial {
+  margin: 0;
+  font-size: 15px;
+}
+
+.trialLink {
+  @include text-link(15px);
+}

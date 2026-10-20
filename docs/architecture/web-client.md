@@ -135,18 +135,86 @@ put the recommended way and the fallback side by side as equals. `ConnectCard`
 now shows a switch between "INCY app" and "WireGuard config", INCY first; the
 WireGuard side appears only with access, because creating a config needs a
 running period. The link on the INCY side that says a `.conf` is available
-flips the switch rather than navigating.
+flips the switch rather than navigating, and moves focus to the WireGuard
+panel's heading so a keyboard or screen-reader user is not left on a button
+that no longer exists.
+
+While the subscription status is still loading, Connect shows a loading block
+rather than the INCY card: the switch only appears once access is known, and
+mounting INCY first would swap the layout under the reader a moment later.
+Without access, a notice above the INCY card says the link delivers no servers
+until a free day or a subscription is active — the feed answers an account
+without access with an empty list, and someone who pasted the link and saw
+nothing had no way to know why. If the hash asks for WireGuard (`#wireguard`)
+the notice says configs need the same. Both link to `#subscription`; the link is
+a plain hash anchor, so the `hashchange` it fires is what switches the tab.
+
+**A status that failed to load is not "no access".** `useSubscriptionStatus`
+returns `isUnavailable` (an error and no data). Connect then shows a retry
+instead of the locked notice, and the Devices tab stays visible, because hiding
+the reader's devices on a network blip read as "your devices are gone".
 
 ## Account tabs follow the URL hash
 
 `AccountTabs` selects the tab named by `location.hash` and writes the hash back
 with `history.replaceState` when a tab is picked, so `/account#connect` opens
-that tab and a reload keeps it. A tab can answer to aliases as well:
-`#wireguard` opens Connect with the WireGuard side selected — `ConnectCard`
-reads the same hash and writes `#connect` or `#wireguard` as the switch moves —
-so the setup page's link and any old bookmark land on the configs. The hash is
-applied after mount and again whenever the set of tabs changes — the Devices
-tab and the WireGuard side only appear once the subscription status has
-loaded, so a hash read on mount alone would miss them. The hash is never read during render, which keeps the server and the
-first client render identical. Tab names that other pages link to live in
-`ACCOUNT_TAB` (`shared/constants`).
+that tab and a reload keeps it. A tab can answer to aliases as well: Connect
+answers to `#wireguard`, which also selects the WireGuard side, and to `#app`,
+the name of the old App tab, so old bookmarks still land. `ConnectCard` reads
+the same hash and writes `#connect` or `#wireguard` as the switch moves, so the
+setup page's link lands on the configs. The hash is applied after mount and
+again whenever the set of tabs changes — the Devices tab and the WireGuard side
+only appear once the subscription status has loaded, so a hash read on mount
+alone would miss them. The hash is never read during render, which keeps the
+server and the first client render identical. Every tab name, the aliases
+included, lives in `ACCOUNT_TAB` (`shared/constants`).
+
+On a phone the tab row is wider than the screen and scrolls sideways, with the
+edges faded to show there is more. Whenever the active tab changes, by a click
+or by the hash, its button is scrolled into view (`block` and `inline` set to
+`nearest`), so a tab opened from a link is never hidden off the edge.
+
+## Deep links survive signing in
+
+`AuthProvider` sends a signed-out reader on a private route to
+`/auth?next=<path, query and hash>`, and once a session appears on `/auth` it
+goes to that `next` instead of always `/account`. `next` is accepted only as a
+relative path on this site (`safeNextPath` resolves it against a probe origin
+and refuses anything that leaves it, `//host`, `/\host` and `/auth` itself),
+so the parameter cannot be turned into an open redirect. The Telegram widget
+sign-in follows the same `next`.
+
+The pricing and landing calls to action carry their intent in the URL:
+`/account?plan=<id>&mode=signup`. `mode=signup` is moved onto the sign-in page
+(it opens on the sign-up form) and dropped from `next`; `plan` stays in `next`
+and `PlanPicker` preselects it on mount. Both are read from `location` after
+mount, never during render, so the prerendered pages stay identical to the
+first client render. The locale switcher keeps the query and the hash for the
+same reason a deep link should: switching language is not navigating away.
+
+## The account page after a checkout
+
+`useSettlePayment` stamps the pending checkout in session storage together with
+a fingerprint of the status it was started from (period end, extra devices,
+card, renewal flag, period). `PendingCheckoutBanner` shows "waiting for YooKassa
+— do not pay twice" while the stamp is live, and `pendingOutcome` ends it: the
+status's `lastPayment` for this checkout succeeded or was cancelled, or the
+fingerprint changed. "I cancelled the payment" clears the stamp by hand. The
+status polls every three seconds only while the stamp is live and once a minute
+otherwise — an inactive account no longer polls fast forever.
+
+A paid period shows a renewal block with the plan picker (current plan
+preselected, any plan allowed — the term stacks) whenever auto-renewal is not
+actually going to run (`isAutoRenewActive`: recurring available, a card on file,
+renewal not turned off). It is highlighted in the last three days and when the
+last automatic charge was declined (`hasAutoChargeFailed`). Outside a paid
+period, when recurring is available, the plan picker says under the pay button
+that saving the card on the payment page turns auto-renewal on at that price —
+a saved card is the consent `billing.md` describes, so the page says so before
+the reader gives it.
+
+An account whose email is not confirmed sees "confirm your email to start the
+free day" with a resend button in place of the trial banner, since the trial is
+refused until the email is verified; better-auth's `sendVerificationEmail` sends
+it, and a `429` from it surfaces as its own message (`TOO_MANY_REQUESTS` in
+`unwrapAuth`) rather than a generic failure.

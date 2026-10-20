@@ -11,17 +11,16 @@ paths:
 
 # Code style — server: the 3x-ui panel
 
-## The panel does not restart its own core
+## Client changes apply live; only an inbound needs a restart
 
-`XrayClient` talks to the **3x-ui panel**, not to Xray-core. A Hysteria2 or
-VLESS client change needs an explicit `restartCore()`, or the running core never
-learns about it. WireGuard clients are applied live and need none — and must be
-re-enabled by delete and add, never `bulkEnable`, which makes the panel restart
-the whole core.
-
-That restart drops every live session on the node, so batch it: one restart at
-the end of a pass, only when a non-WireGuard client actually changed.
-`restartCore` is coalesced per node and takes a reason that is logged.
+`XrayClient` talks to the **3x-ui panel**, not to Xray-core. On v3.10.2 the
+panel pushes every client add, delete and disable for Hysteria2, VLESS and
+WireGuard into the running core through its gRPC API, and restarts the core by
+itself only when that push fails. Never call `restartCore()` after a client
+change — it drops every live session on the node. It belongs only after
+provisioning created or changed an inbound. WireGuard clients are still
+re-enabled by delete and add, never `bulkEnable`. A disabled Hysteria2 client
+keeps a QUIC session it already has until it reconnects.
 
 ## A Hysteria2 client needs its full field set
 

@@ -1,1 +1,1 @@
-export { ownerIdOf } from './orphan-owner';
+export { ownerIdOf, serverPrefixOf } from './orphan-owner';

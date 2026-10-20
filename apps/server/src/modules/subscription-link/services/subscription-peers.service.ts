@@ -2,25 +2,17 @@ import type { TunnelProtocol } from '@gnomevpn/schemas';
 
 import { TUNNEL_PROTOCOL } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
-import { isEmpty, isNonNullish, partition } from 'remeda';
+import { isEmpty, isNonNullish } from 'remeda';
 
 import type { NodeTraffic } from '../../../lib';
-import type {
-  EnsureNodeInput,
-  FeedPeer,
-  ForgetPeersInput,
-  IssueFeedPeerInput,
-  NodeTrafficInput,
-  OneNodeTrafficInput,
-  PersistPeerInput,
-  SubscriptionNode
-} from '../subscription-link.service.types';
+import type { EnsureNodeInput, FeedPeer, IssueFeedPeerInput, PersistPeerInput, SubscriptionNode } from '../subscription-link.service.types';
 
-import { describeError, xrayClientForNode } from '../../../common/lib';
+import { describeError } from '../../../common/lib';
 import { PrismaService, withSerializableRetry } from '../../../core';
-import { NO_TRAFFIC, sumTraffic } from '../../../lib';
 import { DEVICE_PEER, devicePeerName } from '../../devices';
 import { hasReality, hasWireguard, peerClientName, PeersService } from '../../peers';
+import { NODE_FEED_SELECT } from '../config';
+import { NodeTrafficService } from './node-traffic.service';
 
 @Injectable()
 export class SubscriptionPeersService {
@@ -28,8 +20,17 @@ export class SubscriptionPeersService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly peers: PeersService
+    private readonly peers: PeersService,
+    private readonly nodeTraffic: NodeTrafficService
   ) {}
+
+  availableNodes(): Promise<SubscriptionNode[]> {
+    return this.prisma.node.findMany({
+      where: { isAvailable: true },
+      orderBy: { displayOrder: 'asc' },
+      select: NODE_FEED_SELECT
+    });
+  }
 
   protocolsFor(node: SubscriptionNode): TunnelProtocol[] {
     return [
@@ -39,7 +40,14 @@ export class SubscriptionPeersService {
     ];
   }
 
-  async ensureNode({ userId, deviceId, node, canIssue, protocols = this.protocolsFor(node) }: EnsureNodeInput): Promise<FeedPeer[]> {
+  async ensureNode({
+    userId,
+    deviceId,
+    node,
+    canIssue,
+    limitIp = DEVICE_PEER.ipsPerClient,
+    protocols = this.protocolsFor(node)
+  }: EnsureNodeInput): Promise<FeedPeer[]> {
     const name = devicePeerName(deviceId);
 
     const existing = await this.prisma.peer.findMany({
@@ -53,45 +61,21 @@ export class SubscriptionPeersService {
       return existing;
     }
 
-    const issued = (await Promise.all(missing.map((protocol) => this.issue({ userId, deviceId, node, protocol })))).filter(isNonNullish);
+    const issued = await Promise.all(missing.map((protocol) => this.issue({ userId, deviceId, node, protocol, limitIp })));
 
-    if (isEmpty(issued)) {
-      return existing;
-    }
-
-    const [live, needRestart] = partition(issued, (peer) => peer.protocol === TUNNEL_PROTOCOL.wireguard);
-
-    if (isEmpty(needRestart)) {
-      return [...existing, ...live];
-    }
-
-    try {
-      await this.peers.restartCore({ node, reason: `issued ${needRestart.length} client(s) for a new device` });
-    } catch (error) {
-      this.logger.warn(`node ${node.id} did not restart after issuing, its new peers wait for the next fetch: ${describeError(error)}`);
-
-      await this.forget({ userId, name, nodeId: node.id, protocols: needRestart.map((peer) => peer.protocol) });
-
-      return [...existing, ...live];
-    }
-
-    return [...existing, ...issued];
+    return [...existing, ...issued.filter(isNonNullish)];
   }
 
-  async traffic({ userId, nodes }: NodeTrafficInput): Promise<NodeTraffic> {
+  async traffic(userId: string): Promise<NodeTraffic> {
     const peers = await this.prisma.peer.findMany({
-      where: { userId, kind: 'config', revokedAt: null, nodeId: { in: nodes.map((node) => node.id) } },
+      where: { userId, kind: 'config', revokedAt: null },
       select: { userId: true, kind: true, name: true, nodeId: true, protocol: true }
     });
 
-    const emails = new Set(peers.map((peer) => peerClientName(peer)));
-
-    const perNode = await Promise.all(nodes.map((node) => this.nodeTraffic({ node, emails })));
-
-    return sumTraffic(perNode);
+    return this.nodeTraffic.sum(peers.map((peer) => ({ nodeId: peer.nodeId, email: peerClientName(peer) })));
   }
 
-  private async issue({ userId, deviceId, node, protocol }: IssueFeedPeerInput): Promise<FeedPeer | null> {
+  private async issue({ userId, deviceId, node, protocol, limitIp }: IssueFeedPeerInput): Promise<FeedPeer | null> {
     const name = devicePeerName(deviceId);
 
     try {
@@ -101,9 +85,8 @@ export class SubscriptionPeersService {
         userId,
         kind: 'config',
         protocol,
-        limitIp: DEVICE_PEER.ipsPerClient,
+        limitIp,
         name,
-        deferRestart: true,
         persist: (peer) =>
           this.persist({ userId, deviceId, name, nodeId: node.id, protocol, nodeCredential: peer.nodeCredential, tunnelAddress: peer.address })
       });
@@ -113,22 +96,6 @@ export class SubscriptionPeersService {
       this.logger.warn(`subscription peer failed on node ${node.id} over ${protocol}: ${describeError(error)}`);
 
       return null;
-    }
-  }
-
-  private async forget({ userId, name, nodeId, protocols }: ForgetPeersInput): Promise<void> {
-    await this.prisma.peer.deleteMany({ where: { userId, kind: 'config', name, nodeId, protocol: { in: protocols } } }).catch((error: unknown) => {
-      this.logger.warn(`unrestarted peers on node ${nodeId} were not forgotten: ${describeError(error)}`);
-    });
-  }
-
-  private async nodeTraffic({ node, emails }: OneNodeTrafficInput): Promise<NodeTraffic> {
-    try {
-      return await xrayClientForNode(node).trafficFor(emails);
-    } catch (error) {
-      this.logger.warn(`traffic unavailable on node ${node.id}: ${describeError(error)}`);
-
-      return NO_TRAFFIC;
     }
   }
 

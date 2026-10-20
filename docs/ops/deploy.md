@@ -158,9 +158,11 @@ TELEGRAM_WEBHOOK_URL=https://bot.example.com
 ```
 
 Node keys are not written here. `bun run provision:nodes` puts them in a
-separate `.env.nodes` file next to `docker-compose.yml` — one pair per node:
-`XRAY_KEY_<country code>` (the name from the `node.api_token_env_var` column)
-and `XRAY_PANEL_<country code>`. The container picks up both files, so `.env`
+separate `.env.nodes` file next to `docker-compose.yml` (mode `600`) — three
+keys per node: `XRAY_KEY_<country code>` (the name from the
+`node.api_token_env_var` column), `XRAY_PANEL_<country code>` and
+`XRAY_PATH_<country code>`. Provisioning recreates the server only when the file
+changed (`docker compose up -d` compares the values it loads). The container picks up both files, so `.env`
 stays hand-written; the deploy creates an empty `.env.nodes` if none exists yet.
 To check which variables are needed:
 `SELECT country, api_token_env_var FROM node;`
@@ -252,8 +254,8 @@ secrets. Only provisioning stays on a workstation:
 - **SSH to the nodes** — root credentials per host in `nodes.json`.
 - **SSH to this VPS** — `PROVISION_SSH_*` in the workstation's root `.env`, which
   provisioning uses to ship `.env.nodes` and the node rows here.
-- **`.env.nodes`** — one `XRAY_KEY_<CC>` / `XRAY_PANEL_<CC>` pair per node,
-  written by `bun run provision:nodes` and shipped to the VPS over SSH.
+- **`.env.nodes`** — `XRAY_KEY_<CC>`, `XRAY_PANEL_<CC>` and `XRAY_PATH_<CC>` per
+  node, written by `bun run provision:nodes` and shipped to the VPS over SSH.
 
 The steps are in [provisioning-a-node.md](provisioning-a-node.md).
 

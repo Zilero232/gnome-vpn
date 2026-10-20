@@ -4,7 +4,6 @@ import type { XrayInbound } from '../inbounds';
 import type { IssueProtocolClientInput, IssueProtocolClientResult, ProtocolClient, ProtocolClientsInput } from './protocol-clients.types';
 
 import { AppServiceUnavailableException } from '../../../common/exceptions';
-import { coalesceByKey } from '../coalesce';
 import { serializeByKey } from '../serialize';
 import { readSettings } from '../xray.helpers';
 
@@ -14,25 +13,23 @@ export class ProtocolClients<TClient extends ProtocolClient> {
   async list(): Promise<TClient[]> {
     const inbound = await this.options.inbounds.get(this.options.remark);
 
-    return this.clientsOf(inbound);
+    return this.clientsIn(inbound);
   }
 
-  async create({ email, credential, limitIp, deferRestart }: IssueProtocolClientInput): Promise<IssueProtocolClientResult> {
+  async create({ email, credential, limitIp }: IssueProtocolClientInput): Promise<IssueProtocolClientResult> {
     return serializeByKey({
       key: this.options.nodeKey,
       task: async () => {
         const inbound = await this.options.inbounds.get(this.options.remark);
-        const existing = this.clientsOf(inbound).find((client) => client.email === email);
+        const existing = this.clientsIn(inbound).find((client) => client.email === email);
 
         if (existing) {
           await this.options.panel.setClientsEnabled({ emails: [email], enabled: true });
-          await this.restart(deferRestart);
 
           return { nodeCredential: this.options.credentialOf(existing) ?? credential, email };
         }
 
         await this.options.add({ inboundId: inbound.id, email, credential, limitIp });
-        await this.restart(deferRestart);
 
         return { nodeCredential: credential, email };
       }
@@ -43,7 +40,7 @@ export class ProtocolClients<TClient extends ProtocolClient> {
     return serializeByKey({ key: this.options.nodeKey, task: () => this.options.panel.deleteClient(email) });
   }
 
-  private clientsOf(inbound: XrayInbound): TClient[] {
+  clientsIn(inbound: XrayInbound): TClient[] {
     const settings = readSettings<{ clients?: TClient[] }>(inbound);
 
     if (isNullish(settings)) {
@@ -51,13 +48,5 @@ export class ProtocolClients<TClient extends ProtocolClient> {
     }
 
     return (settings.clients ?? []).filter((client) => Boolean(client?.email) && isNonNullish(this.options.credentialOf(client)));
-  }
-
-  private async restart(deferRestart?: boolean): Promise<void> {
-    if (deferRestart) {
-      return;
-    }
-
-    await coalesceByKey({ key: this.options.nodeKey, task: () => this.options.panel.restartCore() });
   }
 }

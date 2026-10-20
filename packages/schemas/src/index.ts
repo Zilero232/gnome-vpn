@@ -23,16 +23,22 @@ export type {
 export {
   bindCardResultSchema,
   buyExtraDevicesSchema,
+  CHECKOUT_LOCALES,
+  checkoutLocaleSchema,
   checkoutResultSchema,
   createCheckoutSchema,
+  DEFAULT_CHECKOUT_LOCALE,
   DEFAULT_DEVICE_LIMIT,
   DEFAULT_PLAN_ID,
   EXTRA_DEVICE_PRICE_RUB,
   extraDevicesPriceRub,
   findPlan,
+  lastPaymentSchema,
   limitsSchema,
   LOWEST_MONTHLY_RUB,
   MAX_EXTRA_DEVICES,
+  paymentKindSchema,
+  paymentStatusSchema,
   planDiscountPercent,
   planIdSchema,
   planMonthlyRub,
@@ -42,7 +48,20 @@ export {
   TRIAL_DAYS,
   webhookEventSchema
 } from './billing';
-export type { BindCardResult, BuyExtraDevicesInput, CheckoutResult, CreateCheckoutInput, Limits, Plan, PlanId, WebhookEvent } from './billing';
+export type {
+  BindCardResult,
+  BuyExtraDevicesInput,
+  CheckoutLocale,
+  CheckoutResult,
+  CreateCheckoutInput,
+  LastPayment,
+  Limits,
+  PaymentKind,
+  PaymentStatus,
+  Plan,
+  PlanId,
+  WebhookEvent
+} from './billing';
 
 export {
   CLIENT_IDS,
@@ -56,7 +75,7 @@ export {
 } from './clients';
 export type { ClientEntry, ClientId, ClientImport, ClientImportStyle, ClientLink, ClientPlatform } from './clients';
 
-export { deviceIdParamSchema, deviceListSchema, deviceSchema } from './devices';
+export { deviceIdParamSchema, deviceListSchema, deviceSchema, WIREGUARD_DEVICE_APP } from './devices';
 export type { Device, DeviceIdParam, DeviceList } from './devices';
 
 export { apiErrorCodeSchema, apiErrorSchema } from './errors';
@@ -67,10 +86,8 @@ export type { Platform, PlatformId } from './platforms';
 
 export {
   claimReferralSchema,
-  isReferralCode,
   MAX_FRIEND_DAYS,
   MAX_REFERRER_DAYS,
-  normaliseReferralCode,
   REFERRAL_CODE,
   REFERRAL_POLICY,
   REFERRAL_REWARDS,
@@ -79,6 +96,8 @@ export {
   referralReward
 } from './referrals';
 export type { ClaimReferralInput, ReferralOverview, ReferralReward } from './referrals';
+
+export { isShortCode, normaliseShortCode, SHORT_CODE } from './short-code';
 
 export { periodKindSchema, subscriptionStatusSchema } from './subscription';
 export type { PeriodKind, SubscriptionStatus } from './subscription';

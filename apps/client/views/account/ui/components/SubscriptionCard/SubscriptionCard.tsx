@@ -3,13 +3,13 @@
 import { useTranslations } from 'next-intl';
 import { match, P } from 'ts-pattern';
 
-import { AutoRenewControl, PlanPicker } from '@/features/billing/checkout';
-import { TrialBanner } from '@/features/billing/claim-trial';
+import { hasAutoChargeFailed, isAutoRenewActive } from '@/entities/billing/subscription';
+import { AutoRenewControl, PendingCheckoutBanner, PlanPicker, RenewPanel } from '@/features/billing/checkout';
 import { ErrorBlock, LoadingBlock, Text } from '@/ui-kit';
 
 import type { SubscriptionCardProps } from './SubscriptionCard.types';
 
-import { SubscriptionHero } from './components';
+import { SubscriptionHero, SubscriptionInactive } from './components';
 
 import s from './SubscriptionCard.module.scss';
 
@@ -18,7 +18,7 @@ export const SubscriptionCard = ({ subscription, isLoading, isError, onRetry }: 
 
   const isUnavailable = isError && !subscription;
 
-  return match({ isLoading, isUnavailable, subscription })
+  const content = match({ isLoading, isUnavailable, subscription })
     .with({ isLoading: true }, () => <LoadingBlock label={t('loading')} />)
     .with({ isUnavailable: true }, () => <ErrorBlock message={t('unavailable')} retryLabel={t('retry')} onRetry={onRetry} />)
     .with({ subscription: P.select({ period: 'paid' }) }, (paid) => (
@@ -26,6 +26,8 @@ export const SubscriptionCard = ({ subscription, isLoading, isError, onRetry }: 
         <SubscriptionHero subscription={paid} />
 
         <AutoRenewControl subscription={paid} />
+
+        {!isAutoRenewActive(paid) && <RenewPanel hasChargeFailed={hasAutoChargeFailed(paid)} subscription={paid} />}
       </>
     ))
     .with({ subscription: P.select({ period: 'trial' }) }, (trial) => (
@@ -41,20 +43,13 @@ export const SubscriptionCard = ({ subscription, isLoading, isError, onRetry }: 
         </div>
       </>
     ))
-    .otherwise(() => (
-      <>
-        <div className={s.pitch}>
-          <Text>{t('inactive')}</Text>
-          <Text size='xs' tone='muted'>
-            {t('pitch')}
-          </Text>
-        </div>
+    .otherwise(() => <SubscriptionInactive subscription={subscription} />);
 
-        {subscription?.isTrialAvailable && <TrialBanner />}
+  return (
+    <>
+      <PendingCheckoutBanner />
 
-        <div className={s.picker}>
-          <PlanPicker />
-        </div>
-      </>
-    ));
+      {content}
+    </>
+  );
 };

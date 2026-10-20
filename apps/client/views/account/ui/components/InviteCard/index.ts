@@ -1,1 +1,0 @@
-export { InviteCard } from './InviteCard';

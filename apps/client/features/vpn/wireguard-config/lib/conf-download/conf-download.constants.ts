@@ -1,1 +1,4 @@
-export const CONF_MIME = 'text/plain;charset=utf-8';
+export const CONF_DOWNLOAD = {
+  mime: 'application/octet-stream',
+  revokeDelayMs: 1000
+} as const;

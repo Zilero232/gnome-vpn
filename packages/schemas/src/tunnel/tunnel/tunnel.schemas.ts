@@ -12,7 +12,7 @@ export const realityConfigSchema = z.object({
   serviceName: z.string().default('')
 });
 
-export const wireguardConfigSchema = z.object({
+export const wireguardEndpointSchema = z.object({
   publicKey: z.string().min(1),
   address: z.string().min(1),
   mtu: z.number().int().positive()
@@ -29,7 +29,7 @@ export const tunnelConfigSchema = z
     certFingerprint: z.string().default(''),
     dns: z.array(z.string().min(1)),
     reality: realityConfigSchema.optional(),
-    wireguard: wireguardConfigSchema.optional()
+    wireguard: wireguardEndpointSchema.optional()
   })
   .refine(
     (config) =>

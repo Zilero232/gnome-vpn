@@ -1,6 +1,7 @@
 import { extraDevicesPriceRub, MAX_EXTRA_DEVICES } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
-import { isNullish } from 'remeda';
+import { isNonNullish, isNullish } from 'remeda';
+import { match } from 'ts-pattern';
 
 import type { BotContext, BotMessage, DevicesViewInput, RemovalInput } from '../telegram.types';
 
@@ -86,6 +87,12 @@ export class TelegramDevicesService {
   }
 
   async buyDevices(ctx: BotContext): Promise<void> {
+    if (!this.shared.claimCheckout(ctx)) {
+      await this.shared.acknowledge({ ctx, text: this.shared.textFor(ctx).checkoutWait });
+
+      return;
+    }
+
     await this.shared.answered({
       ctx,
       prefix: CALLBACK_PREFIX.devices,
@@ -100,15 +107,20 @@ export class TelegramDevicesService {
         this.shared.typing(ctx);
 
         try {
-          const { confirmationUrl } = await this.checkout.buyExtraDevices({ userId: chat.userId, quantity });
+          const { confirmationUrl } = await this.checkout.buyExtraDevices({ userId: chat.userId, quantity, returnUrl: this.shared.returnUrl() });
           const amount = String(extraDevicesPriceRub(quantity));
           const intro = fillText({ text: text.devicesIntro, fill: { count: String(quantity), amount } });
           const label = fillLabel({ text: text.checkoutButton, fill: { amount } });
 
           return this.shared.reply({ ctx, chat, ...urlMessage({ intro, url: confirmationUrl, label, style: 'success' }) });
         } catch (error) {
-          if (errorCodeOf(error) === 'EXTRA_DEVICES_LIMIT') {
-            return this.shared.reply({ ctx, chat, text: text.devicesFull });
+          const refusal = match(errorCodeOf(error))
+            .with('EXTRA_DEVICES_LIMIT', () => text.devicesFull)
+            .with('SUBSCRIPTION_REQUIRED', () => text.devicesNeedPaid)
+            .otherwise(() => null);
+
+          if (isNonNullish(refusal)) {
+            return this.shared.edit({ ctx, ...(await this.view({ chat, notice: refusal })) });
           }
 
           this.logger.warn(`telegram extra devices failed: ${describeError(error)}`);

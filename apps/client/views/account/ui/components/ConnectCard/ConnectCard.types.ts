@@ -1,5 +1,10 @@
-export type ConnectWay = 'incy' | 'wireguard';
+import type { CONNECT_WAY_HASH } from './ConnectCard.constants';
+
+export type ConnectWay = keyof typeof CONNECT_WAY_HASH;
 
 export type ConnectCardProps = {
-  hasWireguard: boolean;
+  hasAccess: boolean;
+  isLoading: boolean;
+  isUnavailable: boolean;
+  onRetry: () => void;
 };

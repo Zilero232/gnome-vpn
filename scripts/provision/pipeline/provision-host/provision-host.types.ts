@@ -7,6 +7,7 @@ export type ProvisionResult = {
   country: string;
   status: ProvisionStatus;
   error?: string;
+  lostCert?: boolean;
   lostRealityKeys?: boolean;
   lostWireguardKeys?: boolean;
 };

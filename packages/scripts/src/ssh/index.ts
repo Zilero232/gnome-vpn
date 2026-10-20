@@ -1,3 +1,3 @@
 export { SshClient } from './ssh';
 
-export type { SshConnectOptions, SshExecResult, SshPutFileInput } from './ssh.types';
+export type { SshCommand, SshConnectOptions, SshExecInput, SshExecResult, SshPutFileInput } from './ssh.types';

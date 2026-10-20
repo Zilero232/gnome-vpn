@@ -11,4 +11,5 @@ export type ConfirmDialogProps = {
   className?: string;
   onOpenChange: (isOpen: boolean) => void;
   onConfirm: () => void;
+  onOpenChangeComplete?: (isOpen: boolean) => void;
 };

@@ -8,6 +8,7 @@
   "linkSite": "Through the site",
   "linkBot": "Through the Telegram bot",
   "copy": "Copy the link",
+  "copyField": "Copy the link ({label})",
   "copied": "Link copied",
   "copyFailed": "Could not copy — select the link by hand",
   "shareText": "I use GnomeVPN — a fast VPN with no speed limits. Take my link and get bonus days on your first payment.",
@@ -40,7 +41,7 @@
   "pending": "{days, plural, one {# more day waits} other {# more days wait}} for your next payment — you have no paid period to add them to right now.",
   "referred": "A friend invited you — the bonus days come with your first payment.",
   "claimTitle": "Got a code from a friend?",
-  "claimHint": "Enter it before your first payment to get bonus days.",
+  "claimHint": "A code can be entered within {days, plural, one {# day} other {# days}} of signing up and before your first payment — the bonus days are then added to it.",
   "claimLabel": "Invite code",
   "claimSubmit": "Apply",
   "claimed": "Invite accepted — the bonus days come with your first payment",
@@ -55,5 +56,7 @@
     "vk": "VK",
     "email": "Email"
   },
-  "share": "Share"
+  "share": "Share",
+  "referredRewarded": "Your friend's invite added +{days, plural, one {# day} other {# days}} to your subscription.",
+  "pendingRefused": "The invite from your link did not apply"
 }

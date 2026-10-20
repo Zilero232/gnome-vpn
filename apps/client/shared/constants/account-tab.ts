@@ -1,4 +1,10 @@
 export const ACCOUNT_TAB = {
+  subscription: 'subscription',
   connect: 'connect',
-  wireguard: 'wireguard'
+  devices: 'devices',
+  invite: 'invite',
+  profile: 'profile',
+  telegram: 'telegram',
+  wireguard: 'wireguard',
+  app: 'app'
 } as const;

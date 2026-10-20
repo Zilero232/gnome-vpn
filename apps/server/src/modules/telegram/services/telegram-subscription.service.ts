@@ -15,6 +15,7 @@ import {
   fillText,
   linkMessage,
   menuButtons,
+  noAccessMessage,
   offerKeys,
   parsePlanId,
   planKeyboard,
@@ -61,7 +62,7 @@ export class TelegramSubscriptionService {
         const status = await this.subscription.getStatus(chat.userId);
 
         if (status.period === 'none') {
-          return this.shared.reply({ ctx, chat, text: text.noSubscription, markup: menuButtons({ locale: chat.locale, keys: offerKeys(status) }) });
+          return this.shared.reply({ ctx, chat, ...noAccessMessage({ status, locale: chat.locale }) });
         }
 
         const { url } = await this.subscriptionLink.get(chat.userId);
@@ -74,7 +75,11 @@ export class TelegramSubscriptionService {
   async buy(ctx: BotContext): Promise<void> {
     await this.shared.withUser({
       ctx,
-      act: ({ locale }) => ctx.reply(plansText(locale), { reply_markup: planKeyboard(locale) })
+      act: async ({ userId, locale }) => {
+        const { period } = await this.subscription.getStatus(userId);
+
+        return ctx.reply(plansText({ locale, isExtending: period === 'paid' }), { reply_markup: planKeyboard(locale) });
+      }
     });
   }
 
@@ -83,19 +88,28 @@ export class TelegramSubscriptionService {
       ctx,
       act: async (chat) => {
         const text = BOT_TEXT[chat.locale];
-        const eligibility = await this.trial.eligibility(chat.userId);
+        const { eligibility, hasAccess } = await this.trial.standing(chat.userId);
 
-        const refusal = match(eligibility)
-          .with('emailUnverified', () => text.trialNeedsEmail)
-          .with('used', () => text.trialUnavailable)
-          .with('available', () => null)
+        const refusal = match({ eligibility, hasAccess })
+          .with({ hasAccess: true }, () => text.trialHasAccess)
+          .with({ eligibility: 'emailUnverified' }, () => text.trialNeedsEmail)
+          .with({ eligibility: 'used' }, () => text.trialUnavailable)
+          .with({ eligibility: 'available' }, () => null)
           .exhaustive();
 
         if (refusal) {
           return this.shared.reply({ ctx, chat, text: refusal });
         }
 
-        await this.trial.claim(chat.userId);
+        try {
+          await this.trial.claim(chat.userId);
+        } catch (error) {
+          if (errorCodeOf(error) === 'TRIAL_ALREADY_USED') {
+            return this.shared.reply({ ctx, chat, text: text.trialUnavailable });
+          }
+
+          throw error;
+        }
 
         return this.shared.reply({ ctx, chat, text: text.trialGranted, effect: MESSAGE_EFFECT.celebrate });
       }
@@ -103,6 +117,12 @@ export class TelegramSubscriptionService {
   }
 
   async startCheckout(ctx: BotContext): Promise<void> {
+    if (!this.shared.claimCheckout(ctx)) {
+      await this.shared.acknowledge({ ctx, text: this.shared.textFor(ctx).checkoutWait });
+
+      return;
+    }
+
     await this.shared.answered({
       ctx,
       prefix: CALLBACK_PREFIX.plan,
@@ -117,17 +137,13 @@ export class TelegramSubscriptionService {
         this.shared.typing(ctx);
 
         try {
-          const { confirmationUrl } = await this.checkout.createCheckout({ userId: chat.userId, planId });
+          const { confirmationUrl } = await this.checkout.createCheckout({ userId: chat.userId, planId, returnUrl: this.shared.returnUrl() });
           const amount = String(findPlan(planId).priceRub);
           const intro = fillText({ text: text.checkoutIntro, fill: { plan: planLabel({ planId, locale: chat.locale }), amount } });
           const label = fillLabel({ text: text.checkoutButton, fill: { amount } });
 
           return this.shared.edit({ ctx, ...urlMessage({ intro, url: confirmationUrl, label, style: 'success' }) });
         } catch (error) {
-          if (errorCodeOf(error) === 'PLAN_CHANGE_LOCKED') {
-            return this.shared.reply({ ctx, chat, text: text.planChangeLocked });
-          }
-
           this.logger.warn(`telegram checkout failed: ${describeError(error)}`);
 
           return this.shared.reply({ ctx, chat, text: text.failed });

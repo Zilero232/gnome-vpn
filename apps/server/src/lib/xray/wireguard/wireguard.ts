@@ -8,7 +8,7 @@ import type { CreateWireguardClientInput, CreateWireguardClientResult, ReaddInpu
 import { AppServiceUnavailableException } from '../../../common/exceptions';
 import { serializeByKey } from '../serialize';
 import { readSettings } from '../xray.helpers';
-import { WIREGUARD_INBOUND_REMARK, WIREGUARD_KEEP_ALIVE } from './wireguard.constants';
+import { WIREGUARD_INBOUND } from './wireguard.constants';
 import { addressOf, hostRoute } from './wireguard.helpers';
 
 export class WireguardClients {
@@ -23,21 +23,21 @@ export class WireguardClients {
   }
 
   async hasInbound(): Promise<boolean> {
-    return Boolean(await this.inbounds.find(WIREGUARD_INBOUND_REMARK));
+    return Boolean(await this.inbounds.find(WIREGUARD_INBOUND.remark));
   }
 
   async list(): Promise<WireguardClient[]> {
-    const inbound = await this.inbounds.find(WIREGUARD_INBOUND_REMARK);
+    const inbound = await this.inbounds.find(WIREGUARD_INBOUND.remark);
 
-    return inbound ? this.clientsOf(inbound) : [];
+    return inbound ? this.clientsIn(inbound) : [];
   }
 
   async create({ email, privateKey, publicKey, limitIp, address }: CreateWireguardClientInput): Promise<CreateWireguardClientResult> {
     return serializeByKey({
       key: this.nodeKey,
       task: async () => {
-        const inbound = await this.inbounds.get(WIREGUARD_INBOUND_REMARK);
-        const existing = this.clientsOf(inbound).find((client) => client.email === email);
+        const inbound = await this.inbounds.get(WIREGUARD_INBOUND.remark);
+        const existing = this.clientsIn(inbound).find((client) => client.email === email);
         const existingAddress = addressOf(existing);
 
         if (existing?.enable !== false && existing?.privateKey && existingAddress) {
@@ -56,12 +56,15 @@ export class WireguardClients {
           privateKey,
           publicKey,
           limitIp,
-          keepAlive: WIREGUARD_KEEP_ALIVE,
+          keepAlive: WIREGUARD_INBOUND.keepAlive,
           ...(wanted && { allowedIPs: [hostRoute(wanted)] })
         });
 
-        const added = this.clientsOf(await this.inbounds.get(WIREGUARD_INBOUND_REMARK)).find((client) => client.email === email);
-        const assigned = addressOf(added);
+        const assigned = await this.assignedAddress(email).catch(async (error: unknown) => {
+          await this.panel.deleteClient(email).catch(() => undefined);
+
+          throw error;
+        });
 
         if (isNullish(assigned)) {
           await this.panel.deleteClient(email);
@@ -82,15 +85,21 @@ export class WireguardClients {
     await serializeByKey({
       key: this.nodeKey,
       task: async () => {
-        const inbound = await this.inbounds.get(WIREGUARD_INBOUND_REMARK);
+        const inbound = await this.inbounds.get(WIREGUARD_INBOUND.remark);
         const wanted = new Set(emails);
-        const disabled = this.clientsOf(inbound).filter((client) => wanted.has(client.email) && client.enable === false);
+        const disabled = this.clientsIn(inbound).filter((client) => wanted.has(client.email) && client.enable === false);
 
         for (const client of disabled) {
           await this.readd({ inboundId: inbound.id, client });
         }
       }
     });
+  }
+
+  private async assignedAddress(email: string): Promise<string | null> {
+    const inbound = await this.inbounds.get(WIREGUARD_INBOUND.remark);
+
+    return addressOf(this.clientsIn(inbound).find((client) => client.email === email));
   }
 
   private async readd({ inboundId, client }: ReaddInput): Promise<void> {
@@ -108,12 +117,12 @@ export class WireguardClients {
       privateKey: client.privateKey,
       publicKey: client.publicKey,
       limitIp: client.limitIp ?? 0,
-      keepAlive: WIREGUARD_KEEP_ALIVE,
+      keepAlive: WIREGUARD_INBOUND.keepAlive,
       ...(address && { allowedIPs: [hostRoute(address)] })
     });
   }
 
-  private clientsOf(inbound: XrayInbound): WireguardClient[] {
+  clientsIn(inbound: XrayInbound): WireguardClient[] {
     const settings = readSettings<{ clients?: (WireguardClient | null)[] }>(inbound);
 
     if (isNullish(settings)) {

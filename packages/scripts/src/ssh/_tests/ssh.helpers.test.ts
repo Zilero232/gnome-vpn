@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { failureOf } from '../ssh.helpers';
+import { failureOf, isAuthFailure } from '../ssh.helpers';
 
 describe('failureOf', () => {
   it('names the exit code, so a signal is not mistaken for an ordinary failure', () => {
@@ -17,5 +17,19 @@ describe('failureOf', () => {
 
   it('still says something when the command printed nothing', () => {
     expect(failureOf({ stdout: '', stderr: '', exitCode: 1 })).toContain('no output');
+  });
+});
+
+describe('isAuthFailure', () => {
+  it('recognises a rejected login, which no retry will fix', () => {
+    expect(isAuthFailure(Object.assign(new Error('All configured authentication methods failed'), { level: 'client-authentication' }))).toBe(true);
+  });
+
+  it('leaves a network failure to be retried', () => {
+    expect(isAuthFailure(Object.assign(new Error('connect ETIMEDOUT'), { level: 'client-socket' }))).toBe(false);
+  });
+
+  it('does not trip on something that is not an error', () => {
+    expect(isAuthFailure('client-authentication')).toBe(false);
   });
 });

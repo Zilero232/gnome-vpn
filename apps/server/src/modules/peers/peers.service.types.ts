@@ -20,7 +20,6 @@ export type IssuePeerInput = {
   protocol: TunnelProtocol;
   limitIp: number;
   name?: string;
-  deferRestart?: boolean;
 };
 
 export type IssueAndPersistInput = IssuePeerInput & {
@@ -47,11 +46,6 @@ export type DeleteClientInput = {
 export type DiscardPeerInput = {
   node: NodeAccess;
   email: string;
-};
-
-export type RestartCoreInput = {
-  node: NodeAccess;
-  reason: string;
 };
 
 export type SetPeerEnabledInput = {

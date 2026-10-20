@@ -1,0 +1,26 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 8px;
+
+  @include below(md) {
+    flex-direction: column;
+  }
+}
+
+.action {
+  min-width: 0;
+  height: auto;
+  min-height: 50px;
+  flex: 1 1 0;
+  padding-block: 10px;
+  text-align: center;
+  white-space: normal;
+
+  @include below(md) {
+    flex: 0 0 auto;
+  }
+}

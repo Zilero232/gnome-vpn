@@ -1,1 +1,1 @@
-export { referralFromUrl, rememberReferral } from './referral-cookie';
+export { rememberReferral } from './referral-cookie';

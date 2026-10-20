@@ -1,3 +1,3 @@
-export { seedKeyFilesScript } from './key-files';
+export { ensureRealityKeys, ensureWireguardKeys } from './key-files';
 
-export type { KeyFileSeed, SeedKeyFilesScriptInput } from './key-files.types';
+export type { EnsuredRealityKeys, EnsuredWireguardKeys } from './key-files.types';

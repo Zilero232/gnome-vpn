@@ -1,0 +1,60 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.list {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+
+  @include below(sm) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.option {
+  min-width: 0;
+  gap: 12px;
+}
+
+.text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.name {
+  color: var(--color-text);
+  font-size: var(--step-sm);
+  font-weight: 600;
+
+  @include truncate;
+}
+
+.city {
+  color: var(--color-text-muted);
+  font-size: var(--step-xs);
+
+  @include truncate;
+}
+
+.down {
+  color: var(--color-danger);
+  font-size: var(--step-xs);
+
+  @include truncate;
+}

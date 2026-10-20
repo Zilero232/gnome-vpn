@@ -1,15 +1,14 @@
-import pWaitFor from 'p-wait-for';
+import pWaitFor, { TimeoutError } from 'p-wait-for';
 
-import type { PanelSession, PanelUrlInput, StartPanelInput, WaitForPanelInput } from './panel-session.types';
+import type { OpenPanelSessionInput, PanelSession, PanelUrlInput, WaitForPanelApiInput } from './panel-session.types';
 
 import { log, PORTS } from '../../config';
-import { configurePanel } from '../panel-config';
 import { isPanelReachable } from '../xray-panel';
 import { PANEL_HEALTH } from './panel-session.constants';
 
 const panelUrl = ({ host, panelPath }: PanelUrlInput) => `http://${host}:${PORTS.panel}/${panelPath}`;
 
-const waitForPanel = async (credentials: WaitForPanelInput): Promise<boolean> => {
+const waitForPanelApi = async (credentials: WaitForPanelApiInput): Promise<boolean> => {
   try {
     await pWaitFor(() => isPanelReachable(credentials), {
       timeout: PANEL_HEALTH.timeoutMs,
@@ -17,18 +16,21 @@ const waitForPanel = async (credentials: WaitForPanelInput): Promise<boolean> =>
     });
 
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    if (error instanceof TimeoutError) {
+      return false;
+    }
+
+    throw error;
   }
 };
 
-export const startPanel = async ({ ssh, host, password, panelPath, knownToken }: StartPanelInput): Promise<PanelSession> => {
-  const token = await configurePanel({ ssh, password, panelPath, knownToken });
+export const openPanelSession = async ({ host, panelPath, token }: OpenPanelSessionInput): Promise<PanelSession> => {
   const baseUrl = panelUrl({ host, panelPath });
 
   log.step('waiting for the panel api');
 
-  if (!(await waitForPanel({ baseUrl, token }))) {
+  if (!(await waitForPanelApi({ baseUrl, token }))) {
     throw new Error('the panel never answered the api');
   }
 

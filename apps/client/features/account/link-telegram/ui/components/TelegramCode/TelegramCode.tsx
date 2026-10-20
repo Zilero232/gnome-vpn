@@ -2,6 +2,7 @@ import { Copy, Send } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
+import { writeClipboard } from '@/shared/lib';
 import { buttonVariants, Text } from '@/ui-kit';
 
 import type { TelegramCodeProps } from './TelegramCode.types';
@@ -15,7 +16,7 @@ export const TelegramCode = ({ bot, code }: TelegramCodeProps) => {
 
   const onCopy = async () => {
     try {
-      await navigator.clipboard.writeText(code);
+      await writeClipboard(code);
     } catch {
       toast.error(t('copyFailed'));
 

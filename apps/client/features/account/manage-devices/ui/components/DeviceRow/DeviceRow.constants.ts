@@ -1,1 +1,4 @@
-export const LAST_SEEN_TICK_MS = 60_000;
+export const LAST_SEEN = {
+  tickMs: 60_000,
+  activeWithinMinutes: 3
+} as const;

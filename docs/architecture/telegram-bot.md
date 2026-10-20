@@ -28,12 +28,29 @@ the sign-in links, `TelegramProfileService` announces the bot to Telegram,
 what every handler needs — resolving the chat, picking the locale, replying with
 the keyboard — rather than each of them repeating it.
 
-**Telegram is a way in, not only a way back.** `/start` from an unknown chat —
-like any command or button that needs a user — creates the account itself — `ensureChat` mints a `User` through
+**Telegram is a way in, not only a way back.** `/start` from an unknown chat
+creates the account itself — `ensureChat` mints a `User` through
 `IdentityService.createFromTelegram`, which calls better-auth's
 `internalAdapter.createUser` and so runs the database hook that creates the
 `Subscription`, then writes the `TelegramAccount` row. Nobody has to visit the
 site first, and nobody has to link anything.
+
+**Only four doors call `ensureChat`: `/start`, a `ref_` arrival, a link code and
+the login widget.** Every other command and button resolves the chat with
+`findChat` and, for a chat it does not know, answers `notLinked` with
+`remove_keyboard`. Before this, any press from an unlinked chat — an old
+keyboard left over after `/unlink`, a stale inline button — silently minted a
+fresh, empty account and carried on as if it were the reader's. `ensureChat`
+reports `isNew`, so `/start` greets a new account with the long `start` text and
+everyone else with a short `welcomeBack`; a linked code answers `linked` alone.
+
+**The bot answers only in a private chat.** Every handler is registered on
+`bot.chatType('private')`. In a group the `/start` command and the bot being
+added (`my_chat_member`, read by `isGroupJoin`) get one `groupOnly` reply with a
+button to the private chat, and nothing else: the subscription link and the
+one-time sign-in link are secrets, a group would show them to everyone, and an
+anonymous admin arrives as the same `GroupAnonymousBot` user for every admin. A
+stray inline press from a group is acknowledged and dropped.
 
 **`User.email` stays required, and a Telegram-born account gets a placeholder.**
 The column is required in better-auth's _core_ schema, not in the
@@ -54,8 +71,14 @@ once-only guarantee still rests where it always did, on the `Subscription` row.
 on the site and then sends the bot their code would otherwise be told the chat
 belongs to another account — their own, created seconds earlier by `/start`.
 `consumeCode` therefore deletes the Telegram-born user when it is untouched:
-placeholder email, no trial taken, no period. A user with either is never
-deleted, and the refusal stands.
+placeholder email, no period other than a trial, no bonus days, no referrals
+made and no payment that is not `canceled` — an abandoned checkout is not a
+purchase. A trial-only account is merged: `TrialService.transfer` carries the
+trial (and its grant) over to the site account inside the same transaction,
+and the bot account's peers are released on their nodes after it commits.
+Anything more is never deleted, and the refusal stands — its copy
+(`alreadyLinked`) says how to proceed: unlink the chat from the other account,
+then send the same code again, which the rolled-back claim left valid.
 
 **`/website` hands out a one-time link rather than a password.** The bot has no
 password to give, so `TelegramWebLogin` stores a 32-byte code for ten minutes and
@@ -75,6 +98,12 @@ refused before anything is verified.
 **Unlinking is refused while the chat is the only way in.** For an account with a
 placeholder email, removing the chat would leave a paid subscription nothing can
 open, so `askUnlink` says so instead of asking to confirm.
+
+**An unlink says goodbye before the row goes.** `TelegramLinkService.unlink` —
+reached from the bot and from the site's `DELETE /telegram` alike — sends
+`unlinked` with `remove_keyboard` through `TelegramNotifyService.farewell` first,
+so the chat is not left with a keyboard whose every press would now answer
+`notLinked`.
 
 **The link is a code, not an OAuth flow.** The account page issues a short code,
 the reader retypes it into the bot, and the bot exchanges it for the user id.
@@ -285,7 +314,31 @@ device registry: a device added, a device refused at the limit, devices cut by
 a smaller limit, the shared keys retired ([devices.md](devices.md)).
 
 A caller names the notice (`notice: 'paid'`), not the string, and `NOTICES`
-says what each one carries. The two that change which buttons apply — `paid`
+says what each one carries. `paid` and `renewed` set `refreshHint`: when the
+account has devices, the message ends with a line telling the reader to refresh
+the subscription in the app if the servers did not appear. A WireGuard config
+is announced as `wireguardAdded`, which does not suggest `/rotate` — the link
+has nothing to do with a config made on the site.
+
+**`tell` is a fan-out, not only a Telegram message.** Someone who never linked
+Telegram would otherwise learn nothing about a charge, a failed card or an
+ending period. `NoticeEmailService` sends the money and access notices —
+`paid`, `renewed`, `renewSoon` (before every automatic charge, which the law
+expects us to announce), `chargeFailed`, `endingSoon`, `trialEndingSoon`,
+`expired` — to a verified, real address, whether or not a chat is linked. The
+copy is its own (`lib/email/locales`), because the bot's text points at bot
+buttons; the locale is `user.locale`, then the linked chat's, then Russian.
+Every failure is logged and swallowed, like the Telegram half.
+
+**`user.locale` is the site's language, remembered.** The site's auth client
+sends `x-locale` (the page's `<html lang>`) with every better-auth call, and an
+after-hook on sign-up, sign-in and `get-session` stores it whenever it differs —
+so a reader who switches the site to English gets English mail from then on.
+Sign-up without the header falls back to `Accept-Language`, which is what the
+site's own detection uses. The auth emails (verification, reset, email change)
+read the header of the request that triggered them first, then `user.locale`,
+and their callback URLs carry the locale prefix (`/en/account`), so the click
+lands on the page in the language the mail was written in. The two that change which buttons apply — `paid`
 and `expired` — carry the reply keyboard rebuilt from the current state; every
 other notice carries the one button that answers it (renew on a declined card
 or an ending period, devices on a registry change, auto-charge on a renewal).
@@ -296,6 +349,17 @@ an effect Telegram no longer knows falls back like broken markup does.
 It lives in `TelegramNotifyModule`, which imports only `SubscriptionModule` —
 `BillingModule` and the scheduler import that rather than the whole
 `TelegramModule`, which imports billing back.
+
+**A payment started in the bot returns to the bot.** `createCheckout` and
+`buyExtraDevices` get `returnUrl: https://t.me/<bot>`; the site's `/account`
+would ask a Telegram-born reader to sign in to an account they have no password
+for. Creating a payment is throttled per Telegram user (`CHECKOUT.throttleMs`),
+in memory — billing reuses a pending payment anyway, this only stops a
+double-tap from making two YooKassa calls. A refused press answers
+`checkoutWait` on the button itself. During a paid period `/buy` says the new
+term is added to the current one (`choosePlanStacked`); a stale extra-places
+press answers `devicesNeedPaid` or `devicesFull` over the list, and a stale
+auto-renewal press without a card simply re-renders the panel.
 
 **Both of its consumers import the files directly, never `telegram` or
 `telegram/services`.** Either barrel re-exports a service that injects
@@ -343,7 +407,9 @@ Telegram account is a second door to one subscription rather than a second
 subscription.
 
 **A message is read as a link code only when it is shaped like one.** Anything
-else a reader types gets the help text. Without `looksLikeLinkCode`, every
+else a reader types gets the help text. The shape is `SHORT_CODE` in
+`packages/schemas` — the same alphabet, length and `isShortCode` check as an
+invite code, minted by one `generateShortCode`. Without that check, every
 stray message became a database claim attempt — a free guessing oracle across
 every live code at once, and updates from Telegram never pass the per-IP
 throttler because they all arrive from Telegram.
@@ -363,7 +429,9 @@ nothing but a UUID, so a crafted device id never reaches a query.
 **Every callback handler unwraps the press the same way**, so
 `TelegramSharedService.answered` does it once: read the sender, acknowledge the
 press so the client stops spinning, resolve the chat, hand the handler the
-value. `confirmed` builds on it for the yes/no presses that `ask` renders, and
+value. The acknowledgement (`acknowledge`) swallows its own failure — a press
+answered after a slow handler gets "query is too old", and that must not cost
+the reader the answer itself. `confirmed` builds on it for the yes/no presses that `ask` renders, and
 `withUser` is the same unwrap for a typed command.
 
 **A callback payload is matched on an escaped prefix.** `callbackPattern` builds

@@ -6,5 +6,5 @@
   "passwordsMismatch": "Passwords do not match",
   "required": "This field is required",
   "referralCodeInvalid": "An 8-character code of letters and digits",
-  "wireguardNameMax": "No longer than 24 characters"
+  "wireguardNameMax": "No longer than {wireguardNameMax, plural, one {# character} other {# characters}}"
 }

@@ -1,7 +1,7 @@
 import { ShieldCheck } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-import { ROUTES } from '@/shared/constants';
+import { AUTH_MODE, QUERY_PARAMS, ROUTES } from '@/shared/constants';
 import { Link } from '@/shared/i18n/navigation';
 import { buttonVariants, Text } from '@/ui-kit';
 
@@ -25,7 +25,10 @@ export const Guarantee = () => {
         </Text>
       </div>
 
-      <Link className={buttonVariants({ size: 'md', class: s.cta })} href={ROUTES.account}>
+      <Link
+        className={buttonVariants({ size: 'md', class: s.cta })}
+        href={{ pathname: ROUTES.account, query: { [QUERY_PARAMS.mode]: AUTH_MODE.signup } }}
+      >
         {t('cta')}
       </Link>
     </div>

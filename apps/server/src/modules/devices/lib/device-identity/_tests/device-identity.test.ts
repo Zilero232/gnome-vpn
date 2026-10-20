@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { deviceIdentity } from '../device-identity';
+import { deviceIdentity, isKeylessIncy } from '../device-identity';
 
 const HWID = '270dd26e-160d-4257-b8ac-654800e12f24';
 
@@ -60,5 +60,19 @@ describe('deviceIdentity', () => {
 
   it('reads the first value of a repeated header', () => {
     expect(deviceIdentity({ 'x-device-model': ['Pixel 8', 'other'] }).model).toBe('Pixel 8');
+  });
+});
+
+describe('isKeylessIncy', () => {
+  it('flags INCY with HWID sending switched off', () => {
+    expect(isKeylessIncy(deviceIdentity({ 'user-agent': 'INCY/2.4.1/Android' }))).toBe(true);
+  });
+
+  it('leaves INCY that sends its hardware id alone', () => {
+    expect(isKeylessIncy(deviceIdentity({ 'user-agent': 'INCY/2.4.1/Android', 'x-hwid': HWID }))).toBe(false);
+  });
+
+  it('leaves other apps alone, they never send one', () => {
+    expect(isKeylessIncy(deviceIdentity({ 'user-agent': 'Hiddify/2.5.7' }))).toBe(false);
   });
 });

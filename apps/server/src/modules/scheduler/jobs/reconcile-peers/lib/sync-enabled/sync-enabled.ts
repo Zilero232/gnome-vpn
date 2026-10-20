@@ -4,7 +4,7 @@ import type { SyncEnabledInput } from './sync-enabled.types';
 
 import { peerClientName } from '../../../../../peers';
 
-export const syncEnabled = async ({ xray, peers, nodeClients }: SyncEnabledInput): Promise<boolean> => {
+export const syncEnabled = async ({ xray, peers, nodeClients }: SyncEnabledInput): Promise<number> => {
   const toEnable: string[] = [];
   const toDisable: string[] = [];
 
@@ -27,13 +27,10 @@ export const syncEnabled = async ({ xray, peers, nodeClients }: SyncEnabledInput
   }
 
   if (isEmpty(toEnable) && isEmpty(toDisable)) {
-    return false;
+    return 0;
   }
 
-  const restarts = await Promise.all([
-    xray.setClientsEnabled({ emails: toEnable, enabled: true }),
-    xray.setClientsEnabled({ emails: toDisable, enabled: false })
-  ]);
+  await Promise.all([xray.setClientsEnabled({ emails: toEnable, enabled: true }), xray.setClientsEnabled({ emails: toDisable, enabled: false })]);
 
-  return restarts.some(Boolean);
+  return toEnable.length + toDisable.length;
 };

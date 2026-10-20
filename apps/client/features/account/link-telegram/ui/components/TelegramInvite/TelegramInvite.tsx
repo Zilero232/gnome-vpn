@@ -9,7 +9,7 @@ import { ABILITIES } from '../../../config';
 
 import s from './TelegramInvite.module.scss';
 
-export const TelegramInvite = ({ isPending, isIssued, onConnect }: TelegramInviteProps) => {
+export const TelegramInvite = ({ isPending, isIssued, isExpired, onConnect }: TelegramInviteProps) => {
   const t = useTranslations('telegram');
 
   return (
@@ -37,10 +37,10 @@ export const TelegramInvite = ({ isPending, isIssued, onConnect }: TelegramInvit
         ))}
       </ul>
 
-      {!isIssued && (
+      {(!isIssued || isExpired) && (
         <SubmitButton className={s.action} isPending={isPending} size='md' type='button' onClick={onConnect}>
           <Send aria-hidden size={16} />
-          {t('connect')}
+          {isExpired ? t('codeExpired') : t('connect')}
         </SubmitButton>
       )}
     </>

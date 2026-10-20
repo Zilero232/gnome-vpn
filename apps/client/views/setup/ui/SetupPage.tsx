@@ -40,7 +40,9 @@ export const SetupPage = () => {
 
                 <span className={s.wayTitle}>{t(`ways.${id}.title`)}</span>
                 <span className={s.wayBody}>{t(`ways.${id}.body`)}</span>
-                <span className={s.wayGo}>{t('ways.go')} ↓</span>
+                <span className={s.wayGo}>
+                  {t('ways.go')} <span aria-hidden>↓</span>
+                </span>
               </a>
             </li>
           ))}

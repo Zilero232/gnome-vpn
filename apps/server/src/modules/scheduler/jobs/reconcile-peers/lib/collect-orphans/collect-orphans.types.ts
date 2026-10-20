@@ -5,12 +5,13 @@ import type { ReconcilePeer } from '../../reconcile-peers.job.types';
 export type CollectOrphansInput = {
   prisma: PrismaService;
   xray: XrayClient;
+  nodeId: string;
   peers: ReconcilePeer[];
   nodeClients: Map<string, boolean>;
   online: Set<string> | null;
 };
 
-export type WithoutAnOwnerInput = {
+export type NamedOnNodeInput = {
   prisma: PrismaService;
-  emails: string[];
+  nodeId: string;
 };

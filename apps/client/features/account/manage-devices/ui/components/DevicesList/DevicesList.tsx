@@ -2,18 +2,21 @@
 
 import type { Device } from '@gnomevpn/schemas';
 
-import { Info, TriangleAlert } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { deviceName, hasIncyWithoutHwid } from '@/entities/vpn/device';
+import { deviceName } from '@/entities/vpn/device';
 import { Text } from '@/ui-kit';
 
 import type { DevicesListProps } from './DevicesList.types';
 
+import { REMOVAL_KIND } from '../../../config';
+import { removalKind } from '../../../lib';
 import { useRemoveDevice } from '../../../model/hooks';
 import { DeviceRow } from '../DeviceRow';
+import { DevicesEmpty } from '../DevicesEmpty';
+import { DevicesNotices } from '../DevicesNotices';
 import { RemoveDeviceDialog } from '../RemoveDeviceDialog';
 
 import s from './DevicesList.module.scss';
@@ -62,19 +65,7 @@ export const DevicesList = ({ devices, deviceLimit }: DevicesListProps) => {
         {t('hint')}
       </Text>
 
-      {hasOverLimit && (
-        <p className={s.warning} role='status'>
-          <TriangleAlert aria-hidden className={s.warningIcon} size={16} />
-          {t('overLimitWarning')}
-        </p>
-      )}
-
-      {hasIncyWithoutHwid(devices) && (
-        <p className={s.tip}>
-          <Info aria-hidden className={s.warningIcon} size={16} />
-          {t('hwidTip')}
-        </p>
-      )}
+      <DevicesNotices devices={devices} />
 
       {devices.length > 0 ? (
         <ul className={s.list}>
@@ -88,20 +79,13 @@ export const DevicesList = ({ devices, deviceLimit }: DevicesListProps) => {
           ))}
         </ul>
       ) : (
-        <div className={s.empty}>
-          <Text size='sm' weight='semibold'>
-            {t('emptyTitle')}
-          </Text>
-
-          <Text size='xs' tone='muted'>
-            {t('emptyBody')}
-          </Text>
-        </div>
+        <DevicesEmpty />
       )}
 
       <RemoveDeviceDialog
         isOpen={isConfirmOpen}
         isPending={remove.isPending}
+        kind={target ? removalKind(target) : REMOVAL_KIND.app}
         name={targetName}
         onConfirm={onConfirm}
         onOpenChange={setIsConfirmOpen}

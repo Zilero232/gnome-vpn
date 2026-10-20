@@ -2,10 +2,11 @@ import { Body, Button, Container, Head, Heading, Hr, Html, Link, Preview, Sectio
 
 import type { BaseEmailProps } from './BaseEmail.types';
 
+import { EMAIL_TEXT } from '../../email-text';
 import { emailStyles } from '../email-styles';
 
-export const BaseEmail = ({ preview, heading, action, children }: BaseEmailProps) => (
-  <Html lang='en'>
+export const BaseEmail = ({ locale, preview, heading, action, footer, children }: BaseEmailProps) => (
+  <Html lang={locale}>
     <Head />
     <Preview>{preview}</Preview>
 
@@ -28,13 +29,15 @@ export const BaseEmail = ({ preview, heading, action, children }: BaseEmailProps
               <Hr style={emailStyles.hr} />
 
               <Text style={emailStyles.footnote}>
-                If the button does not work, paste this link into your browser:{' '}
+                {EMAIL_TEXT[locale].common.fallbackLink}{' '}
                 <Link href={action.url} style={emailStyles.link}>
                   {action.url}
                 </Link>
               </Text>
             </>
           ) : null}
+
+          {footer ? <Text style={emailStyles.footnote}>{footer}</Text> : null}
         </Section>
       </Container>
     </Body>

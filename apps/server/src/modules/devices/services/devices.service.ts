@@ -2,15 +2,15 @@ import type { DeviceList } from '@gnomevpn/schemas';
 
 import { DEFAULT_DEVICE_LIMIT } from '@gnomevpn/schemas';
 import { Injectable } from '@nestjs/common';
-import { isEmpty, isNonNullish, pickBy } from 'remeda';
+import { isEmpty, isNonNullish, partition, pickBy } from 'remeda';
 
 import type { AdmitDeviceInput, AdmittedDevice, RemoveDeviceInput, RevokePeersInput, SurplusRevocation } from '../devices.types';
 
 import { AppNotFoundException } from '../../../common/exceptions';
-import { activeDeviceLimit } from '../../../common/lib';
+import { activeDeviceLimit, isPeriodActive, SUBSCRIPTION_PERIOD_SELECT } from '../../../common/lib';
 import { isPrismaRequestError, PrismaService, UNIQUE_VIOLATION, withSerializableRetry } from '../../../core';
 import { DEVICE_KEY, DEVICE_ORDER } from '../config';
-import { deviceTitle, slotHolders } from '../lib';
+import { deviceTitle, graceDeviceLimit, slotHolders } from '../lib';
 
 @Injectable()
 export class DevicesService {
@@ -28,7 +28,7 @@ export class DevicesService {
     }
   }
 
-  private claimSlot({ userId, identity, deviceLimit }: AdmitDeviceInput): Promise<AdmittedDevice> {
+  private claimSlot({ userId, identity, deviceLimit, canRegister = true }: AdmitDeviceInput): Promise<AdmittedDevice> {
     const { key, ...details } = identity;
 
     return withSerializableRetry(() =>
@@ -53,7 +53,7 @@ export class DevicesService {
             };
           }
 
-          if (devices.length >= deviceLimit) {
+          if (!canRegister || devices.length >= deviceLimit) {
             return { deviceId: null, isAllowed: false, isNew: false, deviceCount: devices.length };
           }
 
@@ -68,7 +68,7 @@ export class DevicesService {
 
   async list(userId: string): Promise<DeviceList> {
     const [subscription, devices] = await Promise.all([
-      this.prisma.subscription.findUnique({ where: { userId }, select: { currentPeriodEnd: true, extraDevices: true } }),
+      this.prisma.subscription.findUnique({ where: { userId }, select: SUBSCRIPTION_PERIOD_SELECT }),
       this.prisma.device.findMany({ where: { userId }, orderBy: [...DEVICE_ORDER] })
     ]);
 
@@ -119,34 +119,67 @@ export class DevicesService {
 
     for (const { userId } of crowded) {
       const [subscription, devices] = await Promise.all([
-        this.prisma.subscription.findUnique({ where: { userId }, select: { currentPeriodEnd: true, extraDevices: true } }),
-        this.prisma.device.findMany({ where: { userId }, select: { id: true, createdAt: true, model: true, app: true, platform: true } })
+        this.prisma.subscription.findUnique({ where: { userId }, select: SUBSCRIPTION_PERIOD_SELECT }),
+        this.prisma.device.findMany({ where: { userId }, select: { id: true, key: true, createdAt: true, model: true, app: true, platform: true } })
       ]);
 
-      const deviceLimit = activeDeviceLimit(subscription);
+      const now = new Date();
+      const deviceLimit = graceDeviceLimit({ subscription, now });
       const holders = slotHolders({ devices, limit: deviceLimit });
       const surplus = devices.filter((device) => !holders.has(device.id));
+      const [tunnels, feeds] = partition(surplus, (device) => device.key.startsWith(DEVICE_KEY.wireguard));
 
-      const revoked = await this.revokePeers({ deviceIds: surplus.map((device) => device.id), now: new Date() });
+      const revoked = await this.revokePeers({ deviceIds: feeds.map((device) => device.id), now });
+      const removed = await this.removeDevices({ deviceIds: tunnels.map((device) => device.id), now });
+      const touched = new Set([...revoked, ...(removed > 0 ? tunnels.map((device) => device.id) : [])]);
 
-      if (revoked > 0) {
-        revocations.push({ userId, deviceLimit, titles: surplus.map((device) => deviceTitle(device)) });
+      if (!isEmpty(touched)) {
+        revocations.push({
+          userId,
+          deviceLimit,
+          isActive: isPeriodActive(subscription?.currentPeriodEnd),
+          titles: surplus.filter((device) => touched.has(device.id)).map((device) => deviceTitle(device))
+        });
       }
     }
 
     return revocations;
   }
 
-  private async revokePeers({ deviceIds, now }: RevokePeersInput): Promise<number> {
+  private async revokePeers({ deviceIds, now }: RevokePeersInput): Promise<string[]> {
+    if (isEmpty(deviceIds)) {
+      return [];
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const live = await tx.peer.findMany({
+        where: { deviceId: { in: deviceIds }, revokedAt: null },
+        distinct: ['deviceId'],
+        select: { deviceId: true }
+      });
+
+      await tx.peer.updateMany({
+        where: { deviceId: { in: deviceIds }, revokedAt: null },
+        data: { revokedAt: now, state: 'disabled' }
+      });
+
+      return live.map((peer) => peer.deviceId).filter(isNonNullish);
+    });
+  }
+
+  private async removeDevices({ deviceIds, now }: RevokePeersInput): Promise<number> {
     if (isEmpty(deviceIds)) {
       return 0;
     }
 
-    const { count } = await this.prisma.peer.updateMany({
-      where: { deviceId: { in: deviceIds }, revokedAt: null },
-      data: { revokedAt: now, state: 'disabled' }
-    });
+    const [, removed] = await this.prisma.$transaction([
+      this.prisma.peer.updateMany({
+        where: { deviceId: { in: deviceIds }, revokedAt: null },
+        data: { revokedAt: now, state: 'disabled' }
+      }),
+      this.prisma.device.deleteMany({ where: { id: { in: deviceIds } } })
+    ]);
 
-    return count;
+    return removed.count;
   }
 }

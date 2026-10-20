@@ -90,6 +90,16 @@ describe('dockerExec', () => {
   it('builds an exec command from the argv parts', () => {
     expect(dockerExec({ container: '3x-ui', argv: ['ls', '-a'] })).toBe('docker exec 3x-ui ls -a');
   });
+
+  it('quotes every argument, so a caller passes raw values', () => {
+    expect(dockerExec({ container: '3x-ui', argv: ['x-ui', '-password', "it's; reboot"] })).toBe(
+      String.raw`docker exec 3x-ui x-ui -password 'it'\''s; reboot'`
+    );
+  });
+
+  it('stringifies a numeric argument', () => {
+    expect(dockerExec({ container: '3x-ui', argv: ['x-ui', '-port', 2053] })).toBe('docker exec 3x-ui x-ui -port 2053');
+  });
 });
 
 describe('dockerShell', () => {

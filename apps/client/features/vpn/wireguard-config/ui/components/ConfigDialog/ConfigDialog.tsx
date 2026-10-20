@@ -12,11 +12,11 @@ import { downloadConf } from '../../../lib';
 
 import s from './ConfigDialog.module.scss';
 
-export const ConfigDialog = ({ file, onClose }: ConfigDialogProps) => {
+export const ConfigDialog = ({ file, isOpen, onOpenChange, onOpenChangeComplete }: ConfigDialogProps) => {
   const t = useTranslations('wireguard');
 
   return (
-    <Dialog open={file !== null} onOpenChange={(isOpen) => !isOpen && onClose()}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange} onOpenChangeComplete={onOpenChangeComplete}>
       <DialogContent className={s.content}>
         <DialogHeader>
           <DialogTitle>{t('qrTitle')}</DialogTitle>

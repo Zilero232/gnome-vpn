@@ -18,6 +18,10 @@
   overflow-x: auto;
 
   @include hide-scrollbar;
+
+  @include below(2xl) {
+    mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+  }
 }
 
 .tab {

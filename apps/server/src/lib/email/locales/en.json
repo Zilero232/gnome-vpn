@@ -1,0 +1,86 @@
+{
+  "common": {
+    "fallbackLink": "If the button does not work, paste this link into your browser:",
+    "footer": "You get this email because you have a GnomeVPN account."
+  },
+  "verify": {
+    "subject": "Confirm your GnomeVPN email",
+    "preview": "Confirm your email to finish signing up for GnomeVPN",
+    "heading": "Confirm your email",
+    "body": [
+      "Confirming your address lets us restore access to the account if you ever forget your password — and it is where payment and renewal notices go."
+    ],
+    "action": "Confirm email"
+  },
+  "reset": {
+    "subject": "GnomeVPN password reset",
+    "preview": "Your GnomeVPN password reset link",
+    "heading": "Password reset",
+    "body": [
+      "We received a request to change your password. This link is valid for a limited time.",
+      "If you did not ask for this, ignore the email — your password stays as it is."
+    ],
+    "action": "Set a new password"
+  },
+  "change": {
+    "subject": "Confirm your new GnomeVPN email",
+    "preview": "Confirm your new GnomeVPN email address",
+    "heading": "Email change",
+    "body": [
+      "You asked to change your address to {email}. Confirm it to sign in with the new one from now on.",
+      "If this was not you, ignore the email — your address stays as it is."
+    ],
+    "action": "Confirm the change"
+  },
+  "notices": {
+    "paid": {
+      "subject": "Payment received — GnomeVPN is active until {date}",
+      "heading": "Payment received",
+      "body": ["Your GnomeVPN subscription is active until {date}.", "No servers in your app? Open it and refresh the subscription."],
+      "action": "Open my account"
+    },
+    "renewed": {
+      "subject": "GnomeVPN renewed until {date}",
+      "heading": "Subscription renewed",
+      "body": [
+        "We charged {amount} RUB, and the subscription is active until {date}.",
+        "No servers in your app? Open it and refresh the subscription.",
+        "You can turn auto-renewal off in your account."
+      ],
+      "action": "Open my account"
+    },
+    "renewSoon": {
+      "subject": "GnomeVPN auto-renewal coming up: {amount} RUB",
+      "heading": "Renewal coming up",
+      "body": [
+        "Your subscription runs until {date}. A day before that we charge {amount} RUB to the card {card} and it renews.",
+        "Do not want to renew? Turn auto-renewal off in your account before the charge — access stays until the end of the paid term."
+      ],
+      "action": "Manage subscription"
+    },
+    "chargeFailed": {
+      "subject": "We could not charge your card for GnomeVPN",
+      "heading": "The card could not be charged",
+      "body": ["Access works until {date}. Renew by hand — another card works too.", "We will not try to charge again this period."],
+      "action": "Renew"
+    },
+    "endingSoon": {
+      "subject": "Your GnomeVPN subscription ends on {date}",
+      "heading": "Your subscription ends soon",
+      "body": ["It runs until {date}. Renew it so your access does not stop."],
+      "action": "Renew"
+    },
+    "trialEndingSoon": {
+      "subject": "Your GnomeVPN free day is almost over",
+      "heading": "The free day is almost over",
+      "body": ["Subscribe so your access does not stop — the time left on the free day is kept."],
+      "action": "Subscribe"
+    },
+    "expired": {
+      "subject": "Your GnomeVPN subscription has ended",
+      "heading": "The subscription has ended",
+      "body": ["Access is off. Subscribe to bring it back — the link in your app starts working again."],
+      "action": "Subscribe"
+    }
+  }
+}

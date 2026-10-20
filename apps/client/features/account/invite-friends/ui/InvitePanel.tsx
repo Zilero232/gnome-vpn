@@ -36,7 +36,14 @@ export const InvitePanel = () => {
         </p>
       )}
 
-      {overview.isReferred && (
+      {overview.isReferralRewarded && (
+        <p className={s.note}>
+          <PartyPopper aria-hidden className={s.noteIcon} size={16} />
+          {t('referredRewarded', { days: overview.referralRewardedDays })}
+        </p>
+      )}
+
+      {overview.isReferred && !overview.isReferralRewarded && (
         <p className={s.note}>
           <PartyPopper aria-hidden className={s.noteIcon} size={16} />
           {t('referred')}

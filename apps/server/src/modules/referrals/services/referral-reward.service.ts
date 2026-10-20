@@ -3,9 +3,9 @@ import { Injectable } from '@nestjs/common';
 import { subDays } from 'date-fns';
 import { isNonNullish, isNullish } from 'remeda';
 
-import type { ExtendInput, RewardInput, RewardOutcome } from '../referrals.types';
+import type { ExtendInput, RevokeInput, RevokeOutcome, RewardInput, RewardOutcome } from '../referrals.types';
 
-import { extendPeriod, isPeriodActive } from '../../../common/lib';
+import { extendPeriod, rewindPeriod } from '../../../common/lib';
 import { periodKind } from '../../subscription';
 import { grantedDays } from '../lib';
 
@@ -59,6 +59,65 @@ export class ReferralRewardService {
     return { referrerId: referral.referrerId, referrerDays, friendDays: planned.friendDays, isBanked };
   }
 
+  async revoke({ paymentId, db }: RevokeInput): Promise<RevokeOutcome | null> {
+    const referral = await db.referral.findUnique({
+      where: { paymentId },
+      select: { id: true, referrerId: true, referredId: true, referrerDays: true, friendDays: true }
+    });
+
+    if (isNullish(referral) || (referral.referrerDays === 0 && referral.friendDays === 0)) {
+      return null;
+    }
+
+    await this.shorten({ userId: referral.referredId, days: referral.friendDays, db });
+    await this.debitReferrer({ userId: referral.referrerId, days: referral.referrerDays, db });
+
+    await db.referral.update({
+      where: { id: referral.id },
+      data: { referrerDays: 0, friendDays: 0 }
+    });
+
+    return {
+      referrerId: referral.referrerId,
+      referredId: referral.referredId,
+      referrerDays: referral.referrerDays,
+      friendDays: referral.friendDays
+    };
+  }
+
+  private async debitReferrer({ userId, days, db }: ExtendInput): Promise<void> {
+    const subscription = await db.subscription.findUnique({ where: { userId }, select: { bonusDays: true } });
+
+    if (isNullish(subscription)) {
+      return;
+    }
+
+    const fromBank = Math.min(subscription.bonusDays, days);
+
+    if (fromBank > 0) {
+      await db.subscription.update({ where: { userId }, data: { bonusDays: { decrement: fromBank } } });
+    }
+
+    await this.shorten({ userId, days: days - fromBank, db });
+  }
+
+  private async shorten({ userId, days, db }: ExtendInput): Promise<void> {
+    if (days <= 0) {
+      return;
+    }
+
+    const subscription = await db.subscription.findUnique({ where: { userId }, select: { currentPeriodEnd: true } });
+
+    if (isNullish(subscription)) {
+      return;
+    }
+
+    await db.subscription.update({
+      where: { userId },
+      data: { currentPeriodEnd: rewindPeriod({ currentPeriodEnd: subscription.currentPeriodEnd, days }) }
+    });
+  }
+
   private async creditReferrer({ userId, days, db }: ExtendInput): Promise<boolean> {
     const subscription = await db.subscription.findUnique({
       where: { userId },
@@ -81,22 +140,14 @@ export class ReferralRewardService {
   }
 
   private async extend({ userId, days, db }: ExtendInput): Promise<void> {
-    const subscription = await db.subscription.findUnique({
+    const { currentPeriodEnd } = await db.subscription.findUniqueOrThrow({
       where: { userId },
       select: { currentPeriodEnd: true }
     });
 
-    const currentPeriodEnd = subscription?.currentPeriodEnd;
-
-    const data = {
-      currentPeriodEnd: extendPeriod({ currentPeriodEnd, days }),
-      ...(!isPeriodActive(currentPeriodEnd) && { extraDevices: 0 })
-    };
-
-    await db.subscription.upsert({
+    await db.subscription.update({
       where: { userId },
-      create: { userId, ...data },
-      update: data
+      data: { currentPeriodEnd: extendPeriod({ currentPeriodEnd, days }) }
     });
   }
 }

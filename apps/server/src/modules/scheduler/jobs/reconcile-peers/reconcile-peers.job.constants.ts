@@ -1,3 +1,5 @@
+import { SUBSCRIPTION_PERIOD_SELECT } from '../../../../common/lib';
+
 export const RECONCILE_PEER_SELECT = {
   id: true,
   deviceId: true,
@@ -10,5 +12,6 @@ export const RECONCILE_PEER_SELECT = {
   state: true,
   nodeCredential: true,
   tunnelAddress: true,
-  user: { select: { subscription: { select: { currentPeriodEnd: true, extraDevices: true } } } }
+  device: { select: { key: true } },
+  user: { select: { subscription: { select: SUBSCRIPTION_PERIOD_SELECT } } }
 } as const;

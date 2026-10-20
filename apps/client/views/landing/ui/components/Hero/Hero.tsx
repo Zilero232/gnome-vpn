@@ -1,7 +1,7 @@
 import { LOWEST_MONTHLY_RUB } from '@gnomevpn/schemas';
 import { useTranslations } from 'next-intl';
 
-import { ROUTES } from '@/shared/constants';
+import { AUTH_MODE, QUERY_PARAMS, ROUTES } from '@/shared/constants';
 import { Link } from '@/shared/i18n/navigation';
 import { buttonVariants, Text } from '@/ui-kit';
 
@@ -30,14 +30,18 @@ export const Hero = () => {
       </Text>
 
       <div className={s.actions}>
-        <Link className={buttonVariants({ size: 'md' })} href={ROUTES.account}>
-          {t('cta', { price: LOWEST_MONTHLY_RUB })}
+        <Link className={buttonVariants({ size: 'md' })} href={{ pathname: ROUTES.account, query: { [QUERY_PARAMS.mode]: AUTH_MODE.signup } }}>
+          {t('cta')}
         </Link>
 
         <Link className={buttonVariants({ size: 'md', variant: 'ghost' })} href='#how'>
           {t('ctaSecondary')}
         </Link>
       </div>
+
+      <Text as='p' className={s.ctaNote} size='sm' tone='muted'>
+        {t('ctaNote', { price: LOWEST_MONTHLY_RUB })}
+      </Text>
 
       <dl className={s.meta}>
         {HERO_METRICS.map((metric) => (

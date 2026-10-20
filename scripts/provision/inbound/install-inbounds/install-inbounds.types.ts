@@ -10,6 +10,7 @@ export type InstallInboundsInput = {
 
 export type InstalledInbounds = {
   certFingerprint: string;
+  certWasGenerated: boolean;
   realityPublicKey: string;
   realityShortId: string;
   realityWasGenerated: boolean;

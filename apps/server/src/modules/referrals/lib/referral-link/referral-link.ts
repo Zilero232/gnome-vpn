@@ -1,4 +1,4 @@
-import { isReferralCode, normaliseReferralCode, REFERRAL_CODE } from '@gnomevpn/schemas';
+import { isShortCode, normaliseShortCode, REFERRAL_CODE } from '@gnomevpn/schemas';
 
 import type { TelegramReferralLinkInput, WebReferralLinkInput } from './referral-link.types';
 
@@ -24,12 +24,14 @@ export const telegramReferralLink = ({ botUsername, code }: TelegramReferralLink
   return `${REFERRAL_LINK.telegramBase}/${encodeURIComponent(handle)}?start=${telegramStartPayload(code)}`;
 };
 
+export const isReferralStart = (payload: string): boolean => payload.startsWith(REFERRAL_LINK.telegramPrefix);
+
 export const referralCodeFromStart = (payload: string): string | null => {
-  if (!payload.startsWith(REFERRAL_LINK.telegramPrefix)) {
+  if (!isReferralStart(payload)) {
     return null;
   }
 
   const code = payload.slice(REFERRAL_LINK.telegramPrefix.length);
 
-  return isReferralCode(code) ? normaliseReferralCode(code) : null;
+  return isShortCode(code) ? normaliseShortCode(code) : null;
 };

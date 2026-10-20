@@ -1,3 +1,5 @@
+import { WIREGUARD_DEVICE_APP } from '@gnomevpn/schemas';
+
 export const DEVICE_HEADER = {
   hwid: 'x-hwid',
   androidId: 'x-device-id',
@@ -13,7 +15,7 @@ export const DEVICE_KEY = {
   unknownApp: 'unknown',
   incyApp: 'INCY',
   wireguard: 'wg:',
-  wireguardApp: 'WireGuard'
+  wireguardApp: WIREGUARD_DEVICE_APP
 } as const;
 
 export const DEVICE_FIELD = {

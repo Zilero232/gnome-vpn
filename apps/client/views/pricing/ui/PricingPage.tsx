@@ -1,7 +1,8 @@
 import { Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-import { blogPostRoute, ROUTES } from '@/shared/constants';
+import { AUTH_MODE, blogPostRoute, QUERY_PARAMS, ROUTES } from '@/shared/constants';
+import { Link } from '@/shared/i18n/navigation';
 import { Text } from '@/ui-kit';
 import { PricingCard } from '@/widgets/billing/pricing-plans';
 import { RelatedLinks } from '@/widgets/site/related-links';
@@ -26,6 +27,13 @@ export const PricingPage = () => {
       </header>
 
       <PricingCard />
+
+      <Text align='center' as='p' className={s.trial} tone='muted'>
+        {t('trial')}{' '}
+        <Link className={s.trialLink} href={{ pathname: ROUTES.account, query: { [QUERY_PARAMS.mode]: AUTH_MODE.signup } }}>
+          {t('trialCta')}
+        </Link>
+      </Text>
 
       <section>
         <Text as='h2' className={s.sectionTitle}>

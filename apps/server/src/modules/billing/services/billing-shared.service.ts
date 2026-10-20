@@ -3,12 +3,21 @@ import { Injectable, Logger } from '@nestjs/common';
 import { addDays } from 'date-fns';
 import { isNullish } from 'remeda';
 
-import type { ActivateInput, AttachMethodInput, AutoRenewInput, GrantExtraDevicesInput, SetAutoRenewServiceInput } from '../billing.types';
+import type {
+  ActivateInput,
+  AttachMethodInput,
+  AutoRenewInput,
+  CheckoutReturnInput,
+  GrantExtraDevicesInput,
+  RevokePeriodInput,
+  SetAutoRenewServiceInput
+} from '../billing.types';
 
-import { nextPeriodEnd } from '../../../common/lib';
+import { hasLapsedBeyondGrace, nextPeriodEnd, rewindPeriod } from '../../../common/lib';
 import { AppConfigService } from '../../../config';
 import { PrismaService } from '../../../core';
 import { periodKind } from '../../subscription';
+import { localizedReturnUrl } from '../lib';
 
 @Injectable()
 export class BillingSharedService {
@@ -23,8 +32,8 @@ export class BillingSharedService {
     return this.config.get('YOOKASSA_RECURRING');
   }
 
-  returnUrl(): string {
-    return this.config.get('YOOKASSA_RETURN_URL');
+  returnUrl({ returnUrl, locale }: CheckoutReturnInput = {}): string {
+    return returnUrl ?? localizedReturnUrl({ baseUrl: this.config.get('YOOKASSA_RETURN_URL'), locale });
   }
 
   async setAutoRenew({ userId, isEnabled }: SetAutoRenewServiceInput): Promise<void> {
@@ -71,7 +80,7 @@ export class BillingSharedService {
     const bonusDays = subscription?.bonusDays ?? 0;
     const currentPeriodEnd = subscription?.currentPeriodEnd;
     const isConsentGiven = periodKind(subscription) !== 'paid' && Boolean(method?.id);
-    const hadLapsedWhenOrdered = !currentPeriodEnd || currentPeriodEnd <= orderedAt;
+    const hadLapsedWhenOrdered = hasLapsedBeyondGrace({ currentPeriodEnd, at: orderedAt });
 
     const data = {
       plan: plan.id,
@@ -116,6 +125,32 @@ export class BillingSharedService {
     await db.subscription.update({
       where: { userId },
       data: { extraDevices: granted }
+    });
+  }
+
+  async revokePeriod({ userId, months, db }: RevokePeriodInput): Promise<void> {
+    const subscription = await db.subscription.findUnique({ where: { userId }, select: { currentPeriodEnd: true } });
+
+    if (isNullish(subscription)) {
+      return;
+    }
+
+    await db.subscription.update({
+      where: { userId },
+      data: { currentPeriodEnd: rewindPeriod({ currentPeriodEnd: subscription.currentPeriodEnd, months }), cancelAtPeriodEnd: true }
+    });
+  }
+
+  async revokeExtraDevices({ userId, quantity, db = this.prisma }: GrantExtraDevicesInput): Promise<void> {
+    const subscription = await db.subscription.findUnique({ where: { userId }, select: { extraDevices: true } });
+
+    if (isNullish(subscription)) {
+      return;
+    }
+
+    await db.subscription.update({
+      where: { userId },
+      data: { extraDevices: Math.max(0, subscription.extraDevices - quantity) }
     });
   }
 }

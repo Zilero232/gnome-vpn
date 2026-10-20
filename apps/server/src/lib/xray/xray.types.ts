@@ -9,14 +9,12 @@ export type IssueClientInput = {
   email: string;
   limitIp: number;
   auth?: string;
-  deferRestart?: boolean;
 };
 
 export type IssueVlessClientInput = {
   email: string;
   limitIp: number;
   id?: string;
-  deferRestart?: boolean;
 };
 
 export type NodeTraffic = {
@@ -35,4 +33,9 @@ export type RewriteInboundInput = {
   current: XrayInbound;
   inbound: Record<string, unknown>;
   remark?: string;
+};
+
+export type EnsureInboundInput = {
+  inbound: Record<string, unknown>;
+  remark: string;
 };

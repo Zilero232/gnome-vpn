@@ -24,7 +24,7 @@ export const InviteLink = ({ label, url }: InviteLinkProps) => {
       <div className={s.field}>
         <input readOnly className={s.url} id={id} value={url} onFocus={(event) => event.currentTarget.select()} />
 
-        <button aria-label={t('copy')} className={s.copy} title={t('copy')} type='button' onClick={() => void copy(url)}>
+        <button aria-label={t('copyField', { label })} className={s.copy} title={t('copy')} type='button' onClick={() => void copy(url)}>
           <Copy aria-hidden size={16} />
         </button>
       </div>

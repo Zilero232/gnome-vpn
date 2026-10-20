@@ -1,5 +1,5 @@
-export const WIREGUARD_INBOUND_REMARK = 'GnomeVPN WireGuard';
-
-export const WIREGUARD_KEEP_ALIVE = 25;
-
-export const WIREGUARD_HOST_MASK = '/32';
+export const WIREGUARD_INBOUND = {
+  remark: 'GnomeVPN WireGuard',
+  keepAlive: 25,
+  hostMask: '/32'
+} as const;

@@ -1,16 +1,12 @@
-import type { SshClient } from '@gnomevpn/scripts/ssh';
-
 export type PanelSession = {
   baseUrl: string;
   token: string;
 };
 
-export type StartPanelInput = {
-  ssh: SshClient;
+export type OpenPanelSessionInput = {
   host: string;
-  password: string;
   panelPath: string;
-  knownToken: string | null;
+  token: string;
 };
 
 export type PanelUrlInput = {
@@ -18,7 +14,7 @@ export type PanelUrlInput = {
   panelPath: string;
 };
 
-export type WaitForPanelInput = {
+export type WaitForPanelApiInput = {
   baseUrl: string;
   token: string;
 };

@@ -14,6 +14,8 @@ const OVERVIEW: ReferralOverview = {
   daysEarned: 14,
   pendingDays: 0,
   isReferred: false,
+  isReferralRewarded: false,
+  referralRewardedDays: 0,
   canBeReferred: false
 };
 

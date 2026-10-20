@@ -25,6 +25,7 @@ const peer = (overrides: Partial<ReconcilePeer> = {}): ReconcilePeer => ({
   state: 'active',
   nodeCredential: 'the-stored-secret',
   tunnelAddress: null,
+  device: null,
   user: { subscription: null },
   ...overrides
 });
@@ -47,7 +48,7 @@ describe('restoreMissing', () => {
       nodeClients: new Map([[peerClientName(present), true]])
     });
 
-    expect(restored).toBe(false);
+    expect(restored).toBe(0);
     expect(createClient).not.toHaveBeenCalled();
   });
 
@@ -64,13 +65,12 @@ describe('restoreMissing', () => {
       nodeClients: new Map()
     });
 
-    expect(restored).toBe(true);
+    expect(restored).toBe(1);
 
     expect(createClient).toHaveBeenCalledWith({
       email: peerClientName(missing),
       auth: missing.nodeCredential,
-      limitIp: DEFAULT_DEVICE_LIMIT,
-      deferRestart: true
+      limitIp: DEFAULT_DEVICE_LIMIT
     });
   });
 
@@ -90,8 +90,7 @@ describe('restoreMissing', () => {
     expect(createVlessClient).toHaveBeenCalledWith({
       email: peerClientName(missing),
       id: missing.nodeCredential,
-      limitIp: DEFAULT_DEVICE_LIMIT,
-      deferRestart: true
+      limitIp: DEFAULT_DEVICE_LIMIT
     });
   });
 
@@ -109,16 +108,16 @@ describe('restoreMissing', () => {
       nodeClients: new Map([[peerClientName(hysteria), true]])
     });
 
-    expect(restored).toBe(true);
+    expect(restored).toBe(1);
     expect(createVlessClient).toHaveBeenCalledWith(expect.objectContaining({ email: peerClientName(vless) }));
   });
 
-  it('restores a lost wireguard client with its stored key and address, and needs no core restart for it', async () => {
+  it('restores a lost wireguard client with its stored key and address', async () => {
     const createWireguardClient = vi.fn().mockResolvedValue({ address: '10.9.0.7' });
     const privateKey = Buffer.alloc(32, 7).toString('base64');
     const lost = peer({ protocol: 'wireguard', nodeCredential: privateKey, tunnelAddress: '10.9.0.7' });
 
-    const needsRestart = await restoreMissing({
+    const restored = await restoreMissing({
       prisma: fakePrisma(),
       logger: silentLogger(),
       xray: { createWireguardClient } as unknown as XrayClient,
@@ -127,7 +126,7 @@ describe('restoreMissing', () => {
       nodeClients: new Map()
     });
 
-    expect(needsRestart).toBe(false);
+    expect(restored).toBe(1);
 
     expect(createWireguardClient).toHaveBeenCalledWith(
       expect.objectContaining({ email: peerClientName(lost), privateKey, address: '10.9.0.7', publicKey: expect.stringMatching(/=$/u) })
@@ -206,7 +205,7 @@ describe('restoreMissing', () => {
     expect(nodeClients.get(peerClientName(missing))).toBe(true);
   });
 
-  it('reports no change when every reissue fails, so the core is not restarted for nothing', async () => {
+  it('reports no change when every reissue fails', async () => {
     const createClient = vi.fn().mockRejectedValue(new Error('panel refused'));
 
     const restored = await restoreMissing({
@@ -218,6 +217,6 @@ describe('restoreMissing', () => {
       nodeClients: new Map()
     });
 
-    expect(restored).toBe(false);
+    expect(restored).toBe(0);
   });
 });

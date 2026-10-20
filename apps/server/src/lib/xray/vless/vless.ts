@@ -1,3 +1,4 @@
+import type { XrayInbound } from '../inbounds';
 import type { ProtocolClientsDeps } from '../protocol-clients';
 import type { CreateVlessClientInput, CreateVlessClientResult, VlessClient } from './vless.types';
 
@@ -22,7 +23,11 @@ export class VlessClients {
     return this.clients.list();
   }
 
-  async create({ email, id, limitIp, deferRestart }: CreateVlessClientInput): Promise<CreateVlessClientResult> {
-    return this.clients.create({ email, credential: id, limitIp, deferRestart });
+  clientsIn(inbound: XrayInbound): VlessClient[] {
+    return this.clients.clientsIn(inbound);
+  }
+
+  async create({ email, id, limitIp }: CreateVlessClientInput): Promise<CreateVlessClientResult> {
+    return this.clients.create({ email, credential: id, limitIp });
   }
 }

@@ -13,6 +13,7 @@
     "rotate": "Get a new link if the old one leaked"
   },
   "connect": "Connect Telegram",
+  "codeExpired": "The code expired — get a new one",
   "openBot": "Open the bot",
   "waiting": "Telegram opens — press Start. This page updates by itself.",
   "manualHint": "If Telegram did not open: find @{bot} and send it this code",

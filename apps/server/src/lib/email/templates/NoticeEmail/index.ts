@@ -1,0 +1,1 @@
+export { NoticeEmail } from './NoticeEmail';

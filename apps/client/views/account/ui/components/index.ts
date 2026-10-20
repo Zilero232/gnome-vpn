@@ -5,7 +5,7 @@ export { AccountTabs } from './AccountTabs';
 export type { AccountTab } from './AccountTabs';
 export { ConnectCard } from './ConnectCard';
 export { DevicesCard } from './DevicesCard';
-export { InviteCard } from './InviteCard';
 export { ProfileCard } from './ProfileCard';
 export { SubscriptionCard } from './SubscriptionCard';
+export { SupportCard } from './SupportCard';
 export { TelegramCard } from './TelegramCard';

@@ -1,6 +1,7 @@
 import type { OnModuleInit } from '@nestjs/common';
 import type { Update } from 'grammy/types';
 
+import { isShortCode } from '@gnomevpn/schemas';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Bot } from 'grammy';
 import { isNonNullish, isNullish } from 'remeda';
@@ -8,10 +9,10 @@ import { isNonNullish, isNullish } from 'remeda';
 import type { BotAction, BotCallback, BotContext } from '../telegram.types';
 
 import { describeError } from '../../../common/lib';
-import { referralCodeFromStart } from '../../referrals';
+import { isReferralStart, referralCodeFromStart } from '../../referrals';
 import { TELEGRAM_BOT } from '../bot';
-import { CALLBACK_PREFIX } from '../config';
-import { buttonFor, callbackPattern, looksLikeLinkCode } from '../lib';
+import { CALLBACK_PREFIX, GROUP_CHATS } from '../config';
+import { buttonFor, callbackPattern } from '../lib';
 import { TelegramAccountService } from './telegram-account.service';
 import { TelegramAppsService } from './telegram-apps.service';
 import { TelegramBillingService } from './telegram-billing.service';
@@ -112,36 +113,41 @@ export class TelegramBotService implements OnModuleInit {
   }
 
   private register(bot: Bot): void {
-    bot.command('start', (ctx) => this.start(ctx));
+    const direct = bot.chatType('private');
+
+    direct.command('start', (ctx) => this.start(ctx));
 
     for (const { command, run } of this.actions) {
       if (command) {
-        bot.command(command, run);
+        direct.command(command, run);
       }
     }
 
     for (const { prefix, run } of this.callbacks) {
-      bot.callbackQuery(callbackPattern(prefix), run);
+      direct.callbackQuery(callbackPattern(prefix), run);
     }
 
-    bot.on('message:text', (ctx) => this.read(ctx));
+    direct.on('message:text', (ctx) => this.read(ctx));
+
+    bot.chatType([...GROUP_CHATS]).command('start', (ctx) => this.account.groupOnly(ctx));
+    bot.on('my_chat_member', (ctx) => this.account.joined(ctx));
+    bot.on('callback_query', (ctx) => this.shared.acknowledge({ ctx }));
   }
 
   private start(ctx: BotContext): Promise<void> {
     const code = typeof ctx.match === 'string' ? ctx.match : '';
-    const referralCode = referralCodeFromStart(code);
 
-    if (isNonNullish(referralCode)) {
-      return this.referral.arrive({ ctx, code: referralCode });
+    if (isReferralStart(code)) {
+      return this.referral.arrive({ ctx, code: referralCodeFromStart(code) });
     }
 
-    return looksLikeLinkCode(code) ? this.account.consume({ ctx, text: code }) : this.account.welcome({ ctx });
+    return isShortCode(code) ? this.account.consume({ ctx, text: code }) : this.account.welcome({ ctx });
   }
 
   private async openMenu(ctx: BotContext): Promise<void> {
     const pressed = this.actionFor(ctx.callbackQuery?.data?.slice(CALLBACK_PREFIX.menu.length));
 
-    await ctx.answerCallbackQuery();
+    await this.shared.acknowledge({ ctx });
 
     if (isNonNullish(pressed)) {
       await pressed.run(ctx);
@@ -156,7 +162,7 @@ export class TelegramBotService implements OnModuleInit {
       return pressed.run(ctx);
     }
 
-    return looksLikeLinkCode(text) ? this.account.consume({ ctx, text }) : this.account.help(ctx);
+    return isShortCode(text) ? this.account.consume({ ctx, text }) : this.account.help(ctx);
   }
 
   private actionFor(button: string | null | undefined): BotAction | undefined {

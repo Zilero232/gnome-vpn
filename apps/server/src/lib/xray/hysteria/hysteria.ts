@@ -1,3 +1,4 @@
+import type { XrayInbound } from '../inbounds';
 import type { PanelClient } from '../panel-client';
 import type { ProtocolClientsDeps } from '../protocol-clients';
 import type { CreateClientInput, CreateClientResult, HysteriaClient, SetClientsEnabledInput } from './hysteria.types';
@@ -27,8 +28,12 @@ export class HysteriaClients {
     return this.clients.list();
   }
 
-  async create({ email, auth, limitIp, deferRestart }: CreateClientInput): Promise<CreateClientResult> {
-    return this.clients.create({ email, credential: auth, limitIp, deferRestart });
+  clientsIn(inbound: XrayInbound): HysteriaClient[] {
+    return this.clients.clientsIn(inbound);
+  }
+
+  async create({ email, auth, limitIp }: CreateClientInput): Promise<CreateClientResult> {
+    return this.clients.create({ email, credential: auth, limitIp });
   }
 
   async delete(email: string): Promise<void> {

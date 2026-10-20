@@ -2,15 +2,20 @@ import { Text } from 'react-email';
 
 import type { ChangeEmailProps } from './ChangeEmail.types';
 
+import { EMAIL_TEXT, fillEmail } from '../../email-text';
 import { BaseEmail } from '../BaseEmail';
 import { emailStyles } from '../email-styles';
 
-export const ChangeEmail = ({ url, newEmail }: ChangeEmailProps) => (
-  <BaseEmail action={{ url, label: 'Confirm the change' }} heading='Email change' preview='Confirm your new GnomeVPN email address'>
-    <Text style={emailStyles.text}>
-      You asked to change your address to <strong>{newEmail}</strong>. Confirm it to sign in with the new one from now on.
-    </Text>
+export const ChangeEmail = ({ url, newEmail, locale }: ChangeEmailProps) => {
+  const copy = EMAIL_TEXT[locale].change;
 
-    <Text style={emailStyles.text}>If this was not you, ignore the email — your address stays as it is.</Text>
-  </BaseEmail>
-);
+  return (
+    <BaseEmail action={{ url, label: copy.action }} heading={copy.heading} locale={locale} preview={copy.preview}>
+      {copy.body.map((paragraph) => (
+        <Text key={paragraph} style={emailStyles.text}>
+          {fillEmail({ text: paragraph, fill: { email: newEmail } })}
+        </Text>
+      ))}
+    </BaseEmail>
+  );
+};

@@ -1,4 +1,4 @@
-import { isReferralCode, normaliseReferralCode } from '@gnomevpn/schemas';
+import { isShortCode, normaliseShortCode } from '@gnomevpn/schemas';
 import { getCookie, removeCookie } from '@siberiacancode/reactuse';
 
 import { apiErrorCode } from '@/shared/api';
@@ -14,7 +14,7 @@ export const readPendingReferral = (): string | null => {
 
   const raw = getCookie(REFERRAL_COOKIE.name);
 
-  return raw && isReferralCode(raw) ? normaliseReferralCode(raw) : null;
+  return raw && isShortCode(raw) ? normaliseShortCode(raw) : null;
 };
 
 export const clearPendingReferral = (): void => {

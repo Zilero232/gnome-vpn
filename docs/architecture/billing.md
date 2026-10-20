@@ -25,18 +25,95 @@ carries `@SkipThrottle()`, so the global per-IP limit never applies to it;
 
 **Re-enabling access happens outside the claiming transaction, so it must be recoverable.** `settlePayment` claims the payment row and grants the subscription atomically, then calls `setEnabledAll` — a separate write that can fail, or never run at all if the process dies right after the commit. That used to leave a paying user with every peer `disabled` and nothing in the system able to turn them back on: `expired-access` only ever revoked. It now sweeps both ways — its restore half re-enables `disabled` config peers whose owner has a live period (`activeSince`) — so the post-commit call is an optimisation and the job is the guarantee. Do not make `setEnabledAll` the only path back.
 
+**Checkout returns the reader to where they started.** `YOOKASSA_RETURN_URL` is
+the account page of the default locale (`/account`); the site sends its
+`locale` with `POST /billing/checkout` and `/billing/extra-devices`, and
+`localizedReturnUrl` prefixes the path for any other locale (`/en/account`),
+matching next-intl's `as-needed` prefixing. A caller that is not the site — the
+bot — passes its own `returnUrl` (`CreateCheckoutServiceInput`,
+`BuyExtraDevicesServiceInput`), which wins over both.
+
+**A second click reuses the first payment.** Checkout used to open a new
+YooKassa payment on every click, so a reader who went back and pressed "Pay"
+again left a trail of pending rows (and, for extra devices, pending places that
+counted against `MAX_EXTRA_DEVICES`). `reusablePayment` now looks for a manual
+pending payment of the same user, kind and plan (or quantity) created within
+`CHECKOUT_REUSE.windowMinutes`, re-reads it from YooKassa and returns its
+confirmation URL when it is still `pending` and goes back to the same return
+URL. Anything else — settled, canceled, a different return URL, YooKassa not
+answering — opens a new payment, so reuse can only save a payment, never block
+one.
+
 **The webhook accepts any event name and ignores the ones it does not handle.**
 `WebhookEventDto` does not reject an event it has no branch for: an unknown
 event is answered `200` and dropped. YooKassa retries anything non-2xx for a day,
 so a validation error on an event we never asked about would have been replayed
 for a day for nothing.
 
+## Refunds
+
+Refunds stay manual — they are made in the YooKassa dashboard — but the system
+now follows them. `refund.succeeded` (subscribe to it in the shop's HTTP
+notification settings beside the payment events) reaches `handleRefund`, which
+re-reads the refund and its payment from the API like every other webhook, and
+acts only on a payment that is `succeeded` here and refunded **in full** at
+YooKassa (`refunded_amount` equals the amount). A partial refund is logged for a
+person to review: there is no honest way to turn half the money into a number
+of days.
+
+The reversal runs in one serializable transaction and claims the row
+`succeeded` → `refunded` first, so a replayed webhook does nothing:
+
+- a **subscription** payment moves `currentPeriodEnd` back by the plan's months
+  (`rewindPeriod`, never before now — a refund cannot reach back into time
+  already used), and takes back the referral days granted for that payment
+  (`ReferralRewardService.revoke`): the friend's days come off their period,
+  the inviter's off their banked `bonus_days` first and their period after, and
+  the referral keeps `rewarded_at` but records zero days, so the friend cannot
+  be rewarded twice and the inviter's cap window is freed — and auto-renewal is
+  switched off (`cancelAtPeriodEnd: true`), since a person who asked for their
+  money back should not be charged again at the rewound end;
+- an **extraDevices** payment decrements `extraDevices` (not below zero); the
+  device-slot job then enforces the smaller limit.
+
+**A payment refunded before it settled is never granted.** YooKassa keeps a
+refunded payment `succeeded`, and a `refund.succeeded` arriving while the row is
+still `pending` finds nothing to take back. So `settlePayment` checks
+`refunded_amount` on the re-read payment and marks the row `refunded` instead of
+granting it — this closes an automatic refund whose HTTP call timed out after
+YooKassa had already made it, and a dashboard refund made before the webhook.
+
+**Payments we cannot honour are refunded automatically** — through
+`YooKassaClient.createRefund`, with the idempotence key `refund-<payment row
+id>`, so the sweep retrying the same payment asks for the same refund:
+
+- extra devices whose payment settles after the period has lapsed beyond the
+  config grace (`hasLapsedBeyondGrace`, `PERIOD_GRACE.hours`): the places would
+  be wiped by the next `activate` anyway, so granting them would be selling
+  nothing;
+- any payment whose account was deleted while it was pending (`userId` is null).
+
+The row goes `pending` → `refunded` and `settlePayment` returns `'refunded'`
+(it now returns a `SettleResult` for every call), so a caller can tell the
+reader; the `refund.succeeded` webhook that follows finds the row already
+refunded and does nothing. A refund YooKassa cancels is logged as an error and
+left `pending` for a person.
+
 ## Automatic renewal
 
 `recurring-charge` charges the saved card in the last `WINDOW.renewHours` of a
 period — never during a trial — and makes **one attempt per period**: an
 auto-charge row created inside the renewal window, pending or canceled, means
-the period was already tried, and the reader renews by hand. A declined card is
+the period was already tried, and the reader renews by hand. "Tried" means
+tried **with this card**: every auto-charge row stores the `payment_method_id`
+it charged, and `wasAttempted` only counts rows for the card on file now (rows
+written before the column existed have it null and still count), so a reader
+who binds a new card after a decline gets one more attempt with it.
+
+The job returns at once when `YOOKASSA_RECURRING` is off, and it skips a reader
+who has a manual subscription payment pending from the last
+`PENDING.manualHoldMinutes`: someone who is paying by hand on the YooKassa page
+right now must not be charged by the job in the same hour as well. A declined card is
 canceled synchronously, and retrying with the same idempotence key only replays
 that cancellation from YooKassa — so the old hourly retry re-announced the same
 failure every hour until the key expired. Everything after the charge goes
@@ -80,6 +157,44 @@ the card is dropped only on a definite "no" from `isPaymentMethodUsable`.
 never again, so clearing the flag when the period expires would hand out a
 second one; `trialState` reads the flag, not the period.
 
+**The trial is remembered by identity, not by account.** The flag lives on the
+subscription row, which cascades away with the user: deleting the account
+(site or `/delete` in the bot) and signing up again used to hand out a new trial
+every time. `trial_grant` has no foreign key to `user`: one row per identity
+hash — sha256 of `email:<normalised email>` and of `telegram:<id>`
+(`trialIdentities`; the email is lowercased, a `+tag` dropped, and the dots of a
+Gmail address removed, with `googlemail.com` folded into `gmail.com`; a
+Telegram placeholder email is no identity, the Telegram id already is). The
+hash keeps no readable email after the account is gone.
+
+- `TrialService.grant` writes the grants in the same transaction as the trial
+  period, strictly: an identity that already holds a grant rolls the trial back
+  with `TRIAL_ALREADY_USED`.
+- `standing`, `claim` and the status contract's `isTrialAvailable` answer
+  "used" when any current identity of the account — its email and its linked
+  Telegram — has a grant (`TrialGrantService.isGranted`; the status endpoint
+  only asks when the row itself would still offer a trial).
+- Account deletion calls `TrialService.remember` first, which records the
+  identities the account has _now_ — so a Telegram linked after the trial is
+  covered too.
+- `20261021120000_trial_grants_refunds_and_orphan_payments` backfills the
+  grants of every account that already has `trial_started_at`, hashing in SQL
+  exactly as `trialIdentities` does.
+
+A new email address is still a new identity; this closes the free loop of
+delete-and-return, not every way of making a second account.
+
+**A Telegram-born trial can follow the reader into their site account.**
+`TrialService.transfer({ fromUserId, toUserId, db })` is the helper for the
+bot-account merge in the Telegram module: called inside the merge transaction
+before the bot account is deleted, it records the bot account's identities and,
+when the site account has never had a period, moves `trialStartedAt` and the
+trial's `currentPeriodEnd` over. A site account that already has a period keeps
+it; the grants alone make sure no second trial follows. The merge is meant for
+a bot account that holds nothing but a trial — no succeeded or pending
+payments, no bonus days, no referrals made; checking that is the Telegram
+module's job.
+
 **A trial is not a plan, so buying during one is a first purchase.** The trial
 row carries `plan: monthly` only because the column is not nullable. Checkout
 used to read that as a running paid month: six and twelve months were refused
@@ -106,12 +221,20 @@ thousand requests an hour per open tab, so instead `useSettlePayment` stamps
 `useSubscriptionStatus` polls at the fast interval for `PENDING_CHECKOUT.windowMs`
 after that stamp. The same covers extra devices bought on a paid period.
 
-**A period takes the plan that was paid for.** `activate` writes the payment's
-plan every time. Inside a paid period a different plan cannot be bought
-(`PLAN_CHANGE_LOCKED`), so this only matters when two checkouts were opened
-before either settled — say monthly and yearly during a trial — where the row
-used to keep the first plan while the second one's months were added, and the
-next automatic charge billed the wrong price.
+**Any plan can be bought at any time, and the term stacks.** Checkout used to
+refuse a different plan inside a paid period (`PLAN_CHANGE_LOCKED`), which kept
+a monthly reader from moving to a year until the month ran out — the moment
+they were most likely to go elsewhere instead. Now the new term starts where
+the running one ends (`nextPeriodEnd`), so nothing paid for is lost, and
+`activate` writes the payment's plan, so the next automatic charge bills the
+plan last bought. The error code stays in `@gnomevpn/schemas` because the
+client's error messages still name it, but nothing throws it.
+
+**The status carries the last payment.** `lastPayment` (`status`, `kind`,
+`isAutoCharge`, `createdAt`, or `null`) is the newest payment row of the
+account, read in parallel with the subscription row through the
+`payment(user_id, created_at)` index, so the account page can say "the last
+automatic charge failed" without another request.
 
 **Auto-renewal on a fresh period follows the card the payment saved.** Outside
 a running paid period, a payment that saved a card turns renewal on — ticking
@@ -124,10 +247,13 @@ is a taster; extras bought on it would be paid for a few hours, so checkout
 refuses them and neither the account page nor the bot offers them. Once bought,
 they work "while the subscription is active", as the account page promises: a
 renewal — automatic or by hand, before the end — keeps them, and a lapse ends
-them. `activate` resets `extraDevices` when the period had already lapsed at the
-moment the payment was created (`orderedAt`, the payment row's `createdAt`), not
-at the moment it settled: a renewal paid just before the end whose webhook
-arrives just after it keeps the extras. Before this, a reader who let the subscription run out and came back months
+them. `activate` resets `extraDevices` when the period had already lapsed — beyond the
+config grace, `PERIOD_GRACE.hours`, the same six hours `expired-access` waits
+before it disables configs (`WINDOW.configGraceHours` reads it) — at the moment
+the payment was created (`orderedAt`, the payment row's `createdAt`), not at
+the moment it settled: a renewal paid just before the end whose webhook arrives
+just after it keeps the extras, and so does one paid within the grace, while
+the reader's configs were still live. Before this, a reader who let the subscription run out and came back months
 later got last year's extras back for free. The same migration zeroed the
 extras on rows that had already lapsed.
 
@@ -145,6 +271,13 @@ and "renewal on" would be a promise nothing keeps.
 the app, connect and judge the speed on the reader's own network, which is the
 only way a VPN can be judged at all.
 
+**Periods are counted in calendar months from the period end, so they drift
+at month ends.** A period started on the 31st ends on the 28th of February and
+then on the 28th forever. An anchor day was considered and left out: referral
+days, bonus days and refunds all move the end by days, so any stored anchor
+would disagree with the end it is supposed to describe after the first bonus,
+and a reader loses at most three days once.
+
 ## Deleting an account frees the nodes before it frees the row
 
 `AccountService.remove` reads the user's peers first, hands them to
@@ -159,6 +292,15 @@ their account keeps a client nobody owns. The weekly orphan collection in
 server-owned client whose owner id no longer resolves to a `User`, which is
 exactly what a deleted account leaves behind. It skips a client the core reports
 online, so a live session ends when it drops rather than mid-stream.
+
+**Payments outlive the account.** `payment.user_id` is nullable with
+`ON DELETE SET NULL`: the rows are the shop's record of money taken, and a
+refund for a deleted account still has to find its payment. Deletion is refused
+with `ACCOUNT_PAYMENT_PENDING` while the account has a payment `pending` from
+the last `ACCOUNT_DELETION.pendingLookbackDays` — the same window the
+`pending-payments` sweep settles — because a payment settling after the account
+is gone has nothing to grant to; if one slips through anyway it is refunded
+automatically (above).
 
 Deletion is offered in both places for the same reason linking is: the account
 page has a confirm dialog, `/delete` in the bot has the same confirmation on an

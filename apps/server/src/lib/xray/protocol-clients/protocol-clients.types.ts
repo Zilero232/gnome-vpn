@@ -29,7 +29,6 @@ export type IssueProtocolClientInput = {
   email: string;
   credential: string;
   limitIp: number;
-  deferRestart?: boolean;
 };
 
 export type IssueProtocolClientResult = {
