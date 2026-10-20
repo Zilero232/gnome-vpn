@@ -74,9 +74,11 @@
     border-color var(--duration-fast) ease,
     color var(--duration-fast) ease;
 
-  &:hover {
-    border-color: var(--color-accent);
-    color: var(--color-accent);
+  @media (hover: hover) {
+    &:hover {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
   }
 
   @include touch-target;

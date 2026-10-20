@@ -1,1 +1,1 @@
-export { EASE_OUT } from './motion';
+export { EASE_OUT, IN_VIEW, REVEAL, SPRING, STAGGER } from './motion';

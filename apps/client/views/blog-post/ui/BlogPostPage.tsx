@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { BLOG_SLUGS, POST_SECTIONS } from '@/entities/app/blog';
 import { blogPostRoute, ROUTES } from '@/shared/constants';
 import { Link } from '@/shared/i18n/navigation';
-import { Text } from '@/ui-kit';
+import { GnomeBadge, Text } from '@/ui-kit';
 import { RelatedLinks } from '@/widgets/site/related-links';
 
 import type { BlogPostPageProps } from './BlogPostPage.types';
@@ -32,7 +32,7 @@ export const BlogPostPage = ({ slug }: BlogPostPageProps) => {
             {t('title')}
           </Text>
 
-          <Text as='p' className={s.intro} tone='muted'>
+          <Text as='p' className={s.intro}>
             {t('intro')}
           </Text>
         </header>
@@ -53,13 +53,15 @@ export const BlogPostPage = ({ slug }: BlogPostPageProps) => {
       <RelatedLinks links={related.map((other) => ({ href: blogPostRoute(other), label: tBlog(`posts.${other}.title`) }))} />
 
       <aside className={s.cta}>
-        <Text as='p' className={s.body}>
-          {tBlog('cta')}
-        </Text>
-
-        <Link className={s.ctaLink} href={ROUTES.pricing}>
-          {tBlog('ctaAction')}
-        </Link>
+        <GnomeBadge size={56} />
+        <div className={s.ctaText}>
+          <Text as='p' className={s.body}>
+            {tBlog('cta')}
+          </Text>
+          <Link className={s.ctaLink} href={ROUTES.pricing}>
+            {tBlog('ctaAction')}
+          </Link>
+        </div>
       </aside>
     </main>
   );

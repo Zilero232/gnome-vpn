@@ -1,79 +1,23 @@
 @use '@/shared/styles/mixins' as *;
 
 .root {
+  @include stack(32px);
+
   width: 100%;
 }
 
 .plans {
   display: grid;
+  align-items: stretch;
   padding: 0;
   margin: 0;
-  gap: 16px;
-  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   list-style: none;
-}
 
-.plan {
-  position: relative;
-  overflow: hidden;
-  padding: 32px 28px;
-  border: 1px solid var(--color-border-bright);
-  border-radius: var(--radius-lg);
-  background-color: var(--color-surface);
-}
-
-.featured {
-  border-color: var(--color-accent);
-}
-
-.featured:before {
-  position: absolute;
-  top: -60%;
-  right: -30%;
-  width: 320px;
-  height: 320px;
-  background: radial-gradient(circle, rgb(53 240 160 / 12%) 0%, transparent 70%);
-  content: '';
-  pointer-events: none;
-}
-
-.head {
-  display: flex;
-  height: 26px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.term {
-  color: var(--color-text-muted);
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.price {
-  display: flex;
-  height: 40px;
-  align-items: baseline;
-  font-family: var(--font-mono);
-  gap: 8px;
-}
-
-.amount {
-  font-size: 40px;
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 1;
-}
-
-.period {
-  color: var(--color-text-muted);
-  font-size: 13px;
-}
-
-.choose {
-  width: 100%;
-  justify-content: center;
+  @include below(2xl) {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .list {
@@ -84,42 +28,24 @@
   margin: 0;
   gap: 12px 28px;
   list-style: none;
+
+  @include below(md) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .item {
   display: flex;
   align-items: center;
-  color: var(--color-text-muted);
-  font-size: 14px;
+  color: var(--color-text);
+  font-size: 15px;
   gap: 8px;
 }
 
 .check {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
   color: var(--color-accent);
-}
-
-.footer {
-  align-items: center;
-}
-
-.cta {
-  max-width: 420px;
-}
-
-@include below(2xl) {
-  .plans {
-    grid-template-columns: 1fr;
-  }
-
-  .plan {
-    padding: 28px 20px;
-  }
-
-  .list {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 }

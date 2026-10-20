@@ -5,22 +5,14 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border: 1px solid color-mix(in srgb, var(--color-accent) 40%, transparent);
-  border-radius: var(--radius-md);
-  background-color: var(--color-surface-raised);
-  box-shadow:
-    0 0 0 3px color-mix(in srgb, var(--color-accent) 10%, transparent),
-    0 8px 20px -10px color-mix(in srgb, var(--color-accent) 45%, transparent);
-  transition:
-    border-color var(--duration-base) ease,
-    box-shadow var(--duration-base) ease;
+  border: 3px solid var(--color-surface-raised);
+  border-radius: 50%;
+  box-shadow: var(--shadow-soft);
+  transition: transform var(--duration-base) var(--ease-out);
 }
 
 .root:hover {
-  border-color: color-mix(in srgb, var(--color-accent) 65%, transparent);
-  box-shadow:
-    0 0 0 4px color-mix(in srgb, var(--color-accent) 16%, transparent),
-    0 10px 24px -10px color-mix(in srgb, var(--color-accent) 60%, transparent);
+  transform: rotate(-6deg);
 }
 
 .image {

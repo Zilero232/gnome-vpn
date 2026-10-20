@@ -1,1 +1,1 @@
-export { fontMono, fontSans } from './fonts';
+export { fontMono, fontSans, fontSerif } from './fonts';

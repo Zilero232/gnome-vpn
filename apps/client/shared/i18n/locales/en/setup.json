@@ -90,7 +90,8 @@
         "body": "Each country comes in several variants: Hysteria2 over UDP, VLESS + Reality over TCP and, on some servers, WireGuard. The app labels each entry with its protocol. Start with Hysteria2; if the network blocks UDP, switch to VLESS."
       }
     },
-    "note": "Whatever app you pick, the link stays yours alone. If it leaks, rotate it in your account: the old one dies at once, every app is disconnected and you add the new link on each device. WireGuard configs keep working."
+    "note": "Whatever app you pick, the link stays yours alone. If it leaks, rotate it in your account: the old one dies at once, every app is disconnected and you add the new link on each device. WireGuard configs keep working.",
+    "none": "We know of no other subscription app for TVs — use INCY there."
   },
   "wireguard": {
     "title": "A WireGuard config",
@@ -119,7 +120,8 @@
         "import": "In the app choose to import a tunnel from a file. On Linux put the file in /etc/wireguard/. On a router import the .conf where WireGuard connections are set up.",
         "connect": "Turn the tunnel on. On Linux: sudo wg-quick up followed by the file name without .conf."
       }
-    }
+    },
+    "stepsFor": "How to connect: {platform}"
   },
   "ways": {
     "title": "Pick a way",
@@ -147,5 +149,12 @@
     "install": "Install the app",
     "import": "Import the config",
     "connect": "Connect"
+  },
+  "picker": {
+    "label": "Platform",
+    "iphone": "iPhone",
+    "android": "Android",
+    "computer": "Computer",
+    "tv": "TV"
   }
 }

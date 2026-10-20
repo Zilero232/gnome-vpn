@@ -17,17 +17,10 @@ export const signInSchema = z.object({
   password: passwordSchema
 });
 
-export const signUpSchema = z
-  .object({
-    name: nameSchema,
-    email: emailSchema,
-    password: passwordSchema,
-    confirmPassword: z.string()
-  })
-  .refine((values) => values.password === values.confirmPassword, {
-    message: 'validation.passwordsMismatch',
-    path: ['confirmPassword']
-  });
+export const signUpSchema = z.object({
+  email: emailSchema,
+  password: passwordSchema
+});
 
 export const updateNameSchema = z.object({
   name: nameSchema

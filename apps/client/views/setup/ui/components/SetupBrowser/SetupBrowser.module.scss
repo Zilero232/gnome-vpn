@@ -1,0 +1,19 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  @include stack(64px);
+
+  min-width: 0;
+
+  @include below(md) {
+    gap: 48px;
+  }
+}
+
+.section {
+  @include stack(16px);
+}
+
+.sectionTitle {
+  @include section-title;
+}

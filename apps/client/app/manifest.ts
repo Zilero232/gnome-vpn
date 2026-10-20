@@ -9,8 +9,8 @@ const manifest = (): MetadataRoute.Manifest => ({
   start_url: '/',
   scope: '/',
   display: 'standalone',
-  background_color: SITE.themeColor.dark,
-  theme_color: SITE.themeColor.dark,
+  background_color: SITE.themeColor,
+  theme_color: SITE.themeColor,
   lang: SITE.lang,
   icons: [
     { src: '/brand/favicon.svg', type: 'image/svg+xml', sizes: 'any', purpose: 'any' },

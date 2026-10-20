@@ -6,4 +6,5 @@ export type StatusScreenProps = {
   body: string;
   children?: ReactNode;
   tone?: 'accent' | 'danger';
+  isInline?: boolean;
 };

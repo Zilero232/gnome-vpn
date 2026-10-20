@@ -1,0 +1,30 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  @include stack(16px);
+
+  padding: 32px;
+  border: 1px dashed var(--color-border-bright);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg-deep);
+
+  @include below(md) {
+    padding: 22px 16px;
+  }
+}
+
+.title {
+  @include display-heading(26px, 600);
+}
+
+.intro {
+  @include marketing-lead;
+
+  font-size: 16px;
+}
+
+.link {
+  align-self: flex-start;
+
+  @include text-link(15px);
+}

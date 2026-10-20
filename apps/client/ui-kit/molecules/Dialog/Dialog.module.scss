@@ -4,7 +4,7 @@
   position: fixed;
   z-index: 50;
   backdrop-filter: blur(3px);
-  background-color: rgb(0 0 0 / 72%);
+  background-color: var(--color-overlay);
   inset: 0;
   transition: opacity var(--duration-base) ease;
 
@@ -32,7 +32,7 @@
   border: 1px solid var(--color-border-bright);
   border-radius: var(--radius-lg);
   background-color: var(--color-surface-raised);
-  box-shadow: 0 32px 72px -28px rgb(0 0 0 / 85%);
+  box-shadow: var(--shadow-dialog);
   gap: 22px;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -104,7 +104,7 @@
 
   &:hover {
     border-color: var(--color-border);
-    background-color: rgb(230 240 236 / 5%);
+    background-color: rgb(var(--color-tint) / 5%);
     color: var(--color-text);
   }
 

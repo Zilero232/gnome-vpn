@@ -1,0 +1,21 @@
+export const GNOME_COLORS = {
+  night: '#1f3a31',
+  hillFar: '#28503f',
+  hillNear: '#1d4034',
+  ground: '#173027',
+  grass: '#2f6b50',
+  hat: '#35f0a0',
+  hatShade: '#1a8f5e',
+  beard: '#f3eee2',
+  nose: '#f2b98f',
+  cheek: '#f2b98f',
+  eye: '#16201c',
+  tunic: '#d9875c',
+  belt: '#16201c',
+  boots: '#6b4630',
+  door: '#8a5a3c',
+  metal: '#c9b99a',
+  light: '#ffd38a',
+  flame: '#fff4d6',
+  star: '#f3eee2'
+} as const;

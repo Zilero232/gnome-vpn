@@ -1,48 +1,36 @@
 @use '@/shared/styles/mixins' as *;
 
-.list {
-  display: flex;
-
-  @include hairline-cards;
-
-  flex-direction: column;
-}
-
-.item {
-  padding: 24px 26px;
-  background-color: var(--color-surface);
+.root {
+  padding: 128px 0 0;
 
   @include below(md) {
-    padding: 20px;
+    padding-top: 88px;
   }
 }
 
-.question {
-  margin: 0 0 8px;
-  color: var(--color-accent);
-  font-family: var(--font-mono);
-  font-size: 14px;
-  font-weight: 500;
+.head {
+  display: flex;
+  max-width: 760px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  gap: 12px 24px;
 }
 
-.answer {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: 14px;
-  line-height: 1.65;
+.title {
+  @include section-title;
 }
 
 .more {
-  display: flex;
-  justify-content: center;
-  padding: 18px 26px;
-  background-color: var(--color-surface);
-}
-
-.moreLink {
-  @include text-link;
-  @include touch-target;
-
   display: inline-flex;
   align-items: center;
+  gap: 8px;
+
+  @include text-link(15px);
+  @include touch-target;
+}
+
+.list {
+  max-width: 760px;
 }

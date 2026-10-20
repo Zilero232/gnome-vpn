@@ -1,15 +1,10 @@
 import type { CountryFlagProps } from './CountryFlag.types';
 
+import { FLAGS } from './CountryFlag.constants';
 import { countryFlag } from './CountryFlag.variants';
 
-import 'flag-icons/css/flag-icons.min.css';
+export const CountryFlag = ({ countryCode, size = 'md', className }: CountryFlagProps) => {
+  const flag = FLAGS[countryCode.toLowerCase()];
 
-export const CountryFlag = ({ countryCode, size = 'md', className }: CountryFlagProps) => (
-  <span
-    aria-hidden
-    className={countryFlag({
-      size,
-      class: `fi fi-${countryCode.toLowerCase()} ${className ?? ''}`.trim()
-    })}
-  />
-);
+  return <span aria-hidden className={countryFlag({ size, class: className })} style={flag ? { backgroundImage: `url(${flag})` } : undefined} />;
+};

@@ -1,0 +1,35 @@
+.root {
+  display: block;
+  overflow: visible;
+  width: 100%;
+  height: auto;
+}
+
+.arm {
+  transform-box: view-box;
+  transform-origin: 180px 222px;
+}
+
+.eye {
+  animation: blink 6s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+
+@keyframes blink {
+  0%,
+  95%,
+  100% {
+    transform: scaleY(1);
+  }
+
+  97% {
+    transform: scaleY(0.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eye {
+    animation: none;
+  }
+}

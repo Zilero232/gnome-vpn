@@ -5,7 +5,7 @@ import { Check, ExternalLink, Link2, QrCode, Smartphone } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { useHydrated } from '@/shared/lib';
-import { Button, buttonVariants } from '@/ui-kit';
+import { Button, buttonVariants, IconSwap } from '@/ui-kit';
 
 import type { IncyActionsProps } from './IncyActions.types';
 
@@ -36,7 +36,7 @@ export const IncyActions = ({ deepLink, url, copiedId, onCopy, onShowQr }: IncyA
         variant={canOpenApp ? 'ghost' : 'primary'}
         onClick={() => void onCopy({ value: deepLink, message: t('deepLinkCopied'), id: INCY_COPY.target.deepLink })}
       >
-        {isCopied(INCY_COPY.target.deepLink) ? <Check aria-hidden size={16} /> : <Smartphone aria-hidden size={16} />}
+        <IconSwap active={<Check size={16} />} idle={<Smartphone size={16} />} isActive={isCopied(INCY_COPY.target.deepLink)} />
         {t('copyDeepLink')}
       </Button>
 
@@ -46,7 +46,7 @@ export const IncyActions = ({ deepLink, url, copiedId, onCopy, onShowQr }: IncyA
         variant='ghost'
         onClick={() => void onCopy({ value: url, message: t('urlCopied'), id: INCY_COPY.target.url })}
       >
-        {isCopied(INCY_COPY.target.url) ? <Check aria-hidden size={16} /> : <Link2 aria-hidden size={16} />}
+        <IconSwap active={<Check size={16} />} idle={<Link2 size={16} />} isActive={isCopied(INCY_COPY.target.url)} />
         {t('copyUrl')}
       </Button>
 

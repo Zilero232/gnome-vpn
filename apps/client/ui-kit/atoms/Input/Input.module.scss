@@ -4,10 +4,10 @@
   padding: 0 14px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  background-color: var(--color-bg-deep);
+  background-color: var(--color-surface-raised);
   color: var(--color-text);
-  font-family: var(--font-mono);
-  font-size: 14px;
+  font-family: var(--font-sans);
+  font-size: 15px;
   transition:
     border-color 0.18s ease,
     box-shadow 0.18s ease;
@@ -18,8 +18,7 @@
 
   &::placeholder {
     color: var(--color-text-muted);
-    font-family: var(--font-mono);
-    opacity: 0.6;
+    opacity: 0.75;
   }
 
   &:hover:not(:disabled) {
@@ -27,7 +26,7 @@
   }
 
   &:focus-visible {
-    border-color: var(--color-accent-dim);
+    border-color: var(--color-accent);
     box-shadow: var(--glow-accent);
     outline: none;
   }

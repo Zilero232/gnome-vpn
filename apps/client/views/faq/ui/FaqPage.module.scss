@@ -1,45 +1,5 @@
 @use '@/shared/styles/mixins' as *;
 
 .root {
-  @include marketing-page(760px, 40px, 28px);
-}
-
-.head {
-  @include stack(12px);
-  @include rise(0.5s, 0s, 10px);
-}
-
-.title {
-  @include marketing-title;
-}
-
-.intro {
-  font-size: 15px;
-  line-height: 1.6;
-}
-
-.group {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.groupTitle {
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.footer {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding-top: 24px;
-  border-top: 1px solid var(--color-border);
-  gap: 6px;
-}
-
-.link {
-  overflow-wrap: anywhere;
-
-  @include text-link;
+  @include marketing-page(1080px, 48px, 36px);
 }

@@ -1,58 +1,35 @@
 import { useTranslations } from 'next-intl';
 
-import { FAQ_GROUPS } from '@/entities/app/faq';
-import { SITE } from '@/shared/config';
+import { FAQ_ANSWER_VALUES, FAQ_GROUPS } from '@/entities/app/faq';
 import { faqJsonLd, JsonLd } from '@/shared/seo';
-import { Accordion, Text } from '@/ui-kit';
+import { PageIntro } from '@/widgets/site/page-intro';
+
+import { FaqBrowser } from './components';
 
 import s from './FaqPage.module.scss';
 
 export const FaqPage = () => {
   const t = useTranslations('faq');
 
-  const entries = FAQ_GROUPS.flatMap(({ questions }) =>
-    questions.map((question) => ({ question: t(`questions.${question}.q`), answer: t(`questions.${question}.a`) }))
-  );
+  const groups = FAQ_GROUPS.map(({ key, questions }) => ({
+    key,
+    title: t(`groups.${key}`),
+    items: questions.map((question) => ({
+      value: question,
+      question: t(`questions.${question}.q`),
+      answer: t(`questions.${question}.a`, FAQ_ANSWER_VALUES)
+    }))
+  }));
+
+  const entries = groups.flatMap(({ items }) => items.map(({ question, answer }) => ({ question, answer })));
 
   return (
     <main className={s.root}>
       <JsonLd data={faqJsonLd({ entries })} />
 
-      <header className={s.head}>
-        <Text as='h1' className={s.title}>
-          {t('title')}
-        </Text>
+      <PageIntro intro={t('intro')} title={t('title')} />
 
-        <Text as='p' className={s.intro} tone='muted'>
-          {t('intro')}
-        </Text>
-      </header>
-
-      {FAQ_GROUPS.map(({ key, questions }) => (
-        <section key={key} className={s.group}>
-          <Text as='h2' className={s.groupTitle}>
-            {t(`groups.${key}`)}
-          </Text>
-
-          <Accordion
-            items={questions.map((question) => ({
-              value: question,
-              title: t(`questions.${question}.q`),
-              content: t(`questions.${question}.a`)
-            }))}
-          />
-        </section>
-      ))}
-
-      <footer className={s.footer}>
-        <Text as='p' size='sm' tone='muted'>
-          {t('stillStuck')}
-        </Text>
-
-        <a className={s.link} href={`mailto:${SITE.email}`}>
-          {SITE.email}
-        </a>
-      </footer>
+      <FaqBrowser groups={groups} />
     </main>
   );
 };

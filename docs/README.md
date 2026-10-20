@@ -16,7 +16,7 @@ Design decisions — the "why" behind the code, and what has already gone wrong.
 - [architecture/telegram-bot.md](architecture/telegram-bot.md) — the bot as a second door to the same account: services, account creation, linking, the webhook and its host, the keyboard, notifications, callback payloads.
 - [architecture/provisioning.md](architecture/provisioning.md) — why provisioning is local, `scripts/provision` and its `remote/` folders, narration, fail2ban, what a run does to a node.
 - [architecture/logging.md](architecture/logging.md) — one logger and one list of secrets; a node's URL never reaches a log.
-- [architecture/web-client.md](architecture/web-client.md) — `cacheComponents` without `use cache`, clearing the query cache on sign-in, indexed pages, structured data.
+- [architecture/web-client.md](architecture/web-client.md) — the paper theme, the gnome and the WebGL scenes, the 404 routing, client message namespaces, `cacheComponents` without `use cache`, clearing the query cache on sign-in, indexed pages, structured data.
 - [architecture/fsd.md](architecture/fsd.md) — Feature-Sliced Design as used by `apps/client`: layers, slices, segments, where a thing goes.
 - [architecture/pitfalls.md](architecture/pitfalls.md) — things that have already bitten us.
 

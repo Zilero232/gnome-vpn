@@ -1,86 +1,88 @@
 @use '@/shared/styles/mixins' as *;
 
-.root {
+:where(.root) {
   margin: 0;
   line-height: 1.55;
 }
 
-.xs {
+:where(.xs) {
   font-size: 12px;
 }
 
-.sm {
+:where(.sm) {
   font-size: 14px;
 }
 
-.md {
+:where(.md) {
   font-size: 16px;
 }
 
-.lg {
+:where(.lg) {
   font-size: 18px;
   line-height: 1.5;
 }
 
-.xl {
+:where(.xl) {
   font-size: 24px;
   letter-spacing: -0.01em;
   line-height: 1.3;
 }
 
-.regular {
+:where(.regular) {
   font-weight: 400;
 }
 
-.medium {
+:where(.medium) {
   font-weight: 500;
 }
 
-.semibold {
+:where(.semibold) {
   font-weight: 600;
 }
 
-.bold {
+:where(.bold) {
   font-weight: 700;
 }
 
-.mono {
+:where(.mono) {
   font-family: var(--font-mono);
 }
 
-.uppercase {
-  letter-spacing: 0.14em;
+:where(.uppercase) {
+  font-size: 0.85em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
-.muted {
+:where(.muted) {
   color: var(--color-text-muted);
 }
 
-.accent {
+:where(.accent) {
   color: var(--color-accent);
 }
 
-.danger {
+:where(.danger) {
   color: var(--color-danger);
 }
 
-.success {
+:where(.success) {
   color: var(--color-success);
 }
 
-.left {
+:where(.left) {
   text-align: left;
 }
 
-.center {
+:where(.center) {
   text-align: center;
 }
 
-.right {
+:where(.right) {
   text-align: right;
 }
 
-.truncate {
+:where(.truncate) {
   @include truncate;
 }

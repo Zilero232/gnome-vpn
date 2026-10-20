@@ -5,9 +5,18 @@ export {
   Button,
   buttonVariants,
   CountryFlag,
+  GnomeArt,
+  GnomeBadge,
+  GroundArt,
+  HillsArt,
+  IconSwap,
   Input,
   Label,
   PasswordInput,
+  Reveal,
+  SCENE_VIEWBOX,
+  ScenePoster,
+  SkyArt,
   Spinner,
   Stack,
   StatusIcon,
@@ -19,9 +28,14 @@ export type {
   BrandMarkProps,
   ButtonProps,
   CountryFlagProps,
+  GnomeArtProps,
+  GnomeBadgeProps,
+  IconSwapProps,
   InputProps,
   LabelProps,
   PasswordInputProps,
+  RevealProps,
+  ScenePosterProps,
   SpinnerProps,
   StackProps,
   StatusIconProps,
@@ -44,7 +58,8 @@ export {
   Segmented,
   SelectableCard,
   SubmitButton,
-  Tabs
+  Tabs,
+  TiltCard
 } from './molecules';
 
 export type {
@@ -60,7 +75,8 @@ export type {
   SelectableCardProps,
   SubmitButtonProps,
   TabItem,
-  TabsProps
+  TabsProps,
+  TiltCardProps
 } from './molecules';
-export { AppToaster, StatusScreen } from './organisms';
+export { AppToaster, celebrate, StatusScreen } from './organisms';
 export type { StatusScreenProps } from './organisms';

@@ -22,7 +22,6 @@
 
 .count {
   color: var(--color-text-muted);
-  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 
   &[data-over-limit='true'] {

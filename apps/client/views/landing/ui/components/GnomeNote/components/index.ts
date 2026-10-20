@@ -1,0 +1,1 @@
+export { WavingGnome } from './WavingGnome';

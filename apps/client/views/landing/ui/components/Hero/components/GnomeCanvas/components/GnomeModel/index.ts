@@ -1,0 +1,1 @@
+export { GnomeModel } from './GnomeModel';

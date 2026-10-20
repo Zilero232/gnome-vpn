@@ -1,2 +1,2 @@
-export { COMPARISON_ROWS, FEATURE_CARDS, HERO_METRICS, HOW_IT_WORKS_STEPS, LOCATIONS } from './landing';
-export type { FeatureCard } from './landing';
+export { GLOBE_LABEL_SIDE, GLOBE_ORIGIN, GLOBE_POSTER } from './globe';
+export { CONNECT_GUIDES, CONNECT_STEPS, HERO_FACTS, INSIDE_POINTS, LOCATIONS, NOTE_PARAGRAPHS } from './landing';

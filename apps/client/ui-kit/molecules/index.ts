@@ -21,3 +21,5 @@ export { SubmitButton } from './SubmitButton';
 export type { SubmitButtonProps } from './SubmitButton';
 export { Tabs } from './Tabs';
 export type { TabItem, TabsProps } from './Tabs';
+export { TiltCard } from './TiltCard';
+export type { TiltCardProps } from './TiltCard';

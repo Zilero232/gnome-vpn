@@ -1,29 +1,5 @@
 @use '@/shared/styles/mixins' as *;
 
 .root {
-  max-width: 1080px;
-  padding: 0 24px;
-  margin: 0 auto;
-}
-
-.section {
-  padding: 88px 0 0;
-}
-
-.sectionTitle {
-  margin: 0 0 32px;
-  font-size: clamp(26px, 4vw, 38px);
-  font-weight: 800;
-  letter-spacing: -0.025em;
-  text-wrap: balance;
-}
-
-@include below(md) {
-  .root {
-    padding: 0 16px;
-  }
-
-  .section {
-    padding: 56px 0 0;
-  }
+  @include shell-container;
 }

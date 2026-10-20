@@ -1,20 +1,26 @@
-import { DEFAULT_DEVICE_LIMIT, LOWEST_MONTHLY_RUB } from '@gnomevpn/schemas';
+import { AppWindow, EyeOff, Link2, MonitorSmartphone, Waypoints } from 'lucide-react';
 
-export const HERO_METRICS = [
-  { value: 'Hysteria2', key: 'protocol' },
-  { value: `${LOWEST_MONTHLY_RUB} ₽`, key: 'price' },
-  { value: String(DEFAULT_DEVICE_LIMIT), key: 'devices' }
+export const HERO_FACTS = ['price', 'devices'] as const;
+
+export const CONNECT_GUIDES = {
+  ios: 'ios',
+  android: 'android',
+  windows: 'desktop',
+  macos: 'desktop',
+  linux: 'desktop',
+  tv: 'tv'
+} as const;
+
+export const CONNECT_STEPS = ['install', 'copyLink', 'import'] as const;
+
+export const INSIDE_POINTS = [
+  { key: 'protocol', icon: Waypoints },
+  { key: 'noLogs', icon: EyeOff },
+  { key: 'devices', icon: MonitorSmartphone },
+  { key: 'platforms', icon: AppWindow },
+  { key: 'openFormat', icon: Link2 }
 ] as const;
 
-export const HOW_IT_WORKS_STEPS = ['step1', 'step2', 'step3'] as const;
+export { SERVER_LOCATIONS as LOCATIONS } from '@/entities/app/protocols';
 
-export const FEATURE_CARDS = ['protocol', 'devices', 'platforms', 'locations', 'noLogs', 'openFormat'] as const;
-
-export const LOCATIONS = [
-  { code: 'nl', key: 'netherlands' },
-  { code: 'fi', key: 'finland' }
-] as const;
-
-export const COMPARISON_ROWS = ['speed', 'ads', 'blocking', 'limits'] as const;
-
-export type FeatureCard = (typeof FEATURE_CARDS)[number];
+export const NOTE_PARAGRAPHS = ['why', 'cancel', 'refund'] as const;

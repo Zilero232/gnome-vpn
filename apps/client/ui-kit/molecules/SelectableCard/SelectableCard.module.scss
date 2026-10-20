@@ -16,8 +16,10 @@
     transform: scale(0.99);
   }
 
-  &:hover:not(:disabled) {
-    border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border-bright));
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border-bright));
+    }
   }
 
   &:disabled {

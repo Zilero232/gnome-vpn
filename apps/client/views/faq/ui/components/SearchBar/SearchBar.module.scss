@@ -1,0 +1,74 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.label,
+.hint {
+  @include visually-hidden;
+}
+
+.icon {
+  position: absolute;
+  left: 18px;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  height: 56px;
+  padding: 0 52px;
+  border: 1px solid var(--color-border-bright);
+  border-radius: var(--radius-pill);
+  appearance: none;
+  background-color: var(--color-surface-raised);
+  box-shadow: var(--shadow-soft);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  outline: none;
+  transition:
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
+
+  &::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  &::-webkit-search-cancel-button,
+  &::-webkit-search-decoration {
+    appearance: none;
+  }
+
+  &:focus-visible {
+    border-color: var(--color-accent);
+    box-shadow: var(--glow-accent);
+  }
+}
+
+.clear {
+  position: absolute;
+  right: 8px;
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) ease,
+    color var(--duration-fast) ease;
+
+  &:hover {
+    background-color: rgb(var(--color-tint) / 7%);
+    color: var(--color-text);
+  }
+}

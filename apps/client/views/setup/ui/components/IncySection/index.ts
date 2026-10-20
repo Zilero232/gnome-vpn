@@ -1,0 +1,1 @@
+export { IncySection } from './IncySection';

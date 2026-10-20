@@ -1,0 +1,1 @@
+export { SceneRig } from './SceneRig';

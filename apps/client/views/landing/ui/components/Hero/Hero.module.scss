@@ -1,140 +1,110 @@
 @use '@/shared/styles/mixins' as *;
 
 .root {
-  position: relative;
-  padding: 72px 0 40px;
-
-  @include below(md) {
-    padding: 40px 0 24px;
-  }
-}
-
-.mark {
-  position: absolute;
-  z-index: -1;
-  top: 24px;
-  right: 0;
-  border-radius: 34px;
-
-  @include rise(0.7s, 0.1s, 16px);
-
-  filter: drop-shadow(0 0 70px rgb(53 240 160 / 30%));
-  opacity: 0.9;
-  pointer-events: none;
+  display: grid;
+  align-items: center;
+  padding: 56px 0 72px;
+  gap: 48px;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.85fr);
 
   @include below(2xl) {
-    display: none;
+    padding: 24px 0 56px;
+    gap: 28px;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  padding: 7px 14px;
-  border: 1px solid rgb(53 240 160 / 20%);
-  border-radius: 100px;
-  margin-bottom: 30px;
-
-  @include rise(0.6s, 0s, 16px);
-
-  background-color: rgb(53 240 160 / 6%);
-  color: var(--color-accent);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  gap: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+.text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .title {
-  margin: 0 0 26px;
+  @include display-heading(clamp(40px, 3.6vw + 22px, 70px), 500);
 
-  @include rise(0.6s, 0.08s, 16px);
-
-  font-size: clamp(40px, 9vw, 92px);
-  font-weight: 800;
-  letter-spacing: -0.045em;
-  line-height: 0.95;
-  overflow-wrap: break-word;
+  max-width: 13ch;
+  margin: 0 0 24px;
+  letter-spacing: -0.025em;
+  line-height: 1.04;
 }
 
-.titleAccent {
-  position: relative;
-  color: var(--color-accent);
-
-  &:after {
-    position: absolute;
-    right: 0;
-    bottom: 0.12em;
-    left: 0;
-    height: 3px;
-    background-color: var(--color-accent);
-    box-shadow: 0 0 20px var(--color-accent);
-    content: '';
-  }
+.accent {
+  @include marker;
 }
 
 .lead {
-  max-width: 62ch;
-  margin: 0 0 40px;
-  color: var(--color-text-muted);
-  font-size: clamp(16px, 2vw, 19px);
-  line-height: 1.6;
+  @include marketing-lead;
 
-  @include rise(0.6s, 0.16s, 16px);
+  max-width: 50ch;
+  margin: 0 0 32px;
+  font-size: clamp(17px, 0.4vw + 15px, 19px);
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-
-  @include rise(0.6s, 0.24s, 16px);
-
-  gap: 14px;
+  gap: 12px;
 }
 
-.ctaNote {
-  margin: 14px 0 0;
+.cta {
+  height: 48px;
+  padding: 0 22px;
+  font-size: 15px;
 
-  @include rise(0.6s, 0.28s, 16px);
+  @include below(xs) {
+    width: 100%;
+  }
 }
 
-.meta {
+.facts {
   display: flex;
-  flex-wrap: wrap;
-  padding-top: 44px;
-  border-top: 1px solid var(--color-border);
-  margin: 56px 0 0;
+  flex-direction: column;
+  padding: 0;
+  margin: 36px 0 0;
+  gap: 10px;
+  list-style: none;
 
   @include below(md) {
-    padding-top: 28px;
-    margin-top: 36px;
+    margin-top: 28px;
+  }
+}
+
+.fact {
+  position: relative;
+  padding-left: 18px;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+
+  &:before {
+    position: absolute;
+    top: 0.5em;
+    left: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--color-highlight);
+    box-shadow: 0 0 0 1px var(--color-accent-dim);
+    content: '';
+  }
+}
+
+.art {
+  width: 100%;
+  padding-bottom: 28px;
+
+  @include rise(0.7s, 0s, 14px);
+
+  @include below(2xl) {
+    padding-left: 24px;
+    grid-row: 1;
   }
 
-  @include rise(0.6s, 0.32s, 16px);
-
-  gap: 26px;
-}
-
-.metaItem {
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 6px;
-}
-
-.metaValue {
-  margin: 0;
-  color: var(--color-accent);
-  font-family: var(--font-mono);
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.metaLabel {
-  color: var(--color-text-muted);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  @include below(lg) {
+    padding-left: 0;
+  }
 }

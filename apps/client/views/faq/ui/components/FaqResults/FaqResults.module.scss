@@ -1,0 +1,11 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  @include stack(20px);
+
+  max-width: 760px;
+}
+
+.more {
+  align-self: flex-start;
+}

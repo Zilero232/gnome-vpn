@@ -1,9 +1,10 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 
 import { ROUTES } from '@/shared/constants';
-import { localePath, messages, resolveLocale } from '@/shared/i18n';
+import { localePath, resolveLocale } from '@/shared/i18n';
 import { Button, StatusScreen } from '@/ui-kit';
 
 import type { ErrorViewProps } from './ErrorView.types';
@@ -11,19 +12,19 @@ import type { ErrorViewProps } from './ErrorView.types';
 import s from './ErrorView.module.scss';
 
 export const ErrorView = ({ error, reset }: ErrorViewProps) => {
+  const t = useTranslations('error');
   const params = useParams<{ locale?: string }>();
 
   const locale = resolveLocale(params.locale);
-  const t = messages[locale].error;
 
   return (
-    <StatusScreen body={t.body} code={t.code} title={t.title} tone='danger'>
-      <Button onClick={reset}>{t.retry}</Button>
+    <StatusScreen body={t('body')} code={t('code')} title={t('title')} tone='danger'>
+      <Button onClick={reset}>{t('retry')}</Button>
       <Button variant='ghost' onClick={() => window.location.assign(localePath({ path: ROUTES.landing, locale }))}>
-        {t.home}
+        {t('home')}
       </Button>
 
-      {error.digest && <p className={s.digest}>{`${t.details}: ${error.digest}`}</p>}
+      {error.digest && <p className={s.digest}>{`${t('details')}: ${error.digest}`}</p>}
     </StatusScreen>
   );
 };

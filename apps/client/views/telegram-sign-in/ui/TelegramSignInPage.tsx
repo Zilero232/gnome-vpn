@@ -7,6 +7,7 @@ import { useRedeemLogin } from '@/features/auth/telegram-sign-in';
 import { ROUTES } from '@/shared/constants';
 import { useRouter } from '@/shared/i18n/navigation';
 import { Button, Spinner, StatusIcon, Text } from '@/ui-kit';
+import { AuthAside, AuthShell } from '@/widgets/auth/auth-shell';
 
 import s from './TelegramSignInPage.module.scss';
 
@@ -17,43 +18,47 @@ export const TelegramSignInPage = () => {
 
   if (hasFailed) {
     return (
-      <div className={s.state}>
-        <StatusIcon tone='danger'>
-          <TriangleAlert size={22} />
-        </StatusIcon>
+      <AuthShell aside={<AuthAside body={t('reasons.telegramBody')} title={t('reasons.telegramTitle')} />} pose='welcome'>
+        <div className={s.state}>
+          <StatusIcon tone='danger'>
+            <TriangleAlert size={22} />
+          </StatusIcon>
 
-        <Text as='h1' className={s.title}>
-          {t('telegramSignInFailed')}
-        </Text>
+          <Text as='h1' className={s.title}>
+            {t('telegramSignInFailed')}
+          </Text>
 
-        <Text align='center' size='sm' tone='muted'>
-          {t('telegramSignInHint')}
-        </Text>
+          <Text align='center' size='sm' tone='muted'>
+            {t('telegramSignInHint')}
+          </Text>
 
-        <Button variant='ghost' onClick={() => router.replace(ROUTES.auth)}>
-          {t('backToSignIn')}
-        </Button>
-      </div>
+          <Button variant='ghost' onClick={() => router.replace(ROUTES.auth)}>
+            {t('backToSignIn')}
+          </Button>
+        </div>
+      </AuthShell>
     );
   }
 
   return (
-    <div className={s.state}>
-      <StatusIcon>
-        <Send size={22} />
-      </StatusIcon>
+    <AuthShell aside={<AuthAside body={t('reasons.telegramBody')} title={t('reasons.telegramTitle')} />} pose='welcome'>
+      <div className={s.state}>
+        <StatusIcon>
+          <Send size={22} />
+        </StatusIcon>
 
-      <Text as='h1' className={s.title}>
-        {t('telegramSignIn')}
-      </Text>
-
-      <span className={s.pending} role='status'>
-        <Spinner />
-
-        <Text size='sm' tone='muted'>
-          {t('telegramSignInPending')}
+        <Text as='h1' className={s.title}>
+          {t('telegramSignIn')}
         </Text>
-      </span>
-    </div>
+
+        <span className={s.pending} role='status'>
+          <Spinner />
+
+          <Text size='sm' tone='muted'>
+            {t('telegramSignInPending')}
+          </Text>
+        </span>
+      </div>
+    </AuthShell>
   );
 };

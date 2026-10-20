@@ -1,7 +1,7 @@
 {
   "code": "404",
-  "title": "Route not found",
-  "body": "This page does not exist. It may have moved, or the link was mistyped.",
+  "title": "Nothing lives here",
+  "body": "The gnome searched with his lantern and found no such page. It may have moved, or the link has a typo.",
   "home": "Go home",
   "account": "Open account"
 }

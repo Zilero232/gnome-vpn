@@ -11,9 +11,11 @@
     border-color var(--duration-fast) ease,
     background-color var(--duration-fast) ease;
 
-  &:hover {
-    border-color: var(--color-border-bright);
-    background-color: var(--color-surface-raised);
+  @media (hover: hover) {
+    &:hover {
+      border-color: var(--color-border-bright);
+      background-color: var(--color-surface-raised);
+    }
   }
 
   &:focus-visible {

@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { toast, Toaster } from 'sonner';
 
-import { ACTION_SELECTOR, TOAST_GAP, TOAST_OPTIONS, TOAST_SELECTOR } from './AppToaster.constants';
+import { ACTION_SELECTOR, TOAST_GAP, TOAST_OFFSET, TOAST_OPTIONS, TOAST_SELECTOR } from './AppToaster.constants';
 
 export const AppToaster = () => {
   useEffect(() => {
@@ -22,5 +22,15 @@ export const AppToaster = () => {
     return () => document.removeEventListener('click', onClick);
   }, []);
 
-  return <Toaster className='gnomevpn-toaster' gap={TOAST_GAP} position='top-center' theme='dark' toastOptions={TOAST_OPTIONS} />;
+  return (
+    <Toaster
+      className='gnomevpn-toaster'
+      gap={TOAST_GAP}
+      mobileOffset={TOAST_OFFSET.mobile}
+      offset={TOAST_OFFSET.desktop}
+      position='bottom-right'
+      theme='light'
+      toastOptions={TOAST_OPTIONS}
+    />
+  );
 };

@@ -6,8 +6,10 @@
   align-items: center;
   padding: 16px 18px;
   border: 1px solid var(--color-border);
+  border-style: dashed;
+  border-color: var(--color-border-bright);
   border-radius: var(--radius-lg);
-  background-color: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  background-color: var(--color-surface);
   gap: 14px;
 }
 
@@ -25,7 +27,8 @@
 }
 
 .title {
-  font-size: 15px;
+  font-family: var(--font-display);
+  font-size: 17px;
   font-weight: 600;
 }
 

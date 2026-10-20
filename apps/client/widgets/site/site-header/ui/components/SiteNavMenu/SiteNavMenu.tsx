@@ -4,9 +4,13 @@ import { Menu } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
-import { ROUTES, SITE_NAV } from '@/shared/constants';
+import { LocaleSwitcher } from '@/features/app/switch-locale';
+import { SITE } from '@/shared/config';
+import { SITE_NAV } from '@/shared/constants';
 import { Link, usePathname } from '@/shared/i18n/navigation';
-import { buttonVariants, Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/ui-kit';
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/ui-kit';
+
+import { HeaderActions } from '../HeaderActions';
 
 import s from './SiteNavMenu.module.scss';
 
@@ -35,9 +39,14 @@ export const SiteNavMenu = () => {
           ))}
         </nav>
 
-        <Link className={buttonVariants({ size: 'lg' })} href={ROUTES.account} onClick={close}>
-          {t('account')}
-        </Link>
+        <HeaderActions isStacked onNavigate={close} />
+
+        <div className={s.footer}>
+          <LocaleSwitcher />
+          <a className={s.email} href={`mailto:${SITE.email}`}>
+            {SITE.email}
+          </a>
+        </div>
       </DialogContent>
     </Dialog>
   );

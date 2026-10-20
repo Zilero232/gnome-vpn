@@ -1,0 +1,40 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  display: grid;
+  align-items: center;
+  padding-bottom: 8px;
+  gap: 24px 48px;
+}
+
+.withAside {
+  grid-template-columns: minmax(0, 1fr) auto;
+
+  @include below(md) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.text {
+  @include stack(16px);
+
+  align-items: flex-start;
+}
+
+.title {
+  @include marketing-title;
+
+  margin: 0;
+}
+
+.intro {
+  @include marketing-lead;
+}
+
+.aside {
+  @include rise(0.6s, 0.05s, 10px);
+
+  @include below(md) {
+    grid-row: 1;
+  }
+}

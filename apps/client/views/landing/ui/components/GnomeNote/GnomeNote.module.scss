@@ -1,0 +1,100 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  position: relative;
+  display: grid;
+  max-width: 920px;
+  align-items: start;
+  padding: 136px 0 0;
+  margin: 0 auto;
+  gap: 32px 40px;
+  grid-template-columns: 180px minmax(0, 1fr);
+
+  @include below(xl) {
+    padding-top: 88px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.gnome {
+  width: 180px;
+  margin-top: 24px;
+
+  @include below(xl) {
+    position: absolute;
+    z-index: 1;
+    top: calc(88px + 26px);
+    left: 22px;
+    width: 56px;
+    margin: 0;
+  }
+}
+
+.letter {
+  @include stack(24px);
+
+  padding: 44px 48px 36px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px 22px 22px;
+  background-color: var(--color-surface-raised);
+  box-shadow: var(--shadow-soft);
+
+  @include below(xl) {
+    padding: 26px 22px;
+  }
+}
+
+.title {
+  @include section-title;
+
+  @include below(xl) {
+    display: flex;
+    min-height: 56px;
+    align-items: center;
+    padding-left: 72px;
+  }
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  background-image: linear-gradient(transparent 27px, color-mix(in srgb, var(--color-border) 80%, transparent) 27px 28px, transparent 28px);
+  background-size: 100% 32px;
+  gap: 32px;
+}
+
+.text {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--color-text);
+  font-size: 17px;
+  line-height: 32px;
+
+  @include below(md) {
+    font-size: 16px;
+  }
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  gap: 16px;
+}
+
+.signature {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.cta {
+  height: 46px;
+
+  @include below(xs) {
+    width: 100%;
+  }
+}

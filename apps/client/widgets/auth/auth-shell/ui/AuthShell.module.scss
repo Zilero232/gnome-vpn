@@ -1,0 +1,80 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  display: grid;
+  width: 100%;
+  max-width: 980px;
+  align-items: start;
+  align-self: flex-start;
+  margin: clamp(0px, 6vh, 56px) auto 0;
+  gap: 20px 56px;
+  grid-template:
+    'art card' auto
+    'aside card' 1fr / minmax(0, 1fr) minmax(0, 420px);
+
+  @include below(2xl) {
+    max-width: 440px;
+    margin-top: 0;
+    gap: 0;
+    grid-template:
+      'art' auto
+      'card' auto / minmax(0, 1fr);
+  }
+}
+
+.art {
+  max-width: 420px;
+  grid-area: art;
+
+  @include below(2xl) {
+    position: relative;
+    overflow: hidden;
+    max-width: none;
+    height: 150px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border-bottom: none;
+    background-color: var(--color-night);
+  }
+}
+
+.scene {
+  @include below(2xl) {
+    border-radius: 0;
+    box-shadow: none;
+    transform: translateY(-38%);
+  }
+}
+
+.aside {
+  color: var(--color-text);
+  grid-area: aside;
+
+  @include below(2xl) {
+    display: none;
+  }
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 34px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  margin-top: 40px;
+  background-color: var(--color-surface-raised);
+  box-shadow: var(--shadow-soft);
+  gap: 22px;
+  grid-area: card;
+
+  @include below(2xl) {
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    border-top: none;
+    margin-top: 0;
+  }
+
+  @include below(sm) {
+    padding: 24px 20px;
+  }
+}

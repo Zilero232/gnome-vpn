@@ -8,7 +8,7 @@ export const NotFoundView = () => {
   const t = useTranslations('notFound');
 
   return (
-    <StatusScreen body={t('body')} code={t('code')} title={t('title')}>
+    <StatusScreen isInline body={t('body')} code={t('code')} title={t('title')}>
       <Link className={buttonVariants()} href={ROUTES.landing}>
         {t('home')}
       </Link>

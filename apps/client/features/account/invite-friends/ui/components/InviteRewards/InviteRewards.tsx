@@ -12,31 +12,39 @@ export const InviteRewards = () => {
   return (
     <section className={s.root}>
       <Text as='h3' className={s.title} size='sm'>
-        {t('rewardsTitle')}
+        {t('stepsTitle')}
       </Text>
 
-      <ul className={s.list}>
-        {PLANS.map((plan) => {
-          const reward = referralReward(plan.id);
-          const isBest = reward.referrerDays === MAX_REFERRER_DAYS;
+      <Text as='p' className={s.hint}>
+        {t('rewardsHint')}
+      </Text>
 
-          return (
-            <li key={plan.id} className={s.card} data-best={isBest}>
-              <span className={s.head}>
-                <span className={s.plan}>{plans(`plans.${plan.id}`)}</span>
-                {isBest && <span className={s.best}>{t('rewardBest')}</span>}
-              </span>
+      <table className={s.table}>
+        <thead>
+          <tr>
+            <th scope='col'>{t('rewardPlanLabel')}</th>
+            <th scope='col'>{t('rewardYouLabel')}</th>
+            <th scope='col'>{t('rewardFriendLabel')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {PLANS.map((plan) => {
+            const reward = referralReward(plan.id);
+            const isBest = reward.referrerDays === MAX_REFERRER_DAYS;
 
-              <span className={s.you}>
-                <span className={s.youLabel}>{t('rewardYouLabel')}</span>
-                <span className={s.youValue}>{t('rewardYou', { days: reward.referrerDays })}</span>
-              </span>
-
-              <span className={s.friend}>{t('rewardFriend', { days: reward.friendDays })}</span>
-            </li>
-          );
-        })}
-      </ul>
+            return (
+              <tr key={plan.id} data-best={isBest}>
+                <th scope='row'>
+                  {plans(`plans.${plan.id}`)}
+                  {isBest && <span className={s.best}>{t('rewardBest')}</span>}
+                </th>
+                <td className={s.you}>{t('rewardYou', { days: reward.referrerDays })}</td>
+                <td>{t('rewardFriend', { days: reward.friendDays })}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </section>
   );
 };

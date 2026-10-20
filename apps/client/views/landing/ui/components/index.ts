@@ -1,8 +1,6 @@
-export { Comparison } from './Comparison';
+export { ConnectSteps } from './ConnectSteps';
 export { Faq } from './Faq';
-export { Features } from './Features';
-export { Guarantee } from './Guarantee';
+export { GnomeNote } from './GnomeNote';
 export { Hero } from './Hero';
-export { HowItWorks } from './HowItWorks';
-export { Locations } from './Locations';
-export { Platforms } from './Platforms';
+export { HomePricing } from './HomePricing';
+export { ServersInside } from './ServersInside';

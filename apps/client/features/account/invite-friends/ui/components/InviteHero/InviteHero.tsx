@@ -2,7 +2,7 @@ import { MAX_REFERRER_DAYS } from '@gnomevpn/schemas';
 import { Gift } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-import { Text } from '@/ui-kit';
+import { GnomeBadge, Text } from '@/ui-kit';
 
 import s from './InviteHero.module.scss';
 
@@ -11,8 +11,6 @@ export const InviteHero = () => {
 
   return (
     <header className={s.root}>
-      <span aria-hidden className={s.glow} />
-
       <span className={s.eyebrow}>
         <Gift aria-hidden size={14} />
         {t('eyebrow')}
@@ -31,6 +29,8 @@ export const InviteHero = () => {
       <Text as='p' className={s.intro} size='sm' tone='muted'>
         {t('intro')}
       </Text>
+
+      <GnomeBadge className={s.badge} size={88} />
     </header>
   );
 };

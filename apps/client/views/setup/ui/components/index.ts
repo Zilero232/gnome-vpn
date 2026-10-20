@@ -1,3 +1,2 @@
-export { OtherClients } from './OtherClients';
-export { SetupSteps } from './SetupSteps';
-export type { SetupStep, SetupStepsProps } from './SetupSteps';
+export { SetupBrowser } from './SetupBrowser';
+export { SetupWays } from './SetupWays';

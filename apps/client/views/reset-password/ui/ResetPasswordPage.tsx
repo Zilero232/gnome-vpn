@@ -8,6 +8,7 @@ import { ResetPasswordForm } from '@/features/auth/reset-password';
 import { ROUTES } from '@/shared/constants';
 import { useRouter } from '@/shared/i18n/navigation';
 import { Button, StatusIcon, Text } from '@/ui-kit';
+import { AuthAside, AuthShell } from '@/widgets/auth/auth-shell';
 
 import s from './ResetPasswordPage.module.scss';
 
@@ -20,28 +21,30 @@ export const ResetPasswordPage = () => {
 
   if (!token) {
     return (
-      <div className={s.state}>
-        <StatusIcon tone='danger'>
-          <TriangleAlert size={22} />
-        </StatusIcon>
+      <AuthShell aside={<AuthAside body={t('reasons.resetBody')} title={t('reasons.resetTitle')} />} pose='key'>
+        <div className={s.state}>
+          <StatusIcon tone='danger'>
+            <TriangleAlert size={22} />
+          </StatusIcon>
 
-        <Text as='h1' className={s.title}>
-          {t('resetLinkInvalid')}
-        </Text>
+          <Text as='h1' className={s.title}>
+            {t('resetLinkInvalid')}
+          </Text>
 
-        <Text align='center' size='sm' tone='muted'>
-          {t('resetLinkInvalidHint')}
-        </Text>
+          <Text align='center' size='sm' tone='muted'>
+            {t('resetLinkInvalidHint')}
+          </Text>
 
-        <Button variant='ghost' onClick={() => router.replace(ROUTES.auth)}>
-          {t('backToSignIn')}
-        </Button>
-      </div>
+          <Button variant='ghost' onClick={() => router.replace(ROUTES.auth)}>
+            {t('backToSignIn')}
+          </Button>
+        </div>
+      </AuthShell>
     );
   }
 
   return (
-    <>
+    <AuthShell aside={<AuthAside body={t('reasons.resetBody')} title={t('reasons.resetTitle')} />} pose='key'>
       <div className={s.head}>
         <StatusIcon>
           <KeyRound size={22} />
@@ -53,6 +56,6 @@ export const ResetPasswordPage = () => {
       </div>
 
       <ResetPasswordForm token={token} onDone={() => router.replace(ROUTES.auth)} />
-    </>
+    </AuthShell>
   );
 };

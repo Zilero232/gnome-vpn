@@ -1,0 +1,19 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stacked {
+  flex-direction: column-reverse;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.root > .tryFree {
+  @include below(sm) {
+    display: none;
+  }
+}

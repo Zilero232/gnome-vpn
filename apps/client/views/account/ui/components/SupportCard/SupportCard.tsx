@@ -1,21 +1,18 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import { LifeBuoy, Mail, Send } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-import { getTelegramWidget } from '@/shared/api';
+import { botLink } from '@/features/account/link-telegram';
+import { useTelegramWidget } from '@/features/auth/telegram-sign-in';
 import { SITE } from '@/shared/config';
-import { QUERY_KEYS } from '@/shared/constants';
 import { Text } from '@/ui-kit';
-
-import { SUPPORT_CARD } from './SupportCard.constants';
 
 import s from './SupportCard.module.scss';
 
 export const SupportCard = () => {
   const t = useTranslations('account.support');
-  const { data: widget } = useQuery({ queryKey: QUERY_KEYS.telegramWidget(), queryFn: getTelegramWidget, retry: false });
+  const { data: widget } = useTelegramWidget();
 
   return (
     <section className={s.root}>
@@ -38,7 +35,7 @@ export const SupportCard = () => {
         </a>
 
         {widget?.botUsername && (
-          <a className={s.link} href={`${SUPPORT_CARD.telegramBase}/${widget.botUsername.replace(/^@/u, '')}`} rel='noreferrer' target='_blank'>
+          <a className={s.link} href={botLink({ bot: widget.botUsername })} rel='noreferrer' target='_blank'>
             <Send aria-hidden size={14} />
             {t('bot')}
           </a>

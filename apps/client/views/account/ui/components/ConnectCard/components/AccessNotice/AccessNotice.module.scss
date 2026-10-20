@@ -4,10 +4,10 @@
   display: flex;
   align-items: flex-start;
   padding: 12px 14px;
-  border: 1px solid color-mix(in srgb, var(--color-accent) 30%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-peach) 70%, var(--color-border));
   border-radius: var(--radius-md);
   margin: 0;
-  background-color: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  background-color: color-mix(in srgb, var(--color-peach) 22%, var(--color-surface-raised));
   color: var(--color-text);
   font-size: var(--step-sm);
   gap: 10px;
