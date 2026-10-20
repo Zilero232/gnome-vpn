@@ -29,16 +29,6 @@
 }
 
 .brand {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-}
-
-.mark {
-  flex-shrink: 0;
-}
-
-.brandText {
   @include stack(6px);
 }
 

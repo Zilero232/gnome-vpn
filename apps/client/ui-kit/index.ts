@@ -1,5 +1,4 @@
 export {
-  Avatar,
   Badge,
   BrandMark,
   Button,
@@ -23,7 +22,6 @@ export {
   Text
 } from './atoms';
 export type {
-  AvatarProps,
   BadgeProps,
   BrandMarkProps,
   ButtonProps,

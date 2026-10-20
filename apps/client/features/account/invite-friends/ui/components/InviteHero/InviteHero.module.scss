@@ -1,35 +1,15 @@
-@use '@/shared/styles/mixins' as *;
-
 .root {
   --color-text: var(--color-on-night);
   --color-text-muted: #c5d1c9;
 
-  position: relative;
   display: flex;
-  overflow: hidden;
   flex-direction: column;
   align-items: flex-start;
   padding: var(--pad-card);
-  padding-right: calc(var(--pad-card) + 96px);
   border-radius: var(--radius-lg);
   background-color: var(--color-night);
   color: var(--color-text);
   gap: 12px;
-
-  @include below(md) {
-    padding-right: var(--pad-card);
-  }
-}
-
-.badge {
-  position: absolute;
-  right: var(--pad-card);
-  bottom: var(--pad-card);
-  rotate: 8deg;
-
-  @include below(md) {
-    display: none;
-  }
 }
 
 .eyebrow {
@@ -79,6 +59,5 @@
 }
 
 .intro {
-  position: relative;
   max-width: 60ch;
 }

@@ -100,7 +100,7 @@ A folder is one concern, not one function: each gets its own `index.ts`, `<name>
 
 ```text
 ui-kit/
-├── atoms/       # Avatar, Badge, BrandMark, Button, CountryFlag, Input, Label,
+├── atoms/       # Badge, BrandMark, Button, CountryFlag, Input, Label,
 │                # PasswordInput, Spinner, Stack, StatusIcon, Text
 ├── molecules/   # Accordion, AppSplash, ConfirmDialog, Dialog, ErrorBlock, FormField,
 │                # LinkCard, LoadingBlock, Segmented, SelectableCard, SubmitButton, Tabs

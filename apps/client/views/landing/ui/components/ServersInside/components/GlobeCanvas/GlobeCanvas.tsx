@@ -18,7 +18,7 @@ export const GlobeCanvas = ({ tier, isRunning, markers, labels, onReady, onFallb
     className={s.root}
     dpr={[1, GLOBE_SCENE.dpr[tier]]}
     frameloop={isRunning ? 'always' : 'never'}
-    gl={{ antialias: tier === 'full', alpha: true, powerPreference: 'high-performance' }}
+    gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
   >
     <GlobeRig onFallback={onFallback} onReady={onReady}>
       <GlobeModel labels={labels} markers={markers} samples={GLOBE_SCENE.samples[tier]} />

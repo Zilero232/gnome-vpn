@@ -53,18 +53,22 @@ mock, a referral code, a Telegram code, the error digest.
 like Manrope through `next/font/local` from `shared/config/fonts/files` as
 `--font-literata` → `--font-serif` → `--font-display`. Only the upright
 variable files (Latin and Cyrillic, ~80 KB) ship; an italic would have doubled
-the preload on every page for one signature. Literata is `display: 'optional'`
+the preload on every page for one signature. Literata is `display: 'block'`
 with a Times New Roman metric fallback: with `swap` the headings painted in a
 metric-adjusted sans and then visibly changed width, which the owner saw as
-"headings jump after load". JetBrains Mono is not preloaded — nothing above
+"headings jump after load"; with `optional` a face that missed its ~100 ms
+window was dropped for the life of the document, and since navigation is
+client-side the headings stayed in Times New Roman on every page after a cold
+visit. The face is preloaded and small, so the block is a blink. JetBrains Mono is not preloaded — nothing above
 the fold uses it. Body text stays Manrope. Neither latin nor cyrillic subset
-carries `₽`, and a system-font rouble beside Literata digits looked pasted in,
-so each family gets a third face: `manrope-rouble.woff2` and
-`literata-rouble.woff2` (~1 KB each, U+20BD only, cut with `pyftsubset` from the
-OFL latin-ext files, Literata's optical-size axis pinned at 12 like the other
-files). They are listed **first** in `src`: faces without `unicode-range` are
-tried last-declared first, so the tiny face is reached only for a character the
-real subsets lack. Prices go through ICU (`{price, number}\u00a0₽`), so the
+carries `₽` or the arrows `←↑→↓` that end link labels ("See the plans →"), and
+system-font glyphs beside Literata or Manrope looked pasted in, so every family
+gets one more face: `manrope-symbols.woff2`, `literata-symbols.woff2` and
+`jetbrains-mono-symbols.woff2` (~1–2 KB each, U+20BD and U+2190–2193, cut with
+`pyftsubset` from the full OFL variable fonts in google/fonts, Literata's
+optical-size axis pinned at 12 like the other files). They are listed **first**
+in `src`: faces without `unicode-range` are tried last-declared first, so the
+tiny face is reached only for a character the real subsets lack. Prices go through ICU (`{price, number}\u00a0₽`), so the
 grouping is the locale's own — «1 690 ₽», "1,690 ₽" — and the sign never wraps
 away from the number. The OG card loads Manrope's latin-ext subset for it.
 
@@ -75,10 +79,9 @@ had equal specificity and CSS chunk order decided — with inlined CSS some page
 H1s rendered at the default 16px.
 
 **The gnome is the brand's character.** `GnomeBadge` (ui-kit) is the logo head
-in a round night badge: the header and footer mark, the 404, the FAQ and blog
-sign-offs, the account avatar — every account gets its own gnome, the hat
-colour picked from `AVATAR.palettes` by the email seed, which replaced the
-dicebear robots and their two dependencies. The illustrated scene — sky, hills
+in a round night badge: the header mark, the 404, the FAQ and blog
+sign-offs. The header carries the only logo — the footer and the account
+show none, and the account has no avatar. The illustrated scene — sky, hills
 with the gnome's round door, the gnome (lantern optional), foreground
 mushrooms — is `ui-kit/atoms/SceneArt`, plain `<g>` groups called as functions,
 so one set of art draws the home poster (`ScenePoster`), the auth scene and the
@@ -180,10 +183,13 @@ enhancement over a poster that is already on the page:
   the tab is hidden (an IntersectionObserver plus `visibilitychange`) —
   measured: zero `requestAnimationFrame` calls in two seconds with both scenes
   scrolled away, 120 with the hero on screen.
-- **Adapting.** DPR is capped (1.75 full, 1.25 lite); `useAdaptiveQuality`
-  samples FPS every two seconds, drops to DPR 1 under 30 fps and hands back to
-  the poster under 20. MSAA is on only for `full` (aliasing at DPR 1 looked
-  rough); `lite` relies on DPR.
+- **Adapting.** DPR is capped at 2 on both tiers and MSAA is always on;
+  `useAdaptiveQuality` samples FPS every two seconds, drops to DPR 1 under
+  30 fps and hands back to the poster under 20. `lite` used to cap DPR at 1.25
+  with no MSAA, and since every phone is `lite` (coarse and narrow) the gnome's
+  hat and the moon rendered as stair-steps on 3× screens; the canvases are
+  under 400 CSS px, so 2× with MSAA costs little, and `lite` still means fewer
+  stars, grass and dots.
 - **Cheap scenes.** Procedural geometry only — no models, textures or HDRs. The
   look is `MeshToonMaterial` with a three-step gradient and `flat` (no tone
   mapping, so the palette stays the palette); light is a hemisphere, one
@@ -213,7 +219,10 @@ enhancement over a poster that is already on the page:
   `geoContains` and checked in — it is data, not a build step. `landDots`
   filters a Fibonacci sphere (11 000 samples on `full`, 6 500 on `lite`, ~3 200
   and ~1 900 on land) and the dots are one `InstancedMesh` of small discs facing
-  outward. The camera looks at 52°N 25°E from 6.05 units with a 34° field, which
+  outward. A disc tangent to the sphere stands edge-on at the limb and pokes
+  past the silhouette, and the back hemisphere showed through as ticks, so the
+  dots' vertex shader (`LIMB_FADE_VERTEX`) shrinks each disc to nothing as it
+  turns away from the camera. The camera looks at 52°N 25°E from 6.05 units with a 34° field, which
   puts the whole sphere in the square card with ~8% margin; `projectGlobe` is
   the same projection as a pure function (tested: centre in the middle, north
   up, east right, sphere inside the card), used to place the labels on the

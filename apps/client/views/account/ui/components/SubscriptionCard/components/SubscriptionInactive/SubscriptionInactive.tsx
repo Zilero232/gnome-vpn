@@ -7,7 +7,7 @@ import { VerifyEmailCard } from '@/features/auth/verify-email';
 import { PlanPicker } from '@/features/billing/checkout';
 import { TrialBanner } from '@/features/billing/claim-trial';
 import { DATE_FORMAT } from '@/shared/i18n';
-import { GnomeBadge, Text } from '@/ui-kit';
+import { Text } from '@/ui-kit';
 
 import type { SubscriptionInactiveProps } from './SubscriptionInactive.types';
 
@@ -36,24 +36,20 @@ export const SubscriptionInactive = ({ subscription }: SubscriptionInactiveProps
 
   return (
     <>
-      <div className={s.pitch}>
-        <GnomeBadge className={s.badge} size={56} />
+      <div className={s.text}>
+        <Text as='h2' className={s.title}>
+          {t('inactive')}
+        </Text>
 
-        <div className={s.text}>
-          <Text as='h2' className={s.title}>
-            {t('inactive')}
-          </Text>
-
-          {endedAt && (
-            <Text size='sm' tone='muted'>
-              {t('lapsed', { date: format.dateTime(new Date(endedAt), DATE_FORMAT) })}
-            </Text>
-          )}
-
+        {endedAt && (
           <Text size='sm' tone='muted'>
-            {t('pitch')}
+            {t('lapsed', { date: format.dateTime(new Date(endedAt), DATE_FORMAT) })}
           </Text>
-        </div>
+        )}
+
+        <Text size='sm' tone='muted'>
+          {t('pitch')}
+        </Text>
       </div>
 
       <div className={s.picker}>

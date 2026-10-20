@@ -35,6 +35,10 @@
   gap: 12px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   list-style: none;
+
+  @include below(xs) {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .place {
@@ -46,6 +50,11 @@
   background-color: var(--color-surface-raised);
   column-gap: 12px;
   grid-template-columns: auto minmax(0, 1fr);
+
+  @include below(sm) {
+    padding: 12px 14px;
+    column-gap: 10px;
+  }
 }
 
 .flag {
@@ -58,6 +67,10 @@
   font-family: var(--font-display);
   font-size: 17px;
   font-weight: 600;
+
+  @include below(sm) {
+    font-size: 15px;
+  }
 }
 
 .city {

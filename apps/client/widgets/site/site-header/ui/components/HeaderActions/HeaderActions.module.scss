@@ -12,6 +12,12 @@
   gap: 10px;
 }
 
+.root > .account {
+  @include below(3xl) {
+    display: none;
+  }
+}
+
 .root > .tryFree {
   @include below(sm) {
     display: none;

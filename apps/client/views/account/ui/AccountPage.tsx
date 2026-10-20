@@ -64,6 +64,8 @@ export const AccountPage = () => {
       <motion.div variants={BLOCK_MOTION}>
         <SupportCard />
       </motion.div>
+
+      <SignOutButton className={s.signOutBottom} variant='block' />
     </motion.main>
   );
 };

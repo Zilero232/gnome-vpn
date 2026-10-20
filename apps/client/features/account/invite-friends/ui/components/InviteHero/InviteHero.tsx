@@ -2,7 +2,7 @@ import { MAX_REFERRER_DAYS } from '@gnomevpn/schemas';
 import { Gift } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-import { GnomeBadge, Text } from '@/ui-kit';
+import { Text } from '@/ui-kit';
 
 import s from './InviteHero.module.scss';
 
@@ -29,8 +29,6 @@ export const InviteHero = () => {
       <Text as='p' className={s.intro} size='sm' tone='muted'>
         {t('intro')}
       </Text>
-
-      <GnomeBadge className={s.badge} size={88} />
     </header>
   );
 };

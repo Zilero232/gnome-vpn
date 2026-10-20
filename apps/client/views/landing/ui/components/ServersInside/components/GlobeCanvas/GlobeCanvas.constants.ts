@@ -1,6 +1,6 @@
 export const GLOBE_SCENE = {
   core: '#fbf8f1',
-  dpr: { full: 1.75, lite: 1.25 },
+  dpr: { full: 2, lite: 2 },
   samples: { full: 11000, lite: 6500 },
   dotRadius: 0.0145,
   sway: 0.16,
