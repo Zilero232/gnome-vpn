@@ -3,7 +3,7 @@ export const GNOME_SCENE = {
   target: [0, 0.62, 0],
   scale: 0.78,
   lift: 0.24,
-  dpr: { full: 1.75, lite: 1.25 },
+  dpr: { full: 2, lite: 2 },
   grass: { full: 46, lite: 18 },
   stars: { full: 70, lite: 30 },
   light: { hemisphere: 0.85, directional: 1.05 },

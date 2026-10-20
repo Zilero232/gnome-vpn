@@ -54,7 +54,7 @@ export const AccountPage = () => {
       <motion.header className={s.header} variants={HEADER_MOTION}>
         <AccountIdentity />
 
-        <SignOutButton />
+        <SignOutButton className={s.signOut} />
       </motion.header>
 
       <motion.div className={s.body} variants={BLOCK_MOTION}>
@@ -64,6 +64,8 @@ export const AccountPage = () => {
       <motion.div variants={BLOCK_MOTION}>
         <SupportCard />
       </motion.div>
+
+      <SignOutButton className={s.signOutBottom} variant='block' />
     </motion.main>
   );
 };

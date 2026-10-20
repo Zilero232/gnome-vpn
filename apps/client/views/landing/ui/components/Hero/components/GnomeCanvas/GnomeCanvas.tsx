@@ -34,7 +34,7 @@ export const GnomeCanvas = ({ tier, isRunning, onReady, onFallback }: GnomeCanva
       camera={{ position: [...GNOME_SCENE.camera.position], fov: GNOME_SCENE.camera.fov }}
       dpr={[1, GNOME_SCENE.dpr[tier]]}
       frameloop={isRunning ? 'always' : 'never'}
-      gl={{ antialias: tier === 'full', alpha: true, powerPreference: 'high-performance' }}
+      gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
       onCreated={({ camera }) => camera.lookAt(...GNOME_SCENE.target)}
       onPointerDown={onTap}
     >

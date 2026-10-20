@@ -35,7 +35,7 @@ export const HeaderActions = ({ isStacked = false, className, onNavigate }: Head
         {isStacked && <SignOutButton variant='block' />}
 
         {!isInAccount && (
-          <Link className={buttonVariants({ size })} href={ROUTES.account} onClick={onNavigate}>
+          <Link className={buttonVariants({ size, class: clsx(!isStacked && s.account) })} href={ROUTES.account} onClick={onNavigate}>
             {t('account')}
           </Link>
         )}

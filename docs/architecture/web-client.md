@@ -183,10 +183,13 @@ enhancement over a poster that is already on the page:
   the tab is hidden (an IntersectionObserver plus `visibilitychange`) —
   measured: zero `requestAnimationFrame` calls in two seconds with both scenes
   scrolled away, 120 with the hero on screen.
-- **Adapting.** DPR is capped (1.75 full, 1.25 lite); `useAdaptiveQuality`
-  samples FPS every two seconds, drops to DPR 1 under 30 fps and hands back to
-  the poster under 20. MSAA is on only for `full` (aliasing at DPR 1 looked
-  rough); `lite` relies on DPR.
+- **Adapting.** DPR is capped at 2 on both tiers and MSAA is always on;
+  `useAdaptiveQuality` samples FPS every two seconds, drops to DPR 1 under
+  30 fps and hands back to the poster under 20. `lite` used to cap DPR at 1.25
+  with no MSAA, and since every phone is `lite` (coarse and narrow) the gnome's
+  hat and the moon rendered as stair-steps on 3× screens; the canvases are
+  under 400 CSS px, so 2× with MSAA costs little, and `lite` still means fewer
+  stars, grass and dots.
 - **Cheap scenes.** Procedural geometry only — no models, textures or HDRs. The
   look is `MeshToonMaterial` with a three-step gradient and `flat` (no tone
   mapping, so the palette stays the palette); light is a hemisphere, one
@@ -216,7 +219,10 @@ enhancement over a poster that is already on the page:
   `geoContains` and checked in — it is data, not a build step. `landDots`
   filters a Fibonacci sphere (11 000 samples on `full`, 6 500 on `lite`, ~3 200
   and ~1 900 on land) and the dots are one `InstancedMesh` of small discs facing
-  outward. The camera looks at 52°N 25°E from 6.05 units with a 34° field, which
+  outward. A disc tangent to the sphere stands edge-on at the limb and pokes
+  past the silhouette, and the back hemisphere showed through as ticks, so the
+  dots' vertex shader (`LIMB_FADE_VERTEX`) shrinks each disc to nothing as it
+  turns away from the camera. The camera looks at 52°N 25°E from 6.05 units with a 34° field, which
   puts the whole sphere in the square card with ~8% margin; `projectGlobe` is
   the same projection as a pure function (tested: centre in the middle, north
   up, east right, sphere inside the card), used to place the labels on the
