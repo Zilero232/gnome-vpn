@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { isIncludedIn } from 'remeda';
 
 import { useCurrentUser } from '@/entities/auth/user';
+import { SignOutButton } from '@/features/auth/sign-out';
 import { AUTH_MODE, QUERY_PARAMS, ROUTES } from '@/shared/constants';
 import { Link, usePathname } from '@/shared/i18n/navigation';
 import { buttonVariants } from '@/ui-kit';
@@ -23,16 +24,21 @@ export const HeaderActions = ({ isStacked = false, className, onNavigate }: Head
   const size = isStacked ? 'lg' : 'md';
 
   if (isAuthenticated) {
+    const isInAccount = pathname === ROUTES.account;
+
+    if (isInAccount && !isStacked) {
+      return null;
+    }
+
     return (
       <div className={clsx(s.root, isStacked && s.stacked, className)}>
-        <Link
-          aria-current={pathname === ROUTES.account ? 'page' : undefined}
-          className={buttonVariants({ size, variant: pathname === ROUTES.account ? 'ghost' : 'primary' })}
-          href={ROUTES.account}
-          onClick={onNavigate}
-        >
-          {t('account')}
-        </Link>
+        {isStacked && <SignOutButton variant='block' />}
+
+        {!isInAccount && (
+          <Link className={buttonVariants({ size })} href={ROUTES.account} onClick={onNavigate}>
+            {t('account')}
+          </Link>
+        )}
       </div>
     );
   }

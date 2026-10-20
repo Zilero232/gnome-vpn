@@ -53,18 +53,22 @@ mock, a referral code, a Telegram code, the error digest.
 like Manrope through `next/font/local` from `shared/config/fonts/files` as
 `--font-literata` → `--font-serif` → `--font-display`. Only the upright
 variable files (Latin and Cyrillic, ~80 KB) ship; an italic would have doubled
-the preload on every page for one signature. Literata is `display: 'optional'`
+the preload on every page for one signature. Literata is `display: 'block'`
 with a Times New Roman metric fallback: with `swap` the headings painted in a
 metric-adjusted sans and then visibly changed width, which the owner saw as
-"headings jump after load". JetBrains Mono is not preloaded — nothing above
+"headings jump after load"; with `optional` a face that missed its ~100 ms
+window was dropped for the life of the document, and since navigation is
+client-side the headings stayed in Times New Roman on every page after a cold
+visit. The face is preloaded and small, so the block is a blink. JetBrains Mono is not preloaded — nothing above
 the fold uses it. Body text stays Manrope. Neither latin nor cyrillic subset
-carries `₽`, and a system-font rouble beside Literata digits looked pasted in,
-so each family gets a third face: `manrope-rouble.woff2` and
-`literata-rouble.woff2` (~1 KB each, U+20BD only, cut with `pyftsubset` from the
-OFL latin-ext files, Literata's optical-size axis pinned at 12 like the other
-files). They are listed **first** in `src`: faces without `unicode-range` are
-tried last-declared first, so the tiny face is reached only for a character the
-real subsets lack. Prices go through ICU (`{price, number}\u00a0₽`), so the
+carries `₽` or the arrows `←↑→↓` that end link labels ("See the plans →"), and
+system-font glyphs beside Literata or Manrope looked pasted in, so every family
+gets one more face: `manrope-symbols.woff2`, `literata-symbols.woff2` and
+`jetbrains-mono-symbols.woff2` (~1–2 KB each, U+20BD and U+2190–2193, cut with
+`pyftsubset` from the full OFL variable fonts in google/fonts, Literata's
+optical-size axis pinned at 12 like the other files). They are listed **first**
+in `src`: faces without `unicode-range` are tried last-declared first, so the
+tiny face is reached only for a character the real subsets lack. Prices go through ICU (`{price, number}\u00a0₽`), so the
 grouping is the locale's own — «1 690 ₽», "1,690 ₽" — and the sign never wraps
 away from the number. The OG card loads Manrope's latin-ext subset for it.
 
@@ -75,10 +79,9 @@ had equal specificity and CSS chunk order decided — with inlined CSS some page
 H1s rendered at the default 16px.
 
 **The gnome is the brand's character.** `GnomeBadge` (ui-kit) is the logo head
-in a round night badge: the header and footer mark, the 404, the FAQ and blog
-sign-offs, the account avatar — every account gets its own gnome, the hat
-colour picked from `AVATAR.palettes` by the email seed, which replaced the
-dicebear robots and their two dependencies. The illustrated scene — sky, hills
+in a round night badge: the header mark, the 404, the FAQ and blog
+sign-offs. The header carries the only logo — the footer and the account
+show none, and the account has no avatar. The illustrated scene — sky, hills
 with the gnome's round door, the gnome (lantern optional), foreground
 mushrooms — is `ui-kit/atoms/SceneArt`, plain `<g>` groups called as functions,
 so one set of art draws the home poster (`ScenePoster`), the auth scene and the

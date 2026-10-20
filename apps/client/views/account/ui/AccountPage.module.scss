@@ -25,12 +25,6 @@
   overflow-wrap: anywhere;
 }
 
-.signOut {
-  @include below(2xl) {
-    display: none;
-  }
-}
-
 .sectionTitle {
   margin: 0;
   font-family: var(--font-display);

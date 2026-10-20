@@ -3,27 +3,23 @@
 import { useTranslations } from 'next-intl';
 
 import { useAccountIdentity } from '@/entities/auth/user';
-import { Avatar, Text } from '@/ui-kit';
+import { Text } from '@/ui-kit';
 
 import s from './AccountIdentity.module.scss';
 
 export const AccountIdentity = () => {
   const t = useTranslations('account');
-  const { email, hasEmail, avatarSeed } = useAccountIdentity();
+  const { email, hasEmail } = useAccountIdentity();
 
   return (
     <div className={s.root}>
-      <Avatar seed={avatarSeed} />
+      <Text as='h1' className={s.title}>
+        {t('title')}
+      </Text>
 
-      <div className={s.who}>
-        <Text as='h1' className={s.title}>
-          {t('title')}
-        </Text>
-
-        <Text as='p' className={s.email}>
-          {hasEmail ? email : t('profile.noEmail')}
-        </Text>
-      </div>
+      <Text as='p' className={s.email}>
+        {hasEmail ? email : t('profile.noEmail')}
+      </Text>
     </div>
   );
 };

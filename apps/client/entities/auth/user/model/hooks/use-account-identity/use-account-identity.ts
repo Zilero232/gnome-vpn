@@ -9,12 +9,11 @@ import { useHydrated } from '@/shared/lib';
 
 import type { AccountIdentity } from './use-account-identity.types';
 
-import { avatarSeed } from '../../../lib';
 import { useCurrentUser } from '../use-current-user';
 import { CREDENTIAL_PROVIDER } from './use-account-identity.constants';
 
 export const useAccountIdentity = (): AccountIdentity => {
-  const { user, email, hasRealEmail } = useCurrentUser();
+  const { email, hasRealEmail } = useCurrentUser();
   const isHydrated = useHydrated();
 
   const { data: accounts } = useQuery({
@@ -23,13 +22,12 @@ export const useAccountIdentity = (): AccountIdentity => {
   });
 
   if (!isHydrated) {
-    return { email: '', hasEmail: true, hasPassword: true, avatarSeed: avatarSeed('') };
+    return { email: '', hasEmail: true, hasPassword: true };
   }
 
   return {
     email,
     hasEmail: hasRealEmail,
-    hasPassword: isNullish(accounts) || accounts.some((account) => account.providerId === CREDENTIAL_PROVIDER),
-    avatarSeed: avatarSeed(user?.id ?? '')
+    hasPassword: isNullish(accounts) || accounts.some((account) => account.providerId === CREDENTIAL_PROVIDER)
   };
 };

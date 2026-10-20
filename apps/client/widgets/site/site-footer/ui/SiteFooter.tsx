@@ -5,7 +5,6 @@ import { LocaleSwitcher } from '@/features/app/switch-locale';
 import { SITE } from '@/shared/config';
 import { FOOTER_GROUPS } from '@/shared/constants';
 import { Link } from '@/shared/i18n/navigation';
-import { GnomeBadge } from '@/ui-kit';
 
 import { FooterCopy, FooterTelegram } from './components';
 
@@ -18,11 +17,8 @@ export const SiteFooter = () => {
     <footer className={s.root}>
       <div className={s.inner}>
         <div className={s.brand}>
-          <GnomeBadge className={s.mark} size={48} />
-          <div className={s.brandText}>
-            <span className={s.name}>{SITE.name}</span>
-            <p className={s.note}>{t('note')}</p>
-          </div>
+          <span className={s.name}>{SITE.name}</span>
+          <p className={s.note}>{t('note')}</p>
         </div>
 
         <nav aria-label={t('ariaLabel')} className={s.nav}>
