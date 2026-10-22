@@ -1,15 +1,5 @@
-@use '@/shared/styles/mixins' as *;
-
 .root {
   display: flex;
   flex-direction: column;
   gap: 24px;
-}
-
-.switch {
-  align-self: flex-start;
-
-  @include below(sm) {
-    align-self: stretch;
-  }
 }

@@ -18,7 +18,7 @@ import {
   devicesView,
   fillLabel,
   fillText,
-  parseDeviceId,
+  parseUuid,
   removeDeviceCopy,
   urlMessage
 } from '../lib';
@@ -47,7 +47,7 @@ export class TelegramDevicesService {
       ctx,
       prefix: CALLBACK_PREFIX.forgetDevice,
       act: async ({ chat, value }) => {
-        const deviceId = parseDeviceId(value);
+        const deviceId = parseUuid(value);
 
         if (isNullish(deviceId)) {
           return;

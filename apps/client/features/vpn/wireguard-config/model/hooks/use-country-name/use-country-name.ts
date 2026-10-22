@@ -2,9 +2,8 @@
 
 import type { WireguardNode } from '@gnomevpn/schemas';
 
+import { countryName } from '@gnomevpn/schemas';
 import { useLocale } from 'next-intl';
-
-import { countryName } from '../../../lib';
 
 export const useCountryName = () => {
   const locale = useLocale();

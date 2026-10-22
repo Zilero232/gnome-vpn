@@ -9,6 +9,10 @@ export const CALLBACK_PREFIX = {
   devices: 'devices:',
   forgetDevice: 'forget:',
   removeDevice: 'remove:',
+  wireguard: 'wg:',
+  wireguardNode: 'wgnode:',
+  wireguardCreate: 'wgnew:',
+  wireguardFile: 'wgfile:',
   deleteAccount: 'delete:'
 } as const;
 

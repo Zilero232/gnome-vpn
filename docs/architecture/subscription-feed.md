@@ -242,13 +242,15 @@ carry `import: null` and the user pastes by hand; inventing a scheme yields a
 button that opens nothing.
 
 The server renders those into `clients` on `GET /subscription-link`
-(`lib/client-links`), each with an `importUrl` — INCY's is the deep link. The
+(`lib/client-links`), each with an `importUrl` — INCY's is the deep link —
+and a `copyUrl`, the link to put on the clipboard: the deep link for INCY, the
+plain URL for everyone else. The site's copy button and the bot's both read it. The
 client only draws them — it holds icons and copy, never a URL.
 
 **An import scheme only resolves on a touch device.** `hiddify://` and `clash://`
 are registered by the mobile apps, so a desktop browser does nothing with them
-and the button looks broken. `OtherAppsList` gates the import link behind
-`(pointer: coarse)` and falls back to copying the URL — width is the wrong test,
+and the button looks broken. The account's link steps (`LinkSteps`) offer the open-in-app button only behind
+`(pointer: coarse)` and otherwise lead with copying the link — width is the wrong test,
 because a tablet at any width resolves the scheme and a narrow desktop window
 does not.
 

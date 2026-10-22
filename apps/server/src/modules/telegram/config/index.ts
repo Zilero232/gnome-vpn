@@ -22,3 +22,4 @@ export {
 export { AUTO_RENEW_CHOICE, DEVICE_CHOICES, NEW_LINE, TEXT_TOKEN } from './text.config';
 export { WEB_LOGIN } from './web-login.config';
 export { WEBHOOK } from './webhook.config';
+export { WIREGUARD_KINDS, WIREGUARD_REFUSALS } from './wireguard.config';

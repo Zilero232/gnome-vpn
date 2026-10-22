@@ -35,8 +35,6 @@ export const ProfileCard = () => {
         <ChangePasswordForm />
       </div>
 
-      <hr className={s.divider} />
-
       <DeleteAccountCard />
     </div>
   );

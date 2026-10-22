@@ -1,3 +1,4 @@
+export { countryFlag } from './country-flag';
 export { describeError } from './describe-error';
 export { errorCodeOf } from './error-code';
 export { IDENTIFIED_NODE_SELECT, NODE_ACCESS_SELECT, xrayClientForNode } from './node-credentials';

@@ -1,12 +1,11 @@
 import { useTranslations } from 'next-intl';
 
 import { usePlatforms } from '@/entities/app/incy';
-import { LinkCard, Text } from '@/ui-kit';
+import { LinkCard, StepList, Text } from '@/ui-kit';
 
 import type { IncySectionProps } from './IncySection.types';
 
 import { SETUP_STEPS } from '../../../config';
-import { SetupSteps } from '../SetupSteps';
 
 import s from './IncySection.module.scss';
 
@@ -32,8 +31,8 @@ export const IncySection = ({ filter }: IncySectionProps) => {
         ))}
       </div>
 
-      <SetupSteps
-        steps={SETUP_STEPS.map((step) => ({ key: step, title: t(`steps.${step}.title`), body: t(`platforms.${filter.incySteps}.${step}`) }))}
+      <StepList
+        steps={SETUP_STEPS.map((step) => ({ key: step, title: t(`steps.${step}.title`), description: t(`platforms.${filter.incySteps}.${step}`) }))}
       />
     </section>
   );

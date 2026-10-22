@@ -18,7 +18,8 @@ import {
   TelegramReferralService,
   TelegramSharedService,
   TelegramSubscriptionService,
-  TelegramWebLoginService
+  TelegramWebLoginService,
+  TelegramWireguardService
 } from './services';
 import { TelegramLinkController } from './telegram-link.controller';
 import { TelegramNotifyModule } from './telegram-notify.module';
@@ -39,7 +40,8 @@ import { TelegramController } from './telegram.controller';
     TelegramReferralService,
     TelegramSharedService,
     TelegramSubscriptionService,
-    TelegramWebLoginService
+    TelegramWebLoginService,
+    TelegramWireguardService
   ],
   exports: [TelegramLinkService]
 })

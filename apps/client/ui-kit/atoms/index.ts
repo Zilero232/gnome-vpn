@@ -17,6 +17,8 @@ export { Label } from './Label';
 export type { LabelProps } from './Label';
 export { PasswordInput } from './PasswordInput';
 export type { PasswordInputProps } from './PasswordInput';
+export { QrCard } from './QrCard';
+export type { QrCardProps } from './QrCard';
 export { Reveal } from './Reveal';
 export type { RevealProps } from './Reveal';
 export { GnomeArt, GroundArt, HillsArt, SCENE_VIEWBOX, SkyArt } from './SceneArt';

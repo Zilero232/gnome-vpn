@@ -3,12 +3,11 @@ import { useTranslations } from 'next-intl';
 import { isEmpty } from 'remeda';
 
 import { CLIENT_ICONS } from '@/entities/app/incy';
-import { LinkCard, Text } from '@/ui-kit';
+import { LinkCard, StepList, Text } from '@/ui-kit';
 
 import type { OtherClientsProps } from './OtherClients.types';
 
 import { OTHER_CLIENT_IDS, OTHER_CLIENT_STEPS } from '../../../config';
-import { SetupSteps } from '../SetupSteps';
 
 import s from './OtherClients.module.scss';
 
@@ -43,7 +42,7 @@ export const OtherClients = ({ filter }: OtherClientsProps) => {
         ))}
       </div>
 
-      <SetupSteps steps={OTHER_CLIENT_STEPS.map((step) => ({ key: step, title: t(`steps.${step}.title`), body: t(`steps.${step}.body`) }))} />
+      <StepList steps={OTHER_CLIENT_STEPS.map((step) => ({ key: step, title: t(`steps.${step}.title`), description: t(`steps.${step}.body`) }))} />
 
       <Text as='p' size='sm' tone='muted'>
         {t('note')}

@@ -116,6 +116,7 @@ export type CreateWireguardConfigServiceInput = {
   userId: string;
   nodeId: string;
   name: string;
+  shouldAnnounce?: boolean;
 };
 
 export type WireguardConfigFileInput = {

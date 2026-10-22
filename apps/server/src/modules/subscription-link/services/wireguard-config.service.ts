@@ -76,7 +76,7 @@ export class WireguardConfigService {
     };
   }
 
-  async create({ userId, nodeId, name }: CreateWireguardConfigServiceInput): Promise<WireguardConfigFile> {
+  async create({ userId, nodeId, name, shouldAnnounce = true }: CreateWireguardConfigServiceInput): Promise<WireguardConfigFile> {
     const [node, subscription] = await Promise.all([
       this.prisma.node.findFirst({ where: { id: nodeId, isAvailable: true }, select: NODE_FEED_SELECT }),
       this.prisma.subscription.findUnique({ where: { userId }, select: SUBSCRIPTION_PERIOD_SELECT })
@@ -115,7 +115,9 @@ export class WireguardConfigService {
       throw new AppServiceUnavailableException('NODE_UNAVAILABLE', 'The WireGuard server did not take the new config');
     }
 
-    void this.notice.deviceAdded({ userId, identity, deviceCount: admitted.deviceCount, deviceLimit });
+    if (shouldAnnounce) {
+      void this.notice.deviceAdded({ userId, identity, deviceCount: admitted.deviceCount, deviceLimit });
+    }
 
     return this.render({ deviceId, name, node, peer });
   }

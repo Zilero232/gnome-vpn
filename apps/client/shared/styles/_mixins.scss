@@ -188,12 +188,6 @@
   border-radius: var(--radius-sm);
 }
 
-@mixin surface-card {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background-color: var(--color-surface);
-}
-
 @mixin menu-item {
   position: relative;
   display: flex;

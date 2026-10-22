@@ -18,6 +18,7 @@ handler, `callbacks` each inline-button prefix — and nothing else.
 `TelegramSubscriptionService` answers `/connect` (`/link`), `/status`, `/buy`
 and `/trial`; `TelegramAppsService` `/apps`; `TelegramDevicesService`
 `/devices` — the device list, removing one and buying extra places;
+`TelegramWireguardService` `/wireguard` — making a config and sending its file;
 `TelegramBillingService` `/rotate` and auto-renewal; `TelegramAccountService` `/start`,
 linking, `/website`, `/language`, `/help`, `/unlink` and `/delete`;
 `TelegramReferralService` `/invite` and a `/start ref_<code>` arrival
@@ -227,11 +228,12 @@ who set it did so because the client was reporting the wrong thing.
 
 **The keyboard is the interface; the commands are the fallback.** The reply
 keyboard holds only what is pressed every week — connect, apps, subscription,
-renew, devices — and one "⚙️ More" that opens the rest (auto-charge, a new link,
-the website, help, language, unlink, delete) as an inline menu. With six
+renew, devices — and one "⚙️ More" that opens the rest (invites, a WireGuard config, auto-charge, a
+new link, the website, help, language, unlink, delete) as an inline menu. With six
 buttons it can afford to be `persistent()`; the old layout of fourteen could
 not. It changes with the chat: the link and the status only appear once there
-is a subscription to use, and the trial only while it can still be taken.
+is a subscription to use, and the trial only while it can still be taken —
+beside "Subscribe", in one row, since the two only ever show together.
 `KEYBOARD_ROWS` and `MORE_ROWS` are the whole layout — a button names the state
 it belongs to, and a row that empties out is dropped rather than shipped blank.
 A button's colour belongs to the button, not to the message it sits under, so
@@ -268,6 +270,14 @@ back the same way. A dev setup on `http://localhost` gets the link as text inste
 `BUTTON_URL_INVALID`. The subscription link itself gets a `copy_text` button,
 which puts it on the clipboard in one tap, beside the `<code>` that copies on
 tap as well.
+
+An app's screen under `/apps` does the same with the link that app takes —
+INCY's deep link, the plain URL for every other — the server's `copyUrl`,
+which the site copies too — and three
+numbered steps whose middle one says where in that app to paste it
+(`CLIENT_PASTE`). It used to print the import link (`hiddify://…`,
+`incy://…`) as text to "open", but Telegram neither turns a custom scheme into
+a link nor allows it on a URL button, so that text sent people nowhere.
 
 A press arrives as a plain text message, so `buttonFor` maps a label back to its
 key across both languages before the text is read as a link code. The labels
@@ -398,6 +408,36 @@ fetch.
 `TelegramModule` imports `DevicesModule` directly; that module depends on
 Prisma alone, so it brings no path back into billing or the bot.
 
+**`/wireguard` makes a config without the site.** It is also the last button
+under `/apps` and an entry in "⚙️ More". The same
+`WireguardConfigService` the account page calls, behind the check `/apps` and
+`/connect` make: a `period` of `none` gets the no-access message, and `none` is
+exactly what the REST route's `hasActiveAccess` refuses. The screen
+lists the reader's configs, one button each that sends the `.conf` again, and
+one "➕" per WireGuard server that is up; at the limit those give way to the
+Devices button, because removing a config is what `/devices` already does — a
+config is a device. Picking a server asks which kind of device it is for
+(`WIREGUARD_KINDS`: phone, computer, router) instead of a typed name: the bot
+reads free text as a link code, and a typed name would need a conversation
+state it does not have. The kind names the config (`wireguardName` numbers a
+repeat — «Телефон 2») and picks the line in the caption that says which app
+opens the file. The file goes out with `sendDocument`; Telegram puts it on
+every device the reader is signed in on, so a config made at a computer opens
+on the phone without a QR code.
+
+Creating holds a lock per Telegram user until it settles, and the device
+buttons are cleared the moment one is pressed: a double tap must not make two
+configs, each taking a place, and a time window would not do — one panel call
+may take ten seconds. A config that was made but whose file did not go out
+gets its own answer (`wireguardNotSent`), not "something went wrong", so
+nobody makes a second one to get the first file. At the limit a stale "➕"
+re-renders the list instead of asking for a device kind it would then refuse.
+The bot passes `shouldAnnounce: false`, so the "new WireGuard config —
+if it was not you, delete it" notice that a config made on the site sends to
+the chat is not sent to the chat that just made it. Country names come from
+`Intl.DisplayNames` in the reader's language, with the flag from `countryFlag`
+(`common/lib`, shared with the feed's server names).
+
 ## Identity, input and callbacks
 
 **One chat row per account, and the id is the identity.**
@@ -423,8 +463,8 @@ time around the shared unwrap that just did.
 and `"0x2"` as two, and `autoRenewChoice` returns null rather than treating an
 unrecognised payload as "off" — a ternary there would let a crafted press turn a
 paying reader's renewal off. `parseClientId` matches against `CLIENT_IDS` rather
-than asking `in`, which also answers for `__proto__`. `parseDeviceId` takes
-nothing but a UUID, so a crafted device id never reaches a query.
+than asking `in`, which also answers for `__proto__`. `parseUuid` takes
+nothing but a UUID, so a crafted device or node id never reaches a query.
 
 **Every callback handler unwraps the press the same way**, so
 `TelegramSharedService.answered` does it once: read the sender, acknowledge the

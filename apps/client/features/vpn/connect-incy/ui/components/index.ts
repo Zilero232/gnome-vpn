@@ -1,4 +1,3 @@
-export { IncyActions } from './IncyActions';
-export { IncyQrDialog } from './IncyQrDialog';
-export { IncyRotateDialog } from './IncyRotateDialog';
-export { OtherAppsList } from './OtherAppsList';
+export { ClientPicker } from './ClientPicker';
+export { LinkSteps } from './LinkSteps';
+export { RotateLink } from './RotateLink';

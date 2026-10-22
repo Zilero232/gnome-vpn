@@ -15,15 +15,7 @@ import s from './Segmented.module.scss';
 const PREVIOUS_KEYS = ['ArrowLeft', 'ArrowUp'];
 const NEXT_KEYS = ['ArrowRight', 'ArrowDown'];
 
-export const Segmented = <T extends string>({
-  value,
-  onChange,
-  options,
-  size = 'md',
-  indicatorTone = 'accent',
-  className,
-  'aria-label': ariaLabel
-}: SegmentedProps<T>) => {
+export const Segmented = <T extends string>({ value, onChange, options, className, 'aria-label': ariaLabel }: SegmentedProps<T>) => {
   const buttonsRef = useRef<(HTMLButtonElement | null)[]>([]);
   const [indicator, setIndicator] = useState({ width: 0, offset: 0 });
 
@@ -88,7 +80,6 @@ export const Segmented = <T extends string>({
       aria-label={ariaLabel}
       className={clsx(s.root, className)}
       data-ready={indicator.width > 0}
-      data-size={size}
       role='radiogroup'
       style={style}
       tabIndex={-1}
@@ -112,13 +103,12 @@ export const Segmented = <T extends string>({
             type='button'
             onClick={() => onChange(option.value)}
           >
-            {option.icon && <span aria-hidden>{option.icon}</span>}
             {option.label}
           </button>
         );
       })}
 
-      <span className={s.indicator} data-tone={indicatorTone} />
+      <span className={s.indicator} />
     </div>
   );
 };

@@ -18,12 +18,14 @@ const importUrl = ({ url, entry }: ImportUrlInput): string | null => {
 export const clientLinks = ({ url, deepLink }: ClientLinksInput): ClientLink[] =>
   CLIENT_IDS.map((id: ClientId) => {
     const { downloadUrl, platforms, isRecommended, import: entry } = CLIENT_REGISTRY[id];
+    const isIncy = id === INCY_CLIENT_ID;
 
     return {
       id,
       downloadUrl,
       platforms,
       isRecommended,
-      importUrl: id === INCY_CLIENT_ID ? deepLink : importUrl({ url, entry })
+      importUrl: isIncy ? deepLink : importUrl({ url, entry }),
+      copyUrl: isIncy ? deepLink : url
     };
   });

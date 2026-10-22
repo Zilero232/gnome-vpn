@@ -1,14 +1,10 @@
 {
-  "title": "Connect with INCY",
-  "hint": "The link below adds every server to the INCY app. You install the app once — the setup guide is on its own page.",
-  "copyDeepLink": "Copy INCY link",
-  "showQr": "Show QR code",
-  "deepLinkCopied": "Link copied",
+  "showQr": "QR code",
   "qrTitle": "Scan the code",
-  "qrHint": "Point a phone camera at it, or scan it from the app on a TV.",
+  "qrHint": "Point a phone camera at it, or scan it in {app} on another device, such as a TV.",
   "qrNote": "The code carries your subscription link — keep it to yourself.",
   "rotate": "Rotate link",
-  "rotateHint": "If the link got into the wrong hands, replace it. The old one stops working at once and every device using an app is disconnected — you will need to add the new link on each of them. WireGuard configs keep working.",
+  "rotateHint": "Replace it: the old one stops working at once, and you will need to add the new one on every device. WireGuard configs are not affected.",
   "rotated": "Link rotated",
   "rotatedHint": "Every app is disconnected — add the new link on each of your devices. WireGuard configs work as before.",
   "platforms": {
@@ -27,26 +23,11 @@
     "linux": ".deb package",
     "tv": "Android TV and Apple TV"
   },
-  "setupLink": "How to install the app →",
+  "setupLink": "No app yet? How to install it →",
   "rotateConfirmTitle": "Rotate the subscription link?",
   "rotateConfirmBody": "The current link stops working immediately. Every device connected through an app (INCY or another one) is removed from the list and disconnected — you will need to add the new link on each of them. WireGuard configs are not affected.",
   "rotateConfirmAction": "Rotate link",
   "rotateConfirmCancel": "Keep the current one",
-  "copyUrl": "Copy subscription URL",
-  "urlCopied": "Subscription URL copied",
-  "qrKindLabel": "What the code carries",
-  "qrKinds": {
-    "url": "Any app",
-    "incy": "INCY"
-  },
-  "qrKindHints": {
-    "url": "The plain subscription URL — Hiddify, v2rayNG and INCY all read it.",
-    "incy": "The INCY deep link. Only INCY understands this one."
-  },
-  "otherApps": "Use another app",
-  "otherAppsHint": "The same subscription. Add opens the app; if it is not installed, the link is already copied.",
-  "clientImport": "Add",
-  "clientCopy": "Copy URL",
   "clients": {
     "incy": "INCY",
     "hiddify": "Hiddify",
@@ -55,20 +36,39 @@
     "nekobox": "NekoBox",
     "clashMeta": "Clash Meta"
   },
-  "otherAppsDesktopHint": "The same subscription. Copy the link and paste it into the app — the Add button only works on a phone or tablet.",
-  "platformNames": {
-    "ios": "iOS",
-    "android": "Android",
-    "windows": "Windows",
-    "macos": "macOS",
-    "linux": "Linux",
-    "tv": "TV"
-  },
-  "importCopied": "Link copied — opening the app",
   "loading": "Loading your link…",
   "unavailable": "Could not load your subscription link. Check your connection and try again.",
   "retry": "Try again",
   "copyFailed": "Could not copy — select the link and copy it by hand.",
-  "wireguardHint": "Need a .conf for the WireGuard app or a router? <tab>Create a WireGuard config</tab>.",
-  "openInIncy": "Open in INCY"
+  "rotateTitle": "Did the link get into the wrong hands?",
+  "clientLabel": "Where to paste the link",
+  "recommended": "Recommended",
+  "clientReach": {
+    "incy": "Every device and TV",
+    "hiddify": "Phone and computer",
+    "v2rayng": "Android",
+    "streisand": "iPhone and Mac",
+    "nekobox": "Android",
+    "clashMeta": "Android"
+  },
+  "copyFor": "Copy for {app}",
+  "copied": "Link copied — paste it into {app}",
+  "open": "Open in {app}",
+  "openCopied": "Link copied — opening {app}",
+  "openHint": "The subscription is added by itself, so you can skip step two. If the app did not open, the link is already copied — paste it as shown below.",
+  "steps": {
+    "copy": "Copy the link",
+    "open": "Open the link in {app}",
+    "paste": "Paste it into {app}",
+    "connect": "Connect",
+    "connectHint": "Pick a country and connect. If it does not connect, try another option for the same country — VLESS instead of Hysteria2."
+  },
+  "paste": {
+    "incy": "Open INCY, tap “+” and choose import from clipboard — the subscription arrives with every server.",
+    "hiddify": "Open Hiddify, tap “+” (new profile) and choose “Add from clipboard”.",
+    "v2rayng": "Open v2rayNG, tap “+” and choose import from clipboard. Then tap “Update subscription” in the ⋮ menu to load the servers.",
+    "streisand": "Open Streisand, tap “+” and choose import from clipboard — the link is added as a subscription.",
+    "nekobox": "Open NekoBox, tap “+” and choose import from clipboard — the link is added as a subscription.",
+    "clashMeta": "Open Clash Meta, go to Profiles, tap “+” → URL, paste the link and save. Then select that profile."
+  }
 }

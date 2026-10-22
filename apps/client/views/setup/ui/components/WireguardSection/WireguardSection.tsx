@@ -1,14 +1,13 @@
 import { useTranslations } from 'next-intl';
 
-import { WireguardApps } from '@/features/vpn/wireguard-config';
 import { ACCOUNT_TAB, ROUTES } from '@/shared/constants';
 import { Link } from '@/shared/i18n/navigation';
-import { Accordion, Text } from '@/ui-kit';
+import { Accordion, StepList, Text } from '@/ui-kit';
 
 import type { WireguardSectionProps } from './WireguardSection.types';
 
 import { WIREGUARD_SETUP_STEPS } from '../../../config';
-import { SetupSteps } from '../SetupSteps';
+import { WireguardApps } from '../WireguardApps';
 
 import s from './WireguardSection.module.scss';
 
@@ -31,11 +30,11 @@ export const WireguardSection = ({ filter }: WireguardSectionProps) => {
           value: platform,
           title: t('wireguard.stepsFor', { platform: t(`wireguard.platforms.${platform}.name`) }),
           content: (
-            <SetupSteps
+            <StepList
               steps={WIREGUARD_SETUP_STEPS.map((step) => ({
                 key: step,
                 title: t(`wireguardSteps.${step}`),
-                body: t(`wireguard.platforms.${platform}.${step}`)
+                description: t(`wireguard.platforms.${platform}.${step}`)
               }))}
             />
           )

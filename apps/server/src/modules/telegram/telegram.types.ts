@@ -1,11 +1,12 @@
-import type { ClientId, DeviceList } from '@gnomevpn/schemas';
+import type { ClientId, DeviceList, WireguardConfigFile } from '@gnomevpn/schemas';
 import type { Bot, Context, InlineKeyboard } from 'grammy';
 
 import type { PrismaExecutor } from '../../core';
 import type { PeerRef } from '../peers';
-import type { AUTO_RENEW_CHOICE, BOT_LOCALES, NOTICES } from './config';
+import type { AUTO_RENEW_CHOICE, BOT_LOCALES, NOTICES, WIREGUARD_KINDS } from './config';
 import type { TextFill } from './lib/fill-text';
 import type { ButtonKey } from './lib/keyboard';
+import type { WireguardNotice } from './lib/wireguard-view';
 
 export type BotLocale = (typeof BOT_LOCALES)[number];
 
@@ -27,6 +28,8 @@ export type BotCommand = {
 };
 
 export type AutoRenewChoice = (typeof AUTO_RENEW_CHOICE)[keyof typeof AUTO_RENEW_CHOICE];
+
+export type WireguardKind = (typeof WIREGUARD_KINDS)[number];
 
 export type BotHandler = (ctx: BotContext) => Promise<void>;
 
@@ -246,4 +249,23 @@ export type RemovalInput = {
   userId: string;
   deviceId: string;
   copy: BotText;
+};
+
+export type ChatInput = {
+  ctx: BotContext;
+  chat: ResolvedChat;
+};
+
+export type WireguardDocumentInput = ChatInput & {
+  file: WireguardConfigFile;
+  how: string;
+  notice?: WireguardNotice;
+};
+
+export type WireguardMakeInput = Answer & {
+  ctx: BotContext;
+};
+
+export type WireguardRefusedInput = ChatInput & {
+  error: unknown;
 };

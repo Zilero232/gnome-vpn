@@ -21,6 +21,7 @@ import { TelegramProfileService } from './telegram-profile.service';
 import { TelegramReferralService } from './telegram-referral.service';
 import { TelegramSharedService } from './telegram-shared.service';
 import { TelegramSubscriptionService } from './telegram-subscription.service';
+import { TelegramWireguardService } from './telegram-wireguard.service';
 
 @Injectable()
 export class TelegramBotService implements OnModuleInit {
@@ -36,7 +37,8 @@ export class TelegramBotService implements OnModuleInit {
     private readonly billing: TelegramBillingService,
     private readonly devices: TelegramDevicesService,
     private readonly profile: TelegramProfileService,
-    private readonly referral: TelegramReferralService
+    private readonly referral: TelegramReferralService,
+    private readonly wireguard: TelegramWireguardService
   ) {
     if (this.bot) {
       this.register(this.bot);
@@ -84,6 +86,7 @@ export class TelegramBotService implements OnModuleInit {
       { command: 'trial', button: 'trial', run: (ctx) => this.subscription.claimTrialDay(ctx) },
       { command: 'apps', button: 'apps', run: (ctx) => this.apps.list(ctx) },
       { command: 'devices', button: 'devices', run: (ctx) => this.devices.list(ctx) },
+      { command: 'wireguard', button: 'wireguard', run: (ctx) => this.wireguard.list(ctx) },
       { button: 'more', run: (ctx) => this.account.more(ctx) },
       { command: 'invite', button: 'invite', run: (ctx) => this.referral.invite(ctx) },
       { command: 'rotate', button: 'rotate', run: (ctx) => this.billing.askRotate(ctx) },
@@ -108,7 +111,11 @@ export class TelegramBotService implements OnModuleInit {
       { prefix: CALLBACK_PREFIX.autoRenew, run: (ctx) => this.billing.changeAutoRenew(ctx) },
       { prefix: CALLBACK_PREFIX.devices, run: (ctx) => this.devices.buyDevices(ctx) },
       { prefix: CALLBACK_PREFIX.forgetDevice, run: (ctx) => this.devices.askRemove(ctx) },
-      { prefix: CALLBACK_PREFIX.removeDevice, run: (ctx) => this.devices.confirmRemove(ctx) }
+      { prefix: CALLBACK_PREFIX.removeDevice, run: (ctx) => this.devices.confirmRemove(ctx) },
+      { prefix: CALLBACK_PREFIX.wireguard, run: (ctx) => this.wireguard.show(ctx) },
+      { prefix: CALLBACK_PREFIX.wireguardNode, run: (ctx) => this.wireguard.pickKind(ctx) },
+      { prefix: CALLBACK_PREFIX.wireguardCreate, run: (ctx) => this.wireguard.create(ctx) },
+      { prefix: CALLBACK_PREFIX.wireguardFile, run: (ctx) => this.wireguard.file(ctx) }
     ];
   }
 

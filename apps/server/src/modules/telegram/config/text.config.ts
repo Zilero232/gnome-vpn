@@ -16,7 +16,9 @@ export const TEXT_TOKEN = {
   rewarded: '{rewarded}',
   link: '{link}',
   referrer: '{referrer}',
-  friend: '{friend}'
+  friend: '{friend}',
+  server: '{server}',
+  how: '{how}'
 } as const;
 
 export const AUTO_RENEW_CHOICE = {

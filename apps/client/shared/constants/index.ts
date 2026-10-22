@@ -1,4 +1,5 @@
 export { ACCOUNT_TAB } from './account-tab';
+export { TOUCH_DEVICE_QUERY } from './media-query';
 export { QUERY_KEYS } from './query-keys';
 export { AUTH_MODE, QUERY_PARAMS } from './query-params';
 export { REFERRAL_COOKIE } from './referral-cookie';

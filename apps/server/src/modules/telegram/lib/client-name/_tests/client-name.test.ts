@@ -2,7 +2,7 @@ import { CLIENT_IDS, CLIENT_REGISTRY } from '@gnomevpn/schemas';
 import { describe, expect, it } from 'vitest';
 
 import { BOT_LOCALES, BOT_TEXT } from '../../../config';
-import { clientName, parseClientId } from '../client-name';
+import { clientName, clientPaste, parseClientId } from '../client-name';
 
 describe('clientName', () => {
   it('names every client the registry publishes', () => {
@@ -24,7 +24,6 @@ describe('clientName', () => {
     for (const id of CLIENT_IDS) {
       const [ru, en] = BOT_LOCALES.map((locale) => clientName({ id, locale }));
 
-      expect(ru.startsWith(CLIENT_REGISTRY[id].isRecommended ? ru.split(' ')[0] : ru)).toBe(true);
       expect(en.split(' ')[0]).toBe(ru.split(' ')[0]);
     }
   });
@@ -42,5 +41,21 @@ describe('parseClientId', () => {
     expect(parseClientId('')).toBeNull();
     expect(parseClientId('__proto__')).toBeNull();
     expect(parseClientId('constructor')).toBeNull();
+  });
+});
+
+describe('clientPaste', () => {
+  it('says where to paste for every app, in every language', () => {
+    for (const locale of BOT_LOCALES) {
+      for (const id of CLIENT_IDS) {
+        expect(clientPaste({ id, locale }).trim()).not.toBe('');
+      }
+    }
+  });
+
+  it('gives each app its own instruction', () => {
+    const instructions = CLIENT_IDS.map((id) => clientPaste({ id, locale: 'en' }));
+
+    expect(new Set(instructions).size).toBe(CLIENT_IDS.length);
   });
 });

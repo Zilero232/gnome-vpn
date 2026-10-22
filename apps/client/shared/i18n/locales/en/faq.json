@@ -86,7 +86,7 @@
     },
     "otherApps": {
       "q": "Can I use Hiddify or another app instead of INCY?",
-      "a": "Yes. Your subscription URL is a standard one, so Hiddify, v2rayNG, Streisand, NekoBox and Clash Meta all read it — the same servers, the same traffic counter, the same renewal date. Copy the subscription URL on the Connect tab (not the INCY link, which only INCY understands) and add it in the app as a subscription. We recommend INCY because we have tested it on every platform, but nothing binds you to it."
+      "a": "Yes. Your subscription URL is a standard one, so Hiddify, v2rayNG, Streisand, NekoBox and Clash Meta all read it — the same servers, the same traffic counter, the same renewal date. On the Connect tab, pick your app — the account gives you the link for it and shows where to paste it. We recommend INCY because we have tested it on every platform, but nothing binds you to it."
     },
     "referral": {
       "q": "Is there a bonus for inviting friends?",
@@ -94,7 +94,7 @@
     },
     "wireguard": {
       "q": "Can I connect over WireGuard?",
-      "a": "Yes. WireGuard is already in the subscription for INCY, and for other apps and routers your account's Connect tab has a WireGuard side: pick a country, name the device and download the .conf file or scan the QR code. On Windows WireSock Secure Connect works best, on iPhone and Android AmneziaVPN, on macOS, Linux and routers the official WireGuard app. Each config takes one place in your device limit. WireGuard is blocked in Russia more often than the other protocols: if it will not connect, use INCY."
+      "a": "Yes. WireGuard is already in the subscription for INCY, and for other apps and routers your account's Connect tab makes configs under With a config: pick a country, name the device and download the .conf file or scan the QR code. In the Telegram bot, /wireguard does the same and sends the file straight to the chat. On Windows WireSock Secure Connect works best, on iPhone and Android AmneziaVPN, on macOS, Linux and routers the official WireGuard app. Each config takes one place in your device limit. WireGuard is blocked in Russia more often than the other protocols: if it will not connect, use INCY."
     }
   },
   "stillStuck": "Still stuck? Email us — we answer within a day.",

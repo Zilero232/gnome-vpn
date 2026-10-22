@@ -24,6 +24,7 @@ export const statusText = ({
   hasPaymentMethod,
   isRecurringAvailable,
   limits,
+  deviceCount,
   locale,
   now = new Date()
 }: StatusTextInput): string => {
@@ -44,7 +45,7 @@ export const statusText = ({
     fillText({ text: text.statusUntil, fill: { date: formatDate({ iso: currentPeriodEnd, locale }) } }),
     fillText({ text: text.statusLeft, fill: { days: daysLeft({ until: new Date(currentPeriodEnd), now, locale }) } }),
     fillText({ text: text.statusPlan, fill: { plan: isTrial ? text.trialPeriod : planLabel({ planId: plan, locale }) } }),
-    fillText({ text: text.statusDevices, fill: { count: String(limits.deviceLimit) } })
+    fillText({ text: text.statusDevices, fill: { count: String(deviceCount), limit: String(limits.deviceLimit) } })
   ].join(NEW_LINE);
 
   return html.paragraphs([text.statusTitle, `${html.quote(card)}${NEW_LINE}${html.italic(footnote)}`]);

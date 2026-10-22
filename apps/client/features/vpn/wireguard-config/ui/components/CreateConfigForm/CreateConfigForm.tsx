@@ -57,10 +57,6 @@ export const CreateConfigForm = ({ nodes, isFull, onCreated }: CreateConfigFormP
 
   return (
     <form noValidate className={s.root} onSubmit={onSubmit}>
-      <Text as='h3' className={s.title} size='sm'>
-        {t('createTitle')}
-      </Text>
-
       <CountryPicker nodes={nodes} selected={selected} onSelect={(nodeId) => setValue('nodeId', nodeId, { shouldValidate: true })} />
 
       <div className={s.row}>

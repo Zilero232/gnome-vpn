@@ -1,11 +1,11 @@
-import { deviceIdParamSchema } from '@gnomevpn/schemas';
 import { isNullish } from 'remeda';
+import { z } from 'zod';
 
 import type { AutoRenewChoice } from '../../telegram.types';
-import type { CountFromInput, DeviceAnswer } from './callback-value.types';
+import type { CountFromInput, DeviceAnswer, WireguardChoice } from './callback-value.types';
 
-import { AUTO_RENEW_CHOICE, CONFIRMED, DECLINED, SUBJECT_SEPARATOR } from '../../config';
-import { ANSWER_PARTS, DIGITS } from './callback-value.constants';
+import { AUTO_RENEW_CHOICE, CONFIRMED, DECLINED, SUBJECT_SEPARATOR, WIREGUARD_KINDS } from '../../config';
+import { DIGITS, SUBJECT_PARTS } from './callback-value.constants';
 
 export const isConfirmed = (raw: string): boolean => raw === CONFIRMED;
 
@@ -21,21 +21,39 @@ export const countFrom = ({ raw, max }: CountFromInput): number | null => {
 
 export const autoRenewChoice = (raw: string): AutoRenewChoice | null => (raw === AUTO_RENEW_CHOICE.on || raw === AUTO_RENEW_CHOICE.off ? raw : null);
 
-export const parseDeviceId = (raw: string): string | null => (deviceIdParamSchema.safeParse({ id: raw }).success ? raw : null);
+export const parseUuid = (raw: string): string | null => (z.uuid().safeParse(raw).success ? raw : null);
 
 export const deviceAnswer = (raw: string): DeviceAnswer | null => {
   const parts = raw.split(SUBJECT_SEPARATOR);
 
-  if (parts.length !== ANSWER_PARTS) {
+  if (parts.length !== SUBJECT_PARTS) {
     return null;
   }
 
   const [answer, subject] = parts;
-  const deviceId = parseDeviceId(subject);
+  const deviceId = parseUuid(subject);
 
   if (isNullish(deviceId) || (answer !== CONFIRMED && answer !== DECLINED)) {
     return null;
   }
 
   return { isConfirmed: answer === CONFIRMED, deviceId };
+};
+
+export const wireguardChoice = (raw: string): WireguardChoice | null => {
+  const parts = raw.split(SUBJECT_SEPARATOR);
+
+  if (parts.length !== SUBJECT_PARTS) {
+    return null;
+  }
+
+  const [subject, picked] = parts;
+  const nodeId = parseUuid(subject);
+  const kind = WIREGUARD_KINDS.find((entry) => entry.kind === picked);
+
+  if (isNullish(nodeId) || isNullish(kind)) {
+    return null;
+  }
+
+  return { nodeId, kind };
 };

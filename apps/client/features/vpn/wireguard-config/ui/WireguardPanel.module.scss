@@ -3,49 +3,13 @@
 .root {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 20px;
 }
 
-.head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
+.setupLink {
+  align-self: flex-start;
 
-  @include below(sm) {
-    flex-direction: column;
-    gap: 10px;
-  }
-}
-
-.headText {
-  display: flex;
-  min-width: 0;
-  max-width: 560px;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.title {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 1.55;
-
-  &:focus:not(:focus-visible) {
-    outline: none;
-  }
-}
-
-.slots {
-  flex-shrink: 0;
-  margin-top: 3px;
-}
-
-.empty {
-  padding: 14px 16px;
-  border: 1px dashed var(--color-border-bright);
-  border-radius: var(--radius-md);
+  @include text-link(14px);
 }
 
 .caution {

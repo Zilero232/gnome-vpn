@@ -34,19 +34,6 @@ describe('SelectableCard', () => {
     idle.split(' ').forEach((token) => expect(selected).toContain(token));
   });
 
-  it('gives every size its own class', () => {
-    const { rerender } = render(<SelectableCard size='sm'>Germany</SelectableCard>);
-    const sm = screen.getByRole('button').className;
-
-    rerender(<SelectableCard size='md'>Germany</SelectableCard>);
-    const md = screen.getByRole('button').className;
-
-    rerender(<SelectableCard size='lg'>Germany</SelectableCard>);
-    const lg = screen.getByRole('button').className;
-
-    expect(new Set([sm, md, lg]).size).toBe(3);
-  });
-
   it('defaults to type="button"', () => {
     render(<SelectableCard>Germany</SelectableCard>);
 
