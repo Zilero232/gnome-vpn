@@ -84,7 +84,14 @@ export class TelegramAccountService {
       act: async (chat) => {
         const state = await this.notify.stateOf(chat.userId);
 
-        return this.shared.reply({ ctx, chat, text: BOT_TEXT[chat.locale].moreTitle, markup: moreKeyboard({ locale: chat.locale, state }) });
+        const text = BOT_TEXT[chat.locale];
+
+        return this.shared.reply({
+          ctx,
+          chat,
+          text: state.isSubscribed ? text.moreTitle : text.moreTitleNoAccess,
+          markup: moreKeyboard({ locale: chat.locale, state })
+        });
       }
     });
   }

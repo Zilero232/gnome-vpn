@@ -235,7 +235,9 @@ it before still holds a WireGuard client nobody will be shown again.
 `releaseFeedWireguard` deletes those — a WireGuard peer whose device key does
 not start with `DEVICE_KEY.wireguard` — under the same "not online right now"
 rule. A config made on the site or in the bot is a `wg:` device and is never
-touched.
+touched. Until that pass deletes them, the five-minute pass leaves them out of
+`restoreMissing`: a node that lost one would otherwise get it back every five
+minutes for the rest of the week, only to have it deleted on Sunday.
 
 Doing it there rather than on its own schedule costs no extra core restart — a
 restart drops every tunnel on the node — and lands it at night. A device that

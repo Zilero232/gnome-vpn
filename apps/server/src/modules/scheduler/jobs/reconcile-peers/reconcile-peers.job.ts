@@ -9,7 +9,16 @@ import { PrismaService } from '../../../../core';
 import { LEGACY_PEER } from '../../../devices';
 import { TelegramNotifyService } from '../../../telegram/services/telegram-notify.service';
 import { ALERT, SCHEDULE } from '../../config';
-import { changeSummary, collectOrphans, releaseFeedWireguard, releaseLegacy, releaseRevoked, restoreMissing, syncEnabled } from './lib';
+import {
+  changeSummary,
+  collectOrphans,
+  isFeedWireguardPeer,
+  releaseFeedWireguard,
+  releaseLegacy,
+  releaseRevoked,
+  restoreMissing,
+  syncEnabled
+} from './lib';
 import { RECONCILE_PEER_SELECT } from './reconcile-peers.job.constants';
 
 @Injectable()
@@ -38,8 +47,9 @@ export class ReconcilePeersJob {
     const feedWireguard = await releaseFeedWireguard({ prisma: this.prisma, xray, logger: this.logger, peers, nodeClients, online });
     const retiredIds = new Set([...retired, ...feedWireguard].map((peer) => peer.id));
     const live = peers.filter((peer) => isNullish(peer.revokedAt) && !retiredIds.has(peer.id));
+    const restorable = live.filter((peer) => !isFeedWireguardPeer(peer));
 
-    const restored = await restoreMissing({ prisma: this.prisma, logger: this.logger, xray, node, peers: live, nodeClients });
+    const restored = await restoreMissing({ prisma: this.prisma, logger: this.logger, xray, node, peers: restorable, nodeClients });
     const synced = await syncEnabled({ xray, peers: live, nodeClients });
 
     const collected = await collectOrphans({ prisma: this.prisma, xray, nodeId: node.id, peers, nodeClients, online });

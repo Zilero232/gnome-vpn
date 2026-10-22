@@ -51,7 +51,7 @@
     },
     "howMany": {
       "title": "How many devices",
-      "body": "One subscription covers several devices at once, and the app on each of them fetches the same link. You do not get a separate config per device: the link is the credential, so adding a phone means pasting the same URL into it."
+      "body": "One subscription covers several devices at once, and the app on each of them fetches the same link. The link is the credential, so adding a phone means pasting the same URL into it. Only WireGuard takes a config per device — on a router or in its official app."
     },
     "addingMore": {
       "title": "When a country appears or disappears",
