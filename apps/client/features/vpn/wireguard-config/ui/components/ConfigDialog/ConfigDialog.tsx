@@ -2,9 +2,8 @@
 
 import { Download } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { QRCodeSVG } from 'qrcode.react';
 
-import { Button, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Text } from '@/ui-kit';
+import { Button, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, QrCard, Text } from '@/ui-kit';
 
 import type { ConfigDialogProps } from './ConfigDialog.types';
 
@@ -25,9 +24,7 @@ export const ConfigDialog = ({ file, isOpen, onOpenChange, onOpenChangeComplete 
 
         {file && (
           <>
-            <div className={s.code}>
-              <QRCodeSVG className={s.svg} level='M' marginSize={2} size={260} title={t('qrTitle')} value={file.conf} />
-            </div>
+            <QrCard title={t('qrTitle')} value={file.conf} />
 
             <Button className={s.download} size='lg' type='button' onClick={() => downloadConf(file)}>
               <Download aria-hidden size={18} />

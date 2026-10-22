@@ -6,75 +6,8 @@
   gap: 20px;
 }
 
-.intro {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.title {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 600;
-}
-
-.other {
-  display: flex;
-  flex-direction: column;
-  padding-top: 12px;
-  border-top: 1px solid var(--color-border);
-}
-
-.otherToggle {
-  display: inline-flex;
-  align-items: center;
-  align-self: flex-start;
-  gap: 6px;
-
-  @include text-button;
-}
-
-.chevron {
-  transition: transform var(--duration-base) var(--ease-out);
-
-  &[data-open='true'] {
-    transform: rotate(180deg);
-  }
-}
-
-.rotate {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 12px;
-  border-top: 1px solid var(--color-border);
-  gap: 16px;
-
-  @include below(md) {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-}
-
-.rotateButton {
-  flex-shrink: 0;
-}
-
 .setupLink {
   align-self: flex-start;
-  margin-top: 2px;
 
-  @include text-link(13px);
-}
-
-.tabLink {
-  padding: 4px 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-  font-family: inherit;
-
-  @include text-link(12px);
-  @include touch-target;
+  @include text-link(14px);
 }

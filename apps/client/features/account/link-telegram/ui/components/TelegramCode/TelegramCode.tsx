@@ -1,9 +1,7 @@
 import { Copy, Send } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { toast } from 'sonner';
 
-import { writeClipboard } from '@/shared/lib';
-import { buttonVariants, Text } from '@/ui-kit';
+import { buttonVariants, copyWithToast, Text } from '@/ui-kit';
 
 import type { TelegramCodeProps } from './TelegramCode.types';
 
@@ -14,17 +12,7 @@ import s from './TelegramCode.module.scss';
 export const TelegramCode = ({ bot, code }: TelegramCodeProps) => {
   const t = useTranslations('telegram');
 
-  const onCopy = async () => {
-    try {
-      await writeClipboard(code);
-    } catch {
-      toast.error(t('copyFailed'));
-
-      return;
-    }
-
-    toast.success(t('codeCopied'));
-  };
+  const onCopy = () => copyWithToast({ value: code, success: t('codeCopied'), failure: t('copyFailed') });
 
   return (
     <div className={s.root}>

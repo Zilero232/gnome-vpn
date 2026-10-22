@@ -1,0 +1,1 @@
+export { LinkQrDialog } from './LinkQrDialog';

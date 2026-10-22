@@ -6,6 +6,7 @@ export type StatusTextInput = Pick<
   SubscriptionStatus,
   'cancelAtPeriodEnd' | 'currentPeriodEnd' | 'hasPaymentMethod' | 'isRecurringAvailable' | 'limits' | 'period' | 'plan'
 > & {
+  deviceCount: number;
   locale: BotLocale;
   now?: Date;
 };

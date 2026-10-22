@@ -93,8 +93,17 @@
   "unbindConfirmCancel": "Keep it",
   "connect": {
     "label": "How to connect",
-    "incy": "INCY",
-    "wireguard": "WireGuard",
+    "recommended": "Recommended",
+    "ways": {
+      "link": {
+        "title": "With a link",
+        "hint": "One subscription — every country and protocol. The server list updates by itself."
+      },
+      "config": {
+        "title": "With a config",
+        "hint": "A WireGuard file for one device and one country — for routers and WireGuard apps."
+      }
+    },
     "loading": "Loading…",
     "wireguardLocked": "WireGuard configs appear once a free day or a subscription is active. <link>Go to Subscription</link>",
     "noAccess": "Until a free day or a subscription is active, the link below delivers no servers — the app will show an empty list. <link>Go to Subscription</link>",

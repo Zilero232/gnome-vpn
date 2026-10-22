@@ -100,10 +100,11 @@ A folder is one concern, not one function: each gets its own `index.ts`, `<name>
 
 ```text
 ui-kit/
-├── atoms/       # Badge, BrandMark, Button, CountryFlag, Input, Label,
-│                # PasswordInput, Spinner, Stack, StatusIcon, Text
-├── molecules/   # Accordion, AppSplash, ConfirmDialog, Dialog, ErrorBlock, FormField,
-│                # LinkCard, LoadingBlock, Segmented, SelectableCard, SubmitButton, Tabs
+├── atoms/       # Badge, BrandMark, Button, CountryFlag, IconSwap, Input, Label,
+│                # PasswordInput, QrCard, Spinner, Stack, StatusIcon, Text
+├── molecules/   # Accordion, AppSplash, ChoiceGroup, ConfirmDialog, Dialog, ErrorBlock,
+│                # FormField, LinkCard, LoadingBlock, Segmented, SelectableCard, StepList,
+│                # SubmitButton, Tabs, TiltCard
 ├── organisms/   # AppToaster, StatusScreen
 └── index.ts     # the one barrel the rest of the app imports
 ```
@@ -157,7 +158,7 @@ Route groups `(marketing)`, `(auth)`, `(account)` do not appear in the URL — t
 | a constant, helper or type with no domain | `shared/`                                                |
 | a visual primitive                        | `ui-kit/<segment>/<Component>`                           |
 
-An example from live code: `views/setup` assembles `SetupPage` out of `entities/app/incy` (`usePlatforms`), `ui-kit` primitives (`LinkCard`, `Tabs`, `Text`), its own `config/` and its own `ui/components/SetupSteps` and `OtherClients`. It reaches nothing sideways.
+An example from live code: `views/setup` assembles `SetupPage` out of `entities/app/incy` (`usePlatforms`), `ui-kit` primitives (`LinkCard`, `StepList`, `Tabs`, `Text`), its own `config/` and its own `ui/components/WireguardApps` and `OtherClients`. It reaches nothing sideways.
 
 ## 8. Tests
 

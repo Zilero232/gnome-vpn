@@ -1,6 +1,8 @@
 export { Accordion } from './Accordion';
 export type { AccordionItem, AccordionProps } from './Accordion';
 export { AppSplash } from './AppSplash';
+export { ChoiceGroup } from './ChoiceGroup';
+export type { ChoiceGroupProps, ChoiceOption } from './ChoiceGroup';
 export { ConfirmDialog } from './ConfirmDialog';
 export type { ConfirmDialogProps } from './ConfirmDialog';
 export { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './Dialog';
@@ -17,6 +19,8 @@ export type { SegmentedOption, SegmentedProps } from './Segmented';
 
 export { SelectableCard } from './SelectableCard';
 export type { SelectableCardProps } from './SelectableCard';
+export { StepList } from './StepList';
+export type { StepListItem, StepListProps } from './StepList';
 export { SubmitButton } from './SubmitButton';
 export type { SubmitButtonProps } from './SubmitButton';
 export { Tabs } from './Tabs';

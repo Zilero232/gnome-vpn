@@ -75,6 +75,9 @@ export {
 } from './clients';
 export type { ClientEntry, ClientId, ClientImport, ClientImportStyle, ClientLink, ClientPlatform } from './clients';
 
+export { countryName } from './country-name';
+export type { CountryNameInput } from './country-name';
+
 export { deviceIdParamSchema, deviceListSchema, deviceSchema, WIREGUARD_DEVICE_APP } from './devices';
 export type { Device, DeviceIdParam, DeviceList } from './devices';
 

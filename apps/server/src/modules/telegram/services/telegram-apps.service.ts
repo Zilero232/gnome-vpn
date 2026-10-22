@@ -7,7 +7,19 @@ import type { BotContext, ShowClientInput } from '../telegram.types';
 import { SubscriptionService } from '../../subscription';
 import { SubscriptionLinkService } from '../../subscription-link';
 import { BOT_TEXT, CALLBACK_PREFIX, CLIENT_LIST, NEW_LINE } from '../config';
-import { appsKeyboard, clientLabel, clientName, fillLabel, fillText, html, isButtonUrl, noAccessMessage, parseClientId, platformNames } from '../lib';
+import {
+  appsKeyboard,
+  clientLabel,
+  clientName,
+  clientPaste,
+  fillLabel,
+  fillText,
+  html,
+  isButtonUrl,
+  noAccessMessage,
+  parseClientId,
+  platformNames
+} from '../lib';
 import { TelegramSharedService } from './telegram-shared.service';
 
 @Injectable()
@@ -55,7 +67,7 @@ export class TelegramAppsService {
 
   private async describe({ ctx, chat, id }: ShowClientInput): Promise<void> {
     const text = BOT_TEXT[chat.locale];
-    const { clients, url } = await this.subscriptionLink.get(chat.userId);
+    const { clients } = await this.subscriptionLink.get(chat.userId);
     const client = clients.find((entry) => entry.id === id);
 
     if (isNullish(client)) {
@@ -64,27 +76,16 @@ export class TelegramAppsService {
 
     const platforms = platformNames({ platforms: client.platforms, locale: chat.locale });
     const heading = [html.bold(clientName({ id, locale: chat.locale })), fillText({ text: text.appsPlatforms, fill: { platforms } })].join(NEW_LINE);
-    const lines = [heading];
-    const markup = new InlineKeyboard();
+    const steps = fillText({ text: text.appsSteps, fill: { how: clientPaste({ id, locale: chat.locale }) } });
+    const canLinkDownload = isButtonUrl(client.downloadUrl);
+    const markup = new InlineKeyboard().copyText(text.appsCopyLink, client.copyUrl).primary().row();
 
-    if (isButtonUrl(client.downloadUrl)) {
+    if (canLinkDownload) {
       markup.url(fillLabel({ text: text.appsDownload, fill: { name: clientLabel(id) } }), client.downloadUrl).row();
-    } else {
-      lines.push(html.escape(client.downloadUrl));
-    }
-
-    if (isButtonUrl(client.importUrl)) {
-      lines.push(text.appsImport);
-      markup.url(text.appsImportButton, client.importUrl).success().row();
-    } else if (client.importUrl) {
-      lines.push(text.appsImport, html.code(client.importUrl));
-    } else {
-      lines.push(text.appsManual);
-      markup.copyText(text.appsCopyLink, url).success().row();
     }
 
     markup.text(text.appsBack, `${CALLBACK_PREFIX.client}${CLIENT_LIST}`);
 
-    await this.shared.edit({ ctx, text: html.paragraphs(lines), markup });
+    await this.shared.edit({ ctx, text: html.paragraphs([heading, steps, canLinkDownload ? null : html.escape(client.downloadUrl)]), markup });
   }
 }

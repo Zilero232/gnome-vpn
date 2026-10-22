@@ -29,6 +29,6 @@ import { WireguardConfigController } from './wireguard-config.controller';
     SubscriptionAccessService,
     WireguardConfigService
   ],
-  exports: [NodeTrafficService, SubscriptionLinkService, SubscriptionAccessService]
+  exports: [NodeTrafficService, SubscriptionLinkService, SubscriptionAccessService, WireguardConfigService]
 })
 export class SubscriptionLinkModule {}

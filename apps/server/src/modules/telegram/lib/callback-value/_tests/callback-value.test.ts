@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { AUTO_RENEW_CHOICE, CONFIRMED, DECLINED, SUBJECT_SEPARATOR } from '../../../config';
-import { autoRenewChoice, countFrom, deviceAnswer, isConfirmed, parseDeviceId } from '../callback-value';
+import { AUTO_RENEW_CHOICE, CONFIRMED, DECLINED, SUBJECT_SEPARATOR, WIREGUARD_KINDS } from '../../../config';
+import { autoRenewChoice, countFrom, deviceAnswer, isConfirmed, parseUuid, wireguardChoice } from '../callback-value';
 
 const deviceId = '3f2b8c1e-9a4d-4e6f-8b7a-1c2d3e4f5a6b';
 
@@ -55,17 +55,17 @@ describe('autoRenewChoice', () => {
   });
 });
 
-describe('parseDeviceId', () => {
+describe('parseUuid', () => {
   it('accepts a device id', () => {
-    expect(parseDeviceId(deviceId)).toBe(deviceId);
+    expect(parseUuid(deviceId)).toBe(deviceId);
   });
 
   it('refuses anything that is not shaped like one, so a crafted press reaches no query', () => {
-    expect(parseDeviceId('')).toBeNull();
-    expect(parseDeviceId(` ${deviceId}`)).toBeNull();
-    expect(parseDeviceId(`${deviceId}x`)).toBeNull();
-    expect(parseDeviceId('__proto__')).toBeNull();
-    expect(parseDeviceId(deviceId.replaceAll('-', ''))).toBeNull();
+    expect(parseUuid('')).toBeNull();
+    expect(parseUuid(` ${deviceId}`)).toBeNull();
+    expect(parseUuid(`${deviceId}x`)).toBeNull();
+    expect(parseUuid('__proto__')).toBeNull();
+    expect(parseUuid(deviceId.replaceAll('-', ''))).toBeNull();
   });
 });
 
@@ -85,5 +85,26 @@ describe('deviceAnswer', () => {
     expect(deviceAnswer(`${CONFIRMED}${SUBJECT_SEPARATOR}`)).toBeNull();
     expect(deviceAnswer(`${CONFIRMED}${SUBJECT_SEPARATOR}not-a-device`)).toBeNull();
     expect(deviceAnswer(`${CONFIRMED}${SUBJECT_SEPARATOR}${deviceId}${SUBJECT_SEPARATOR}extra`)).toBeNull();
+  });
+});
+
+describe('wireguardChoice', () => {
+  const [phone] = WIREGUARD_KINDS;
+
+  it('reads a node and a known kind of device', () => {
+    expect(wireguardChoice(`${deviceId}${SUBJECT_SEPARATOR}${phone.kind}`)).toEqual({ nodeId: deviceId, kind: phone });
+  });
+
+  it('refuses a kind it does not offer', () => {
+    expect(wireguardChoice(`${deviceId}${SUBJECT_SEPARATOR}toaster`)).toBeNull();
+  });
+
+  it('refuses a node that is not a UUID', () => {
+    expect(wireguardChoice(`node${SUBJECT_SEPARATOR}${phone.kind}`)).toBeNull();
+  });
+
+  it('refuses a payload with a part too many or too few', () => {
+    expect(wireguardChoice(deviceId)).toBeNull();
+    expect(wireguardChoice(`${deviceId}${SUBJECT_SEPARATOR}${phone.kind}${SUBJECT_SEPARATOR}x`)).toBeNull();
   });
 });

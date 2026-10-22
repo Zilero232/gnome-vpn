@@ -7,6 +7,7 @@ import type { BotContext } from '../telegram.types';
 
 import { describeError, errorCodeOf } from '../../../common/lib';
 import { CheckoutService } from '../../billing';
+import { DevicesService } from '../../devices';
 import { SubscriptionService, TrialService } from '../../subscription';
 import { SubscriptionLinkService } from '../../subscription-link';
 import { BOT_TEXT, CALLBACK_PREFIX, MESSAGE_EFFECT } from '../config';
@@ -35,19 +36,20 @@ export class TelegramSubscriptionService {
     private readonly subscription: SubscriptionService,
     private readonly subscriptionLink: SubscriptionLinkService,
     private readonly checkout: CheckoutService,
-    private readonly trial: TrialService
+    private readonly trial: TrialService,
+    private readonly devices: DevicesService
   ) {}
 
   async status(ctx: BotContext): Promise<void> {
     await this.shared.withUser({
       ctx,
       act: async (chat) => {
-        const status = await this.subscription.getStatus(chat.userId);
+        const [status, list] = await Promise.all([this.subscription.getStatus(chat.userId), this.devices.list(chat.userId)]);
 
         return this.shared.reply({
           ctx,
           chat,
-          text: statusText({ ...status, locale: chat.locale }),
+          text: statusText({ ...status, deviceCount: list.devices.length, locale: chat.locale }),
           markup: menuButtons({ locale: chat.locale, keys: offerKeys(status) })
         });
       }

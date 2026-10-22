@@ -9,8 +9,10 @@ export const KEYBOARD_ROWS: KeyboardRow[] = [
     { key: 'status', when: 'subscribed' },
     { key: 'renew', when: 'subscribed' }
   ],
-  [{ key: 'trial', when: 'trialAvailable' }],
-  [{ key: 'buy', when: 'unsubscribed' }],
+  [
+    { key: 'trial', when: 'trialAvailable' },
+    { key: 'buy', when: 'unsubscribed' }
+  ],
   [
     { key: 'devices', when: 'subscribed' },
     { key: 'more', when: 'always' }
@@ -19,6 +21,7 @@ export const KEYBOARD_ROWS: KeyboardRow[] = [
 
 export const MORE_ROWS: KeyboardRow[] = [
   [{ key: 'invite', when: 'always' }],
+  [{ key: 'wireguard', when: 'subscribed' }],
   [
     { key: 'autoRenew', when: 'subscribed' },
     { key: 'rotate', when: 'subscribed' }

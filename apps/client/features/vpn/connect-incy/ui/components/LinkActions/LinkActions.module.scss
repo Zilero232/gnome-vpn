@@ -1,0 +1,23 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  @include below(md) {
+    flex-direction: column;
+  }
+}
+
+.action {
+  @include below(md) {
+    width: 100%;
+  }
+}

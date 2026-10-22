@@ -12,6 +12,12 @@ describe('clientLinks', () => {
     expect(byId('incy')?.importUrl).toBe(input.deepLink);
   });
 
+  it('gives INCY its deep link to copy and every other client the plain URL, which they all read', () => {
+    for (const client of clientLinks(input)) {
+      expect(client.copyUrl).toBe(client.id === 'incy' ? input.deepLink : input.url);
+    }
+  });
+
   it('puts the url in the path for hiddify, which reads it raw', () => {
     expect(byId('hiddify')?.importUrl).toBe(`hiddify://import/${input.url}`);
   });

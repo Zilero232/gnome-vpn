@@ -12,6 +12,7 @@ export {
   Input,
   Label,
   PasswordInput,
+  QrCard,
   Reveal,
   SCENE_VIEWBOX,
   ScenePoster,
@@ -32,6 +33,7 @@ export type {
   InputProps,
   LabelProps,
   PasswordInputProps,
+  QrCardProps,
   RevealProps,
   ScenePosterProps,
   SpinnerProps,
@@ -42,6 +44,7 @@ export type {
 export {
   Accordion,
   AppSplash,
+  ChoiceGroup,
   ConfirmDialog,
   Dialog,
   DialogContent,
@@ -55,6 +58,7 @@ export {
   LoadingBlock,
   Segmented,
   SelectableCard,
+  StepList,
   SubmitButton,
   Tabs,
   TiltCard
@@ -63,6 +67,8 @@ export {
 export type {
   AccordionItem,
   AccordionProps,
+  ChoiceGroupProps,
+  ChoiceOption,
   ConfirmDialogProps,
   ErrorBlockProps,
   FormFieldProps,
@@ -71,10 +77,12 @@ export type {
   SegmentedOption,
   SegmentedProps,
   SelectableCardProps,
+  StepListItem,
+  StepListProps,
   SubmitButtonProps,
   TabItem,
   TabsProps,
   TiltCardProps
 } from './molecules';
-export { AppToaster, celebrate, StatusScreen } from './organisms';
-export type { StatusScreenProps } from './organisms';
+export { AppToaster, celebrate, copyWithToast, StatusScreen } from './organisms';
+export type { CopyWithToastInput, StatusScreenProps } from './organisms';

@@ -11,5 +11,6 @@ export const clientLinkSchema = z.object({
   downloadUrl: z.url(),
   platforms: z.array(clientPlatformSchema).nonempty(),
   isRecommended: z.boolean(),
-  importUrl: z.string().nullable()
+  importUrl: z.string().nullable(),
+  copyUrl: z.string()
 });

@@ -55,7 +55,7 @@ A deep import past a barrel is forbidden:
 
 ```ts
 // ✗ FORBIDDEN
-import { IncyQrDialog } from '@/features/vpn/connect-incy/ui/components/IncyQrDialog';
+import { LinkQrDialog } from '@/features/vpn/connect-incy/ui/components/LinkQrDialog';
 import { Button } from '@/ui-kit/atoms/Button';
 
 // ✓ OK
@@ -80,7 +80,7 @@ export { PlanPicker } from './ui/PlanPicker';
 export type { PlanPickerProps } from './ui/PlanPicker.types';
 ```
 
-Only what is needed from outside. Internal subcomponents are not exported — `features/vpn/connect-incy` exports `IncyCard` and its two hooks, never `IncyQrDialog` or `OtherAppsList`.
+Only what is needed from outside. Internal subcomponents are not exported — `features/vpn/connect-incy` exports `IncyCard` alone, never `LinkQrDialog` or `LinkSteps`.
 
 **A component folder:**
 

@@ -1,15 +1,12 @@
 {
-  "title": "WireGuard config",
-  "intro": "For apps and routers that cannot read a subscription. Each config is one device from your limit and one server.",
   "note": "WireGuard is blocked in Russia more often than the other protocols, especially on mobile networks. If a config does not connect, use INCY — it carries Hysteria2 and VLESS.",
   "slots": "{count} of {limit, plural, one {# device} other {# devices}}",
-  "createTitle": "New config",
   "countryLabel": "Country",
   "serverDown": "Unavailable right now",
   "nameLabel": "Device name",
   "namePlaceholder": "Say, “Laptop” or “Router”",
   "create": "Create",
-  "created": "Your config is ready — download the file or scan the QR code in the WireGuard app",
+  "created": "Your config is ready — download the file or scan the QR code",
   "full": "Every place is taken. Remove a device you no longer use or add a place on the Devices tab.",
   "allDown": "Every WireGuard server is unavailable right now. Try again in a few minutes.",
   "fullTrial": "Every place on the free day is taken. Remove a device you no longer use to free one up.",
@@ -53,5 +50,41 @@
     "site": "Download",
     "android": "Google Play",
     "ios": "App Store"
+  },
+  "targetLabel": "What you will open the config with",
+  "setupLink": "Where to get the app →",
+  "steps": {
+    "create": "Create a config",
+    "connect": "Connect"
+  },
+  "targets": {
+    "amnezia": {
+      "name": "AmneziaVPN",
+      "reach": "iPhone and Android",
+      "title": "Add it to AmneziaVPN",
+      "import": "Open AmneziaVPN, tap “+” and pick the settings file — or scan the config’s QR code from a computer screen.",
+      "connect": "Switch the connection on in AmneziaVPN. One config is one device: create another for a second phone."
+    },
+    "wireguard": {
+      "name": "WireGuard",
+      "reach": "Any platform",
+      "title": "Add it to WireGuard",
+      "import": "In the WireGuard app, tap “+” and import the tunnel from the .conf file. On a phone you can scan the QR code instead.",
+      "connect": "Turn the tunnel on with its switch. One config is one device."
+    },
+    "wiresock": {
+      "name": "WireSock",
+      "reach": "Windows",
+      "title": "Add it to WireSock",
+      "import": "Open WireSock Secure Connect and import the downloaded .conf file.",
+      "connect": "Press Connect. The tunnel settings can route only chosen programs through the VPN."
+    },
+    "router": {
+      "name": "Router",
+      "reach": "Keenetic, OpenWrt, MikroTik",
+      "title": "Load it into the router",
+      "import": "Find the WireGuard client in the router’s web interface and upload the .conf file — or copy its fields over by hand.",
+      "connect": "Switch the connection on — every device on the home network goes through the VPN."
+    }
   }
 }

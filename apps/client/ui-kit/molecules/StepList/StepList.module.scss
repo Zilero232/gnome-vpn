@@ -1,0 +1,80 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  --step-index: 34px;
+  --step-gap: 20px;
+
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+  gap: var(--step-gap);
+  list-style: none;
+
+  &[data-variant='panel'] {
+    padding: 22px 22px 24px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-surface);
+
+    @include below(md) {
+      padding: 18px 14px 20px;
+    }
+  }
+}
+
+.step {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+
+  &:not(:last-child):before {
+    position: absolute;
+    top: calc(var(--step-index) + 6px);
+    bottom: calc(6px - var(--step-gap));
+    left: calc(var(--step-index) / 2 - 0.5px);
+    width: 1px;
+    background-color: var(--color-border-bright);
+    content: '';
+  }
+}
+
+.index {
+  display: flex;
+  width: var(--step-index);
+  height: var(--step-index);
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border-bright);
+  border-radius: 50%;
+  background-color: var(--color-surface-raised);
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.body {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  padding-top: 5px;
+  gap: 6px;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+}

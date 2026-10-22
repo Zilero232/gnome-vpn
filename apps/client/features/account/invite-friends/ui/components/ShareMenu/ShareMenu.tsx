@@ -5,6 +5,7 @@ import { useMediaQuery } from '@siberiacancode/reactuse';
 import { ChevronDown, Share2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
+import { TOUCH_DEVICE_QUERY } from '@/shared/constants';
 import { useHydrated } from '@/shared/lib';
 import { Button } from '@/ui-kit';
 
@@ -13,7 +14,6 @@ import type { ShareMenuProps } from './ShareMenu.types';
 import { SHARE_ICONS } from '../../../config';
 import { shareTargets } from '../../../lib';
 import { useCopyLink } from '../../../model/hooks';
-import { TOUCH_DEVICE_QUERY } from './ShareMenu.constants';
 
 import s from './ShareMenu.module.scss';
 

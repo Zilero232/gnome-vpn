@@ -1,3 +1,5 @@
+import { TOUCH_DEVICE_QUERY } from '@/shared/constants';
+
 export const SLOW_CONNECTIONS: readonly string[] = ['slow-2g', '2g', '3g'];
 
 export const WEBGL_LIMITS = {
@@ -6,7 +8,7 @@ export const WEBGL_LIMITS = {
   liteMemory: 4,
   liteCores: 4,
   narrowQuery: '(max-width: 760px)',
-  coarseQuery: '(pointer: coarse)',
+  coarseQuery: TOUCH_DEVICE_QUERY,
   reducedMotionQuery: '(prefers-reduced-motion: reduce)'
 } as const;
 

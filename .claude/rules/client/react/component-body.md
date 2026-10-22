@@ -16,13 +16,14 @@ one, so the dependency order is the reading order and nothing is declared after
 something that already used it.
 
 ```tsx
-const t = useTranslations('incy');
-const { data: link, isLoading } = useSubscriptionLink();
-const rotate = useRotateLink();
+const t = useTranslations('telegram');
+const toastError = useToastError();
+const issue = useIssueCode();
+const unlink = useUnlinkTelegram();
 
-const [isQrOpen, setIsQrOpen] = useState(false);
+const [isUnlinkOpen, setIsUnlinkOpen] = useState(false);
 
-const onCopy = async ({ value, message, id }: CopyInput) => { ... };
+const onUnlink = () => { ... };
 
 return ( ... );
 ```

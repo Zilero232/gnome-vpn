@@ -1,6 +1,13 @@
-import type { CONNECT_WAY_HASH } from './ConnectCard.constants';
+import type { LucideIcon } from 'lucide-react';
 
-export type ConnectWay = keyof typeof CONNECT_WAY_HASH;
+export type ConnectWay = 'config' | 'link';
+
+export type ConnectWaySpec = {
+  hash: string;
+  aliases: readonly string[];
+  icon: LucideIcon;
+  isRecommended: boolean;
+};
 
 export type ConnectCardProps = {
   hasAccess: boolean;

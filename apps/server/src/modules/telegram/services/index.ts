@@ -10,3 +10,4 @@ export { TelegramReferralService } from './telegram-referral.service';
 export { TelegramSharedService } from './telegram-shared.service';
 export { TelegramSubscriptionService } from './telegram-subscription.service';
 export { TelegramWebLoginService } from './telegram-web-login.service';
+export { TelegramWireguardService } from './telegram-wireguard.service';

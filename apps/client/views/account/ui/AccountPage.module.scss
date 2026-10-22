@@ -26,24 +26,20 @@
 }
 
 .signOut {
-  @include below(2xl) {
-    display: none;
+  display: none;
+
+  @include from(2xl) {
+    display: block;
   }
 }
 
 .signOutBottom {
-  width: 100%;
+  display: flex;
+  flex-direction: column;
 
   @include from(2xl) {
     display: none;
   }
-}
-
-.sectionTitle {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: var(--step-lg);
-  font-weight: 600;
 }
 
 .card {

@@ -1,2 +1,2 @@
-export { NodeTrafficService, SubscriptionAccessService, SubscriptionLinkService } from './services';
+export { NodeTrafficService, SubscriptionAccessService, SubscriptionLinkService, WireguardConfigService } from './services';
 export { SubscriptionLinkModule } from './subscription-link.module';

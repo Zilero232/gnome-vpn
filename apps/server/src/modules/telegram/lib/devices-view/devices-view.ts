@@ -1,5 +1,6 @@
 import { EXTRA_DEVICE_PRICE_RUB, extraDevicesPriceRub } from '@gnomevpn/schemas';
 import { InlineKeyboard } from 'grammy';
+import { match } from 'ts-pattern';
 
 import type { BotMessage } from '../../telegram.types';
 import type { DevicesViewInput } from './devices-view.types';
@@ -16,25 +17,29 @@ export const devicesView = ({ list, status, locale, notice }: DevicesViewInput):
   const choices = DEVICE_CHOICES.filter((quantity) => quantity <= room);
   const isFull = choices.length === 0;
   const canAdd = isPaid && !isFull;
-  const markup = new InlineKeyboard();
+  const removals = list.devices.map((device) => [
+    InlineKeyboard.text(
+      fillLabel({ text: text.deviceRemoveButton, fill: { name: deviceName({ device, locale }) } }),
+      `${CALLBACK_PREFIX.forgetDevice}${device.id}`
+    )
+  ]);
 
-  for (const device of list.devices) {
-    const label = fillLabel({ text: text.deviceRemoveButton, fill: { name: deviceName({ device, locale }) } });
+  const purchases = choices.map((quantity) =>
+    InlineKeyboard.text(
+      {
+        text: fillLabel({ text: text.devicesBuy, fill: { count: String(quantity), price: String(extraDevicesPriceRub(quantity)) } }),
+        style: 'success'
+      },
+      `${CALLBACK_PREFIX.devices}${quantity}`
+    )
+  );
 
-    markup.text(label, `${CALLBACK_PREFIX.forgetDevice}${device.id}`).row();
-  }
+  const extras = match({ isPaid, isFull })
+    .with({ isPaid: false }, () => [])
+    .with({ isFull: true }, () => [[InlineKeyboard.disabled(text.devicesFull)]])
+    .otherwise(() => [purchases]);
 
-  if (isPaid && isFull) {
-    markup.disabled(text.devicesFull);
-  }
-
-  if (canAdd) {
-    for (const quantity of choices) {
-      const label = fillLabel({ text: text.devicesBuy, fill: { count: String(quantity), price: String(extraDevicesPriceRub(quantity)) } });
-
-      markup.text(label, `${CALLBACK_PREFIX.devices}${quantity}`).success();
-    }
-  }
+  const markup = InlineKeyboard.from([...removals, ...extras]);
 
   const offer = canAdd ? fillText({ text: text.devicesExtra, fill: { price: String(EXTRA_DEVICE_PRICE_RUB) } }) : null;
 

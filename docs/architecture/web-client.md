@@ -545,10 +545,10 @@ The three ways stay as anchors — `#incy`, `#apps`, `#wireguard` — in the
 column beside the content (a row above it on narrow screens), INCY marked as
 recommended. WireGuard is deliberately secondary: a muted box whose
 step-by-step instructions are collapsed accordions. Its app table
-(`WIREGUARD_APPS` in `features/vpn/wireguard-config`) names WireSock Secure
+(`WIREGUARD_APPS` in `views/setup/config`, the only place with download links) names WireSock Secure
 Connect on Windows, AmneziaVPN on iPhone and Android, the official WireGuard
-app on macOS, Linux and routers; the same block sits on the account's Connect
-tab, so both places recommend the same apps.
+app on macOS, Linux and routers; the account's Connect tab offers the same apps as
+config targets, without the download links.
 
 ## The account tabs, in the order people need them
 
@@ -587,25 +587,43 @@ names come through `platformLabel` («android» → «Android», «ios» → «i
 The Invite tab hides the three zero counters until the first friend arrives
 and shows how it works and the days per plan as one table.
 
-**Connect is one tab for both ways in.** The INCY link and the WireGuard
-configs used to be two tabs, App and WireGuard, which read as two products and
-put the recommended way and the fallback side by side as equals. `ConnectCard`
-now shows a switch between "INCY app" and "WireGuard config", INCY first; the
-WireGuard side appears only with access, because creating a config needs a
-running period. The link on the INCY side that says a `.conf` is available
-flips the switch rather than navigating, and moves focus to the WireGuard
-panel's heading so a keyboard or screen-reader user is not left on a button
-that no longer exists.
+**Connect is one tab for both ways in, chosen by method, then by app.** The
+INCY link and the WireGuard configs used to be two tabs, App and WireGuard,
+which read as two products; then a switch named after the two technologies,
+«INCY» and «WireGuard», with three equal buttons (copy for INCY, copy the URL,
+QR) and every other app folded under «Другое приложение». People did not know
+which button was theirs, and the WireGuard side carried download links the
+setup page already has.
+
+`ConnectCard` now asks two questions in the order a person answers them.
+**How**: two radio cards, «По ссылке» (recommended — one subscription, every
+country and protocol, updates by itself) and «По конфигу» (a WireGuard file
+for one device and one country). **Where**: a grid of the apps that take that
+kind of thing — the subscription apps from `link.clients` (INCY first, marked
+recommended, each with a short line on where it runs), or the config targets in
+`WIREGUARD_TARGETS` (AmneziaVPN, WireGuard, WireSock, a router). The chosen
+app gets numbered steps written for it: copy (or, on a touch device where the
+app registers an import scheme, «Открыть в …»), where exactly to paste it in
+that app, then connect; for a config, create it, import it into that app,
+connect. The copy button carries the INCY deep link for INCY and the plain
+subscription URL for everything else, so the QR-kind toggle is gone too.
+Download links are not repeated here: one quiet link points at `/setup`.
+
+Both pickers are `ChoiceGroup` (`ui-kit`) over Base UI's `RadioGroup`, so the
+arrow keys, roving focus and `role="radio"` come from the library; the steps
+are `StepList`, which `/setup` uses as well.
 
 While the subscription status is still loading, Connect shows a loading block
-rather than the INCY card: the switch only appears once access is known, and
-mounting INCY first would swap the layout under the reader a moment later.
-Without access, a notice above the INCY card says the link delivers no servers
-until a free day or a subscription is active — the feed answers an account
-without access with an empty list, and someone who pasted the link and saw
-nothing had no way to know why. If the hash asks for WireGuard (`#wireguard`)
-the notice says configs need the same. Both link to `#subscription`; the link is
-a plain hash anchor, so the `hashchange` it fires is what switches the tab.
+rather than the pickers, so the layout does not swap under the reader a moment
+later. Without access the method cards still show — the choice is worth
+explaining before anyone pays — and a notice says the link delivers no
+servers until a free day or a subscription is active (the feed answers an
+account without access with an empty list, and someone who pasted the link
+and saw nothing had no way to know why); on «По конфигу» the notice says
+configs need the same, and the config panel itself stays hidden, because
+creating a config needs a running period. Both notices link to
+`#subscription`; the link is a plain hash anchor, so the `hashchange` it fires
+is what switches the tab.
 
 **A status that failed to load is not "no access".** `useSubscriptionStatus`
 returns `isUnavailable` (an error and no data). Connect then shows a retry
@@ -617,11 +635,11 @@ the reader's devices on a network blip read as "your devices are gone".
 `AccountTabs` selects the tab named by `location.hash` and writes the hash back
 with `history.replaceState` when a tab is picked, so `/account#connect` opens
 that tab and a reload keeps it. A tab can answer to aliases as well: Connect
-answers to `#wireguard`, which also selects the WireGuard side, and to `#app`,
+answers to `#wireguard`, which also selects «По конфигу», and to `#app`,
 the name of the old App tab, so old bookmarks still land. `ConnectCard` reads
-the same hash and writes `#connect` or `#wireguard` as the switch moves, so the
-setup page's link lands on the configs. The hash is applied after mount and
-again whenever the set of tabs changes — the Devices tab and the WireGuard side
+the same hash and writes `#connect` or `#wireguard` as the method changes, so
+the setup page's link lands on «По конфигу». The hash is applied after mount and
+again whenever the set of tabs changes — the Devices tab and the config panel
 only appear once the subscription status has loaded, so a hash read on mount
 alone would miss them. The hash is never read during render, which keeps the
 server and the first client render identical. Every tab name, the aliases

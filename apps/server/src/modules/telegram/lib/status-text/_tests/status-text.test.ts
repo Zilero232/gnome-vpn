@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import type { StatusTextInput } from '../status-text.types';
 
 import { BOT_LOCALES, BOT_TEXT } from '../../../config';
+import { fillText } from '../../fill-text';
 import { isTelegramHtml } from '../../html';
 import { daysLeft, statusText } from '../status-text';
 
@@ -16,7 +17,8 @@ const active: StatusTextInput = {
   cancelAtPeriodEnd: false,
   hasPaymentMethod: true,
   isRecurringAvailable: true,
-  limits: { deviceLimit: 2, extraDevices: 0, pricePerDeviceRub: 100, maxExtraDevices: 5 }
+  limits: { deviceLimit: 2, extraDevices: 0, pricePerDeviceRub: 100, maxExtraDevices: 5 },
+  deviceCount: 1
 };
 
 describe('statusText', () => {
@@ -28,6 +30,12 @@ describe('statusText', () => {
     const withExtra = { ...active, limits: { ...active.limits, deviceLimit: 5, extraDevices: 3 } };
 
     expect(statusText(withExtra)).toContain('5');
+  });
+
+  it('reports the devices in use against the limit, the way /devices does', () => {
+    expect(statusText({ ...active, deviceCount: 1 })).toContain(
+      fillText({ text: BOT_TEXT.ru.statusDevices, fill: { count: '1', limit: String(active.limits.deviceLimit) } })
+    );
   });
 
   it('says something different about renewal depending on whether it will renew', () => {

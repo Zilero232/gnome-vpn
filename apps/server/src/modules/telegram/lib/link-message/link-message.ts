@@ -12,7 +12,6 @@ export const linkMessage = ({ locale, intro, url }: LinkMessageInput): BotMessag
   const markup = new InlineKeyboard()
     .copyText(text.appsCopyLink, url)
     .primary()
-    .row()
     .append(menuButtons({ locale, keys: ['apps'] }));
 
   return { text: html.paragraphs([intro, html.code(url), text.linkWarning]), markup };
