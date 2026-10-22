@@ -56,12 +56,32 @@ lives on another origin, so a cookie set by the site never reaches it. The
 client's `proxy.ts` therefore stores `?ref=<code>` from any page as
 `gnomevpn-ref` for 30 days — only when none is stored yet — and
 `useClaimPendingReferral` on the account page posts it to `/referrals/claim`
-after sign-up or sign-in. It deletes the cookie on success and on a final
-refusal (`isFinalRefusal`: a `REFERRAL_*` code or a malformed code), which would
-only be refused again on every visit — but keeps it after a network error or a
-`401` from a session that was not up yet, which used to lose the invite for
-good. A friend who lost the link can
+after sign-up or sign-in. It deletes the cookie before the request and puts it
+back only after a network error or a `401` from a session that was not up yet,
+which used to lose the invite for good; a final refusal (`isFinalRefusal`: a
+`REFERRAL_*` code or a malformed code) leaves it deleted, since it would only be
+refused again on every visit. Deleting first is what keeps one code to one
+request — a StrictMode double mount or a remount while the claim is in flight
+finds no cookie, where a second request would lose the unique-row race and
+toast a refusal right after the success. A friend who lost the link can
 type the code on the Invite tab instead, for as long as the account is eligible.
+
+**The code is a promo code, and sign-up takes one.** People pass codes around
+in chats more than links, so the UI calls it a promo code everywhere and shows
+it first on the Invite tab (`InviteCode`, one tap to copy), with the links
+below as the way to apply it without typing; the bot's `/invite` prints it
+too. The sign-up form has an optional promo code field behind «Есть
+промокод?» — open and filled in when the visitor came by a link, so they can
+see the code that will apply. It is checked by `signUpSchema` through
+`optionalReferralCodeSchema` (`referralCodeSchema` that also lets an empty
+field through). Every keystroke mirrors the field into the same
+`gnomevpn-ref` cookie the `?ref=` link uses (`syncPendingReferral`): a whole
+code replaces what a link stored, an erased or half-typed one deletes it. The
+cookie is the one place the code lives, so the Telegram button above the form
+claims a typed code exactly as the email form does, and erasing a prefilled
+code really opts out. The account page then claims it through the path above,
+so a typed code gets the same toast, retries and final-refusal handling as a
+link, and sign-up itself never fails over a code.
 
 **The bot reads it from the start payload.** `t.me/<bot>?start=ref_<code>` —
 `referralCodeFromStart` strips the prefix, so the payload can never be mistaken

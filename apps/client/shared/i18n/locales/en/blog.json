@@ -5,7 +5,7 @@
   },
   "title": "Blog",
   "intro": "How the protocols that get around blocking actually work, why a VPN sometimes refuses to connect, and what to do about it. No marketing — only what we have tested on our own infrastructure.",
-  "back": "← All articles",
+  "back": "All articles",
   "cta": "GnomeVPN runs Hysteria2 and VLESS + Reality side by side: when a network blocks one, the connection goes over the other. One subscription for every device.",
   "ctaAction": "See the plans →",
   "posts": {

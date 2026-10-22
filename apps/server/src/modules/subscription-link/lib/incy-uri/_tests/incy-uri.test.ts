@@ -213,38 +213,8 @@ const wireguardConfig: TunnelConfig = {
   wireguard: { publicKey: 'c2VydmVy+/pub=', address: '10.9.0.7/32', mtu: 1360 }
 };
 
-const wireguardUriOf = () => uriOf({ config: wireguardConfig, country: 'Netherlands', countryCode: 'NL', city: 'Amsterdam', tls: TLS_MODE.pin });
-
 describe('incyServerUri over wireguard', () => {
-  it('builds a wireguard link to the wireguard port', () => {
-    const url = new URL(wireguardUriOf());
-
-    expect(url.protocol).toBe('wireguard:');
-    expect(url.hostname).toBe(wireguardConfig.server);
-    expect(url.port).toBe('51820');
-  });
-
-  it('carries the device private key intact, though base64 holds plus, slash and equals signs', () => {
-    expect(decodeURIComponent(new URL(wireguardUriOf()).username)).toBe(wireguardConfig.auth);
-  });
-
-  it('carries the server key, the device address and the mtu the client cannot guess', () => {
-    const params = new URL(wireguardUriOf()).searchParams;
-
-    expect(params.get('publickey')).toBe(wireguardConfig.wireguard?.publicKey);
-    expect(params.get('address')).toBe('10.9.0.7/32');
-    expect(params.get('mtu')).toBe('1360');
-  });
-
-  it('names the entry like the other protocols, since INCY labels the protocol from the scheme itself', () => {
-    expect(decodeURIComponent(new URL(wireguardUriOf()).hash.slice(1))).toBe(
-      serverName({ country: 'Netherlands', countryCode: 'NL', city: 'Amsterdam' })
-    );
-  });
-
-  it('builds nothing without the wireguard block', () => {
-    expect(
-      incyServerUri({ config: { ...wireguardConfig, wireguard: undefined }, country: 'NL', countryCode: 'NL', city: null, tls: TLS_MODE.pin })
-    ).toBeNull();
+  it('builds no link: WireGuard is handed out as a config file, never through the subscription', () => {
+    expect(incyServerUri({ config: wireguardConfig, country: 'Netherlands', countryCode: 'NL', city: 'Amsterdam', tls: TLS_MODE.pin })).toBeNull();
   });
 });

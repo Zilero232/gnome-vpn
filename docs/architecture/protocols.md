@@ -1,7 +1,7 @@
 # Protocols and the client
 
-Why the tunnel is Hysteria2 first, why VLESS + Reality and WireGuard ride beside
-it, and why the user installs INCY rather than an app of ours. Part of the
+Why the tunnel is Hysteria2 first, why VLESS + Reality rides beside it and
+WireGuard comes as a per-device config, and why the user installs INCY rather than an app of ours. Part of the
 [documentation index](../README.md).
 
 ## Why Hysteria2 leads
@@ -56,26 +56,34 @@ Hysteria2 entry is still first in the list.
 Which nodes advertise VLESS is decided per node by `protocolsFor` — see
 [subscription-feed.md](subscription-feed.md#issuing-the-peers).
 
-## WireGuard as a third entry
+## WireGuard as a config, not as a feed entry
 
-WireGuard came back as an option, not as a lead. It is the most recognisable
-of the three — a fixed-size handshake with no disguise — and Russian networks
-block it more than the others, mobile ones especially. It stays because on some
-networks it is the one that works best, and because it is what a lot of people
-already know. It is listed after Hysteria2 and VLESS for the same country.
+WireGuard is the most recognisable of the three — a fixed-size handshake with
+no disguise — and Russian networks block it more than the others, mobile ones
+especially. It used to ride in the subscription as a third entry per country,
+after Hysteria2 and VLESS. In practice that meant a third line in INCY that
+often did not connect, picked by people who did not know why it was there, and
+a WireGuard key and address spent on every device that fetched the feed.
 
-Plain WireGuard, not AmneziaWG: INCY reads `amneziawg://` on iOS and Android
-only and ignores it on desktop, the 3x-ui AmneziaWG backend is weeks old, and
-its parameters change with every TSPU wave. `wireguard://` works on every INCY
-platform.
+So the feed carries Hysteria2 and VLESS only (`protocolsFor`), and WireGuard is
+what it is good at: a `.conf` for one device and one country, for a router or
+an app that speaks nothing else, made on the account's Connect tab
+(«По конфигу») or with `/wireguard` in the bot. The WireGuard peers that feed
+devices were issued before this are released by `reconcile-peers`
+(`releaseFeedWireguard`) in its weekly pass, once the client is not online —
+see [devices.md](devices.md).
+
+Plain WireGuard, not AmneziaWG: AmneziaVPN and the official apps read a plain
+`.conf`, the 3x-ui AmneziaWG backend is young, and its parameters change with
+every TSPU wave.
 
 It was in the project once before, for the desktop client of ours, and was
 removed with it (`c77dbeb`). What broke then is what this version is built
-around: each device gets its own key pair and address rather than one shared
-peer; the client name carries `-wg`, so it never collides with the Hysteria2
-client of the same device; and the panel lists WireGuard clients with the
-others, so reconcile, the device limit and expiry see them. The mechanics are
-in [nodes-and-peers.md](nodes-and-peers.md#wireguard-clients).
+around: each config gets its own key pair and address rather than one shared
+peer; the client name carries `-wg`, so it never collides with another protocol
+of the same device; and the panel lists WireGuard clients with the others, so
+reconcile, the device limit and expiry see them. The mechanics are in
+[nodes-and-peers.md](nodes-and-peers.md#wireguard-clients).
 
 ## Why INCY and not our own client
 

@@ -1,0 +1,16 @@
+@use '@/shared/styles/mixins' as *;
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 8px;
+
+  @include text-button(14px);
+}
+
+.input {
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

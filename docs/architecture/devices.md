@@ -229,6 +229,16 @@ the core — and only when both hold:
   right now waits for next week rather than cutting it mid-stream, the same rule
   orphan collection follows.
 
+**The WireGuard peers of feed devices go in the same pass.** The feed no
+longer lists WireGuard ([protocols.md](protocols.md)), so a device that fetched
+it before still holds a WireGuard client nobody will be shown again.
+`releaseFeedWireguard` deletes those — a WireGuard peer whose device key does
+not start with `DEVICE_KEY.wireguard` — under the same "not online right now"
+rule. A config made on the site or in the bot is a `wg:` device and is never
+touched. Until that pass deletes them, the five-minute pass leaves them out of
+`restoreMissing`: a node that lost one would otherwise get it back every five
+minutes for the rest of the week, only to have it deleted on Sunday.
+
 Doing it there rather than on its own schedule costs no extra core restart — a
 restart drops every tunnel on the node — and lands it at night. A device that
 never refreshed loses the shared key then and connects again after one manual

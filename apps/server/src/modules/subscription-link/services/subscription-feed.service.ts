@@ -1,4 +1,3 @@
-import { TUNNEL_PROTOCOL } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
 import { isEmpty, isNonNullish, isNullish } from 'remeda';
 
@@ -125,7 +124,7 @@ export class SubscriptionFeedService {
         this.subscriptionPeers.protocolsFor(node).map((protocol) => {
           const peer = issued[index].find((candidate) => candidate.protocol === protocol);
 
-          if (!peer || (protocol === TUNNEL_PROTOCOL.wireguard && !peer.tunnelAddress)) {
+          if (!peer) {
             return null;
           }
 

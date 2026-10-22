@@ -18,7 +18,8 @@ export const TEXT_TOKEN = {
   referrer: '{referrer}',
   friend: '{friend}',
   server: '{server}',
-  how: '{how}'
+  how: '{how}',
+  code: '{code}'
 } as const;
 
 export const AUTO_RENEW_CHOICE = {

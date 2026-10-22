@@ -1,14 +1,7 @@
 @use '@/shared/styles/mixins' as *;
 
 .group {
-  display: grid;
-  align-items: start;
-  gap: 16px 48px;
-  grid-template-columns: minmax(0, 0.7fr) minmax(0, 2fr);
-
-  @include below(2xl) {
-    grid-template-columns: minmax(0, 1fr);
-  }
+  @include split-section;
 }
 
 .title {

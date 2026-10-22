@@ -86,6 +86,10 @@
   color: var(--color-highlight);
 }
 
-.accordion {
-  max-width: 820px;
+.sections {
+  @include split-section;
+}
+
+.sectionsTitle {
+  @include section-title;
 }

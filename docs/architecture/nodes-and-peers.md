@@ -148,7 +148,7 @@ into xray peers itself, so the per-client traffic, online list and deletion
 work as for the other two protocols.
 
 **The server generates the key pair; the panel picks the address.** The device
-needs its private key in the URI, so `PeersService.issue` mints it
+needs its private key in the `.conf`, so `PeersService.issue` mints it
 (`generateWireguardKeys`, x25519 through `@noble/curves`) and stores it as the
 peer's `nodeCredential`. The address is left to the panel, which allocates the
 next free one in the inbound's `10.9.0.0/16`; `WireguardClients.create` reads

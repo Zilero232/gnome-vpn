@@ -10,7 +10,7 @@ import type { EnsureNodeInput, FeedPeer, IssueFeedPeerInput, PersistPeerInput, S
 import { describeError } from '../../../common/lib';
 import { PrismaService, withSerializableRetry } from '../../../core';
 import { DEVICE_PEER, devicePeerName } from '../../devices';
-import { hasReality, hasWireguard, peerClientName, PeersService } from '../../peers';
+import { hasReality, peerClientName, PeersService } from '../../peers';
 import { NODE_FEED_SELECT } from '../config';
 import { NodeTrafficService } from './node-traffic.service';
 
@@ -33,11 +33,7 @@ export class SubscriptionPeersService {
   }
 
   protocolsFor(node: SubscriptionNode): TunnelProtocol[] {
-    return [
-      TUNNEL_PROTOCOL.hysteria2,
-      ...(hasReality(node) ? [TUNNEL_PROTOCOL.vless] : []),
-      ...(hasWireguard(node) ? [TUNNEL_PROTOCOL.wireguard] : [])
-    ];
+    return [TUNNEL_PROTOCOL.hysteria2, ...(hasReality(node) ? [TUNNEL_PROTOCOL.vless] : [])];
   }
 
   async ensureNode({

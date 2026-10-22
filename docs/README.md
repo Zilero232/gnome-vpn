@@ -6,7 +6,7 @@ Everything under `docs/`, grouped by concern. Agent-facing editing digests live 
 
 Design decisions — the "why" behind the code, and what has already gone wrong.
 
-- [architecture/protocols.md](architecture/protocols.md) — why Hysteria2 leads, VLESS + Reality as the TCP fallback in the same subscription, why INCY and not our own client.
+- [architecture/protocols.md](architecture/protocols.md) — why Hysteria2 leads, VLESS + Reality as the TCP fallback in the same subscription, WireGuard as a per-device config, why INCY and not our own client.
 - [architecture/subscription-feed.md](architecture/subscription-feed.md) — the subscription as the product surface: routes, the token, the period gate, headers, `tlsMode` and `pinSHA256`, `no-store` and no ETag, third-party clients, the announce banner, platform downloads.
 - [architecture/devices.md](architecture/devices.md) — the device registry: HWID keys, per-device credentials, admission in the feed, revocation through reconcile.
 - [architecture/nodes-and-peers.md](architecture/nodes-and-peers.md) — `XrayClient` over the 3x-ui panel, device limits, liveness, client emails, releasing peers, core restarts.

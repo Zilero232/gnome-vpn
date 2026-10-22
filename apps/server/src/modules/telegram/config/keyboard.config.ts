@@ -20,17 +20,18 @@ export const KEYBOARD_ROWS: KeyboardRow[] = [
 ];
 
 export const MORE_ROWS: KeyboardRow[] = [
-  [{ key: 'invite', when: 'always' }],
-  [{ key: 'wireguard', when: 'subscribed' }],
+  [
+    { key: 'invite', when: 'always' },
+    { key: 'website', when: 'always' }
+  ],
   [
     { key: 'autoRenew', when: 'subscribed' },
     { key: 'rotate', when: 'subscribed' }
   ],
   [
-    { key: 'website', when: 'always' },
-    { key: 'help', when: 'always' }
+    { key: 'help', when: 'always' },
+    { key: 'language', when: 'always' }
   ],
-  [{ key: 'language', when: 'always' }],
   [
     { key: 'unlink', when: 'always' },
     { key: 'deleteAccount', when: 'always' }

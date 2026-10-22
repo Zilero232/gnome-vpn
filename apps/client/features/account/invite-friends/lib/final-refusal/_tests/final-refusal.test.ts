@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { ApiError } from '@/shared/api';
 
-import { isFinalRefusal } from '../pending-referral';
+import { isFinalRefusal } from '../final-refusal';
 
 describe('isFinalRefusal', () => {
   it('treats the referral refusals as final, so the stored invite is dropped', () => {

@@ -54,8 +54,8 @@ holds: [architecture/provisioning.md](../architecture/provisioning.md#re-running
 
 If a node's certificate, Reality key or WireGuard key had gone missing and had
 to be regenerated, the run warns: Hysteria2 entries pinned to the old
-certificate fail until their subscription refreshes, and every VLESS or
-WireGuard entry issued for that node before then is dead.
+certificate fail until their subscription refreshes, and every VLESS entry and
+WireGuard config issued for that node before then is dead.
 
 ## Verifying it
 
@@ -63,11 +63,12 @@ Verify end-to-end, as [architecture/provisioning.md](../architecture/provisionin
 explains: run a real hysteria client against the node and confirm a request
 returns the node's own IP, ideally from the target network. Then fetch a
 subscription and check the node appears in it once per protocol — Hysteria2,
-VLESS when the Reality keys were written, WireGuard when its key was — and
-connect over the `wireguard://` entry too, from a phone on mobile data if you
-can, since that is where WireGuard is blocked first.
+and VLESS when the Reality keys were written. WireGuard is not in the
+subscription: make a config for the node (the account's «По конфигу» or the
+bot's `/wireguard`), import the `.conf` and connect over it, from a phone on
+mobile data if you can, since that is where WireGuard is blocked first.
 
 A node provisioned before a field existed (`certFingerprint`,
 `realityPublicKey`, `realityShortId`, `wgPublicKey`) keeps working with what it
 has; re-provision it to pick the new field up. A node without `wgPublicKey`
-simply offers no WireGuard entry.
+simply offers no WireGuard config.

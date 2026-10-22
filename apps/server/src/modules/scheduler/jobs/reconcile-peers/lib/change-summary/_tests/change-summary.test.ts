@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { changeSummary } from '../change-summary';
 
-const NOTHING = { released: 0, retired: 0, restored: 0, synced: 0, collected: 0 };
+const NOTHING = { released: 0, retired: 0, feedWireguard: 0, restored: 0, synced: 0, collected: 0 };
 
 describe('changeSummary', () => {
   it('names nothing when the pass changed nothing', () => {

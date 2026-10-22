@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { optionalReferralCodeSchema } from '../referrals/referrals.schemas';
 import { isPlaceholderEmail } from './placeholder-email';
 
 const emailSchema = z
@@ -19,7 +20,8 @@ export const signInSchema = z.object({
 
 export const signUpSchema = z.object({
   email: emailSchema,
-  password: passwordSchema
+  password: passwordSchema,
+  referralCode: optionalReferralCodeSchema.optional()
 });
 
 export const updateNameSchema = z.object({
