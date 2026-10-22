@@ -228,8 +228,11 @@ who set it did so because the client was reporting the wrong thing.
 
 **The keyboard is the interface; the commands are the fallback.** The reply
 keyboard holds only what is pressed every week — connect, apps, subscription,
-renew, devices — and one "⚙️ More" that opens the rest (invites, a WireGuard config, auto-charge, a
-new link, the website, help, language, unlink, delete) as an inline menu. With six
+renew, devices — and one "⚙️ More" that opens the rest (invites, auto-charge, a new link, the
+website, help, language, unlink, delete) as an inline menu, two buttons to a
+row under a full sentence: Telegram makes an inline keyboard as wide as the
+message it hangs under, so a one-line title squeezed the buttons into a narrow
+column. With six
 buttons it can afford to be `persistent()`; the old layout of fourteen could
 not. It changes with the chat: the link and the status only appear once there
 is a subscription to use, and the trial only while it can still be taken —
@@ -409,7 +412,8 @@ fetch.
 Prisma alone, so it brings no path back into billing or the bot.
 
 **`/wireguard` makes a config without the site.** It is also the last button
-under `/apps` and an entry in "⚙️ More". The same
+under `/apps`, beside the apps it is an alternative to — and only there, since a
+second copy in "⚙️ More" was one more place to look for the same thing. The same
 `WireguardConfigService` the account page calls, behind the check `/apps` and
 `/connect` make: a `period` of `none` gets the no-access message, and `none` is
 exactly what the REST route's `hasActiveAccess` refuses. The screen

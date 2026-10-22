@@ -1,1 +1,0 @@
-export { wireguardUri } from './wireguard';

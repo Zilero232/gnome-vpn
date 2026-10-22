@@ -6,6 +6,7 @@ import { Text } from '@/ui-kit';
 
 import type { InviteShareProps } from './InviteShare.types';
 
+import { InviteCode } from '../InviteCode';
 import { InviteLink } from '../InviteLink';
 import { ShareMenu } from '../ShareMenu';
 
@@ -16,6 +17,8 @@ export const InviteShare = ({ overview }: InviteShareProps) => {
 
   return (
     <section className={s.root}>
+      <InviteCode code={overview.code} />
+
       <Text as='h3' className={s.title} size='sm'>
         {t('linkTitle')}
       </Text>

@@ -97,7 +97,7 @@ lib/
 ├── client-links/      # the third-party clients and their import links
 ├── client-platform/   # what the User-Agent says the caller is
 ├── incy-headers/      # the response headers, with header-value/ and userinfo/
-├── incy-uri/          # the server list, with hysteria2/, vless/ and wireguard/ beside it
+├── incy-uri/          # the server list, with hysteria2/ and vless/ beside it
 ├── live-nodes/        # the nodes whose health probe is fresh, or all when none is
 ├── server-name/       # the flag-and-country label every protocol shares
 ├── subscription-token/

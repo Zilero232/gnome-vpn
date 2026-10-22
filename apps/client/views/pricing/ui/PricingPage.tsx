@@ -49,8 +49,8 @@ export const PricingPage = () => {
         </ul>
       </section>
 
-      <section aria-labelledby='sections-title'>
-        <Text as='h2' className={s.sectionTitle} id='sections-title'>
+      <section aria-labelledby='sections-title' className={s.sections}>
+        <Text as='h2' className={s.sectionsTitle} id='sections-title'>
           {t('sectionsTitle')}
         </Text>
 
@@ -60,7 +60,6 @@ export const PricingPage = () => {
             title: t(`sections.${section}.title`),
             content: t(`sections.${section}.body`)
           }))}
-          className={s.accordion}
         />
       </section>
 

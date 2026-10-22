@@ -37,6 +37,10 @@ describe('inviteView', () => {
     expect(text).toContain(OVERVIEW.telegramLink);
   });
 
+  it('gives the promo code itself, for a friend who signs up without the link', () => {
+    expect(inviteView({ overview: OVERVIEW, locale: 'ru' }).text).toContain(`<code>${OVERVIEW.code}</code>`);
+  });
+
   it('shares the bot link when there is one', () => {
     const [share] = buttonsOf(OVERVIEW);
 

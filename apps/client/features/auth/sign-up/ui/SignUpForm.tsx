@@ -13,12 +13,12 @@ import { FormField, Input, PasswordInput, SubmitButton, Text } from '@/ui-kit';
 import type { SignUpValues } from '../model/hooks';
 import type { SignUpFormProps } from './SignUpForm.types';
 
-import { signUpSchema, useSignUp } from '../model/hooks';
-import { StrengthMeter } from './components';
+import { signUpSchema, usePromoCode, useSignUp } from '../model/hooks';
+import { PromoCodeField, StrengthMeter } from './components';
 
 import s from './SignUpForm.module.scss';
 
-const DEFAULT_VALUES: SignUpValues = { email: '', password: '' };
+const DEFAULT_VALUES: SignUpValues = { email: '', password: '', referralCode: '' };
 
 export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
   const t = useTranslations('auth');
@@ -32,10 +32,12 @@ export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
     register,
     setError,
     setFocus,
+    setValue,
     control
   } = useForm<SignUpValues>({ resolver: zodResolver(signUpSchema), defaultValues: DEFAULT_VALUES });
 
   const password = useWatch({ control, name: 'password' });
+  const promo = usePromoCode({ register, setValue, setFocus });
   const onAuthError = useAuthFormError({ onFieldError: ({ field, message }) => setError(field, { message }, { shouldFocus: true }) });
 
   useEffect(() => {
@@ -56,6 +58,8 @@ export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
         <PasswordInput autoComplete='new-password' capsLockLabel={t('capsLock')} id='signup-password' {...passwordLabels} {...register('password')} />
       </FormField>
       <StrengthMeter password={password} />
+
+      <PromoCodeField error={fieldError(errors.referralCode)} isOpen={promo.isOpen} registration={promo.registration} onOpen={promo.open} />
 
       <SubmitButton isPending={isPending} size='lg'>
         {t('signUpAction')}

@@ -6,9 +6,10 @@ import { toast } from 'sonner';
 
 import { useErrorMessage } from '@/entities/app/locale';
 import { apiErrorCode } from '@/shared/api';
+import { clearPendingReferral, readPendingReferral, storePendingReferral } from '@/shared/lib';
 import { celebrate } from '@/ui-kit';
 
-import { clearPendingReferral, isFinalRefusal, readPendingReferral } from '../../../lib';
+import { isFinalRefusal } from '../../../lib';
 import { useClaimReferral } from '../use-claim-referral';
 
 export const useClaimPendingReferral = () => {
@@ -23,19 +24,18 @@ export const useClaimPendingReferral = () => {
       return;
     }
 
+    clearPendingReferral();
+
     mutate(
       { code },
       {
-        onSuccess: () => {
-          clearPendingReferral();
-          celebrate(t('claimed'));
-        },
+        onSuccess: () => celebrate(t('claimed')),
         onError: (error) => {
           if (!isFinalRefusal(error)) {
+            storePendingReferral(code);
+
             return;
           }
-
-          clearPendingReferral();
 
           if (apiErrorCode(error) !== 'REFERRAL_SELF') {
             toast.error(t('pendingRefused'), { description: errorMessage(error) });

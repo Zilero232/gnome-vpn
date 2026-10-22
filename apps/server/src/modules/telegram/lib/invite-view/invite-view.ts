@@ -46,6 +46,7 @@ export const inviteView = ({ overview, locale }: InviteViewInput): BotMessage =>
 
   const pendingDays = dayCount({ days: overview.pendingDays, locale });
   const pending = overview.pendingDays > 0 ? fillText({ text: text.invitePending, fill: { days: pendingDays } }) : null;
+  const code = fillText({ text: text.inviteCode, fill: { code: overview.code } });
   const botLink = overview.telegramLink ? fillText({ text: text.inviteBotLink, fill: { link: overview.telegramLink } }) : null;
   const siteLink = fillText({ text: text.inviteSiteLink, fill: { link: overview.link } });
   const footnote = fillText({ text: text.inviteFootnote, fill: { days: dayCount({ days: REFERRAL_POLICY.capDays, locale }) } });
@@ -59,7 +60,7 @@ export const inviteView = ({ overview, locale }: InviteViewInput): BotMessage =>
     .copyText(text.appsCopyLink, shared);
 
   return {
-    text: html.paragraphs([text.inviteTitle, html.quote(rewards.join(NEW_LINE)), stats, pending, botLink, siteLink, footnote]),
+    text: html.paragraphs([text.inviteTitle, html.quote(rewards.join(NEW_LINE)), stats, pending, code, botLink, siteLink, footnote]),
     markup
   };
 };

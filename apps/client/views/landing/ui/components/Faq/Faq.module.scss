@@ -3,6 +3,8 @@
 .root {
   padding: 128px 0 0;
 
+  @include split-section;
+
   @include below(md) {
     padding-top: 88px;
   }
@@ -10,12 +12,17 @@
 
 .head {
   display: flex;
-  max-width: 760px;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 32px;
-  gap: 12px 24px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+
+  @include below(2xl) {
+    flex-flow: row wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 12px 24px;
+  }
 }
 
 .title {
@@ -29,8 +36,4 @@
 
   @include text-link(15px);
   @include touch-target;
-}
-
-.list {
-  max-width: 760px;
 }

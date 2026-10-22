@@ -4,7 +4,7 @@
     "description": "How Hysteria2, VLESS + Reality and WireGuard differ, which protocol to pick when a network blocks UDP, and how the server list keeps itself current."
   },
   "title": "Servers and protocols",
-  "intro": "Every country in your subscription comes in several variants: over Hysteria2, over VLESS + Reality and, on the servers that run it, over WireGuard. The app labels each entry with its protocol, and you switch between them right there without changing anything else.",
+  "intro": "Every country in your subscription comes in two variants: over Hysteria2 and over VLESS + Reality. The app labels each entry with its protocol, and you switch between them right there. WireGuard is handed out separately, as a config for one device.",
   "tableTitle": "Side by side",
   "rows": {
     "label": "Property",
@@ -47,7 +47,7 @@
     },
     "whichToPick": {
       "title": "Which one to pick",
-      "body": "Start with Hysteria2 — on most networks it is the fastest. If it will not connect, switch to VLESS for the same country: it gets through where UDP is closed. Try WireGuard if it works better for you than the others. Nothing needs configuring: every variant is already in your subscription, and the app remembers which one worked."
+      "body": "Start with Hysteria2 — on most networks it is the fastest. If it will not connect, switch to VLESS for the same country: it gets through where UDP is closed. Nothing needs configuring: both variants are already in your subscription, and the app remembers which one worked. WireGuard is for a router or an app that only speaks it: make a config in your account or in the Telegram bot."
     },
     "howMany": {
       "title": "How many devices",

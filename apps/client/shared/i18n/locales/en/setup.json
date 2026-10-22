@@ -87,7 +87,7 @@
       },
       "connect": {
         "title": "Pick a server and connect",
-        "body": "Each country comes in several variants: Hysteria2 over UDP, VLESS + Reality over TCP and, on some servers, WireGuard. The app labels each entry with its protocol. Start with Hysteria2; if the network blocks UDP, switch to VLESS."
+        "body": "Each country comes in two variants: Hysteria2 over UDP and VLESS + Reality over TCP. The app labels each entry with its protocol. Start with Hysteria2; if the network blocks UDP, switch to VLESS."
       }
     },
     "note": "Whatever app you pick, the link stays yours alone. If it leaks, rotate it in your account: the old one dies at once, every app is disconnected and you add the new link on each device. WireGuard configs keep working.",

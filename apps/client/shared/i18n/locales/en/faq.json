@@ -26,7 +26,7 @@
     },
     "whichProtocol": {
       "q": "There are several servers per country — which one do I pick?",
-      "a": "Start with Hysteria2: it is faster and steadier on mobile. VLESS is for networks that block UDP — usually office Wi-Fi, hotels and some corporate networks. WireGuard is in the subscription too: simple and fast, but blocked more often in Russia, so take it if it works better for you. The app labels each entry with its protocol."
+      "a": "Start with Hysteria2: it is faster and steadier on mobile. VLESS is for networks that block UDP — usually office Wi-Fi, hotels and some corporate networks. The app labels each entry with its protocol. WireGuard is not part of the subscription: simple and fast, but blocked more often in Russia, so we hand it out as a separate config — for a router or a WireGuard app."
     },
     "howManyDevices": {
       "q": "How many devices can I use?",
@@ -94,7 +94,7 @@
     },
     "wireguard": {
       "q": "Can I connect over WireGuard?",
-      "a": "Yes. WireGuard is already in the subscription for INCY, and for other apps and routers your account's Connect tab makes configs under With a config: pick a country, name the device and download the .conf file or scan the QR code. In the Telegram bot, /wireguard does the same and sends the file straight to the chat. On Windows WireSock Secure Connect works best, on iPhone and Android AmneziaVPN, on macOS, Linux and routers the official WireGuard app. Each config takes one place in your device limit. WireGuard is blocked in Russia more often than the other protocols: if it will not connect, use INCY."
+      "a": "Yes, as a config — WireGuard is not part of the subscription link. For a router or a WireGuard app, your account's Connect tab makes configs under With a config: pick a country, name the device and download the .conf file or scan the QR code. In the Telegram bot, /wireguard does the same and sends the file straight to the chat. On Windows WireSock Secure Connect works best, on iPhone and Android AmneziaVPN, on macOS, Linux and routers the official WireGuard app. Each config takes one place in your device limit. WireGuard is blocked in Russia more often than the other protocols: if it will not connect, use INCY."
     }
   },
   "stillStuck": "Still stuck? Email us — we answer within a day.",

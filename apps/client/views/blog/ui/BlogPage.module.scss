@@ -1,7 +1,7 @@
 @use '@/shared/styles/mixins' as *;
 
 .root {
-  @include marketing-page(960px, 48px, 32px);
+  @include marketing-page(1080px, 48px, 32px);
 }
 
 .list {

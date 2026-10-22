@@ -8,6 +8,12 @@ export const referralCodeSchema = z
   .refine(isShortCode, 'validation.referralCodeInvalid')
   .transform(normaliseShortCode);
 
+export const optionalReferralCodeSchema = z
+  .string()
+  .trim()
+  .refine((value) => value === '' || isShortCode(value), 'validation.referralCodeInvalid')
+  .transform((value) => (value === '' ? value : normaliseShortCode(value)));
+
 export const claimReferralSchema = z.object({
   code: referralCodeSchema
 });

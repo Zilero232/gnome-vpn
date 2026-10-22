@@ -5,6 +5,6 @@
   "passwordMin": "Минимум 8 символов",
   "passwordsMismatch": "Пароли не совпадают",
   "required": "Заполните поле",
-  "referralCodeInvalid": "Код из 8 символов: латинские буквы и цифры",
+  "referralCodeInvalid": "Промокод — 8 символов: латинские буквы и цифры",
   "wireguardNameMax": "Не длиннее {wireguardNameMax, plural, one {# символа} other {# символов}}"
 }

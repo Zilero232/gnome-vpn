@@ -31,7 +31,6 @@ export const Faq = () => {
           title: t(`questions.${question}.q`),
           content: t(`questions.${question}.a`, FAQ_ANSWER_VALUES)
         }))}
-        className={s.list}
       />
     </section>
   );
