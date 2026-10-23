@@ -112,7 +112,7 @@ describe('giftView', () => {
 
 describe('nodeView', () => {
   it('gives an admin the host but never the panel or the keys', () => {
-    const secrets = { apiUrl: 'https://203.0.113.7:2053/secret-panel-path', apiTokenEnvVar: 'XRAY_KEY_DE', hysteriaAuth: 'node-auth' };
+    const secrets = { apiUrl: 'https://203.0.113.7:2053/secret-panel-path', apiTokenEnvVar: 'XRAY_KEY_DE' };
 
     const row = {
       id: 'node-1',

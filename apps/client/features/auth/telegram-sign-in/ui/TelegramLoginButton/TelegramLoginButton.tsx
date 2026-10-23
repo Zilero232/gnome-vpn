@@ -2,6 +2,8 @@
 
 import { useTranslations } from 'next-intl';
 
+import { ROUTES } from '@/shared/constants';
+import { Link } from '@/shared/i18n/navigation';
 import { Spinner, Text } from '@/ui-kit';
 
 import { useTelegramLogin } from '../../model/hooks';
@@ -35,6 +37,16 @@ export const TelegramLoginButton = () => {
           {t('telegramSignInFailed')}
         </Text>
       )}
+
+      <Text align='center' className={s.consent} size='xs' tone='muted'>
+        {t.rich('telegramConsent', {
+          consent: (chunks) => (
+            <Link className={s.link} href={ROUTES.consent}>
+              {chunks}
+            </Link>
+          )
+        })}
+      </Text>
 
       <span className={s.divider}>
         <Text size='sm' tone='muted'>

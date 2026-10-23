@@ -29,6 +29,10 @@ preferences on Android — so it identifies the device, not the install.
   sending switched off, which the user can do. Every such install of one app on
   one account shares a key, so it is **one** device.
 
+The key is the only place the hardware id is stored: a `device.hwid` column
+held the same value again and was read by nothing, so
+`20261026100000_drop_write_only_columns_and_indexes` dropped it.
+
 The second rule is what keeps the limit from being a toggle: switching HWID off
 does not make a device invisible, it makes all of that user's HWID-less INCY
 installs share one slot.

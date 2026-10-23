@@ -1,4 +1,4 @@
-import { Check, Gift } from 'lucide-react';
+import { Gift } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { PaymentMethodsNote } from '@/entities/billing/payment-notes';
@@ -9,7 +9,8 @@ import { PricingCard } from '@/widgets/billing/pricing-plans';
 import { PageIntro } from '@/widgets/site/page-intro';
 import { RelatedLinks } from '@/widgets/site/related-links';
 
-import { PRICING_INCLUDED, PRICING_SECTIONS } from '../config';
+import { PRICING_SECTIONS } from '../config';
+import { IncludedSection, ReferralSection } from './components';
 
 import s from './PricingPage.module.scss';
 
@@ -59,20 +60,9 @@ export const PricingPage = () => {
         </Link>
       </aside>
 
-      <section aria-labelledby='included-title' className={s.included}>
-        <Text as='h2' className={s.sectionTitle} id='included-title'>
-          {t('includedTitle')}
-        </Text>
+      <ReferralSection />
 
-        <ul className={s.list}>
-          {PRICING_INCLUDED.map((item) => (
-            <li key={item} className={s.item}>
-              <Check aria-hidden className={s.check} size={18} />
-              <span>{t(`included.${item}`)}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <IncludedSection />
 
       <section aria-labelledby='sections-title' className={s.sections}>
         <Text as='h2' className={s.sectionsTitle} id='sections-title'>

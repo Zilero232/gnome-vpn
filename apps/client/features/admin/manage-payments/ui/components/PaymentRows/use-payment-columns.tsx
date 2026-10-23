@@ -39,7 +39,8 @@ export const usePaymentColumns = ({ withUser, onRefund }: UsePaymentColumnsInput
     {
       key: 'what',
       header: t('columns.what'),
-      cell: ({ kind, plan, extraDevices, isAutoCharge }) => t(`kinds.${kind}`, { plan: plans(plan), count: extraDevices, auto: String(isAutoCharge) })
+      cell: ({ kind, plan, extraDevices, isAutoCharge }) =>
+        t(`kinds.${kind}`, { plan: plan ? plans(plan) : '', count: extraDevices, auto: String(isAutoCharge) })
     },
     { key: 'status', header: t('columns.status'), cell: (payment) => <PaymentBadge payment={payment} /> },
     {

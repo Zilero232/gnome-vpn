@@ -1,0 +1,25 @@
+{
+  "meta": {
+    "title": "Unsubscribe from offers",
+    "description": "Stop GnomeVPN emails and messages with discounts and offers."
+  },
+  "pending": "Unsubscribing…",
+  "unsubscribed": {
+    "code": "Done",
+    "title": "You have unsubscribed from offers",
+    "body": "We will not send you discounts and offers any more. Service notices about your subscription keep arriving as before.",
+    "account": "Turn them back on in your account"
+  },
+  "invalid": {
+    "code": "Link",
+    "title": "This link is not valid",
+    "body": "It may have been copied only in part. You can also unsubscribe in your account, under Profile.",
+    "account": "Open the profile"
+  },
+  "failed": {
+    "code": "Error",
+    "title": "Could not unsubscribe you",
+    "body": "The server did not answer. Try again a little later, or unsubscribe in your account under Profile.",
+    "retry": "Try again"
+  }
+}

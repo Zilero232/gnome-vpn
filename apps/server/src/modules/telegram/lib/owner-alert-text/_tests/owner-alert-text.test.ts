@@ -14,13 +14,13 @@ const account: AlertAccount = { userId: 'user-1', email: 'ivan@example.com', use
 
 const subscription: AlertPurchase = { kind: 'subscription', plan: DEFAULT_PLAN_ID, extraDevices: 0 };
 
-const extraPlaces: AlertPurchase = { kind: 'extraDevices', plan: DEFAULT_PLAN_ID, extraDevices: 2 };
+const extraPlaces: AlertPurchase = { kind: 'extraDevices', plan: null, extraDevices: 2 };
 
 describe('paymentAlertText', () => {
   it('names the plan, the amount and who paid', () => {
     const text = paymentAlertText({ purchase: subscription, amount: 299, account, isAutoCharge: false, locale: 'ru' });
 
-    expect(text).toContain(planLabel({ planId: subscription.plan, locale: 'ru' }));
+    expect(text).toContain(planLabel({ planId: DEFAULT_PLAN_ID, locale: 'ru' }));
     expect(text).toContain('299');
     expect(text).toContain(account.email);
   });
@@ -36,7 +36,7 @@ describe('paymentAlertText', () => {
     const text = paymentAlertText({ purchase: extraPlaces, amount: 100, account, isAutoCharge: false, locale: 'ru' });
 
     expect(text).toContain(String(extraPlaces.extraDevices));
-    expect(text).not.toContain(planLabel({ planId: extraPlaces.plan, locale: 'ru' }));
+    expect(text).not.toContain(planLabel({ planId: DEFAULT_PLAN_ID, locale: 'ru' }));
   });
 
   it('falls back to the Telegram handle for an account whose email is a placeholder', () => {

@@ -6,3 +6,5 @@ export type { LegalLinkProps } from './LegalLink';
 
 export { LegalSection } from './LegalSection';
 export type { LegalSectionProps } from './LegalSection';
+
+export { SellerRequisites } from './SellerRequisites';

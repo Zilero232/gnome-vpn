@@ -1,1 +1,1 @@
-export const EMAIL_TOKENS = ['date', 'amount', 'card', 'email', 'code'] as const;
+export const EMAIL_TOKENS = ['date', 'amount', 'card', 'email', 'code', 'percent'] as const;

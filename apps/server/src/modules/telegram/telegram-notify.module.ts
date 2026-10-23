@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 
+import { ConsentsModule } from '../consents';
 import { SubscriptionModule } from '../subscription';
 import { telegramBotProvider } from './bot';
 import { NoticeEmailService } from './services/notice-email.service';
@@ -8,7 +9,7 @@ import { TelegramNotifyService } from './services/telegram-notify.service';
 import { TelegramThrottleService } from './services/telegram-throttle.service';
 
 @Module({
-  imports: [SubscriptionModule],
+  imports: [ConsentsModule, SubscriptionModule],
   providers: [telegramBotProvider, NoticeEmailService, TelegramNotifyService, TelegramAlertService, TelegramThrottleService],
   exports: [TelegramNotifyService, TelegramAlertService, TelegramThrottleService, telegramBotProvider]
 })

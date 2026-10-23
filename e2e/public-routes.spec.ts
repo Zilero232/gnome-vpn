@@ -30,6 +30,16 @@ test.describe('public routes', () => {
     await expect(page.getByRole('heading', { level: 1 })).toContainText(/terms of service|публичная оферта/i);
   });
 
+  test('the personal data consent is reachable without auth', async ({ page }) => {
+    const response = await page.goto(ROUTES.consent);
+
+    expect(response?.status()).toBe(200);
+
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(
+      /consent to personal data processing|согласие на обработку персональных данных/i
+    );
+  });
+
   test('the password reset page is reachable without auth', async ({ page }) => {
     const response = await page.goto(ROUTES.resetPassword);
 

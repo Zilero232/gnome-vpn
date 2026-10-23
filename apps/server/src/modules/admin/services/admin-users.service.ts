@@ -91,12 +91,12 @@ export class AdminUsersService {
       this.devices.list(userId),
       this.prisma.payment.findMany({ where: { userId }, orderBy: [...PAYMENT_ORDER], take: ADMIN_USER.cardPayments, select: PAYMENT_ROW_SELECT }),
       this.prisma.referral.findMany({
-        where: { referrerId: userId },
+        where: { referrerId: userId, referredId: { not: null } },
         orderBy: { createdAt: 'desc' },
         take: ADMIN_USER.cardInvited,
         select: INVITED_SELECT
       }),
-      this.prisma.referral.count({ where: { referrerId: userId } }),
+      this.prisma.referral.count({ where: { referrerId: userId, referredId: { not: null } } }),
       this.prisma.promoRedemption.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, select: REDEMPTION_SELECT }),
       this.prisma.promoCode.findMany({ where: { buyerId: userId, kind: 'gift' }, orderBy: { createdAt: 'desc' }, select: GIFT_ROW_SELECT })
     ]);

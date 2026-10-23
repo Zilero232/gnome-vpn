@@ -1,0 +1,80 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  padding: var(--gap-md);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 30%, transparent);
+  border-radius: var(--radius-md);
+  background-color: color-mix(in srgb, var(--color-accent) 6%, var(--color-surface-raised));
+  gap: 14px;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.icon {
+  @include icon-tile;
+
+  background-color: var(--color-peach);
+  color: var(--color-text);
+}
+
+.headText {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--step-sm);
+  font-weight: 600;
+}
+
+.close {
+  margin: -6px -6px 0 0;
+}
+
+.rewards {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  gap: 8px;
+}
+
+.reward {
+  display: inline-flex;
+  align-items: baseline;
+  padding: 6px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface-raised);
+  font-size: 14px;
+  gap: 6px;
+
+  dt {
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+  }
+}
+
+.you {
+  color: var(--color-accent);
+}
+
+.more {
+  @include text-link;
+
+  align-self: flex-start;
+}

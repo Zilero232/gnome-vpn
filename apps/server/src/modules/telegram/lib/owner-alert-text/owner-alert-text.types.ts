@@ -16,7 +16,7 @@ export type AlertAccount = {
 
 export type AlertPurchase = {
   kind: 'extraDevices' | 'gift' | 'subscription';
-  plan: PlanId;
+  plan: PlanId | null;
   extraDevices: number;
 };
 

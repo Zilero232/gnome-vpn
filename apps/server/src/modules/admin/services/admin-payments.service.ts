@@ -11,8 +11,9 @@ import { AppBadRequestException, AppNotFoundException } from '../../../common/ex
 import { dayKey, describeError } from '../../../common/lib';
 import { PrismaService } from '../../../core';
 import { YooKassaClient } from '../../../lib';
-import { ADMIN_EXPORT_FILE, ADMIN_REFUND, PAYMENT_CSV_COLUMNS, PAYMENT_ORDER, PAYMENT_ROW_SELECT } from '../config';
+import { ADMIN_ACTION, ADMIN_EXPORT_FILE, ADMIN_REFUND, PAYMENT_CSV_COLUMNS, PAYMENT_ORDER, PAYMENT_ROW_SELECT } from '../config';
 import { pageWindow, paymentTotals, paymentView, paymentWhere, toCsv } from '../lib';
+import { AdminAuditService } from './admin-audit.service';
 
 @Injectable()
 export class AdminPaymentsService {
@@ -20,7 +21,8 @@ export class AdminPaymentsService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly yookassa: YooKassaClient
+    private readonly yookassa: YooKassaClient,
+    private readonly audit: AdminAuditService
   ) {}
 
   async list({ page, now, ...filter }: PaymentListInput): Promise<AdminPaymentPage> {
@@ -91,6 +93,13 @@ export class AdminPaymentsService {
     await this.prisma.payment.updateMany({ where: { id: row.id, status: 'succeeded' }, data: { refundRequestedAt: new Date() } });
 
     this.logger.log(`admin ${admin.email} refunded payment ${row.id} in full (${row.amount.toString()} RUB, refund ${refund.id} ${refund.status})`);
+
+    await this.audit.record({
+      admin,
+      action: ADMIN_ACTION.refund,
+      targetUserId: row.user?.id,
+      details: { paymentId: row.id, amount: row.amount.toNumber(), refundId: refund.id, refundStatus: refund.status }
+    });
 
     return adminPaymentSchema.parse(paymentView(await this.find(paymentId)));
   }

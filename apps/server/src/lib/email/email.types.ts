@@ -4,4 +4,5 @@ export type SendEmailParams = {
   to: string;
   subject: string;
   react: ReactElement;
+  unsubscribeUrl?: string;
 };

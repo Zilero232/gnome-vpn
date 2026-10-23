@@ -12,6 +12,20 @@
   "ogAccent": "gnome",
   "ogOffer": "First day free · from {price} ₽ a month",
   "legal": {
-    "contents": "Contents"
+    "contents": "Contents",
+    "seller": {
+      "fields": {
+        "name": "Provider",
+        "status": "Status",
+        "inn": "Taxpayer number (INN)",
+        "ogrnip": "Registration number (OGRNIP)",
+        "address": "Address",
+        "email": "Email"
+      },
+      "statuses": {
+        "entrepreneur": "Individual entrepreneur",
+        "selfEmployed": "Self-employed (professional income tax payer)"
+      }
+    }
   }
 }

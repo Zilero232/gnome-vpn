@@ -32,6 +32,12 @@ export const adminTopReferrerSchema = z.object({
   days: adminCountSchema
 });
 
+export const adminGrowthSchema = z.object({
+  referredPayments: z.object({ count: adminCountSchema, amount: adminAmountSchema }),
+  winBack: z.object({ offered: adminCountSchema, redeemed: adminCountSchema, revenue: adminAmountSchema }),
+  checkoutReminders: z.object({ sent: adminCountSchema, recovered: adminCountSchema })
+});
+
 export const adminAnalyticsSchema = z.object({
   range: adminAnalyticsRangeSchema,
   days: z.array(adminDaySchema),
@@ -47,5 +53,6 @@ export const adminAnalyticsSchema = z.object({
     referrerDays: adminCountSchema,
     friendDays: adminCountSchema,
     top: z.array(adminTopReferrerSchema)
-  })
+  }),
+  growth: adminGrowthSchema
 });

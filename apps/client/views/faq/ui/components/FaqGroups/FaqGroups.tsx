@@ -2,6 +2,8 @@ import { Accordion, Text } from '@/ui-kit';
 
 import type { FaqGroupsProps } from './FaqGroups.types';
 
+import { FaqAnswer } from '../FaqAnswer';
+
 import s from './FaqGroups.module.scss';
 
 export const FaqGroups = ({ groups, open, onOpenChange }: FaqGroupsProps) =>
@@ -11,7 +13,11 @@ export const FaqGroups = ({ groups, open, onOpenChange }: FaqGroupsProps) =>
         {title}
       </Text>
       <Accordion
-        items={items.map(({ value, question, answer }) => ({ value, title: question, content: answer }))}
+        items={items.map(({ value, question, answer }) => ({
+          value,
+          title: question,
+          content: <FaqAnswer value={value}>{answer}</FaqAnswer>
+        }))}
         value={open}
         onValueChange={onOpenChange}
       />

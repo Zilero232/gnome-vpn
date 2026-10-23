@@ -14,8 +14,11 @@ export const PrivacyPage = () => {
 
   return (
     <LegalDocument
+      footnote={t.rich('terms', {
+        terms: (chunks) => <LegalLink href={ROUTES.terms}>{chunks}</LegalLink>,
+        consent: (chunks) => <LegalLink href={ROUTES.consent}>{chunks}</LegalLink>
+      })}
       contents={contents}
-      footnote={t.rich('terms', { terms: (chunks) => <LegalLink href={ROUTES.terms}>{chunks}</LegalLink> })}
       intro={t('intro')}
       title={t('title')}
       updated={t('updated', { date: format.dateTime(new Date(PRIVACY_UPDATED), DATE_FORMAT) })}

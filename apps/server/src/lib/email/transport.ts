@@ -21,7 +21,7 @@ const transporter = nodemailer.createTransport({
   ...SMTP_TIMEOUTS
 });
 
-export const sendEmail = async ({ to, subject, react }: SendEmailParams): Promise<void> => {
+export const sendEmail = async ({ to, subject, react, unsubscribeUrl }: SendEmailParams): Promise<void> => {
   if (isPlaceholderEmail(to)) {
     return;
   }
@@ -35,7 +35,14 @@ export const sendEmail = async ({ to, subject, react }: SendEmailParams): Promis
   const [html, text] = await Promise.all([render(react), render(react, { plainText: true })]);
 
   try {
-    await transporter.sendMail({ from: env.EMAIL_FROM, to: recipient, subject, html, text });
+    await transporter.sendMail({
+      from: env.EMAIL_FROM,
+      to: recipient,
+      subject,
+      html,
+      text,
+      ...(unsubscribeUrl && { list: { unsubscribe: unsubscribeUrl } })
+    });
   } catch (error) {
     throw new AppServiceUnavailableException('EMAIL_UNAVAILABLE', `Failed to send email: ${describeError(error)}`);
   }

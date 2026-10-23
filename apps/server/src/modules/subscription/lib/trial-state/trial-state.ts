@@ -8,7 +8,7 @@ import type { TrialRow, TrialState } from '../../subscription.types';
 
 import { isPeriodActive } from '../../../../common/lib';
 
-const isTrialPeriod = (row: TrialRow | null): boolean => {
+export const isTrialPeriod = (row: TrialRow | null): boolean => {
   if (!row?.trialStartedAt || !row.currentPeriodEnd) {
     return false;
   }

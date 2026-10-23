@@ -1,10 +1,10 @@
-import { PLANS } from '@gnomevpn/schemas';
+import { PLANS, REFERRAL_REWARDS } from '@gnomevpn/schemas';
 import { createTranslator } from 'next-intl';
 import { describe, expect, it } from 'vitest';
 
 import { messages } from '@/shared/i18n';
 
-import { FAQ_ANSWER_VALUES, FAQ_GROUPS, FAQ_HIGHLIGHTS, FAQ_QUESTIONS } from '../config';
+import { FAQ_ANSWER_VALUES, FAQ_GROUPS, FAQ_HIGHLIGHTS, FAQ_LINKS, FAQ_QUESTIONS } from '../config';
 
 describe('FAQ_QUESTIONS', () => {
   it('flattens every group without losing or repeating a question', () => {
@@ -44,6 +44,28 @@ describe('FAQ_ANSWER_VALUES', () => {
       for (const plan of PLANS) {
         expect(answer).toContain(String(plan.priceRub));
       }
+    }
+  });
+
+  it('puts every referral reward into the referral answer, in both locales', () => {
+    for (const locale of ['ru', 'en'] as const) {
+      const t = createTranslator({ locale, messages: messages[locale], namespace: 'faq' });
+      const answer = t('questions.referral.a', FAQ_ANSWER_VALUES);
+
+      for (const reward of Object.values(REFERRAL_REWARDS)) {
+        expect(answer).toContain(`+${reward.referrerDays}`);
+        expect(answer).toContain(`+${reward.friendDays}`);
+      }
+    }
+  });
+});
+
+describe('FAQ_LINKS', () => {
+  it('links only questions the FAQ asks, each with a label in both locales', () => {
+    for (const question of Object.keys(FAQ_LINKS)) {
+      expect(FAQ_QUESTIONS).toContain(question);
+      expect(messages.ru.faq.links).toHaveProperty(question);
+      expect(messages.en.faq.links).toHaveProperty(question);
     }
   });
 });

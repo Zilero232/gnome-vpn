@@ -11,6 +11,7 @@ import type { AnalyticsChartsProps } from './AnalyticsCharts.types';
 
 import { conversionRate } from '../../../lib';
 import { DailyChart } from '../DailyChart';
+import { GrowthBlock } from '../GrowthBlock';
 import { PaidVsTrials } from '../PaidVsTrials';
 import { ReferralsBlock } from '../ReferralsBlock';
 import { RevenueCard } from '../RevenueCard';
@@ -48,6 +49,8 @@ export const AnalyticsCharts = ({ analytics, isFaded }: AnalyticsChartsProps) =>
       />
 
       <ReferralsBlock isFaded={isFaded} period={period} referrals={analytics.referrals} />
+
+      <GrowthBlock growth={analytics.growth} isFaded={isFaded} period={period} />
     </div>
   );
 };

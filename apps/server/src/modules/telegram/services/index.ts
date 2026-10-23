@@ -6,6 +6,7 @@ export { TelegramBroadcastService } from './telegram-broadcast.service';
 export { TelegramDevicesService } from './telegram-devices.service';
 export { TelegramLinkService } from './telegram-link.service';
 export { TelegramNotifyService } from './telegram-notify.service';
+export { TelegramOffersService } from './telegram-offers.service';
 export { TelegramProfileService } from './telegram-profile.service';
 export { TelegramPromoService } from './telegram-promo.service';
 export { TelegramReferralService } from './telegram-referral.service';

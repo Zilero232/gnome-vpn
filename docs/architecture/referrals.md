@@ -139,6 +139,9 @@ The friend is told by `referralBonus`, the inviter by `referralRewarded`, or by
 `referralBanked` when the days were banked. The first two carry the Invite
 button, because someone who was just paid in days is the person most likely to
 send the link on; the banked one carries Subscribe, which is what releases them.
+For the same reason a payment (`paid`) and the account's first device ever end
+with one line of the rewards and the Invite button
+([telegram-bot.md](telegram-bot.md#telegram-is-a-second-door-to-the-same-account)).
 
 ## A refund takes the days back
 
@@ -153,9 +156,71 @@ days, which frees the inviter's cap window. There is no hold period: a refund
 is rare and manual, and holding every reward for weeks would make the honest
 wait for nothing.
 
+## A referral outlives either account
+
+`referrer_id` and `referred_id` are nullable with `ON DELETE SET NULL`
+(`20261026110000_payment_plan_and_referral_survivors`); both used to cascade.
+Deleting the friend took the row with it, which freed the inviter's cap window
+— a self-invite deleted after its payment bought days that no longer counted —
+and left a later refund of that payment (payments outlive the account) nothing
+to take back. Deleting the inviter did the same on the other side: a refund of
+the friend's payment found no row and the friend kept the days.
+
+Both sides stay for the same reason, the refund: the row is the record of
+which payment earned which days. A side that is null is skipped — `reward`
+gives a friend whose inviter is gone their own days and credits nobody,
+`revoke` takes back from whichever account remains, `adopt` skips the mutual
+check — and a friend whose inviter is gone is still invited, so first touch
+still wins. The admin card lists only the people who still have an account,
+since there is nobody else to link to.
+
 ## What the friend sees
 
 `GET /referrals` carries `isReferralRewarded` and `referralRewardedDays` (the
 friend's days from their own referral, `0` when there is none or it was taken
 back by a refund), so the Invite tab stops promising "days on your first
 payment" once that payment has happened.
+
+## Where the programme is shown
+
+The Invite tab is the full surface; three more places point at it, and every
+number in them comes from `REFERRAL_REWARDS` (through `referralReward` and
+`MAX_REFERRER_DAYS`), so a change to the table reaches all of them. The copy
+describes the product and the reward — days, both ways — and never the
+connection as a way around anything ([legal.md](legal.md#copy-describes-the-product-never-bypassing-blocks)).
+
+**Right after a payment, on the Subscription tab.** Someone who has just paid
+is among the likeliest to pass the link on — the reasoning that puts the
+Invite button on the bot's reward messages. `InvitePrompt` (`invite-friends`) sits
+under the subscription hero while the status's `lastPayment` is a succeeded,
+manual `subscription` payment from the last three days (`INVITE_PROMPT`,
+`invitePrompt` in the slice's `lib/`) and the period is paid. That covers the
+moment `usePendingCheckout` celebrates the settled checkout and a later visit
+the same week, and leaves out automatic renewals, extra devices and gifts. The
+card names the plan just bought and what a friend taking the same plan earns
+both sides, then reuses the tab's own pieces: `InviteLink` (the site link with
+its copy button), `ShareMenu` (the native share sheet on a touch device, a
+menu of Telegram, WhatsApp, VK and email elsewhere, both through
+`shared/lib/share`) and a link to `#invite`. `GET /referrals` is asked only
+once the card is due.
+
+Hiding it is a per-viewer convenience: the payment's `createdAt` goes to
+`localStorage` (`STORAGE_KEYS.invitePromptDismissed`), so that payment never
+shows it again and the next manual payment does. The key is read after mount,
+and the card waits for that read, so a hidden card does not flash on load.
+Storage that throws or is empty (a private window) only means the card shows
+and can be hidden again for the session.
+
+**On `/pricing`, under the plans.** `ReferralSection` (`views/pricing`) says
+what a friend and the inviter get, with the inviter's "up to" taken from
+`MAX_REFERRER_DAYS`, renders `InviteRewards` — the same per-plan table as the
+Invite tab — and links to `/account#invite`; a signed-out reader is sent
+through sign-in with the hash kept ([web-client.md](web-client.md#deep-links-survive-signing-in)).
+
+**In the FAQ.** «Есть ли бонус за приглашение друзей?» lists the days for each
+plan through ICU arguments (`<plan>ReferrerDays` and `<plan>FriendDays` in
+`FAQ_ANSWER_VALUES`), the way the price answer takes `PLANS`, and ends with a
+link to the Invite tab (`FAQ_LINKS`). The FAQ test checks that every reward
+reaches the answer in both locales. It is not one of `FAQ_HIGHLIGHTS`: the
+landing's questions are the ones a visitor asks before signing up, and the
+programme is for people who already pay.

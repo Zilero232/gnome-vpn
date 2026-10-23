@@ -10,8 +10,9 @@ import type { CampaignPageInput, CreateCampaignActionInput, GiftPageInput, StopC
 import { AppNotFoundException, AppServiceUnavailableException } from '../../../common/exceptions';
 import { PrismaService } from '../../../core';
 import { PromoCampaignService } from '../../promo-codes';
-import { CAMPAIGN_ROW_SELECT, GIFT_ROW_SELECT } from '../config';
+import { ADMIN_ACTION, CAMPAIGN_ROW_SELECT, GIFT_ROW_SELECT } from '../config';
 import { campaignExpiry, campaignState, campaignView, giftStateWhere, giftView, groupTotal, pageWindow } from '../lib';
+import { AdminAuditService } from './admin-audit.service';
 
 @Injectable()
 export class AdminPromoCodesService {
@@ -19,7 +20,8 @@ export class AdminPromoCodesService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly campaigns: PromoCampaignService
+    private readonly campaigns: PromoCampaignService,
+    private readonly audit: AdminAuditService
   ) {}
 
   async campaignPage({ page, now, state, kind }: CampaignPageInput): Promise<AdminCampaignPage> {
@@ -69,6 +71,12 @@ export class AdminPromoCodesService {
 
     this.logger.log(`admin ${admin.email} created campaign code ${created.code}`);
 
+    await this.audit.record({
+      admin,
+      action: ADMIN_ACTION.createCampaign,
+      details: { code: created.code, kind: input.kind, value: input.value, maxUses: input.maxUses ?? null, until: input.until ?? null }
+    });
+
     return adminCampaignSchema.parse(view);
   }
 
@@ -80,6 +88,8 @@ export class AdminPromoCodesService {
     }
 
     this.logger.log(`admin ${admin.email} stopped campaign code ${code}`);
+
+    await this.audit.record({ admin, action: ADMIN_ACTION.stopCampaign, details: { code } });
   }
 
   async giftPage({ page, now, state }: GiftPageInput): Promise<AdminGiftPage> {

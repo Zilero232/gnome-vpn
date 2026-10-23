@@ -170,9 +170,20 @@ in SQL (`date_trunc('day', … AT TIME ZONE 'UTC')`, `AdminSeriesService`):
 | Из пробного дня в оплату                 | stat tile       | trials started in the period, and how many of those accounts have a succeeded subscription payment at or after the trial start  |
 | Выручка                                  | share bars      | one card switched between «По тарифам» (succeeded subscription payments per plan) and «По типам» (succeeded payments per kind); the total above the bars |
 | Приглашения                              | tiles + table   | referrals created in the period: invited, rewarded, days granted to inviters and to friends, the ten inviters with the most      |
+| Рост                                     | three tiles     | `growth`: succeeded subscription payments by referred accounts (count and sum); automatic win-back discounts granted, the payments made with one and their sum; checkout reminders sent and how many of those reminded then paid for a subscription |
 
 Revenue and payment count are two charts, not one with two axes — two scales
 on one plot invent a correlation.
+
+**«Рост» is three stat tiles, one per lever** (`GrowthBlock`): «Оплаты по
+приглашениям» as payments · sum, «Возврат ушедших: предложено / использовано /
+выручка» and «Напоминания об оплате: отправлено / вернулись», each value
+written in the order its label names, with a one-line hint under it saying
+what is counted. The parts of a tile share it rather than each getting a tile:
+an offer count without its redemptions, or reminders without the ones that
+came back, invites the wrong reading. The block follows the same rules as the
+others — a caption with the period, and one line instead of three zero tiles
+when nothing happened.
 
 **Every block says what it counts and over which period, and an empty period
 is one line, never a list of zeros.** Each card carries a caption («Успешные
@@ -206,6 +217,28 @@ Rebuilding it from payments would miss every day granted without a payment and
 every refund rewind, so the curve would look precise and be wrong. A daily
 snapshot table would make it honest; until then the tile shows today's number
 and the trend charts show what is actually recorded.
+
+### Growth
+
+`growth` in `GET /admin/analytics` (`adminGrowthSchema`) is computed by
+`AdminAnalyticsService.growth` over the same range as everything else:
+
+- **`referredPayments`** — succeeded `subscription` payments created in the
+  range by accounts that are the friend in a `referral` row, counted and
+  summed. A friend's renewals count too: this is what referred accounts pay,
+  not only the first payment the reward was for.
+- **`winBack.offered`** — redemptions of automatic codes created in the range,
+  i.e. win-back discounts granted ([promo-codes.md](promo-codes.md#automatic-codes));
+  **`redeemed`** and **`revenue`** — succeeded payments created in the range
+  that were priced with an automatic code, and their sum. A discount pays for
+  exactly one payment, so the count is the number of discounts consumed; a
+  refunded payment drops out, as everywhere.
+- **`checkoutReminders.sent`** — `checkoutReminder` rows of the notice log
+  whose `sent_at` falls in the range ([billing.md](billing.md#abandoned-checkouts),
+  [scheduler.md](scheduler.md#the-notice-log)); **`recovered`** — those
+  whose account has a succeeded `subscription` payment created within
+  `GROWTH.checkoutRecoveryDays` (seven) after the reminder, in one SQL pass
+  with `count(*) FILTER (WHERE EXISTS …)`.
 
 ### The charts themselves
 
@@ -287,7 +320,9 @@ webhook to clear it — rare, and visible as a payment stuck in «Возврат
 ## Payments
 
 Filters for status, kind, plan and a period (7, 30, 90, 365 days or all), newest
-first, 25 to a page. The totals cover the whole filtered set, not the page: the
+first, 25 to a page. A plan is a subscription's or a gift's; an extra-places
+payment has none (`plan` is null), so filtering by plan never counts one
+([billing.md](billing.md#prices-flags-and-webhooks)). The totals cover the whole filtered set, not the page: the
 count takes every status, and the money is split into what was paid
 (`succeeded`) and what was refunded. A single sum over every status once added
 canceled and refunded payments to the paid ones and answered no question
@@ -325,8 +360,8 @@ Every node, the ones out of rotation too, in display order: country and city,
 30-day uptime strip. State and uptime are the status module's computation
 (`nodeStatus` over `node_uptime`), the strip is the status page's own
 `UptimeStrip`. The host is shown because the owner needs it to reach the
-machine; `apiUrl` (it embeds the panel's secret path), the token env var name,
-`hysteriaAuth`, the server name and keys are never selected, and the response is
+machine; `apiUrl` (it embeds the panel's secret path), the token env var name, the
+server name and keys are never selected, and the response is
 parsed through `adminNodeListSchema`, so a wider select added later still cannot
 leak them — a test hands the view a row carrying them.
 
@@ -334,7 +369,10 @@ leak them — a test hands the view a row carrying them.
 subscriptions on their next refresh, the public status page (after its
 30-second cache) and the minute health checks. Peers on the node are not
 touched, so open connections do not drop at once and putting it back needs no
-re-provisioning.
+re-provisioning. Re-provisioning leaves the flag as the owner set it:
+provisioning and the production node sync write `is_available` only when they
+insert a new row ([provisioning.md](provisioning.md#re-running-it-is-safe)).
+Every run used to put a node taken out of rotation back in.
 
 ## Contracts
 
@@ -363,10 +401,26 @@ Every action writes one line with the admin's email and the target's id —
 <id> in full (<amount> RUB, refund <id> <status>)`, `… took node out of
 rotation: <nodeId>` and so on. A message sent in Telegram is logged by its length
 and outcome, never its text, and a node by its id, never its URL
-([logging.md](logging.md)). The server log is the audit trail; there is no
-audit table.
+([logging.md](logging.md)).
+
+Every write is also one row in `admin_action` (`AdminAuditService.record`,
+`20261026130000_admin_action_and_consent`): the admin's email, the action
+(`ADMIN_ACTION` — extend, cancelAutoRenew, removeDevice, message, verifyEmail,
+rotateLink, refund, createCampaign, stopCampaign, setNodeAvailability), the
+target account's id and a small JSON of details — the days and new end, the
+device, the message's length and outcome (never its text), the payment, the
+refund and its status, the code, the node and its new state. It is written
+after the action succeeded and best-effort, like the log line: a failed write
+is logged as an error and never fails the action that already happened. The
+target is a plain id, not a foreign key, so the record outlives the account.
+Nothing reads the table yet; it is there so the next question about who did
+what has an answer that is not a log search.
 
 ## Data
 
 `payment.refund_requested_at` (`20261024120000_admin_refund_request`) is the
-only schema change. Everything else the panel shows was already stored.
+panel's own schema change, and so is `admin_action`. The growth metrics read
+what the growth jobs write: `promo_code.is_automatic`
+(`20261025100000_win_back`) and the notice log's `checkoutReminder` rows
+(`20261026120000_notice_log`). Everything else the panel shows was already
+stored.

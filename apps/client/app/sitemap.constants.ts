@@ -14,6 +14,7 @@ const PRIORITIES: Partial<Record<string, number>> = {
   [ROUTES.about]: 0.6,
   [ROUTES.privacy]: 0.3,
   [ROUTES.terms]: 0.3,
+  [ROUTES.consent]: 0.3,
   [ROUTES.status]: 0.4
 };
 
@@ -27,6 +28,7 @@ const CHANGE_FREQUENCIES: Partial<Record<string, ChangeFrequency>> = {
   [ROUTES.about]: 'yearly',
   [ROUTES.privacy]: 'yearly',
   [ROUTES.terms]: 'yearly',
+  [ROUTES.consent]: 'yearly',
   [ROUTES.status]: 'daily'
 };
 

@@ -62,5 +62,11 @@
     "description": "The code {code} came with the link. Activate it on this account? A gift can be activated only once.",
     "redeem": "Activate",
     "later": "Not now"
+  },
+  "prompt": {
+    "title": "Thanks for paying! Share it with a friend",
+    "body": "When a friend subscribes for {plan} through your link or promo code, you both get days:",
+    "dismiss": "Hide",
+    "more": "How invites work"
   }
 }

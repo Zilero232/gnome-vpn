@@ -131,6 +131,18 @@ revokes the token production is using. The bearer header goes to curl on stdin
 `restartXrayOnClientDisable` goes through a file in a `mktemp -d` directory;
 the setting is written only when it is not already off.
 
+**A re-run never puts a node back into rotation.** `upsertNode` and the
+production sync (`buildNodeSync`) update every field provisioning owns and
+leave `is_available` alone; only a row they insert starts in rotation. Taking a
+node out is the owner's decision in the admin panel, and it used to be undone by
+the next run. A node is one row per host and one per country:
+`node.host` and `node.country_code` are unique
+(`20261026100000_drop_write_only_columns_and_indexes`, which refuses to run and
+names the duplicates when the table already holds any), matching what
+`nodes.json` validation already demanded and the `XRAY_KEY_<CC>` naming
+assumes. The inbound's seed `auth` is generated for the Hysteria2 inbound and
+no longer stored on the node row: nothing ever read it.
+
 Remote commands are composed through `@gnomevpn/scripts/shell` rather than
 written as strings — `arg()` quotes anything untrusted, and `quiet()`/`silent()`
 are distinct on purpose: `quiet` hides stderr but keeps stdout, which is what

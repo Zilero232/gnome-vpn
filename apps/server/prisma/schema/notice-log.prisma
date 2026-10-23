@@ -1,0 +1,13 @@
+model NoticeLog {
+  userId String @map("user_id")
+  notice String
+  ref    String
+
+  sentAt DateTime @default(now()) @map("sent_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, notice, ref])
+  @@index([notice, sentAt])
+  @@map("notice_log")
+}

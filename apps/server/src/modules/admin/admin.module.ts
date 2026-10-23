@@ -14,6 +14,7 @@ import { AdminGuard } from './guards';
 import {
   AdminAccessService,
   AdminAnalyticsService,
+  AdminAuditService,
   AdminNodesService,
   AdminOverviewService,
   AdminPaymentsService,
@@ -31,6 +32,7 @@ import {
     AdminGuard,
     AdminAccessService,
     AdminAnalyticsService,
+    AdminAuditService,
     AdminNodesService,
     AdminOverviewService,
     AdminPaymentsService,

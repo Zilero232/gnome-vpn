@@ -22,5 +22,10 @@ export const NOTICES = {
   referralBonus: { markup: ['invite'] },
   referralRewarded: { markup: ['invite'], effect: MESSAGE_EFFECT.celebrate },
   referralBanked: { markup: ['buy'] },
-  giftPurchased: { markup: ['website'], effect: MESSAGE_EFFECT.celebrate }
+  giftPurchased: { markup: ['website'], effect: MESSAGE_EFFECT.celebrate },
+  winBackOffer: { markup: ['renew'], isPromotional: true },
+  trialWinBackOffer: { markup: ['buy'], isPromotional: true },
+  winBackReminder: { markup: ['buy'], isPromotional: true },
+  checkoutAbandoned: { markup: ['buy'] },
+  giftCheckoutAbandoned: { markup: ['website'] }
 } as const satisfies Record<string, NoticeSpec>;

@@ -1,7 +1,10 @@
 {
   "common": {
     "fallbackLink": "If the button does not work, paste this link into your browser:",
-    "footer": "You get this email because you have a GnomeVPN account."
+    "footer": "You get this email because you have a GnomeVPN account.",
+    "promoFooter": "You get this email because you agreed to receive discounts and offers from GnomeVPN.",
+    "unsubscribe": "Do not want them?",
+    "unsubscribeAction": "Unsubscribe"
   },
   "verify": {
     "subject": "Confirm your GnomeVPN email",
@@ -91,6 +94,48 @@
         "All your gifts and their status are in your account, on the Subscription tab."
       ],
       "action": "My gifts"
+    },
+    "winBackOffer": {
+      "subject": "{percent}% off to come back to GnomeVPN",
+      "heading": "{percent}% off — just for you",
+      "body": [
+        "Your GnomeVPN subscription has ended, but you can come back any time: your next payment is {percent}% off.",
+        "No promo code to type — the discount is already waiting in your account and applies when you pay."
+      ],
+      "action": "Come back with the discount"
+    },
+    "trialWinBackOffer": {
+      "subject": "{percent}% off a GnomeVPN subscription",
+      "heading": "{percent}% off a subscription",
+      "body": [
+        "Your free day is over. If GnomeVPN worked for you, subscribe with {percent}% off.",
+        "No promo code to type — the discount is already waiting in your account and applies when you pay."
+      ],
+      "action": "Subscribe with the discount"
+    },
+    "winBackReminder": {
+      "subject": "Your {percent}% GnomeVPN discount is still waiting",
+      "heading": "Your discount is still waiting",
+      "body": ["The {percent}% discount applies to your next subscription payment by itself — nothing to type."],
+      "action": "Subscribe"
+    },
+    "checkoutAbandoned": {
+      "subject": "Your GnomeVPN payment did not go through",
+      "heading": "The payment did not go through",
+      "body": [
+        "You started subscribing to GnomeVPN, but the payment was not completed.",
+        "If something went wrong, try again: pick a plan and pay in your account."
+      ],
+      "action": "Back to the payment"
+    },
+    "giftCheckoutAbandoned": {
+      "subject": "Your GnomeVPN gift is not paid for",
+      "heading": "The gift is not paid for",
+      "body": [
+        "You started buying a GnomeVPN gift subscription, but the payment was not completed.",
+        "You can get back to the gift in your account, on the “Subscription” tab."
+      ],
+      "action": "Back to the gift"
     }
   }
 }

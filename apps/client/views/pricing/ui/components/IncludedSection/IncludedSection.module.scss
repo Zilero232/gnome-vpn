@@ -1,0 +1,50 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  padding: 40px;
+  border-radius: var(--radius-lg);
+  background-color: var(--color-night);
+  color: var(--color-on-night);
+
+  @include below(md) {
+    padding: 28px 20px;
+  }
+}
+
+.title {
+  @include section-title;
+
+  margin-bottom: 24px;
+  color: inherit;
+}
+
+.list {
+  display: grid;
+  padding: 0;
+  margin: 0;
+  gap: 14px 32px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  list-style: none;
+
+  @include below(xl) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @include below(sm) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  font-size: 16px;
+  gap: 10px;
+  line-height: 1.5;
+}
+
+.check {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-highlight);
+}

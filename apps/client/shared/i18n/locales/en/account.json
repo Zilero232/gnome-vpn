@@ -36,8 +36,8 @@
     "pay": "Pay {price} ₽",
     "extend": "Extend for {price} ₽",
     "renewalNote": "Your payment method will be saved, and auto-renewal will charge {price} ₽ {plan, select, monthly {every month} halfYearly {every six months} other {every year}} — the plan’s full price, as discounts do not apply to it. YooKassa says so on the payment page. You can turn auto-renewal off right here in one click.",
-    "discountNote": "−{percent}% with promo code {code}",
-    "discountHint": "The discount applies to this one payment — renewals are at the regular price.",
+    "discountNote": "Your {percent}% discount is already in the price",
+    "discountHint": "Promo code {code}. The discount applies to this one payment — renewals are at the regular price.",
     "fullPrice": "Without the discount: {price} ₽"
   },
   "profile": {
@@ -65,7 +65,8 @@
     "setPassword": "Send me a link",
     "setPasswordHint": "No password yet — this account was created through Telegram. We will email you a link to set one.",
     "setPasswordNeedsEmail": "Add an email above first — there is nowhere to send the link.",
-    "passwordLinkSent": "The link is on its way to your inbox"
+    "passwordLinkSent": "The link is on its way to your inbox",
+    "notifications": "Notifications"
   },
   "tabs": {
     "subscription": "Subscription",
@@ -135,5 +136,14 @@
     "bot": "Message us on Telegram"
   },
   "subscribeNow": "Subscribe right away",
-  "adminLink": "Admin"
+  "adminLink": "Admin",
+  "marketing": {
+    "label": "Personal discounts and offers",
+    "hint": "Emails and bot messages with discounts. Service notices about your subscription always arrive.",
+    "unavailable": "Could not load this setting. Check your connection and try again.",
+    "promptTitle": "Send you personal discounts?",
+    "promptBody": "By email and in the bot — only when there is something worth offering. You can change your mind in the profile.",
+    "yes": "Yes",
+    "no": "No"
+  }
 }

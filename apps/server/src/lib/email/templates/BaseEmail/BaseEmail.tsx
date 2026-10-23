@@ -5,7 +5,7 @@ import type { BaseEmailProps } from './BaseEmail.types';
 import { EMAIL_TEXT } from '../../email-text';
 import { emailStyles } from '../email-styles';
 
-export const BaseEmail = ({ locale, preview, heading, action, footer, children }: BaseEmailProps) => (
+export const BaseEmail = ({ locale, preview, heading, action, footer, unsubscribe, children }: BaseEmailProps) => (
   <Html lang={locale}>
     <Head />
     <Preview>{preview}</Preview>
@@ -38,6 +38,15 @@ export const BaseEmail = ({ locale, preview, heading, action, footer, children }
           ) : null}
 
           {footer ? <Text style={emailStyles.footnote}>{footer}</Text> : null}
+
+          {unsubscribe ? (
+            <Text style={emailStyles.footnote}>
+              {EMAIL_TEXT[locale].common.unsubscribe}{' '}
+              <Link href={unsubscribe.url} style={emailStyles.link}>
+                {unsubscribe.label}
+              </Link>
+            </Text>
+          ) : null}
         </Section>
       </Container>
     </Body>

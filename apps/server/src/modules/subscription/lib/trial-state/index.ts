@@ -1,1 +1,1 @@
-export { periodKind, trialState } from './trial-state';
+export { isTrialPeriod, periodKind, trialState } from './trial-state';

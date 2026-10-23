@@ -1,1 +1,1 @@
-export { inviteView, shareUrl } from './invite-view';
+export { inviteLine, inviteView, shareUrl } from './invite-view';

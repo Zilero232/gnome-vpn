@@ -1,4 +1,4 @@
-import type { ClientId, DeviceList, WireguardConfigFile } from '@gnomevpn/schemas';
+import type { ClientId, DeviceList, PlanId, WireguardConfigFile } from '@gnomevpn/schemas';
 import type { Bot, Context, InlineKeyboard, NextFunction } from 'grammy';
 import type { Message, User } from 'grammy/types';
 
@@ -93,6 +93,11 @@ export type SetLocaleInput = {
   locale: BotLocale;
 };
 
+export type SetBlockedInput = {
+  telegramId: bigint;
+  blockedAt: Date | null;
+};
+
 export type UntouchedUserInput = {
   tx: PrismaExecutor;
   userId: string;
@@ -112,6 +117,11 @@ export type ReplyInput = BotMessage & {
   ctx: BotContext;
   chat: ResolvedChat | null;
   effect?: string;
+};
+
+export type SiteUrlInput = {
+  path: string;
+  locale: BotLocale;
 };
 
 export type EditInput = BotMessage & {
@@ -217,6 +227,7 @@ export type NoticeSpec = {
   markup: 'main' | readonly ButtonKey[];
   effect?: string;
   refreshHint?: boolean;
+  isPromotional?: boolean;
 };
 
 export type NoticeKey = keyof typeof NOTICES & keyof BotText;
@@ -225,6 +236,7 @@ export type MarkupForInput = {
   userId: string;
   locale: BotLocale;
   markup: NoticeSpec['markup'];
+  isPromotional?: boolean;
 };
 
 export type NotifyInput = {
@@ -233,6 +245,7 @@ export type NotifyInput = {
   fill?: TextFill;
   date?: Date | null;
   days?: number;
+  invite?: PlanId;
 };
 
 export type DirectMessageInput = {
@@ -252,6 +265,18 @@ export type NoticeTextInput = {
 export type NotifiedChat = {
   telegramId: bigint;
   locale: BotLocale;
+  isBlocked: boolean;
+};
+
+export type SendNoticeInput = {
+  bot: Bot;
+  chat: NotifiedChat;
+  input: NotifyInput;
+};
+
+export type DeliverInput = {
+  chat: NotifiedChat;
+  send: () => Promise<unknown>;
 };
 
 export type RemovalInput = {

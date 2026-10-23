@@ -28,7 +28,7 @@ export const adminPaymentSchema = z.object({
   amount: adminAmountSchema,
   status: paymentStatusSchema,
   kind: paymentKindSchema,
-  plan: planIdSchema,
+  plan: planIdSchema.nullable(),
   isAutoCharge: z.boolean(),
   extraDevices: adminCountSchema,
   discountPercent: z.number().int().nullable(),

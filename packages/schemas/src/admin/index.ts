@@ -4,10 +4,11 @@ export {
   adminAnalyticsRangeSchema,
   adminAnalyticsSchema,
   adminDaySchema,
+  adminGrowthSchema,
   adminRevenueSliceSchema,
   adminTopReferrerSchema
 } from './analytics';
-export type { AdminAnalytics, AdminAnalyticsQuery, AdminAnalyticsRange, AdminDay, AdminTopReferrer } from './analytics';
+export type { AdminAnalytics, AdminAnalyticsQuery, AdminAnalyticsRange, AdminDay, AdminGrowth, AdminTopReferrer } from './analytics';
 
 export { ADMIN_EXPORT, ADMIN_PAGE, ADMIN_PERIOD_DAYS, ADMIN_PERIODS } from './common';
 export {

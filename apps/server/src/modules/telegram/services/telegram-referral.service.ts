@@ -55,7 +55,7 @@ export class TelegramReferralService {
     }
 
     try {
-      await this.referrals.attribute({ userId: chat.userId, code, source: 'telegram' });
+      await this.referrals.attribute({ userId: chat.userId, code });
     } catch (error) {
       return refusalText({
         error,

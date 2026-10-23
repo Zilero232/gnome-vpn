@@ -5,6 +5,7 @@
   "passwordMin": "At least 8 characters",
   "passwordsMismatch": "Passwords do not match",
   "required": "This field is required",
+  "consentRequired": "An account cannot be created without consent to personal data processing",
   "promoCodeInvalid": "A promo code is {promoCodeMin} to {promoCodeMax} latin letters and digits",
   "wireguardNameMax": "No longer than {wireguardNameMax, plural, one {# character} other {# characters}}"
 }

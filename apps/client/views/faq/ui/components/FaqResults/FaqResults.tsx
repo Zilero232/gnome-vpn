@@ -4,6 +4,7 @@ import { Accordion, Button } from '@/ui-kit';
 
 import type { FaqResultsProps } from './FaqResults.types';
 
+import { FaqAnswer } from '../FaqAnswer';
 import { Highlighted } from '../Highlighted';
 
 import s from './FaqResults.module.scss';
@@ -19,7 +20,11 @@ export const FaqResults = ({ hits, terms, visible, open, onOpenChange, onShowMor
         items={hits.slice(0, visible).map(({ value, question, answer }) => ({
           value,
           title: <Highlighted terms={terms} text={question} />,
-          content: <Highlighted terms={terms} text={answer} />
+          content: (
+            <FaqAnswer value={value}>
+              <Highlighted terms={terms} text={answer} />
+            </FaqAnswer>
+          )
         }))}
         value={open}
         onValueChange={onOpenChange}

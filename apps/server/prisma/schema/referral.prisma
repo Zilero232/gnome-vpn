@@ -1,8 +1,3 @@
-enum ReferralSource {
-  web
-  telegram
-}
-
 model ReferralCode {
   userId String @id @map("user_id")
   code   String @unique
@@ -15,11 +10,9 @@ model ReferralCode {
 }
 
 model Referral {
-  id         String @id @default(dbgenerated("gen_random_uuid()"))
-  referrerId String @map("referrer_id")
-  referredId String @unique @map("referred_id")
-
-  source ReferralSource
+  id         String  @id @default(dbgenerated("gen_random_uuid()"))
+  referrerId String? @map("referrer_id")
+  referredId String? @unique @map("referred_id")
 
   paymentId    String?   @unique @map("payment_id")
   referrerDays Int       @default(0) @map("referrer_days")
@@ -28,8 +21,8 @@ model Referral {
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
-  referrer User     @relation("ReferralsMade", fields: [referrerId], references: [id], onDelete: Cascade)
-  referred User     @relation("ReferredBy", fields: [referredId], references: [id], onDelete: Cascade)
+  referrer User?    @relation("ReferralsMade", fields: [referrerId], references: [id], onDelete: SetNull)
+  referred User?    @relation("ReferredBy", fields: [referredId], references: [id], onDelete: SetNull)
   payment  Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
 
   @@index([referrerId, rewardedAt])

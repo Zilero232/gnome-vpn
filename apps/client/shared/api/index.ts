@@ -29,6 +29,7 @@ export { resetSession, startSession } from './auth/session-reset';
 export { unwrapAuth } from './auth/unwrap-auth';
 export { useHasSession } from './auth/use-has-session';
 export { bindCard, buyExtraDevices, buyGift, cancelAutoRenew, createCheckout, getPaymentMethods, resumeAutoRenew, unbindCard } from './billing';
+export { getConsents, recordPersonalDataConsent, unsubscribe, updateMarketingConsent } from './consents';
 export { getDevices, removeDevice } from './devices';
 export { api, ApiError, apiErrorCode } from './http';
 export { getGifts, getPendingDiscount, redeemPromoCode } from './promo-codes';

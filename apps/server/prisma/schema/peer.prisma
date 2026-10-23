@@ -40,8 +40,7 @@ model Peer {
 
   @@unique([userId, kind, name, nodeId, protocol])
   @@unique([nodeId, tunnelAddress])
-  @@index([userId])
-  @@index([nodeId, state])
+  @@index([state, userId])
   @@index([deviceId])
   @@map("peer")
 }

@@ -33,6 +33,7 @@ export {
   adminGiftPageSchema,
   adminGiftQuerySchema,
   adminGiftSchema,
+  adminGrowthSchema,
   adminIdParamSchema,
   adminMessageResultSchema,
   adminMessageSchema,
@@ -84,6 +85,7 @@ export type {
   AdminGiftPage,
   AdminGiftQuery,
   AdminGiftState,
+  AdminGrowth,
   AdminIdParam,
   AdminMessageInput,
   AdminMessageOutcome,
@@ -199,6 +201,34 @@ export {
   INCY_DOWNLOADS
 } from './clients';
 export type { ClientEntry, ClientId, ClientImport, ClientImportStyle, ClientLink, ClientPlatform } from './clients';
+
+export {
+  CONSENT_INPUT,
+  CONSENT_KINDS,
+  CONSENT_SOURCES,
+  consentKindSchema,
+  consentSourceSchema,
+  consentStateSchema,
+  MARKETING_CONSENT_VERSION,
+  marketingConsentSchema,
+  PERSONAL_DATA_CONSENT_VERSION,
+  personalDataConsentSchema,
+  recordPersonalDataConsentSchema,
+  UNSUBSCRIBE_OUTCOMES,
+  unsubscribeQuerySchema,
+  unsubscribeResultSchema,
+  updateMarketingConsentSchema
+} from './consents';
+export type {
+  ConsentKind,
+  ConsentSource,
+  ConsentState,
+  RecordPersonalDataConsentInput,
+  UnsubscribeOutcome,
+  UnsubscribeQuery,
+  UnsubscribeResult,
+  UpdateMarketingConsentInput
+} from './consents';
 
 export { countryName } from './country-name';
 export type { CountryNameInput } from './country-name';

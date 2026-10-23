@@ -72,6 +72,18 @@ describe('userCard', () => {
     expect(card.redemptions[0].code.replaceAll('-', '')).not.toBe(code);
   });
 
+  it('leaves out the other side of a referral whose account was deleted, since there is nobody to link to', () => {
+    const gone = { createdAt: NOW, rewardedAt: NOW, referrerDays: 7, referred: null };
+    const live = { ...gone, referred: { id: 'friend-1', email: 'friend@example.com' } };
+    const card = userCard(
+      input({ user: user({ referredBy: { createdAt: NOW, rewardedAt: null, friendDays: 0, referrer: null } }), invited: [gone, live] })
+    );
+
+    expect(card.referral.referredBy).toBeNull();
+    expect(card.referral.invited.map((referral) => referral.user.id)).toEqual(['friend-1']);
+    expect(adminUserCardSchema.parse(card)).toEqual(card);
+  });
+
   it('passes the contract with no subscription and no telegram', () => {
     const card = userCard(input({ user: user({ subscription: null }) }));
 

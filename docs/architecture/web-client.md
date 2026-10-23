@@ -384,7 +384,14 @@ below exists because a real query went wrong without it:
 There is a real «Сколько стоит?» question; its answer takes the prices from
 `PLANS` through ICU arguments (`FAQ_ANSWER_VALUES` in `entities/app/faq`), so
 a repricing cannot leave the FAQ behind. `llms-full.txt` formats it the same
-way. Topic chips narrow to one group and combine with the text. The empty
+way. The referral answer takes the days per plan from `REFERRAL_REWARDS` the
+same way. An answer can also end with a link: `FAQ_LINKS` (`entities/app/faq`)
+maps a question to a path — today the referral question to `/account#invite`
+— and `FaqAnswer` renders it under that answer, in the grouped list and in the
+search results alike. The answers stay server-only; the link labels
+(`faq.links`) are the one part added to the browser bundle
+(`CLIENT_MESSAGES`), and `FAQPage` still carries the plain answer text. Topic
+chips narrow to one group and combine with the text. The empty
 state is one box — no repeated chips, no second «Не нашли ответ?» footer — and
 offers the Telegram bot only when the server names one. The count is announced
 politely; `?q=` and `?topic=` are written with `replaceState` (debounced) and
@@ -416,9 +423,13 @@ forgot-password mode, which has no control, shows its heading.
 `nameFromEmail(email)` — the local part, or the whole address when that is
 shorter than the two characters the name rule needs — and the person can change
 it in Profile. There is no «repeat password»: the field has an eye toggle and a
-strength hint (`passwordStrength`). Under the button the form says that
-creating an account means accepting the terms of service and the privacy
-policy, with a link to each.
+strength hint (`passwordStrength`). Above the button an unticked checkbox
+gives the separate consent to personal data processing (`/consent`) and is
+required to submit; under the button the form says that creating an account
+means accepting the terms of service and the privacy policy, with a link to
+each. The Telegram widget carries its own one-line consent. Why, and why the
+checkbox lives only in the client form schema, is in
+[legal.md](legal.md#consent-to-personal-data-processing).
 
 Sign-in and sign-up keep `?mode=` in the URL, animate the height between forms
 and put Telegram first when the bot is configured. Server errors that belong to
@@ -504,6 +515,19 @@ pair in **both** locales. `bun run test` catches the missing translation — a
 A page also needs an entry in the sitemap's `PRIORITIES` and
 `CHANGE_FREQUENCIES` (`app/sitemap.constants.ts`, exposed as `SITEMAP`). Both fall back to a default, so a missing entry is silent:
 `/servers` shipped ranked below `/about` in our own sitemap until it was caught.
+
+**Blog posts are a set too.** `BLOG_SLUGS` (`entities/app/blog`) drives the
+posts' static params, the sitemap (at `SITEMAP.postPriority`) and the «Статьи»
+list in `llms.txt`, and its order is the order on `/blog`: the setup guides
+first, then troubleshooting, then the explainers. A post is `title`, `excerpt`
+(also its meta description and the `Article` description), `intro` and the
+sections `POST_SECTIONS` names, under `blog.posts.<slug>` in both locales. A
+section body is rich text whose tags name a link target in `POST_LINKS` —
+`<setup>`, `<pricing>`, `<status>`, `<faq>` or another post's slug — so the copy
+carries its internal links without a URL in the JSON. The blog's test fails on a
+tag `POST_LINKS` does not know and on a link one locale has and the other lacks.
+`POST_RELATED` picks the posts listed under each one; it used to be the first
+three other slugs, which sent every post to the same three.
 
 **Messages live one file per namespace**, under `shared/i18n/locales/<locale>/<namespace>.json`,
 and `messages.ts` imports each one explicitly. The import list is long on purpose
@@ -717,8 +741,42 @@ that saving the card on the payment page turns auto-renewal on at that price —
 a saved card is the consent `billing.md` describes, so the page says so before
 the reader gives it.
 
+Once a manual subscription payment has gone through, the Subscription tab adds
+an invite card under the hero for a few days — the reader's link, copy and
+share, and what a friend on the same plan would earn both of them. It hides for
+good per payment; [referrals.md](referrals.md#where-the-programme-is-shown) has
+the rule.
+
+A pending discount shows in every plan picker — the struck-through prices, the
+discounted pay button and a note. The note leads with «Ваша скидка −20% уже в
+цене» and names the code only underneath: a win-back discount is granted by
+the server with a code the reader never typed, and «−20% по промокоду …» read
+as if they had.
+
 An account whose email is not confirmed sees "confirm your email to start the
 free day" with a resend button in place of the trial banner, since the trial is
 refused until the email is verified; better-auth's `sendVerificationEmail` sends
 it, and a `429` from it surfaces as its own message (`TOO_MANY_REQUESTS` in
 `unwrapAuth`) rather than a generic failure.
+
+## Unsubscribe
+
+`/unsubscribe?token=…` is where the link at the foot of a promotional email
+lands ([legal.md](legal.md#consents) has the token and the server side). It
+sits in the `(marketing)` group for the site header and footer, but it is not a
+page to index: it is in `PUBLIC_ROUTES` (so `AuthProvider` lets a signed-out
+reader through) and not in `INDEXED_ROUTES`, so the sitemap and `llms.txt`
+leave it out; `robots.ts` disallows it beside the private routes, and its
+metadata carries `index: false` like theirs.
+
+The token is read with `useSearchParams` under a `<Suspense>`, the way
+`/telegram` reads its code, and the request is a `useQuery`
+(`useUnsubscribe` in `features/account/manage-consents`, keyed
+`QUERY_KEYS.unsubscribe(token)`, no retry, never stale). React Query does not
+fetch during a server render, so the prerender never spends the token; the
+browser calls `GET /consents/unsubscribe` once after hydration. The page has
+four states: a spinner; «Вы отписались от предложений» with a link to the
+account's Profile tab to turn offers back on; «Ссылка недействительна» for an
+`invalid` answer or a missing or over-long token (no request is made then);
+and a retry when the server could not be reached, which is not the link's
+fault and so is not reported as an invalid link.

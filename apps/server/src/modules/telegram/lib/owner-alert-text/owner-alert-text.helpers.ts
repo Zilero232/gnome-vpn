@@ -4,6 +4,7 @@ import { match } from 'ts-pattern';
 
 import type { AccountLabelInput, PurchaseLabelInput } from './owner-alert-text.types';
 
+import { paymentPlan } from '../../../../common/lib';
 import { BOT_TEXT } from '../../config';
 import { fillLabel } from '../fill-text';
 import { planLabel } from '../plan-label';
@@ -27,6 +28,6 @@ export const accountLabel = ({ account, locale }: AccountLabelInput): string => 
 export const purchaseLabel = ({ purchase, locale }: PurchaseLabelInput): string =>
   match(purchase.kind)
     .with('extraDevices', () => fillLabel({ text: BOT_TEXT[locale].alertDevicesItem, fill: { count: String(purchase.extraDevices) } }))
-    .with('gift', () => fillLabel({ text: BOT_TEXT[locale].alertGiftItem, fill: { plan: planLabel({ planId: purchase.plan, locale }) } }))
-    .with('subscription', () => planLabel({ planId: purchase.plan, locale }))
+    .with('gift', () => fillLabel({ text: BOT_TEXT[locale].alertGiftItem, fill: { plan: planLabel({ planId: paymentPlan(purchase), locale }) } }))
+    .with('subscription', () => planLabel({ planId: paymentPlan(purchase), locale }))
     .exhaustive();

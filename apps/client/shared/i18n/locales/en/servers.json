@@ -28,7 +28,7 @@
       "transport": "TCP with a real TLS handshake",
       "port": "443/TCP",
       "lossBehaviour": "Slows down like any TCP connection: one lost packet stalls everything behind it.",
-      "blocking": "Works where UDP is closed: it is TCP on 443 with the TLS handshake of a real site, like ordinary HTTPS.",
+      "blocking": "Works where UDP is closed and HTTPS is open: it is TCP on port 443 with the TLS handshake of a real site.",
       "bestFor": "Networks that allow only TCP."
     },
     "wireguard": {

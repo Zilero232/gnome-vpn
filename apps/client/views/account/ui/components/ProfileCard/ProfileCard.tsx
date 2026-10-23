@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 
 import { DeleteAccountCard } from '@/features/account/delete-account';
+import { MarketingConsentSwitch } from '@/features/account/manage-consents';
 import { ChangeEmailForm } from '@/features/auth/change-email';
 import { ChangePasswordForm } from '@/features/auth/change-password';
 import { UpdateNameForm } from '@/features/auth/update-name';
@@ -33,6 +34,14 @@ export const ProfileCard = () => {
         </Text>
 
         <ChangePasswordForm />
+      </div>
+
+      <div className={s.section}>
+        <Text as='h2' className={s.subtitle}>
+          {t('notifications')}
+        </Text>
+
+        <MarketingConsentSwitch />
       </div>
 
       <DeleteAccountCard />

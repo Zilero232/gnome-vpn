@@ -12,19 +12,20 @@ src/
 │   ├── admin/       # the web admin panel behind ADMIN_EMAILS, and the /stats collection — config/ decorators/ dto/ guards/ lib/ services/
 │   ├── auth/        # better-auth wiring, the account (deletion) — config/ services/
 │   ├── billing/     # YooKassa checkout and webhooks — config/ dto/ guards/ lib/ services/
+│   ├── consents/    # personal-data and marketing consents, the unsubscribe link — config/ dto/ lib/ services/
 │   ├── devices/     # the device registry and the account's device limit — config/ dto/ lib/ services/
 │   ├── health/      # /health — also probes the database
 │   ├── peers/       # xray clients the subscription issues — config/ lib/ services/
 │   ├── platforms/   # the INCY download links, cached — config/ dto/ services/
 │   ├── promo-codes/ # campaign and gift codes, the pending discount, redemption — config/ dto/ lib/ services/
 │   ├── referrals/   # invite codes, attribution and the reward on a first payment — config/ dto/ lib/ services/
-│   ├── scheduler/   # the nine cron jobs — config/ jobs/ lib/
+│   ├── scheduler/   # the twelve cron jobs — config/ jobs/ lib/
 │   ├── status/      # the public /status page and the connection check — config/ dto/ lib/ services/
 │   ├── subscription/# plan status, the trial and the access guard — config/ dto/ guards/ lib/ services/
 │   ├── subscription-link/  # the INCY feed and its token — config/ dto/ lib/ services/
 │   └── telegram/    # the bot — a second door to the same account — bot/ config/ dto/ lib/ services/
 ├── lib/             # external integrations: auth, email, xray, yookassa
-├── core/            # Prisma (service, base client, pg pool), logger, serializable and unique-constraint retries
+├── core/            # Prisma (service, base client, pg pool), logger, serializable and unique-constraint retries, the notice-log claim
 ├── common/          # exceptions, filters, decorators, shared lib (node credentials, period…)
 └── config/          # env schema (Zod), config service, CORS
 ```

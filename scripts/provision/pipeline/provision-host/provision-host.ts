@@ -13,7 +13,7 @@ export const provisionHost = async ({ config, prisma, serverEnvPath, xrayCompose
   const outcome = { host: config.host, country: config.country };
 
   try {
-    const previous = await prisma.node.findFirst({
+    const previous = await prisma.node.findUnique({
       where: { host: config.host },
       select: { certFingerprint: true, realityPublicKey: true, wgPublicKey: true }
     });
@@ -35,7 +35,7 @@ export const provisionHost = async ({ config, prisma, serverEnvPath, xrayCompose
 
     const panel = await openPanelSession({ host: config.host, panelPath, token });
     const installed = await installInbounds({ ssh, panel, auth });
-    const wasExisting = await registerNode({ config, prisma, panel, auth, cert: installed });
+    const wasExisting = await registerNode({ config, prisma, panel, cert: installed });
 
     const lostCert = Boolean(previous?.certFingerprint) && installed.certWasGenerated;
     const lostRealityKeys = Boolean(previous?.realityPublicKey) && installed.realityWasGenerated;

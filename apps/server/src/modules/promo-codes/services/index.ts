@@ -1,3 +1,4 @@
+export { AutoDiscountService } from './auto-discount.service';
 export { GiftCodeService } from './gift-code.service';
 export { PromoCampaignService } from './promo-campaign.service';
 export { PromoDiscountService } from './promo-discount.service';

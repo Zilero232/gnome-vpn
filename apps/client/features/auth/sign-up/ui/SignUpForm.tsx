@@ -10,15 +10,16 @@ import { FINE_POINTER_QUERY, ROUTES } from '@/shared/constants';
 import { Link } from '@/shared/i18n/navigation';
 import { FormField, Input, PasswordInput, SubmitButton, Text } from '@/ui-kit';
 
-import type { SignUpValues } from '../model/hooks';
+import type { SignUpFormValues } from '../lib';
 import type { SignUpFormProps } from './SignUpForm.types';
 
-import { signUpSchema, usePromoCode, useSignUp } from '../model/hooks';
-import { PromoCodeField, StrengthMeter } from './components';
+import { signUpFormSchema } from '../lib';
+import { usePromoCode, useSignUp } from '../model/hooks';
+import { PromoCodeField, SignUpConsents, StrengthMeter } from './components';
 
 import s from './SignUpForm.module.scss';
 
-const DEFAULT_VALUES: SignUpValues = { email: '', password: '', promoCode: '' };
+const DEFAULT_VALUES: SignUpFormValues = { email: '', password: '', promoCode: '', isConsentGiven: false, isMarketingConsentGiven: false };
 
 export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
   const t = useTranslations('auth');
@@ -34,7 +35,7 @@ export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
     setFocus,
     setValue,
     control
-  } = useForm<SignUpValues>({ resolver: zodResolver(signUpSchema), defaultValues: DEFAULT_VALUES });
+  } = useForm<SignUpFormValues>({ resolver: zodResolver(signUpFormSchema), defaultValues: DEFAULT_VALUES });
 
   const password = useWatch({ control, name: 'password' });
   const promo = usePromoCode({ register, setValue, setFocus });
@@ -60,6 +61,8 @@ export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
       <StrengthMeter password={password} />
 
       <PromoCodeField error={fieldError(errors.promoCode)} isOpen={promo.isOpen} registration={promo.registration} onOpen={promo.open} />
+
+      <SignUpConsents control={control} error={fieldError(errors.isConsentGiven)} />
 
       <SubmitButton isPending={isPending} size='lg'>
         {t('signUpAction')}

@@ -1,0 +1,19 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  @include stack(6px);
+}
+
+.label {
+  display: flex;
+  align-items: flex-start;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  gap: 10px;
+  line-height: 1.45;
+}
+
+.box {
+  margin-top: 1px;
+}

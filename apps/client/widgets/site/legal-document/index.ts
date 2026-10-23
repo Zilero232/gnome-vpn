@@ -1,4 +1,4 @@
-export { LegalLink, LegalSection } from './ui/components';
+export { LegalLink, LegalSection, SellerRequisites } from './ui/components';
 export type { LegalLinkProps, LegalSectionProps } from './ui/components';
 
 export { LegalDocument } from './ui/LegalDocument';

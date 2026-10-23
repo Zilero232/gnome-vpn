@@ -30,3 +30,8 @@ export type RedemptionResultInput = {
 };
 
 export type RedemptionResult = PromoRedemption;
+
+export type AccountRedemptionsInput = {
+  userId: string;
+  identities: string[];
+};

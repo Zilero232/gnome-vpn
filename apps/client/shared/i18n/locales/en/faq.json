@@ -46,11 +46,11 @@
     },
     "torrents": {
       "q": "Can I use torrents?",
-      "a": "The tunnel passes them technically. Bear in mind that what you download stays your responsibility, and on some servers the hosting provider may send us a complaint — then we will ask you to switch location."
+      "a": "Technically the tunnel carries any traffic, torrents included. Download only what is distributed lawfully: what you download stays your responsibility, and on some servers the hosting provider may send us a complaint — then we will ask you to switch location."
     },
-    "streaming": {
-      "q": "Do streaming services work?",
-      "a": "Usually yes, but we cannot promise it: streaming platforms block server addresses constantly. If one service refuses to open, try another country — that often fixes it."
+    "videoCalls": {
+      "q": "Is the VPN good for video and calls?",
+      "a": "Yes. We set no speed or traffic limits, and Hysteria2 holds its speed even on mobile, so high-quality video and calls usually run without noticeable lag. For calls and games pick the nearest country — the ping is lower."
     },
     "russianSites": {
       "q": "Do banks and Gosuslugi work with the VPN on?",
@@ -98,7 +98,7 @@
     },
     "referral": {
       "q": "Is there a bonus for inviting friends?",
-      "a": "Yes. Your personal link is on the “Invite” tab of your account and under “Invite a friend” in the bot. A friend who comes by it gets bonus days on their first payment, and you get days on your subscription as soon as they pay. The longer the plan your friend picks, the more days you both get — the exact numbers are shown right there. The bonus comes once per friend."
+      "a": "Yes. Your promo code and personal link are on the “Invite” tab of your account and under “Invite a friend” in the bot. When a friend takes their first subscription with them, you both get days, and the longer the plan, the more: 1 month gives you +{monthlyReferrerDays, plural, one {# day} other {# days}} and your friend +{monthlyFriendDays, plural, one {# day} other {# days}}; 6 months, +{halfYearlyReferrerDays, plural, one {# day} other {# days}} and +{halfYearlyFriendDays, plural, one {# day} other {# days}}; 12 months, +{yearlyReferrerDays, plural, one {# day} other {# days}} and +{yearlyFriendDays, plural, one {# day} other {# days}}. The bonus comes once per friend. With a paid subscription running, your days extend it right away; without one, they are added to your next payment."
     },
     "wireguard": {
       "q": "Can I connect over WireGuard?",
@@ -122,5 +122,8 @@
     "shortcut": "Press \"/\" to search",
     "results": "Search results",
     "showMore": "{count, plural, one {Show # more answer} other {Show # more answers}}"
+  },
+  "links": {
+    "referral": "Get your invite link"
   }
 }

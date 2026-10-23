@@ -49,7 +49,7 @@ export class ReferralService {
     };
   }
 
-  async attribute({ userId, code, source }: AttributeInput): Promise<AttributeResult> {
+  async attribute({ userId, code }: AttributeInput): Promise<AttributeResult> {
     const owner = await this.prisma.referralCode.findUnique({ where: { code }, select: { userId: true } });
 
     if (isNullish(owner)) {
@@ -72,7 +72,7 @@ export class ReferralService {
               throw new AppBadRequestException('REFERRAL_SELF', 'Two accounts cannot invite each other');
             }
 
-            await tx.referral.create({ data: { referrerId: owner.userId, referredId: userId, source } });
+            await tx.referral.create({ data: { referrerId: owner.userId, referredId: userId } });
           },
           { isolationLevel: 'Serializable' }
         )
@@ -98,7 +98,10 @@ export class ReferralService {
       return;
     }
 
-    if ((await this.isMutual({ inviterId: referral.referrerId, friendId: toUserId, db })) || !(await this.isEligible({ userId: toUserId, db }))) {
+    const { referrerId } = referral;
+    const isMutual = isNonNullish(referrerId) && (await this.isMutual({ inviterId: referrerId, friendId: toUserId, db }));
+
+    if (isMutual || !(await this.isEligible({ userId: toUserId, db }))) {
       return;
     }
 

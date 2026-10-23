@@ -8,6 +8,8 @@ export { logger } from './logger';
 export type { LogFields, LogFn, Logger } from './logger';
 export { EASE_OUT, IN_VIEW, REVEAL, SPRING, STAGGER } from './motion';
 export { redirectToConfirmation } from './payment-redirect';
+export { clearPendingConsent, readPendingConsent, storePendingConsent } from './pending-consent';
+export type { PendingConsent } from './pending-consent';
 export { clearPendingPromoCode, readPendingPromoCode, storePendingPromoCode, syncPendingPromoCode } from './pending-promo-code';
 export { canShare, shareOrFallback } from './share';
 export type { ShareOrFallbackInput } from './share';

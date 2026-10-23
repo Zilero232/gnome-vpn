@@ -1,3 +1,5 @@
+@use '@/shared/styles/mixins' as *;
+
 .root {
   display: flex;
 
@@ -43,4 +45,13 @@
   justify-content: center;
   color: var(--color-text-muted);
   gap: 9px;
+}
+
+.consent {
+  margin-top: -8px;
+  line-height: 1.5;
+}
+
+.link {
+  @include text-link(13px);
 }

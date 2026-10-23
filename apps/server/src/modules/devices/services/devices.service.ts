@@ -2,7 +2,7 @@ import type { DeviceList } from '@gnomevpn/schemas';
 
 import { DEFAULT_DEVICE_LIMIT } from '@gnomevpn/schemas';
 import { Injectable } from '@nestjs/common';
-import { isEmpty, isNonNullish, partition, pickBy } from 'remeda';
+import { isEmpty, isNonNullish, omit, partition, pickBy } from 'remeda';
 
 import type { AdmitDeviceInput, AdmittedDevice, RemoveDeviceInput, RevokePeersInput, SurplusRevocation } from '../devices.types';
 
@@ -29,7 +29,7 @@ export class DevicesService {
   }
 
   private claimSlot({ userId, identity, deviceLimit, canRegister = true }: AdmitDeviceInput): Promise<AdmittedDevice> {
-    const { key, ...details } = identity;
+    const { key, ...details } = omit(identity, ['hwid']);
 
     return withSerializableRetry(() =>
       this.prisma.$transaction(

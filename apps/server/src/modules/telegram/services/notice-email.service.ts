@@ -3,13 +3,14 @@ import { Injectable, Logger } from '@nestjs/common';
 import { createElement } from 'react';
 import { isNonNullish, isNullish } from 'remeda';
 
-import type { NoticeEmailInput } from '../telegram.types';
+import type { NoticeEmailInput, NoticeSpec } from '../telegram.types';
 
 import { describeError } from '../../../common/lib';
 import { AppConfigService } from '../../../config';
 import { PrismaService } from '../../../core';
 import { EMAIL_TEXT, fillEmail, isEmailNotice, localizedPath, NoticeEmail, pickEmailLocale, sendEmail } from '../../../lib/email';
-import { NOTICE_EMAIL } from '../config';
+import { UnsubscribeService } from '../../consents';
+import { NOTICE_EMAIL, NOTICES } from '../config';
 import { formatDate, resolveLocale } from '../lib';
 
 @Injectable()
@@ -18,7 +19,8 @@ export class NoticeEmailService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly config: AppConfigService
+    private readonly config: AppConfigService,
+    private readonly unsubscribes: UnsubscribeService
   ) {}
 
   async send({ userId, notice, fill, date }: NoticeEmailInput): Promise<void> {
@@ -39,12 +41,18 @@ export class NoticeEmailService {
       const chat = user.telegramAccount;
       const locale = pickEmailLocale([user.locale, isNonNullish(chat) ? resolveLocale(chat.locale ?? chat.languageCode) : null]);
       const tokens = { ...fill, ...(date && { date: formatDate({ iso: date.toISOString(), locale }) }) };
-      const url = new URL(localizedPath({ path: NOTICE_EMAIL.path, locale }), this.config.get('CLIENT_URL')).toString();
+      const url = new URL(localizedPath({ path: NOTICE_EMAIL.path, locale }), this.config.get('CLIENT_URL'));
+
+      url.hash = NOTICE_EMAIL.tab;
+
+      const spec: NoticeSpec = NOTICES[notice];
+      const unsubscribeUrl = spec.isPromotional ? this.unsubscribes.link({ userId, locale }) : undefined;
 
       await sendEmail({
         to: user.email,
         subject: fillEmail({ text: EMAIL_TEXT[locale].notices[notice].subject, fill: tokens }),
-        react: createElement(NoticeEmail, { notice, url, fill: tokens, locale })
+        react: createElement(NoticeEmail, { notice, url: url.toString(), fill: tokens, locale, unsubscribeUrl }),
+        unsubscribeUrl
       });
     } catch (error) {
       this.logger.warn(`could not email ${userId} the ${notice} notice: ${describeError(error)}`);

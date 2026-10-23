@@ -17,7 +17,7 @@ import type {
   UnusablePayment
 } from '../billing.types';
 
-import { describeError, errorCodeOf, hasLapsedBeyondGrace } from '../../../common/lib';
+import { describeError, errorCodeOf, hasLapsedBeyondGrace, paymentPlan } from '../../../common/lib';
 import { PrismaService, withSerializableRetry } from '../../../core';
 import { YooKassaClient } from '../../../lib';
 import { GiftCodeService, PromoDiscountService } from '../../promo-codes';
@@ -154,7 +154,7 @@ export class WebhookService {
             }
 
             if (row.kind === 'gift') {
-              const giftCode = await this.gifts.issue({ payment: { ...row, userId }, db: tx });
+              const giftCode = await this.gifts.issue({ payment: { ...row, userId, plan: paymentPlan(row) }, db: tx });
 
               return { referral: null, giftCode };
             }
@@ -163,15 +163,17 @@ export class WebhookService {
               await this.discounts.consume({ userId, promoCodeId: row.promoCodeId, paymentId: row.id, db: tx });
             }
 
+            const planId = paymentPlan(row);
+
             await this.shared.activate({
               userId,
-              planId: row.plan,
+              planId,
               method: payment.paymentMethodId ? { id: payment.paymentMethodId, title: payment.paymentMethodTitle } : null,
               orderedAt: row.createdAt,
               db: tx
             });
 
-            const referral = await this.referralReward.reward({ userId, planId: row.plan, paymentId: row.id, db: tx });
+            const referral = await this.referralReward.reward({ userId, planId, paymentId: row.id, db: tx });
 
             return { referral, giftCode: null };
           },
@@ -288,7 +290,7 @@ export class WebhookService {
       return { userId: row.userId, kind: row.kind, referral: null };
     }
 
-    await this.shared.revokePeriod({ userId: row.userId, months: findPlan(row.plan).months, db });
+    await this.shared.revokePeriod({ userId: row.userId, months: findPlan(paymentPlan(row)).months, db });
 
     const referral = await this.referralReward.revoke({ paymentId: row.id, db });
 
@@ -343,31 +345,37 @@ export class WebhookService {
     try {
       await this.notify.tell({ userId: friendId, notice: 'referralBonus', days: outcome.friendDays });
 
+      const { referrerId } = outcome;
+
+      if (isNullish(referrerId)) {
+        return;
+      }
+
       if (outcome.referrerDays === 0) {
-        this.logger.log(`referral reward for ${outcome.referrerId} skipped: the cap is reached`);
+        this.logger.log(`referral reward for ${referrerId} skipped: the cap is reached`);
 
         return;
       }
 
       if (outcome.isBanked) {
-        await this.notify.tell({ userId: outcome.referrerId, notice: 'referralBanked', days: outcome.referrerDays });
+        await this.notify.tell({ userId: referrerId, notice: 'referralBanked', days: outcome.referrerDays });
 
         return;
       }
 
       const subscription = await this.prisma.subscription.findUnique({
-        where: { userId: outcome.referrerId },
+        where: { userId: referrerId },
         select: { currentPeriodEnd: true }
       });
 
       await this.notify.tell({
-        userId: outcome.referrerId,
+        userId: referrerId,
         notice: 'referralRewarded',
         days: outcome.referrerDays,
         date: subscription?.currentPeriodEnd
       });
     } catch (error) {
-      this.logger.error(`the referral reward for ${outcome.referrerId} was not announced: ${describeError(error)}`);
+      this.logger.error(`the referral reward for the payment of ${friendId} was not announced: ${describeError(error)}`);
     }
   }
 
@@ -414,7 +422,12 @@ export class WebhookService {
 
     if (kind === 'gift') {
       if (giftCode) {
-        await this.notify.tell({ userId, notice: 'giftPurchased', days: giftDays(plan), fill: { code: formatGiftCode(giftCode) } });
+        await this.notify.tell({
+          userId,
+          notice: 'giftPurchased',
+          days: giftDays(paymentPlan({ kind, plan })),
+          fill: { code: formatGiftCode(giftCode) }
+        });
       }
 
       return;
@@ -433,7 +446,7 @@ export class WebhookService {
       return;
     }
 
-    await this.notify.tell({ userId, notice: 'paid', date });
+    await this.notify.tell({ userId, notice: 'paid', date, invite: paymentPlan({ kind, plan }) });
   }
 
   private async handlePaymentMethodActive(paymentMethodId: string): Promise<void> {

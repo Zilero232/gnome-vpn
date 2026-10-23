@@ -8,6 +8,9 @@ export { canonicalIp, isIpAddress } from './ip-address';
 export { IDENTIFIED_NODE_SELECT, NODE_ACCESS_SELECT, xrayClientForNode } from './node-credentials';
 export type { IdentifiedNode, NodeAccess } from './node-credentials';
 
+export { paymentPlan } from './payment-plan';
+export type { PaymentPlanInput } from './payment-plan';
+
 export {
   activeDeviceLimit,
   extendPeriod,

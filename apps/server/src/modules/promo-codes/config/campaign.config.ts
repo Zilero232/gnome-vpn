@@ -27,3 +27,11 @@ export const CAMPAIGN_SELECT = {
   expiresAt: true,
   createdAt: true
 } as const;
+
+export const AUTO_CODE_SELECT = {
+  id: true,
+  kind: true,
+  percent: true,
+  expiresAt: true,
+  isAutomatic: true
+} as const;

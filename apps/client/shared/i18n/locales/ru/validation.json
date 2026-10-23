@@ -5,6 +5,7 @@
   "passwordMin": "Минимум 8 символов",
   "passwordsMismatch": "Пароли не совпадают",
   "required": "Заполните поле",
+  "consentRequired": "Без согласия на обработку персональных данных аккаунт не создать",
   "promoCodeInvalid": "Промокод — от {promoCodeMin} до {promoCodeMax} латинских букв и цифр",
   "wireguardNameMax": "Не длиннее {wireguardNameMax, plural, one {# символа} other {# символов}}"
 }

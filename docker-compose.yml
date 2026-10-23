@@ -120,9 +120,11 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
       SCHEDULE: ${BACKUP_SCHEDULE:-0 0 */6 * * *}
-      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
-      BACKUP_KEEP_WEEKS: ${BACKUP_KEEP_WEEKS:-8}
-      BACKUP_KEEP_MONTHS: ${BACKUP_KEEP_MONTHS:-6}
+      # Fixed, not read from .env: 152-ФЗ gives 30 days to destroy data after
+      # consent is withdrawn, and the oldest dump this keeps is 22 days old.
+      BACKUP_KEEP_DAYS: 14
+      BACKUP_KEEP_WEEKS: 3
+      BACKUP_KEEP_MONTHS: 0
       POSTGRES_EXTRA_OPTS: --no-owner --no-privileges --compress=9
     volumes:
       - pgbackups:/backups

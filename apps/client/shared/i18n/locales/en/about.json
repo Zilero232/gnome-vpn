@@ -26,7 +26,7 @@
   "sections": {
     "problem": {
       "title": "The problem we set out to solve",
-      "body": "Classic TCP-based VPN protocols are unstable on many networks: the connection drops a few minutes after data starts flowing, and changing port or server helps only briefly. We wanted a connection that holds all day — on mobile data, on the road, in a hotel."
+      "body": "Classic TCP-based VPN protocols cope badly with packet loss: once a network starts dropping data — on mobile, in the metro, on a crowded Wi-Fi — the connection stalls or breaks. We wanted a connection that holds all day — on mobile data, on the road, in a hotel."
     },
     "protocol": {
       "title": "Why Hysteria2",
@@ -46,7 +46,7 @@
     },
     "honesty": {
       "title": "What we do not promise",
-      "body": "We do not promise it will work everywhere forever: networks change, and sometimes nodes have to change with them. We do not promise anonymity — a VPN hides traffic from your ISP, it does not make you invisible. If the service is not for you, we refund the unused period — write to us within 14 days of paying."
+      "body": "We do not promise it will work on every network and every device: networks and apps differ, and sometimes you will need to switch to another protocol or country. We do not promise anonymity — a VPN hides traffic from your ISP, it does not make you invisible. If the service is not for you, we refund the unused period — write to us within 14 days of paying."
     }
   }
 }
