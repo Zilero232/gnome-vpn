@@ -3,7 +3,8 @@
 import type { Group } from 'three';
 
 import { useFrame, useThree } from '@react-three/fiber';
-import { useEffect, useRef } from 'react';
+import { target, useEventListener } from '@siberiacancode/reactuse';
+import { useRef } from 'react';
 import { MathUtils } from 'three';
 
 import type { GlobeRigProps } from './GlobeRig.types';
@@ -21,49 +22,41 @@ export const GlobeRig = ({ children, onReady, onFallback }: GlobeRigProps) => {
 
   useAdaptiveQuality({ onFallback });
 
-  useEffect(() => {
+  useEventListener(target(element), 'pointerdown', (event) => {
     const state = dragRef.current;
 
-    const onDown = (event: PointerEvent) => {
-      state.isDown = true;
-      state.lastX = event.clientX;
-      state.lastY = event.clientY;
-      element.setPointerCapture(event.pointerId);
-    };
+    state.isDown = true;
+    state.lastX = event.clientX;
+    state.lastY = event.clientY;
+    element.setPointerCapture(event.pointerId);
+  });
 
-    const onMove = (event: PointerEvent) => {
-      if (!state.isDown) {
-        return;
-      }
+  useEventListener(target(element), 'pointermove', (event) => {
+    const state = dragRef.current;
 
-      state.velocity = (event.clientX - state.lastX) * GLOBE_SCENE.dragSpeed;
+    if (!state.isDown) {
+      return;
+    }
 
-      state.pitch = MathUtils.clamp(
-        state.pitch + (event.clientY - state.lastY) * GLOBE_SCENE.dragSpeed,
-        -GLOBE_SCENE.pitchLimit,
-        GLOBE_SCENE.pitchLimit
-      );
+    state.velocity = (event.clientX - state.lastX) * GLOBE_SCENE.dragSpeed;
 
-      state.lastX = event.clientX;
-      state.lastY = event.clientY;
-    };
+    state.pitch = MathUtils.clamp(
+      state.pitch + (event.clientY - state.lastY) * GLOBE_SCENE.dragSpeed,
+      -GLOBE_SCENE.pitchLimit,
+      GLOBE_SCENE.pitchLimit
+    );
 
-    const onUp = () => {
-      state.isDown = false;
-    };
+    state.lastX = event.clientX;
+    state.lastY = event.clientY;
+  });
 
-    element.addEventListener('pointerdown', onDown);
-    element.addEventListener('pointermove', onMove);
-    element.addEventListener('pointerup', onUp);
-    element.addEventListener('pointercancel', onUp);
+  useEventListener(target(element), 'pointerup', () => {
+    dragRef.current.isDown = false;
+  });
 
-    return () => {
-      element.removeEventListener('pointerdown', onDown);
-      element.removeEventListener('pointermove', onMove);
-      element.removeEventListener('pointerup', onUp);
-      element.removeEventListener('pointercancel', onUp);
-    };
-  }, [element]);
+  useEventListener(target(element), 'pointercancel', () => {
+    dragRef.current.isDown = false;
+  });
 
   useFrame(({ clock }) => {
     const group = rigRef.current;

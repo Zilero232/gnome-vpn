@@ -1,8 +1,9 @@
-import { entries, keys } from 'remeda';
+import { keys } from 'remeda';
 
 import type { EmailLocale } from '../email-locale';
 import type { EmailMessages, EmailNoticeKey, FillEmailInput } from './email-text.types';
 
+import { fillTokens } from '../../../common/lib';
 import en from '../locales/en.json';
 import ru from '../locales/ru.json';
 
@@ -12,5 +13,4 @@ const NOTICE_KEYS: readonly string[] = keys(ru.notices);
 
 export const isEmailNotice = (value: string): value is EmailNoticeKey => NOTICE_KEYS.includes(value);
 
-export const fillEmail = ({ text, fill }: FillEmailInput): string =>
-  entries(fill).reduce((carry, [token, value]) => carry.replaceAll(`{${token}}`, value), text);
+export const fillEmail = ({ text, fill }: FillEmailInput): string => fillTokens({ text, fill });

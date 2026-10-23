@@ -50,4 +50,8 @@ describe('fillEmail', () => {
   it('replaces every occurrence of a token and leaves the rest', () => {
     expect(fillEmail({ text: '{date} and {date}, {amount}', fill: { date: 'x' } })).toBe('x and x, {amount}');
   });
+
+  it('inserts a value literally even when it holds a replacement pattern', () => {
+    expect(fillEmail({ text: 'Code: {code}', fill: { code: 'a$&b' } })).toBe('Code: a$&b');
+  });
 });

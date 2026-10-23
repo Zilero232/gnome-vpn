@@ -5,11 +5,11 @@ import type { WireguardConfig } from '@gnomevpn/schemas';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { downloadFile } from '@/shared/lib';
 import { ConfirmDialog, Text } from '@/ui-kit';
 
 import type { ConfigListProps } from './ConfigList.types';
 
-import { downloadConf } from '../../../lib';
 import { useRemoveWireguardConfig, useWireguardFile } from '../../../model/hooks';
 import { ConfigRow } from './components';
 
@@ -24,7 +24,7 @@ export const ConfigList = ({ configs, onShow }: ConfigListProps) => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const onDownload = (deviceId: string) => {
-    file.mutate(deviceId, { onSuccess: downloadConf });
+    file.mutate(deviceId, { onSuccess: ({ filename, conf }) => downloadFile({ filename, content: conf }) });
   };
 
   const onQr = (deviceId: string) => {

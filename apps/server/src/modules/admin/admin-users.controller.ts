@@ -16,9 +16,9 @@ import {
   AdminMessageDto,
   AdminMessageResultDto,
   AdminUserCardDto,
+  AdminUserExportDto,
   AdminUserPageDto,
-  AdminUserQueryDto,
-  AdminUserSearchDto
+  AdminUserQueryDto
 } from './dto/admin.dto';
 import { AdminGuard } from './guards';
 import { AdminUserActionsService, AdminUsersService } from './services';
@@ -35,15 +35,15 @@ export class AdminUsersController {
 
   @Get()
   @ZodResponse({ type: AdminUserPageDto })
-  list(@Query() query: AdminUserQueryDto) {
-    return this.users.list({ page: query.page, query: query.query });
+  list(@Query() { page, query, ...filter }: AdminUserQueryDto) {
+    return this.users.list({ page, query, filter, now: new Date() });
   }
 
   @Throttle(ADMIN_THROTTLE.export)
   @Get('export')
   @ZodResponse({ type: AdminCsvFileDto })
-  exportCsv(@Query() query: AdminUserSearchDto) {
-    return this.users.exportCsv({ query: query.query, now: new Date() });
+  exportCsv(@Query() { query, ...filter }: AdminUserExportDto) {
+    return this.users.exportCsv({ query, filter, now: new Date() });
   }
 
   @Get(':id')

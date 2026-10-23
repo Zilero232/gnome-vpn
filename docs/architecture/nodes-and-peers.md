@@ -13,8 +13,12 @@ creating a client, releasing it, building the tunnel config.
 calls `PeersService.issueAndPersist`, which is where the "create → persist →
 roll back on failure" dance is written once.
 
-The only peers issued today are `kind: 'config'` peers named `incy`, one per
-node and protocol, created by the subscription feed. `PeerKind` still has a
+The only peers issued today are `kind: 'config'` peers named
+`devicePeerName(deviceId)` (`d-<12 hex>`), one per device, node and protocol:
+the subscription feed issues the Hysteria2 and VLESS ones, and
+`WireguardConfigService` the WireGuard one for a config's own `wg:` device
+([devices.md](devices.md)). The shared `incy` peer of the days before the device
+registry (`LEGACY_PEER`) is only ever retired now. `PeerKind` still has a
 `session` value and `peerClientName` still knows its prefix, but nothing in the
 server creates a session peer any more.
 
@@ -149,7 +153,9 @@ work as for the other two protocols.
 
 **The server generates the key pair; the panel picks the address.** The device
 needs its private key in the `.conf`, so `PeersService.issue` mints it
-(`generateWireguardKeys`, x25519 through `@noble/curves`) and stores it as the
+(`generateWireguardKeys` in `peers/lib/x25519-keys`, which also mints the
+Reality pair — x25519 through `@noble/curves`, standard base64 for WireGuard and
+base64url for Reality) and stores it as the
 peer's `nodeCredential`. The address is left to the panel, which allocates the
 next free one in the inbound's `10.9.0.0/16`; `WireguardClients.create` reads
 it back and the peer row keeps it as `tunnel_address`, unique per node. A

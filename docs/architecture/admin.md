@@ -83,7 +83,55 @@ bookmarked and the browser's back button closes it. `useAdminNavigationState`
 pushes the history entry and announces a `hashchange`, which is what
 `PageTabs` listens to, so a link to a user from the overview's referrer table
 also switches to the Users tab. `UserLink` is a real link, so a modified click
-opens the card in a new tab.
+opens the card in a new tab. «Ко всем пользователям» steps back through history
+when the card was opened from the list, and the list stays mounted behind the
+card, so its search, filters and page are where they were.
+
+### Lists, filters and the URL
+
+Every list — users, payments, campaign codes, gifts — follows one pattern,
+the one Polaris, Pajamas and Carbon describe for index pages:
+
+- **Filters live in the URL**, through [nuqs](https://nuqs.dev) rather than
+  hand-written `useState` and query builders. A feature only declares its
+  parsers (`USER_FILTERS`, `PAYMENT_FILTERS`, `CAMPAIGN_FILTERS`,
+  `GIFT_FILTERS`); `useListFilters` in `entities/admin/records` keys them by
+  the list (`users.access=paid`, `payments.status=refunded`) so tabs never read
+  each other's filters, writes with `replace` so Back is not flooded, drops a
+  value equal to its default from the URL, sends page 1 on every change, and
+  hands over `query` (the set values only), `isFiltered` and `reset`. A
+  filtered list survives a reload and can be sent as a link. The one `as` in
+  the hook types the URL-key map: `Object.fromEntries` loses the key type, and
+  every parser key is mapped. `NuqsAdapter` wraps only `AdminPage`, the one
+  page that uses it.
+- **Selects apply at once, and so does search**: the users search box has no
+  button — the text is in the URL immediately and the request follows 300 ms
+  after typing stops (`useDebounceValue`), so search and selects behave the
+  same way.
+- **One filter row**: `FilterBar` lays every `FilterSelect` on the same grid,
+  so a select is the same width on every tab; `FilterSelect` adds the «Любой»
+  option itself when given `anyLabel`.
+- **Count and clear-all**: a filtered list shows «Найдено: N» and «Сбросить
+  фильтры» (`FilterSummary`), and its empty state says nothing matches the
+  filters instead of «nothing yet».
+
+The users list filters by access (paid, free day, none), plan, auto-renewal,
+Telegram, email (confirmed, unconfirmed, Telegram-only) and sign-up period.
+Access is decided exactly as the badge decides it: a free day is a period that
+ends within `TRIAL_DAYS` of its start, a comparison of two columns Prisma
+cannot express, so the service reads the few active subscriptions started in
+the last `TRIAL_DAYS` and classifies them with `periodKind`; "paid" excludes
+those ids, and "none" matches an account without a subscription row as well —
+a `NOT` over the relation would drop those rows on SQL's `NULL`. Plan and
+auto-renewal narrow paid access only. Campaign codes filter by state and kind,
+gifts by state; a campaign's "used up" compares its redemptions with its limit,
+so the service computes the state per code with `campaignState` and pages the
+result in memory — campaign codes are created by hand and stay few.
+
+Controls in a row share one height: inputs and selects are 46 px, and a button
+beside them takes `size='field'` (46 px) instead of `md` (42 px), placed in the
+same `FormField` as the input so the hint or error sits under the whole row.
+`SectionHead` centres its actions against the title.
 
 ## Overview
 
@@ -264,8 +312,11 @@ kept. The paginated list is the admin module's own query; `latest()` stays the
 bot's.
 
 Gifts are read-only: buyer, plan, purchase date, who redeemed it and when, and
-a state — waiting for a recipient, redeemed, or revoked by a refund. A paid gift belongs to its buyer, and only a refund
-disables it.
+a state — waiting for a recipient, redeemed, or revoked by a refund. A paid
+gift belongs to its buyer, and only a refund disables it.
+
+Confirmation buttons name what they do: «Вернуть 990 ₽» / «Не возвращать»,
+«Остановить BONUSWEEK» / «Оставить».
 
 ## Nodes
 
@@ -296,10 +347,14 @@ validation error, which is why the client drops a filter left on «Любой»
 (`paymentFilterQuery`).
 
 CSV exports are JSON `{ filename, content, rows, isTruncated }`, capped at
-10 000 rows (`ADMIN_EXPORT`): UTF-8 with a BOM so Excel reads Cyrillic, CRLF,
-RFC 4180 quoting, and a text cell starting with `=`, `+`, `-`, `@`, a tab or a
-carriage return prefixed with `'`, so an email like `=HYPERLINK(...)` cannot
-become a formula in the owner's spreadsheet.
+10 000 rows (`ADMIN_EXPORT`), written by `csv-stringify` (`toCsv`, options in
+`ADMIN_CSV`): UTF-8 with a BOM so Excel reads Cyrillic, CRLF, RFC 4180 quoting
+(a lone `\n` is quoted too — `quote_record_delimiter`, which the library turns
+off once a record delimiter is set), flags written as `true`/`false`, and a text
+cell starting with `=`, `+`, `-`, `@`, a tab or a carriage return (or their
+full-width forms) prefixed with `'` (`escape_formulas`), so an email like
+`=HYPERLINK(...)` cannot become a formula in the owner's spreadsheet. A negative
+number stays a number.
 
 ## Logging
 

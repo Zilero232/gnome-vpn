@@ -1,23 +1,17 @@
-@use '@/shared/styles/mixins' as *;
-
-.root {
+.control {
+  position: relative;
   display: flex;
   min-width: 0;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 12px;
+  align-items: center;
 }
 
-.field {
-  min-width: 0;
-  flex: 1 1 280px;
+.icon {
+  position: absolute;
+  left: 14px;
+  color: var(--color-text-muted);
+  pointer-events: none;
 }
 
-.submit {
-  margin-top: 26px;
-
-  @include below(sm) {
-    width: 100%;
-    margin-top: 0;
-  }
+.control .input {
+  padding-left: 40px;
 }

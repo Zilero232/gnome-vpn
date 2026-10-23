@@ -1,4 +1,4 @@
-export { ADMIN_MESSAGE_OUTCOMES, ADMIN_REDEMPTION_KINDS, ADMIN_USER } from './users.constants';
+export { ADMIN_MESSAGE_OUTCOMES, ADMIN_REDEMPTION_KINDS, ADMIN_USER, ADMIN_USER_FILTERS } from './users.constants';
 export {
   adminExtendResultSchema,
   adminExtendSchema,
@@ -8,6 +8,8 @@ export {
   adminReferralSchema,
   adminTelegramSchema,
   adminUserCardSchema,
+  adminUserExportSchema,
+  adminUserFilterSchema,
   adminUserPageSchema,
   adminUserQuerySchema,
   adminUserSchema,
@@ -25,6 +27,8 @@ export type {
   AdminTelegram,
   AdminUser,
   AdminUserCard,
+  AdminUserExport,
+  AdminUserFilter,
   AdminUserPage,
   AdminUserQuery,
   AdminUserSearch

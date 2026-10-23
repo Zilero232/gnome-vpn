@@ -3,24 +3,13 @@ import * as rootParams from 'next/root-params';
 
 import { ROUTES } from '@/shared/constants';
 import { resolveLocale } from '@/shared/i18n';
-import { createPageMetadata, howToJsonLd, JsonLd, PageJsonLd } from '@/shared/seo';
+import { howToJsonLd, JsonLd, PageJsonLd } from '@/shared/seo';
+import { translatedMetadata } from '@/shared/seo/translated-metadata';
 import { SETUP_STEPS, SetupPage } from '@/views/setup';
 
 const HOWTO_PLATFORM = 'android';
 
-export const generateMetadata = async () => {
-  const locale = resolveLocale(await rootParams.locale());
-  const t = await getTranslations({ locale, namespace: 'setup' });
-
-  return createPageMetadata({
-    title: t('meta.title'),
-    description: t('meta.description'),
-    path: ROUTES.setup,
-    locale,
-    index: true,
-    follow: true
-  });
-};
+export const generateMetadata = () => translatedMetadata({ namespace: 'setup', path: ROUTES.setup, isIndexed: true });
 
 const Page = async () => {
   const locale = resolveLocale(await rootParams.locale());

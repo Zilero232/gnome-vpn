@@ -5,9 +5,11 @@ import { useMutation } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
+import { downloadFile } from '@/shared/lib';
+
 import type { UseCsvExportInput } from './use-csv-export.types';
 
-import { downloadCsv } from '../../../lib';
+import { CSV_FILE } from './use-csv-export.constants';
 
 export const useCsvExport = <Query>({ request, onError }: UseCsvExportInput<Query>) => {
   const t = useTranslations('admin.export');
@@ -16,7 +18,7 @@ export const useCsvExport = <Query>({ request, onError }: UseCsvExportInput<Quer
     mutationFn: request,
     onError,
     onSuccess: (file) => {
-      downloadCsv(file);
+      downloadFile({ filename: file.filename, content: file.content, type: CSV_FILE.type });
       toast.success(file.isTruncated ? t('truncated', { rows: file.rows, max: ADMIN_EXPORT.maxRows }) : t('done', { rows: file.rows }));
     }
   });

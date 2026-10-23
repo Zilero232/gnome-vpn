@@ -7,8 +7,3 @@ export type CountryForIpInput = {
   addresses: NodeAddress[];
   ip: string;
 };
-
-export type MappedIpv4Input = {
-  high: string;
-  low: string;
-};

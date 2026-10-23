@@ -28,11 +28,11 @@
   padding: 0;
   border-radius: var(--radius-sm);
 
-  &:hover:not([data-active='true']) {
+  &:hover:not([data-active]) {
     color: var(--color-text);
   }
 
-  &[data-active='true'] {
+  &[data-active] {
     color: var(--color-accent);
   }
 

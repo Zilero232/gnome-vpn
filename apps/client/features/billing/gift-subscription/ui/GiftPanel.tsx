@@ -41,7 +41,7 @@ export const GiftPanel = () => {
       <div className={s.actions}>
         <Segmented aria-label={t('planLabel')} className={s.plans} options={options} value={planId} onChange={setPlanId} />
 
-        <SubmitButton className={s.pay} isPending={buy.isPending} size='md' type='button' onClick={() => buy.mutate(planId)}>
+        <SubmitButton className={s.pay} isPending={buy.isPending} size='field' type='button' onClick={() => buy.mutate(planId)}>
           {t('pay', { price: findPlan(planId).priceRub })}
         </SubmitButton>
       </div>

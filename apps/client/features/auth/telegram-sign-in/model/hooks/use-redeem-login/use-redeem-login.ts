@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { useEffect, useEffectEvent, useRef } from 'react';
 
 import { ROUTES } from '@/shared/constants';
 import { useRouter } from '@/shared/i18n/navigation';
@@ -14,10 +14,11 @@ export const useRedeemLogin = (): RedeemLoginState => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const signIn = useTelegramSignIn();
-  const redeemRef = useRef(signIn.mutate);
   const redeemedRef = useRef<string | null>(null);
 
-  redeemRef.current = signIn.mutate;
+  const redeem = useEffectEvent((nextCode: string) => {
+    signIn.mutate(nextCode, { onSuccess: () => router.replace(ROUTES.account) });
+  });
 
   const code = searchParams.get('code');
 
@@ -28,8 +29,8 @@ export const useRedeemLogin = (): RedeemLoginState => {
 
     redeemedRef.current = code;
 
-    redeemRef.current(code, { onSuccess: () => router.replace(ROUTES.account) });
-  }, [code, router]);
+    redeem(code);
+  }, [code]);
 
   return { hasFailed: !code || signIn.isError };
 };

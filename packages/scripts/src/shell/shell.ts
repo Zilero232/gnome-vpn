@@ -1,18 +1,9 @@
 import { posix } from 'node:path';
+import { quote } from 'shell-quote';
 
 import type { DockerExecInput, DockerShellInput, ShellArg } from './shell.types';
 
-import { SHELL } from './shell.constants';
-
-export const arg = (value: ShellArg) => {
-  const text = String(value);
-
-  if (SHELL.bareToken.test(text)) {
-    return text;
-  }
-
-  return `'${text.replaceAll("'", SHELL.escapedQuote)}'`;
-};
+export const arg = (value: ShellArg) => quote([String(value)]);
 
 export const line = (parts: ShellArg[]) => parts.map(String).join(' ');
 

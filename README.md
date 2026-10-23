@@ -31,14 +31,14 @@ same network, so the tunnel moved to **Hysteria2** — QUIC over UDP, masqueradi
 as an HTTP/3 site.
 
 QUIC is still UDP, and some networks drop UDP wholesale. So every node also
-serves **VLESS + Reality** on TCP/443, and **WireGuard** on UDP/51820 for those
-it works best for. The subscription lists all of them and the user picks
-whichever connects.
+serves **VLESS + Reality** on TCP/443. The subscription lists both and the user
+picks whichever connects. **WireGuard** on UDP/51820 comes as a per-device
+config for routers and WireGuard apps, not as a subscription entry.
 
 ## One link, every platform
 
 There is no GnomeVPN app. The client is **[INCY](https://incy.cc/)** — a free
-third-party app on iOS, Android, Windows, Linux, Android TV and Apple TV. You
+third-party app on iOS, Android, Windows, macOS, Linux, Android TV and Apple TV. You
 paste one URL into it and it keeps the server list, traffic counters and renewal
 date up to date on its own.
 
@@ -62,11 +62,12 @@ it.
      │                         │                             │
   INCY app                     │                             │
      │  GET /sub/<token>       │                             │
-     ├────────────────────────►│  a peer per node, per       │
-     │                         │  protocol                   │
+     ├────────────────────────►│  a peer per device, node    │
+     │                         │  and protocol               │
      │                         ├────────────────────────────►│
      │  base64 list of         │                             │
-     │  hy2:// and vless://    │                             │
+     │  hysteria2:// and       │                             │
+     │  vless:// URIs          │                             │
      │  + subscription headers │                             │
      │◄────────────────────────┤                             │
      │                                                       │
@@ -91,16 +92,16 @@ scripts/provision/   # node setup over SSH
 infra/caddy/         # TLS termination and reverse proxy
 ```
 
-| Layer      | Stack                                           |
-| ---------- | ----------------------------------------------- |
-| Web        | Next.js 16, React 19, next-intl, TanStack Query |
-| API        | NestJS 11 on Bun, Prisma 7, Postgres 17         |
-| Auth       | better-auth, bearer tokens                      |
-| Payments   | YooKassa, recurring by saved card               |
-| Tunnel     | Hysteria2 and VLESS + Reality via 3x-ui         |
-| Client app | INCY (third party)                              |
-| Bot        | grammY on a webhook, Russian and English        |
-| Delivery   | Caddy, Docker Compose, ghcr.io                  |
+| Layer      | Stack                                              |
+| ---------- | -------------------------------------------------- |
+| Web        | Next.js 16, React 19, next-intl, TanStack Query    |
+| API        | NestJS 11 on Bun, Prisma 7, Postgres 17            |
+| Auth       | better-auth, bearer tokens                         |
+| Payments   | YooKassa, recurring by saved card                  |
+| Tunnel     | Hysteria2, VLESS + Reality and WireGuard via 3x-ui |
+| Client app | INCY (third party)                                 |
+| Bot        | grammY on a webhook, Russian and English           |
+| Delivery   | Caddy, Docker Compose, ghcr.io                     |
 
 The site is localised into Russian and English, with the locale in the URL
 (`/faq`, `/en/faq`) and server-rendered metadata for both. The Telegram bot is a
@@ -146,12 +147,13 @@ See [docs/ops/deploy.md](docs/ops/deploy.md) for the VPS side, and [docs/README.
 ## Status
 
 Working: the subscription feed, billing with recurring payments, a free trial
-day, device limits, node provisioning, the localised site, and a Telegram bot
-that covers everything the account page does except card management.
+day, device limits, referrals and promo codes, Russian sites routed direct in
+INCY, node provisioning, the localised site, and a Telegram bot that covers
+everything the account page does except card management.
 
 Not done: per-app routing (INCY has it on Android; the subscription does not
-drive it yet), referral codes, and real certificates on the nodes — until those
-exist, sing-box clients skip verification where xray clients pin.
+drive it yet) and real certificates on the nodes — until those exist, sing-box
+clients skip verification where xray clients pin.
 
 ## License
 

@@ -3,22 +3,11 @@ import * as rootParams from 'next/root-params';
 
 import { ROUTES } from '@/shared/constants';
 import { resolveLocale } from '@/shared/i18n';
-import { createPageMetadata, PageJsonLd } from '@/shared/seo';
+import { PageJsonLd } from '@/shared/seo';
+import { translatedMetadata } from '@/shared/seo/translated-metadata';
 import { ServersPage } from '@/views/servers';
 
-export const generateMetadata = async () => {
-  const locale = resolveLocale(await rootParams.locale());
-  const t = await getTranslations({ locale, namespace: 'servers' });
-
-  return createPageMetadata({
-    title: t('meta.title'),
-    description: t('meta.description'),
-    path: ROUTES.servers,
-    locale,
-    index: true,
-    follow: true
-  });
-};
+export const generateMetadata = () => translatedMetadata({ namespace: 'servers', path: ROUTES.servers, isIndexed: true });
 
 const Page = async () => {
   const locale = resolveLocale(await rootParams.locale());

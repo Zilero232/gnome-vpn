@@ -3,8 +3,8 @@ import { z } from 'zod';
 import { planIdSchema } from '../../billing/plans';
 import { isPromoCode, normalisePromoCode, promoCodeOrigin } from '../../promo-codes/promo-codes';
 import { CAMPAIGN_KINDS, PROMO_CODE, PROMO_DAYS, PROMO_DISCOUNT } from '../../promo-codes/promo-codes.constants';
-import { adminAmountSchema, adminCountSchema, adminPageInfoSchema, adminUserRefSchema } from '../common/common.schemas';
-import { ADMIN_CAMPAIGN_STATES } from './promo-codes.constants';
+import { adminAmountSchema, adminCountSchema, adminPageInfoSchema, adminPageQuerySchema, adminUserRefSchema } from '../common/common.schemas';
+import { ADMIN_CAMPAIGN_STATES, ADMIN_GIFT_STATES } from './promo-codes.constants';
 
 const EFFECT_RANGE = {
   discount: { min: PROMO_DISCOUNT.minPercent, max: PROMO_DISCOUNT.maxPercent, message: 'admin.validation.percent' },
@@ -12,6 +12,15 @@ const EFFECT_RANGE = {
 } as const;
 
 export const adminCampaignKindSchema = z.enum(CAMPAIGN_KINDS);
+
+export const adminCampaignQuerySchema = adminPageQuerySchema.extend({
+  state: z.enum(ADMIN_CAMPAIGN_STATES).optional(),
+  kind: adminCampaignKindSchema.optional()
+});
+
+export const adminGiftQuerySchema = adminPageQuerySchema.extend({
+  state: z.enum(ADMIN_GIFT_STATES).optional()
+});
 
 export const adminCampaignCodeParamSchema = z.object({
   code: z.string().trim().min(1).max(PROMO_CODE.inputMaxLength)

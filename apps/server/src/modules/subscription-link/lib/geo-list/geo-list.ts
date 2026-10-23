@@ -1,23 +1,23 @@
+import { BinaryReader } from '@bufbuild/protobuf/wire';
+
 import type { TrimGeoListInput, TrimmedGeoList } from './geo-list.types';
 
-import { entryCode, isEntry, nextRecord } from './geo-list.helpers';
+import { nextEntryCode } from './geo-list.helpers';
 
 export const trimGeoList = ({ data, codes }: TrimGeoListInput): TrimmedGeoList => {
   const wanted = new Map(codes.map((code) => [code.toUpperCase(), code]));
   const found = new Set<string>();
   const kept: Uint8Array[] = [];
-  let offset = 0;
+  const reader = new BinaryReader(data);
 
-  while (offset < data.length) {
-    const record = nextRecord({ data, offset, end: data.length });
-    const code = isEntry(record) ? entryCode({ data, start: record.valueStart, end: record.valueEnd })?.toUpperCase() : undefined;
+  while (reader.pos < reader.len) {
+    const start = reader.pos;
+    const code = nextEntryCode(reader);
 
     if (code !== undefined && wanted.has(code)) {
-      kept.push(data.subarray(record.start, record.end));
+      kept.push(data.subarray(start, reader.pos));
       found.add(code);
     }
-
-    offset = record.end;
   }
 
   return {

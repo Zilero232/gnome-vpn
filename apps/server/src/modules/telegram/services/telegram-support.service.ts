@@ -1,4 +1,5 @@
 import { DEFAULT_PLAN_ID } from '@gnomevpn/schemas';
+import { TTLCache } from '@isaacs/ttlcache';
 import { Injectable, Logger } from '@nestjs/common';
 import { isEmpty, isNonNullish, isNullish } from 'remeda';
 
@@ -10,33 +11,22 @@ import { AppConfigService } from '../../../config';
 import { PrismaService } from '../../../core';
 import { periodKind } from '../../subscription';
 import { BOT_TEXT, DEFAULT_BOT_LOCALE, SUPPORT } from '../config';
-import {
-  createRateLimit,
-  createThrottle,
-  createWindowCache,
-  deliveryOutcome,
-  migratedChatId,
-  resolveLocale,
-  supportHeader,
-  urlMessage
-} from '../lib';
+import { deliveryOutcome, migratedChatId, resolveLocale, supportHeader, urlMessage } from '../lib';
 import { TelegramLinkService } from './telegram-link.service';
 import { TelegramSharedService } from './telegram-shared.service';
+import { TelegramThrottleService } from './telegram-throttle.service';
 
 @Injectable()
 export class TelegramSupportService {
   private readonly logger = new Logger(TelegramSupportService.name);
-  private readonly rate = createRateLimit(SUPPORT.rateLimit);
-  private readonly slowDown = createThrottle(SUPPORT.rateLimit.windowMs);
-  private readonly ack = createThrottle(SUPPORT.ackWindowMs);
-  private readonly answerTitle = createThrottle(SUPPORT.answerTitleWindowMs);
-  private readonly threads = createWindowCache<Promise<number>>(SUPPORT.threadWindowMs);
+  private readonly threads = new TTLCache<string, Promise<number>>({ ttl: SUPPORT.threadWindowMs, checkAgeOnGet: true });
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: AppConfigService,
     private readonly shared: TelegramSharedService,
-    private readonly link: TelegramLinkService
+    private readonly link: TelegramLinkService,
+    private readonly throttle: TelegramThrottleService
   ) {}
 
   accepts(ctx: BotContext): boolean {
@@ -72,8 +62,8 @@ export class TelegramSupportService {
     const key = String(sender.id);
     const { chat, copy } = await this.shared.copyFor(ctx);
 
-    if (!this.rate({ key })) {
-      if (this.slowDown({ key })) {
+    if (!(await this.throttle.allow({ throttle: 'supportRate', key }))) {
+      if (await this.throttle.allow({ throttle: 'supportSlowDown', key })) {
         await ctx.reply(copy.supportSlowDown);
       }
 
@@ -101,7 +91,7 @@ export class TelegramSupportService {
       return;
     }
 
-    if (this.ack({ key })) {
+    if (await this.throttle.allow({ throttle: 'supportAck', key })) {
       await ctx.reply(copy.supportAck);
     }
   }
@@ -153,7 +143,7 @@ export class TelegramSupportService {
   private async deliver({ ctx, message, telegramId, locale }: SupportDeliverInput): Promise<void> {
     const chatId = Number(telegramId);
 
-    if (this.answerTitle({ key: String(telegramId) })) {
+    if (await this.throttle.allow({ throttle: 'supportAnswerTitle', key: String(telegramId) })) {
       const chat = await this.link.findChat(telegramId);
 
       await ctx.api.sendMessage(chatId, BOT_TEXT[chat?.locale ?? locale].supportAnswerTitle);
@@ -164,10 +154,18 @@ export class TelegramSupportService {
 
   private threadFor(input: SupportThreadInput): Promise<number> {
     const key = String(input.sender.id);
-    const header = this.threads.take({ key, create: () => this.postHeader(input) });
+    const cached = this.threads.get(key);
+
+    if (isNonNullish(cached)) {
+      return cached;
+    }
+
+    const header = this.postHeader(input);
+
+    this.threads.set(key, header);
 
     header.catch(() => {
-      this.threads.forget(key);
+      this.threads.delete(key);
     });
 
     return header;

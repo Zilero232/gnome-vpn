@@ -3,16 +3,27 @@ import { z } from 'zod';
 import { planIdSchema } from '../../billing/plans';
 import { deviceListSchema } from '../../devices/devices.schemas';
 import { periodKindSchema } from '../../subscription/subscription.schemas';
-import { adminCountSchema, adminPageInfoSchema, adminPageQuerySchema, adminUserRefSchema } from '../common/common.schemas';
+import { adminCountSchema, adminPageInfoSchema, adminPageQuerySchema, adminPeriodSchema, adminUserRefSchema } from '../common/common.schemas';
 import { adminPaymentSchema } from '../payments/payments.schemas';
 import { adminGiftSchema } from '../promo-codes/promo-codes.schemas';
-import { ADMIN_MESSAGE_OUTCOMES, ADMIN_REDEMPTION_KINDS, ADMIN_USER } from './users.constants';
+import { ADMIN_MESSAGE_OUTCOMES, ADMIN_REDEMPTION_KINDS, ADMIN_USER, ADMIN_USER_FILTERS } from './users.constants';
 
 export const adminUserSearchSchema = z.object({
   query: z.string().trim().max(ADMIN_USER.searchMaxLength).default('')
 });
 
-export const adminUserQuerySchema = adminPageQuerySchema.extend(adminUserSearchSchema.shape);
+export const adminUserFilterSchema = z.object({
+  access: periodKindSchema.optional(),
+  plan: planIdSchema.optional(),
+  autoRenew: z.enum(ADMIN_USER_FILTERS.autoRenew).optional(),
+  telegram: z.enum(ADMIN_USER_FILTERS.telegram).optional(),
+  email: z.enum(ADMIN_USER_FILTERS.email).optional(),
+  period: adminPeriodSchema.default(ADMIN_USER_FILTERS.defaultPeriod)
+});
+
+export const adminUserExportSchema = adminUserSearchSchema.extend(adminUserFilterSchema.shape);
+
+export const adminUserQuerySchema = adminPageQuerySchema.extend(adminUserExportSchema.shape);
 
 export const adminTelegramSchema = z.object({
   id: z.string(),

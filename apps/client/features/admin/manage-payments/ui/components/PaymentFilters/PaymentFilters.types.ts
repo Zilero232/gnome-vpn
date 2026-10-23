@@ -1,6 +1,10 @@
-import type { PaymentFilterState } from '../../../lib';
+import type { inferParserType, Nullable } from 'nuqs';
+
+import type { PAYMENT_FILTERS } from '../../../config';
+
+type PaymentFilterValues = inferParserType<typeof PAYMENT_FILTERS.parsers>;
 
 export type PaymentFiltersProps = {
-  value: PaymentFilterState;
-  onChange: (value: PaymentFilterState) => void;
+  value: PaymentFilterValues;
+  onChange: (next: Partial<Nullable<PaymentFilterValues>>) => void;
 };

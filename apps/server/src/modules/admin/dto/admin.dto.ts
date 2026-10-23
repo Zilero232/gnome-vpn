@@ -4,12 +4,14 @@ import {
   adminCampaignCodeParamSchema,
   adminCampaignFormSchema,
   adminCampaignPageSchema,
+  adminCampaignQuerySchema,
   adminCampaignSchema,
   adminCsvFileSchema,
   adminDeviceParamSchema,
   adminExtendResultSchema,
   adminExtendSchema,
   adminGiftPageSchema,
+  adminGiftQuerySchema,
   adminIdParamSchema,
   adminMessageResultSchema,
   adminMessageSchema,
@@ -17,16 +19,15 @@ import {
   adminNodeListSchema,
   adminNodeSchema,
   adminOverviewSchema,
-  adminPageQuerySchema,
   adminPaymentFilterSchema,
   adminPaymentPageSchema,
   adminPaymentQuerySchema,
   adminPaymentSchema,
   adminSessionSchema,
   adminUserCardSchema,
+  adminUserExportSchema,
   adminUserPageSchema,
-  adminUserQuerySchema,
-  adminUserSearchSchema
+  adminUserQuerySchema
 } from '@gnomevpn/schemas';
 import { createZodDto } from 'nestjs-zod';
 
@@ -42,13 +43,15 @@ export class AdminIdParamDto extends createZodDto(adminIdParamSchema) {}
 
 export class AdminDeviceParamDto extends createZodDto(adminDeviceParamSchema) {}
 
-export class AdminPageQueryDto extends createZodDto(adminPageQuerySchema) {}
+export class AdminCampaignQueryDto extends createZodDto(adminCampaignQuerySchema) {}
+
+export class AdminGiftQueryDto extends createZodDto(adminGiftQuerySchema) {}
 
 export class AdminCsvFileDto extends createZodDto(adminCsvFileSchema) {}
 
 export class AdminUserQueryDto extends createZodDto(adminUserQuerySchema) {}
 
-export class AdminUserSearchDto extends createZodDto(adminUserSearchSchema) {}
+export class AdminUserExportDto extends createZodDto(adminUserExportSchema) {}
 
 export class AdminUserPageDto extends createZodDto(adminUserPageSchema) {}
 

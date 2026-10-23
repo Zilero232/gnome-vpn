@@ -2,8 +2,7 @@ import type { SshClient } from '@gnomevpn/scripts/ssh';
 
 import type { EnsuredKeyFiles, EnsuredRealityKeys, EnsuredWireguardKeys, EnsureKeyFilesInput } from './key-files.types';
 
-import { generateRealityKeys, generateRealityShortId } from '../../../../apps/server/src/modules/peers/lib/reality-keys';
-import { generateWireguardKeys } from '../../../../apps/server/src/modules/peers/lib/wireguard-keys';
+import { generateRealityKeys, generateRealityShortId, generateWireguardKeys } from '../../../../apps/server/src/modules/peers/lib/x25519-keys';
 import { log, NODE_FILES } from '../../config';
 import { inContainer } from '../xray-stack';
 import { seedKeyFilesScript } from './key-files.helpers';

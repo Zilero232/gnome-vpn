@@ -1,53 +1,29 @@
+import { BinaryWriter, WireType } from '@bufbuild/protobuf/wire';
 import { describe, expect, it } from 'vitest';
 
 import { trimGeoList } from '../geo-list';
-import { VARINT, WIRE_KEY, WIRE_TYPE } from '../geo-list.constants';
-
-type FieldInput = {
-  number: number;
-  wireType: number;
-  payload: number[];
-};
 
 type EntryInput = {
   code: string;
   domains?: string[];
-  leading?: number[];
+  leading?: Uint8Array;
 };
 
-const varint = (value: number): number[] =>
-  value < VARINT.base ? [value] : [(value % VARINT.base) + VARINT.continueBit, ...varint(Math.floor(value / VARINT.base))];
+const entry = ({ code, domains = [], leading = new Uint8Array() }: EntryInput): Uint8Array => {
+  const writer = new BinaryWriter().tag(1, WireType.LengthDelimited).fork().raw(leading).tag(1, WireType.LengthDelimited).string(code);
 
-const field = ({ number, wireType, payload }: FieldInput): number[] => [
-  ...varint(number * WIRE_KEY.typeModulus + wireType),
-  ...(wireType === WIRE_TYPE.lengthDelimited ? varint(payload.length) : []),
-  ...payload
-];
+  for (const domain of domains) {
+    writer.tag(2, WireType.LengthDelimited).fork().tag(2, WireType.LengthDelimited).string(domain).join();
+  }
 
-const text = (value: string): number[] => [...new TextEncoder().encode(value)];
-
-const entry = ({ code, domains = [], leading = [] }: EntryInput): number[] =>
-  field({
-    number: 1,
-    wireType: WIRE_TYPE.lengthDelimited,
-    payload: [
-      ...leading,
-      ...field({ number: 1, wireType: WIRE_TYPE.lengthDelimited, payload: text(code) }),
-      ...domains.flatMap((domain) =>
-        field({
-          number: 2,
-          wireType: WIRE_TYPE.lengthDelimited,
-          payload: field({ number: 2, wireType: WIRE_TYPE.lengthDelimited, payload: text(domain) })
-        })
-      )
-    ]
-  });
+  return writer.join().finish();
+};
 
 const RU = entry({ code: 'CATEGORY-RU', domains: ['yandex.ru', 'vk.com'] });
 const ADS = entry({ code: 'CATEGORY-ADS-ALL', domains: Array.from({ length: 200 }, (_, index) => `ads${index}.example`) });
 const PRIVATE = entry({ code: 'PRIVATE', domains: ['lan'] });
 
-const list = (...entries: number[][]): Uint8Array => new Uint8Array(entries.flat());
+const list = (...entries: Uint8Array[]): Uint8Array => Buffer.concat(entries);
 
 describe('trimGeoList', () => {
   it('keeps only the wanted entries, byte for byte and in upstream order', () => {
@@ -60,7 +36,7 @@ describe('trimGeoList', () => {
   it('matches the lower-case tags of a profile against the upper-case codes upstream stores', () => {
     const trimmed = trimGeoList({ data: list(RU, ADS, PRIVATE), codes: ['category-ru'] });
 
-    expect([...trimmed.data]).toEqual(RU);
+    expect([...trimmed.data]).toEqual([...RU]);
   });
 
   it('names every wanted tag the upstream file lacks, as the profile spells it', () => {
@@ -68,22 +44,26 @@ describe('trimGeoList', () => {
   });
 
   it('finds the code when other fields come first in the entry', () => {
-    const leading = [
-      ...field({ number: 3, wireType: WIRE_TYPE.varint, payload: varint(300) }),
-      ...field({ number: 68_000, wireType: WIRE_TYPE.lengthDelimited, payload: text('/path') }),
-      ...field({ number: 4, wireType: WIRE_TYPE.fixed32, payload: [1, 2, 3, 4] }),
-      ...field({ number: 5, wireType: WIRE_TYPE.fixed64, payload: [1, 2, 3, 4, 5, 6, 7, 8] })
-    ];
+    const leading = new BinaryWriter()
+      .tag(3, WireType.Varint)
+      .uint32(300)
+      .tag(68_000, WireType.LengthDelimited)
+      .string('/path')
+      .tag(4, WireType.Bit32)
+      .fixed32(1)
+      .tag(5, WireType.Bit64)
+      .fixed64(1)
+      .finish();
 
     const odd = entry({ code: 'RU', leading });
 
-    expect([...trimGeoList({ data: list(ADS, odd), codes: ['ru'] }).data]).toEqual(odd);
+    expect([...trimGeoList({ data: list(ADS, odd), codes: ['ru'] }).data]).toEqual([...odd]);
   });
 
   it('skips top-level fields that are not entries', () => {
-    const stray = field({ number: 2, wireType: WIRE_TYPE.varint, payload: varint(7) });
+    const stray = new BinaryWriter().tag(2, WireType.Varint).uint32(7).finish();
 
-    expect([...trimGeoList({ data: list(stray, RU), codes: ['category-ru'] }).data]).toEqual(RU);
+    expect([...trimGeoList({ data: list(stray, RU), codes: ['category-ru'] }).data]).toEqual([...RU]);
   });
 
   it('is idempotent, so its output is a valid list of the same shape', () => {

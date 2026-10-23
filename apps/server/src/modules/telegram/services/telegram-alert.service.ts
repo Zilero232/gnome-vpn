@@ -7,6 +7,7 @@ import type {
   ChargeFailedInput,
   NodeLoadInput,
   NodeProbeInput,
+  OnceInput,
   PaymentRefundedInput,
   PaymentSettledInput,
   ReconcileFailingInput,
@@ -17,11 +18,10 @@ import { describeError } from '../../../common/lib';
 import { AppConfigService } from '../../../config';
 import { PrismaService } from '../../../core';
 import { TELEGRAM_BOT } from '../bot';
-import { DEFAULT_BOT_LOCALE, OWNER_ALERT } from '../config';
+import { DEFAULT_BOT_LOCALE } from '../config';
 import {
   adminChatOf,
   chargeFailedText,
-  createThrottle,
   loadAlertText,
   migratedChatId,
   nodeAlert,
@@ -31,18 +31,18 @@ import {
   reconcileAlertText,
   refundAlertText
 } from '../lib';
+import { TelegramThrottleService } from './telegram-throttle.service';
 
 @Injectable()
 export class TelegramAlertService {
   private readonly logger = new Logger(TelegramAlertService.name);
-  private readonly repeat = createThrottle(OWNER_ALERT.repeatMs);
-  private readonly refundCanceledRepeat = createThrottle(OWNER_ALERT.refundCanceledRepeatMs);
   private readonly nodes = new Map<string, NodeAlertState>();
 
   constructor(
     @Inject(TELEGRAM_BOT) private readonly bot: Bot | null,
     private readonly prisma: PrismaService,
-    private readonly config: AppConfigService
+    private readonly config: AppConfigService,
+    private readonly throttle: TelegramThrottleService
   ) {}
 
   nodeProbed({ nodeId, isUp, healthyAt }: NodeProbeInput): void {
@@ -59,19 +59,19 @@ export class TelegramAlertService {
   }
 
   nodeLoad({ nodeId, resource, percent }: NodeLoadInput): void {
-    if (!this.repeat({ key: `${resource}:${nodeId}` })) {
-      return;
-    }
-
-    this.post(async () => loadAlertText({ resource, node: await this.nodeName(nodeId), percent, locale: DEFAULT_BOT_LOCALE }));
+    this.once({
+      throttle: 'ownerAlert',
+      key: `${resource}:${nodeId}`,
+      run: () => this.post(async () => loadAlertText({ resource, node: await this.nodeName(nodeId), percent, locale: DEFAULT_BOT_LOCALE }))
+    });
   }
 
   reconcileFailing({ nodeId, streak, error }: ReconcileFailingInput): void {
-    if (!this.repeat({ key: `reconcile:${nodeId}` })) {
-      return;
-    }
-
-    this.post(async () => reconcileAlertText({ node: await this.nodeName(nodeId), streak, error, locale: DEFAULT_BOT_LOCALE }));
+    this.once({
+      throttle: 'ownerAlert',
+      key: `reconcile:${nodeId}`,
+      run: () => this.post(async () => reconcileAlertText({ node: await this.nodeName(nodeId), streak, error, locale: DEFAULT_BOT_LOCALE }))
+    });
   }
 
   paymentSettled({ userId, purchase, amount, isAutoCharge }: PaymentSettledInput): void {
@@ -83,13 +83,19 @@ export class TelegramAlertService {
   }
 
   refundCanceled({ paymentId, ...refund }: RefundCanceledInput): void {
-    if (this.refundCanceledRepeat({ key: paymentId })) {
-      this.paymentRefunded({ ...refund, reason: 'canceled' });
-    }
+    this.once({ throttle: 'refundCanceled', key: paymentId, run: () => this.paymentRefunded({ ...refund, reason: 'canceled' }) });
   }
 
   chargeFailed({ userId, reason, isCardDropped }: ChargeFailedInput): void {
     this.post(async () => chargeFailedText({ account: await this.accountOf(userId), reason, isCardDropped, locale: DEFAULT_BOT_LOCALE }));
+  }
+
+  private once({ throttle, key, run }: OnceInput): void {
+    void this.throttle.allow({ throttle, key }).then((isAllowed) => {
+      if (isAllowed) {
+        run();
+      }
+    });
   }
 
   private post(compose: () => Promise<string>): void {

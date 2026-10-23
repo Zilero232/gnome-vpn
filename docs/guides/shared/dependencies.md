@@ -12,8 +12,14 @@ Before writing a helper by hand, check whether an installed library already cove
 4. Dates and durations → **`date-fns`**
 5. Animation → **`motion`**, presets in `shared/lib/motion`
 6. Retries with backoff → **`p-retry`**
-7. Unstyled primitives → **`@base-ui/react`** — every `ui-kit` molecule wraps one
+7. Unstyled primitives → **`@base-ui/react`** — the interactive `ui-kit` primitives (`Dialog`, `Tabs`, `Accordion`, `Switch`, …) wrap it
 8. Logs → **`@gnomevpn/logger`** — one `createLogger`, never a second `pino()` call
+9. State kept in the URL query (filters, a list's page) → **`nuqs`** in the client — the admin lists go through `useListFilters` ([admin.md](../../architecture/admin.md))
+10. Rate limits off an HTTP route (the bot) → the **`@nestjs/throttler`** storage, through `TelegramThrottleService`; a value cached across requests → **`cache-manager`** `wrap`; a per-process value with a lifetime, a promise included → **`@isaacs/ttlcache`**
+11. CSV → **`csv-stringify/sync`** (`escape_formulas` for anything a spreadsheet opens)
+12. IP literals — canonical form, IPv4-mapped IPv6 → **`ipaddr.js`**, behind `canonicalIp` in `common/lib`
+13. Reading protobuf without a schema → **`@bufbuild/protobuf/wire`** (`BinaryReader`)
+14. Quoting a shell argument → **`shell-quote`**, behind `arg()` in `@gnomevpn/scripts/shell`; reading a `.env` → `node:util` `parseEnv`
 
 Only libraries **already declared** in a `package.json` count. A transitive
 dependency used directly is a phantom dependency — it passes locally through

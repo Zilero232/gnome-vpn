@@ -12,7 +12,7 @@ export const StopDialog = ({ code, isOpen, isPending, onOpenChange, onConfirm }:
   return (
     <ConfirmDialog
       cancelLabel={t('cancel')}
-      confirmLabel={t('confirm')}
+      confirmLabel={t('confirm', { code })}
       description={t('body')}
       isOpen={isOpen}
       isPending={isPending}

@@ -14,7 +14,7 @@ is for an arrow that does something before it returns.
 export const isPublicRoute = (pathname: string): boolean => PUBLIC_ROUTES.includes(pathname);
 
 // ✓ OK — a block body, because there is work before the return
-// features/billing/checkout/model/checkout.helpers.ts
+// shared/lib/payment-redirect/payment-redirect.ts
 export const redirectToConfirmation = (confirmationUrl: string | null): boolean => {
   if (isNullish(confirmationUrl) || !isBrowser()) {
     return false;

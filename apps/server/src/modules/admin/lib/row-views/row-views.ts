@@ -10,8 +10,7 @@ import { nodeStatus } from '../../../status';
 import { periodKind } from '../../../subscription';
 import { campaignState } from '../campaign-state';
 import { maskGiftCode } from '../gift-mask';
-
-const iso = (date: Date | null | undefined): string | null => date?.toISOString() ?? null;
+import { isoOrNull } from './row-views.helpers';
 
 export const paymentView = (row: PaymentRow): AdminPayment => ({
   id: row.id,
@@ -26,7 +25,7 @@ export const paymentView = (row: PaymentRow): AdminPayment => ({
   discountPercent: row.discountPercent,
   promoCode: row.promoCode?.code ?? null,
   createdAt: row.createdAt.toISOString(),
-  refundRequestedAt: iso(row.refundRequestedAt)
+  refundRequestedAt: isoOrNull(row.refundRequestedAt)
 });
 
 export const userView = (row: UserRow): AdminUser => ({
@@ -36,7 +35,7 @@ export const userView = (row: UserRow): AdminUser => ({
   emailVerified: row.emailVerified,
   createdAt: row.createdAt.toISOString(),
   access: periodKind(row.subscription),
-  currentPeriodEnd: iso(row.subscription?.currentPeriodEnd),
+  currentPeriodEnd: isoOrNull(row.subscription?.currentPeriodEnd),
   plan: row.subscription?.plan ?? null,
   devices: row._count.devices,
   telegram: row.telegramAccount ? { id: row.telegramAccount.telegramId.toString(), username: row.telegramAccount.username } : null
@@ -52,7 +51,7 @@ export const giftView = ({ row, now }: GiftViewInput): AdminGift => {
     days: row.days,
     buyer: row.buyer,
     createdAt: row.createdAt.toISOString(),
-    redeemedAt: iso(redemption?.createdAt),
+    redeemedAt: isoOrNull(redemption?.createdAt),
     redeemedBy: redemption?.user ?? null,
     isRevoked: isNonNullish(row.expiresAt) && !isAfter(row.expiresAt, now)
   };
@@ -74,12 +73,12 @@ export const campaignView = ({ row, sales, now }: CampaignViewInput): AdminCampa
     percent: row.percent,
     days: row.days,
     maxUses: row.maxUses,
-    expiresAt: iso(row.expiresAt),
+    expiresAt: isoOrNull(row.expiresAt),
     createdAt: row.createdAt.toISOString(),
     state: campaignState({ expiresAt: row.expiresAt, maxUses: row.maxUses, used: row._count.redemptions, now }),
     used: row._count.redemptions,
-    payments: sales?.payments ?? 0,
-    revenue: sales?.revenue ?? 0
+    payments: sales?.count ?? 0,
+    revenue: sales?.amount ?? 0
   };
 };
 
@@ -93,6 +92,6 @@ export const nodeView = ({ node, now }: NodeViewInput): AdminNode => ({
   isAvailable: node.isAvailable,
   isOverloaded: node.isOverloaded,
   displayOrder: node.displayOrder,
-  lastHealthyAt: iso(node.lastHealthyAt),
+  lastHealthyAt: isoOrNull(node.lastHealthyAt),
   createdAt: node.createdAt.toISOString()
 });

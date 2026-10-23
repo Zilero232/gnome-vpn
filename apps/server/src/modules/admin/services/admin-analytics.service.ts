@@ -5,8 +5,9 @@ import { Injectable } from '@nestjs/common';
 
 import type { AnalyticsInput, ConversionRow } from '../admin.types';
 
+import { windowStart } from '../../../common/lib';
 import { PrismaService } from '../../../core';
-import { bucketStart } from '../lib';
+import { groupTotal } from '../lib';
 import { AdminSeriesService } from './admin-series.service';
 
 @Injectable()
@@ -18,7 +19,7 @@ export class AdminAnalyticsService {
 
   async analytics({ range, now }: AnalyticsInput): Promise<AdminAnalytics> {
     const days = ADMIN_PERIOD_DAYS[range];
-    const start = bucketStart({ now, days });
+    const start = windowStart({ now, days });
 
     const [series, conversion, revenueByPlan, revenueByKind, referrals] = await Promise.all([
       this.series.days({ start, days }),
@@ -58,11 +59,7 @@ export class AdminAnalyticsService {
       _sum: { amount: true }
     });
 
-    return PLANS.map(({ id }) => {
-      const row = rows.find((each) => each.plan === id);
-
-      return { plan: id, amount: row?._sum.amount?.toNumber() ?? 0, count: row?._count._all ?? 0 };
-    });
+    return PLANS.map(({ id }) => ({ plan: id, ...groupTotal({ groups: rows, by: 'plan', value: id }) }));
   }
 
   private async revenueByKind(start: Date): Promise<AdminAnalytics['revenueByKind']> {
@@ -73,11 +70,7 @@ export class AdminAnalyticsService {
       _sum: { amount: true }
     });
 
-    return paymentKindSchema.options.map((kind) => {
-      const row = rows.find((each) => each.kind === kind);
-
-      return { kind, amount: row?._sum.amount?.toNumber() ?? 0, count: row?._count._all ?? 0 };
-    });
+    return paymentKindSchema.options.map((kind) => ({ kind, ...groupTotal({ groups: rows, by: 'kind', value: kind }) }));
   }
 
   private async referrals(start: Date): Promise<AdminAnalytics['referrals']> {
@@ -120,7 +113,7 @@ export class AdminAnalyticsService {
               {
                 user,
                 invited: row._count._all,
-                rewarded: rewardedBy.find((each) => each.referrerId === row.referrerId)?._count._all ?? 0,
+                rewarded: groupTotal({ groups: rewardedBy, by: 'referrerId', value: row.referrerId }).count,
                 days: row._sum.referrerDays ?? 0
               }
             ]

@@ -36,12 +36,15 @@ export type { AdminPayment, AdminPaymentFilter, AdminPaymentPage, AdminPaymentQu
 export {
   ADMIN_CAMPAIGN_STATES,
   ADMIN_GIFT,
+  ADMIN_GIFT_STATES,
   adminCampaignCodeParamSchema,
   adminCampaignFormSchema,
   adminCampaignKindSchema,
   adminCampaignPageSchema,
+  adminCampaignQuerySchema,
   adminCampaignSchema,
   adminGiftPageSchema,
+  adminGiftQuerySchema,
   adminGiftSchema
 } from './promo-codes';
 export type {
@@ -49,16 +52,20 @@ export type {
   AdminCampaignFormValues,
   AdminCampaignKind,
   AdminCampaignPage,
+  AdminCampaignQuery,
   AdminCampaignState,
   AdminCreateCampaign,
   AdminGift,
-  AdminGiftPage
+  AdminGiftPage,
+  AdminGiftQuery,
+  AdminGiftState
 } from './promo-codes';
 
 export {
   ADMIN_MESSAGE_OUTCOMES,
   ADMIN_REDEMPTION_KINDS,
   ADMIN_USER,
+  ADMIN_USER_FILTERS,
   adminExtendResultSchema,
   adminExtendSchema,
   adminMessageResultSchema,
@@ -67,6 +74,8 @@ export {
   adminReferralSchema,
   adminTelegramSchema,
   adminUserCardSchema,
+  adminUserExportSchema,
+  adminUserFilterSchema,
   adminUserPageSchema,
   adminUserQuerySchema,
   adminUserSchema,
@@ -83,6 +92,8 @@ export type {
   AdminTelegram,
   AdminUser,
   AdminUserCard,
+  AdminUserExport,
+  AdminUserFilter,
   AdminUserPage,
   AdminUserQuery,
   AdminUserSearch

@@ -59,14 +59,12 @@
 
 .row {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
+  min-width: 0;
   gap: 10px;
-}
 
-.field {
-  min-width: 200px;
-  flex: 1;
+  @include below(sm) {
+    flex-direction: column;
+  }
 }
 
 .input {
@@ -76,12 +74,5 @@
 }
 
 .submit {
-  margin-top: 22px;
-}
-
-@include below(sm) {
-  .submit {
-    width: 100%;
-    margin-top: 0;
-  }
+  flex-shrink: 0;
 }

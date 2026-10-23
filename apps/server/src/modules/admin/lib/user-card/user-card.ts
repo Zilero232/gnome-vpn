@@ -7,21 +7,19 @@ import type { CardUserRow, RedemptionRow, UserCardInput } from './user-card.type
 
 import { periodKind } from '../../../subscription';
 import { maskGiftCode } from '../gift-mask';
-import { giftView, paymentView } from '../row-views';
-
-const iso = (date: Date | null | undefined): string | null => date?.toISOString() ?? null;
+import { giftView, isoOrNull, paymentView } from '../row-views';
 
 const subscriptionView = (subscription: CardUserRow['subscription']): AdminUserCard['subscription'] =>
   subscription && {
     access: periodKind(subscription),
     plan: subscription.plan,
-    currentPeriodEnd: iso(subscription.currentPeriodEnd),
+    currentPeriodEnd: isoOrNull(subscription.currentPeriodEnd),
     cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
     isAutoRenewOn: isNonNullish(subscription.savedCardId) && !subscription.cancelAtPeriodEnd,
     savedCardTitle: subscription.savedCardTitle,
     extraDevices: subscription.extraDevices,
     bonusDays: subscription.bonusDays,
-    trialStartedAt: iso(subscription.trialStartedAt)
+    trialStartedAt: isoOrNull(subscription.trialStartedAt)
   };
 
 const redemptionView = ({ promoCode, createdAt, consumedAt, replacedAt }: RedemptionRow): AdminRedemption => ({
@@ -30,8 +28,8 @@ const redemptionView = ({ promoCode, createdAt, consumedAt, replacedAt }: Redemp
   percent: promoCode.percent,
   days: promoCode.days,
   createdAt: createdAt.toISOString(),
-  consumedAt: iso(consumedAt),
-  replacedAt: iso(replacedAt)
+  consumedAt: isoOrNull(consumedAt),
+  replacedAt: isoOrNull(replacedAt)
 });
 
 export const userCard = ({ user, devices, payments, invited, invitedTotal, redemptions, gifts, now }: UserCardInput): AdminUserCard => ({
@@ -47,13 +45,13 @@ export const userCard = ({ user, devices, payments, invited, invitedTotal, redem
       id: user.telegramAccount.telegramId.toString(),
       username: user.telegramAccount.username,
       linkedAt: user.telegramAccount.linkedAt.toISOString(),
-      lastSeenAt: iso(user.telegramAccount.lastSeenAt)
+      lastSeenAt: isoOrNull(user.telegramAccount.lastSeenAt)
     }
   },
   subscription: subscriptionView(user.subscription),
   link: user.subscriptionLink && {
     createdAt: user.subscriptionLink.createdAt.toISOString(),
-    lastSeenAt: iso(user.subscriptionLink.lastSeenAt),
+    lastSeenAt: isoOrNull(user.subscriptionLink.lastSeenAt),
     lastPlatform: user.subscriptionLink.lastPlatform
   },
   devices,
@@ -63,13 +61,13 @@ export const userCard = ({ user, devices, payments, invited, invitedTotal, redem
     referredBy: user.referredBy && {
       user: user.referredBy.referrer,
       createdAt: user.referredBy.createdAt.toISOString(),
-      rewardedAt: iso(user.referredBy.rewardedAt),
+      rewardedAt: isoOrNull(user.referredBy.rewardedAt),
       days: user.referredBy.friendDays
     },
     invited: invited.map((referral) => ({
       user: referral.referred,
       createdAt: referral.createdAt.toISOString(),
-      rewardedAt: iso(referral.rewardedAt),
+      rewardedAt: isoOrNull(referral.rewardedAt),
       days: referral.referrerDays
     })),
     invitedTotal

@@ -1,12 +1,9 @@
 'use client';
 
 import { useResizeObserver } from '@siberiacancode/reactuse';
-import { useState } from 'react';
 
 export const useChartWidth = () => {
-  const [width, setWidth] = useState(0);
+  const { ref, entries } = useResizeObserver<HTMLDivElement>();
 
-  const { ref } = useResizeObserver<HTMLDivElement>(([entry]) => setWidth(Math.floor(entry.contentRect.width)));
-
-  return { ref, width };
+  return { ref, width: Math.floor(entries?.at(-1)?.contentRect.width ?? 0) };
 };

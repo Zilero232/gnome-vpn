@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { useAuthFormError, useFieldError, usePasswordLabels } from '@/entities/app/locale';
+import { FINE_POINTER_QUERY } from '@/shared/constants';
 import { FormField, Input, PasswordInput, SubmitButton } from '@/ui-kit';
 
 import type { SignInValues } from '../model/hooks';
@@ -37,7 +38,7 @@ export const SignInForm = ({ onForgotPassword, onSuccess }: SignInFormProps) => 
   const onAuthError = useAuthFormError({ onFieldError: ({ field, message }) => setError(field, { message }, { shouldFocus: true }) });
 
   useEffect(() => {
-    if (window.matchMedia('(pointer: fine)').matches) {
+    if (window.matchMedia(FINE_POINTER_QUERY).matches) {
       setFocus('email');
     }
   }, [setFocus]);

@@ -27,12 +27,13 @@ packages/schemas/src/
       plans.ts                ← findPlan, planMonthlyRub, planDiscountPercent
       index.ts
       _tests/plans.test.ts
-    addons/, checkout/, webhook/
+    addons/, checkout/, payment/, payment-methods/, webhook/
     index.ts                  ← re-exports every concern
   tunnel/
     tunnel/                   ← TUNNEL_PROTOCOL, tunnelConfigSchema
   clients/                    ← CLIENT_REGISTRY: third-party apps and their import schemes
-  platforms/, subscription/, subscription-link/, telegram/, errors/
+  admin/, country-name/, devices/, errors/, platforms/, promo-codes/, referrals/,
+  routing/, short-code/, status/, subscription/, subscription-link/, telegram/, wireguard/
 ```
 
 The suffix says what the file holds, so a reader never opens one to find out:

@@ -10,7 +10,7 @@ Guidance for the API. Extends the root [../../CLAUDE.md](../../CLAUDE.md); those
 src/
 ├── modules/         # one folder per domain
 │   ├── admin/       # the web admin panel behind ADMIN_EMAILS, and the /stats collection — config/ decorators/ dto/ guards/ lib/ services/
-│   ├── auth/        # better-auth wiring, the account (deletion) — services/
+│   ├── auth/        # better-auth wiring, the account (deletion) — config/ services/
 │   ├── billing/     # YooKassa checkout and webhooks — config/ dto/ guards/ lib/ services/
 │   ├── devices/     # the device registry and the account's device limit — config/ dto/ lib/ services/
 │   ├── health/      # /health — also probes the database
@@ -20,11 +20,11 @@ src/
 │   ├── referrals/   # invite codes, attribution and the reward on a first payment — config/ dto/ lib/ services/
 │   ├── scheduler/   # the nine cron jobs — config/ jobs/ lib/
 │   ├── status/      # the public /status page and the connection check — config/ dto/ lib/ services/
-│   ├── subscription/# plan status, the trial and the access guard — dto/ guards/ lib/ services/
+│   ├── subscription/# plan status, the trial and the access guard — config/ dto/ guards/ lib/ services/
 │   ├── subscription-link/  # the INCY feed and its token — config/ dto/ lib/ services/
-│   └── telegram/    # the bot — a second door to the same account
+│   └── telegram/    # the bot — a second door to the same account — bot/ config/ dto/ lib/ services/
 ├── lib/             # external integrations: auth, email, xray, yookassa
-├── core/            # Prisma (service, base client, pg pool), logger, serializable retry
+├── core/            # Prisma (service, base client, pg pool), logger, serializable and unique-constraint retries
 ├── common/          # exceptions, filters, decorators, shared lib (node credentials, period…)
 └── config/          # env schema (Zod), config service, CORS
 ```
@@ -49,7 +49,7 @@ src/
 
 - **One service per domain of work** in `services/<domain>.service.ts`, never a fat `x.service.ts`; no facade — a consumer injects the specific service it uses. Controllers validate, delegate, return.
 - **Nothing but the class in a service or controller file.** Constants go to `config/`, pure functions to `lib/<concern>/`, types to `x.types.ts`.
-- **Import another module through its barrel**, never into its files. The one deliberate exception is the Telegram notify and alert imports from billing, the scheduler and admin — see [telegram-bot.md](../../docs/architecture/telegram-bot.md).
+- **Import another module through its barrel**, never into its files. The one deliberate exception is the Telegram notify and alert imports from billing, the scheduler, the subscription feed and admin — see [telegram-bot.md](../../docs/architecture/telegram-bot.md).
 - **DTOs wrap a schema from `@gnomevpn/schemas`** (`createZodDto(platformSchema)`), so the client validates against the same one.
 - **Errors** are the app exceptions from `common/exceptions` with a code from `@gnomevpn/schemas`; the code is a contract, the message is free text.
 - **`config/env.schema.ts` throws on boot** on a missing variable. Node panel API tokens are the exception: the `node` table stores the env var's _name_ (`apiTokenEnvVar`), and the values live in `.env.nodes`, written by `bun run provision:nodes`.

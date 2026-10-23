@@ -18,8 +18,3 @@ export type PruneEnvKeysInput = {
   prefix: string;
   keep: string[];
 };
-
-export type FindValueInput = {
-  raw: string;
-  key: string;
-};

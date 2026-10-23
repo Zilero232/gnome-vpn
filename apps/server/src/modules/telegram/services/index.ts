@@ -13,5 +13,6 @@ export { TelegramSharedService } from './telegram-shared.service';
 export { TelegramStatsService } from './telegram-stats.service';
 export { TelegramSubscriptionService } from './telegram-subscription.service';
 export { TelegramSupportService } from './telegram-support.service';
+export { TelegramThrottleService } from './telegram-throttle.service';
 export { TelegramWebLoginService } from './telegram-web-login.service';
 export { TelegramWireguardService } from './telegram-wireguard.service';

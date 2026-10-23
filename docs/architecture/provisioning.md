@@ -12,15 +12,21 @@ deciding to add a node — not by a commit.
 
 What the provision scripts share lives in `@gnomevpn/scripts`, never copied
 between them: `reporter` (the `[scope] message` output), `ssh` (one `SshClient`)
-and `shell` (build remote commands — `arg()` quotes untrusted values, `quiet()`
+and `shell` (build remote commands — `arg()` quotes untrusted values through `shell-quote`, `quiet()`
 keeps stdout while `silent()` drops it, `dockerExec` quotes every argv entry
 itself, so a caller passes raw values). `SshClient.connect` retries a dropped
 connection but not a refused login — a wrong password fails at once instead of
 three times with backoff — and `exec`/`run` take `{ command, stdin }` when a
 secret has to reach the remote command without appearing in its argv.
+`putFile` writes a file the same way — `cat > <path>` with the content on
+stdin — so nothing is staged in a local temp file and nothing goes through
+SFTP; the file gets the remote umask's mode, as before, and a caller that needs
+another mode `chmod`s it.
 
 `nodes.json` and `.env.nodes` sit at the repo root — both gitignored, both
-holding secrets; `nodes.example.json` is the committed template.
+holding secrets; `nodes.example.json` is the committed template. A value is read
+back with `node:util` `parseEnv` (`readEnvValue`), the same rules as the
+`--env-file` the server boots with, so a quoted value reads the same in both.
 
 **`remote/` is one folder per thing done to the host**, not one file that grew:
 `host-packages` (docker, jq, fail2ban), `firewall`, `xray-stack`, `host-cert`,
@@ -83,7 +89,8 @@ a single run restarted each node's container once and its core three times.
   `PORTS.panel` and the known path; only when it does not (a new node, or a path
   that changed) does it set them and `docker restart` the container. A node
   with no token in `.env.nodes` checks once rather than waiting out the boot
-  timeout.
+  timeout. Both waits are `p-wait-for` with a `timeout.fallback` of `false`, so
+  running out of time is an answer, not an exception.
 - **The inbounds are compared, not rewritten.** `syncInbounds` uses one
   `XrayClient` for the host, lists the panel's inbounds once and, per inbound,
   compares what provisioning would write with what is stored — every field
@@ -172,8 +179,8 @@ for every peer). `lostRealityKeys` compares against the previous row's
 to be regenerated, since every Hysteria2 entry pins the old fingerprint until
 its subscription refreshes. The inbound keeps the remark and port of the one the old
 desktop client used, so a node that still carries that inbound gets it updated
-rather than a second one fighting for the port, and `ensureWireguardInbound`
+rather than a second one fighting for the port, and `syncInbounds` then
 deletes the clients that inbound still held for the old desktop sessions
-(`app-` prefix) — nothing issues those any more.
+(`app-` prefix, `dropLegacyWireguardClients`) — nothing issues those any more.
 
 **Verify a node end-to-end, never by "the panel returned 200".** A Hysteria2 client written without its full field set is stored by the panel but dropped from the running core (`clients: null`), and every connection then fails auth with a 404. The only trustworthy check is to run a real hysteria client against the node and confirm a request returns the node's own IP — ideally from the target network, since the whole reason for Hysteria2 is a TSPU that treats UDP/QUIC differently from TCP.

@@ -27,6 +27,18 @@
       "label": "View",
       "chart": "Chart",
       "table": "Table"
+    },
+    "periods": {
+      "7d": "7 days",
+      "30d": "30 days",
+      "90d": "90 days",
+      "365d": "A year",
+      "all": "All time"
+    },
+    "filters": {
+      "any": "Any",
+      "reset": "Clear filters",
+      "found": "Found: {count}"
     }
   },
   "format": {
@@ -184,8 +196,7 @@
     "search": {
       "label": "Search",
       "placeholder": "email, @username, Telegram id or id",
-      "hint": "Emails, names and @usernames match in part, Telegram ids and user ids exactly.",
-      "submit": "Search"
+      "hint": "Emails, names and @usernames match in part, Telegram ids and user ids exactly."
     },
     "columns": {
       "email": "Email",
@@ -196,6 +207,29 @@
       "plan": "Plan",
       "devices": "Devices",
       "telegram": "Telegram"
+    },
+    "filters": {
+      "label": "User filters",
+      "access": "Access",
+      "plan": "Plan",
+      "autoRenew": "Auto-renewal",
+      "telegram": "Telegram",
+      "email": "Email",
+      "period": "Signed up",
+      "autoRenewValues": {
+        "on": "On",
+        "off": "Off"
+      },
+      "telegramValues": {
+        "linked": "Linked",
+        "unlinked": "Not linked"
+      },
+      "emailValues": {
+        "verified": "Confirmed",
+        "unverified": "Not confirmed",
+        "none": "No email (Telegram)"
+      },
+      "empty": "Nobody matches these filters."
     }
   },
   "user": {
@@ -363,18 +397,10 @@
     "discount": "−{percent}\u00a0% with {code}",
     "filters": {
       "label": "Payment filters",
-      "any": "Any",
       "period": "Period",
       "status": "Status",
       "kind": "Kind",
       "plan": "Plan"
-    },
-    "periods": {
-      "7d": "7 days",
-      "30d": "30 days",
-      "90d": "90 days",
-      "365d": "A year",
-      "all": "All time"
     },
     "statuses": {
       "pending": "Pending",
@@ -412,8 +438,8 @@
       "title": "Refund {amount} in full?",
       "body": "The money goes back through YooKassa: {who}. Access, invitation days and the gift are taken back by the refund webhook once YooKassa confirms it. Until then the payment reads «Refund requested».",
       "deletedUser": "the account owner is deleted",
-      "confirm": "Refund",
-      "cancel": "Cancel",
+      "confirm": "Refund {amount}",
+      "cancel": "Keep the payment",
       "requested": "Refund requested — waiting for YooKassa to confirm it",
       "failed": "YooKassa did not accept the refund. Check the shop balance and try later — or refund it in the YooKassa dashboard."
     }
@@ -477,9 +503,19 @@
         "action": "Stop",
         "title": "Stop {code}?",
         "body": "New redemptions stop at once. A discount someone already redeemed stays theirs.",
-        "confirm": "Stop",
-        "cancel": "Cancel",
+        "confirm": "Stop {code}",
+        "cancel": "Keep it running",
         "done": "Code {code} stopped"
+      },
+      "filters": {
+        "label": "Campaign code filters",
+        "state": "State",
+        "kind": "Gives",
+        "kinds": {
+          "discount": "Discount",
+          "days": "Bonus days"
+        },
+        "empty": "No codes match these filters."
       }
     },
     "effect": {
@@ -506,6 +542,11 @@
         "bought": "Bought",
         "redeemed": "Redeemed",
         "state": "State"
+      },
+      "filters": {
+        "label": "Gift filters",
+        "state": "State",
+        "empty": "No gifts match this filter."
       }
     }
   },

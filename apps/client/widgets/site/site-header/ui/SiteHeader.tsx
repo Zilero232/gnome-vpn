@@ -1,8 +1,8 @@
 'use client';
 
+import { useIntersectionObserver } from '@siberiacancode/reactuse';
 import { clsx } from 'clsx';
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef, useState } from 'react';
 
 import { ROUTES, SITE_NAV } from '@/shared/constants';
 import { Link, usePathname } from '@/shared/i18n/navigation';
@@ -18,23 +18,9 @@ export const SiteHeader = () => {
   const tCommon = useTranslations('common');
   const pathname = usePathname();
 
-  const sentinelRef = useRef<HTMLDivElement>(null);
+  const { ref: sentinelRef, entries } = useIntersectionObserver<HTMLDivElement>();
 
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const sentinel = sentinelRef.current;
-
-    if (!sentinel) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(([entry]) => setIsScrolled(!entry.isIntersecting));
-
-    observer.observe(sentinel);
-
-    return () => observer.disconnect();
-  }, []);
+  const isScrolled = entries?.at(-1)?.isIntersecting === false;
 
   return (
     <>

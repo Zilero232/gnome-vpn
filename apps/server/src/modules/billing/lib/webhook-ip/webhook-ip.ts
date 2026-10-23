@@ -1,5 +1,7 @@
-import { BlockList, isIPv4, isIPv6 } from 'node:net';
+import { BlockList, isIPv6 } from 'node:net';
+import { isNullish } from 'remeda';
 
+import { canonicalIp } from '../../../../common/lib';
 import { WEBHOOK_ALLOWED_CIDRS } from '../../config';
 
 const buildBlockList = (): BlockList => {
@@ -18,9 +20,9 @@ const buildBlockList = (): BlockList => {
 const allowed = buildBlockList();
 
 export const isAllowedWebhookIp = (raw: string): boolean => {
-  const ip = raw.replace('::ffff:', '');
+  const ip = canonicalIp(raw);
 
-  if (!isIPv4(ip) && !isIPv6(ip)) {
+  if (isNullish(ip)) {
     return false;
   }
 

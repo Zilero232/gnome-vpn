@@ -15,8 +15,10 @@ stable ref. Hook groups, a blank line between them: navigation → store/context
 data (queries) → state → ref → memo/callbacks → effects → derived consts. Effect
 deps hold what should retrigger the effect plus the stable refs
 `exhaustive-deps` asks for (`router`, `t`) — never a whole mutation object; call
-`mutate` through a ref synced every render. Load data with `useQuery` and a key,
-never `useEffect` + `mutate`.
+`mutate` (or anything that must see the latest render) through a `useEffectEvent`
+called inside the effect, never a ref written during render. Window and document
+listeners are reactuse's `useWindowEvent`/`useDocumentEvent`/`useEventListener`.
+Load data with `useQuery` and a key, never `useEffect` + `mutate`.
 
 Destructure a query result on the spot and rename `data` (`data: status`); keep a
 `useMutation` result whole.

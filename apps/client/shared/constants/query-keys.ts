@@ -1,4 +1,4 @@
-import type { AdminAnalyticsRange, AdminPaymentQuery, AdminUserQuery } from '@gnomevpn/schemas';
+import type { AdminAnalyticsRange, AdminCampaignQuery, AdminGiftQuery, AdminPaymentQuery, AdminUserQuery } from '@gnomevpn/schemas';
 
 export const QUERY_KEYS = {
   subscriptionStatus: () => ['subscription-status'] as const,
@@ -21,7 +21,7 @@ export const QUERY_KEYS = {
   adminUsers: (query: AdminUserQuery) => ['admin', 'users', query] as const,
   adminUser: (id: string) => ['admin', 'user', id] as const,
   adminPayments: (query: AdminPaymentQuery) => ['admin', 'payments', query] as const,
-  adminCampaigns: (page: number) => ['admin', 'campaigns', page] as const,
-  adminGifts: (page: number) => ['admin', 'gifts', page] as const,
+  adminCampaigns: (query: AdminCampaignQuery) => ['admin', 'campaigns', query] as const,
+  adminGifts: (query: AdminGiftQuery) => ['admin', 'gifts', query] as const,
   adminNodes: () => ['admin', 'nodes'] as const
 };

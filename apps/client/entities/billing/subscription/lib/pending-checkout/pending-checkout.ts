@@ -6,24 +6,7 @@ import { isServer } from '@/shared/lib';
 import type { MarkCheckoutPendingInput, PendingCheckout, PendingOutcome, PendingOutcomeInput } from './pending-checkout.types';
 
 import { PENDING_CHECKOUT } from './pending-checkout.constants';
-
-const parse = (raw: string | null): PendingCheckout | null => {
-  if (!raw) {
-    return null;
-  }
-
-  try {
-    const value: unknown = JSON.parse(raw);
-
-    if (typeof value === 'object' && value !== null && 'startedAt' in value && 'fingerprint' in value) {
-      const { startedAt, fingerprint } = value;
-
-      return typeof startedAt === 'number' && typeof fingerprint === 'string' ? { startedAt, fingerprint } : null;
-    }
-  } catch {}
-
-  return null;
-};
+import { pendingCheckoutSchema } from './pending-checkout.schemas';
 
 export const statusFingerprint = (status: SubscriptionStatus | null | undefined): string =>
   status
@@ -56,7 +39,8 @@ export const readPendingCheckout = (now = Date.now()): PendingCheckout | null =>
   }
 
   try {
-    const pending = parse(window.sessionStorage.getItem(STORAGE_KEYS.checkoutStartedAt));
+    const raw = window.sessionStorage.getItem(STORAGE_KEYS.checkoutStartedAt);
+    const pending = raw ? pendingCheckoutSchema.safeParse(JSON.parse(raw)).data : undefined;
 
     return pending && now - pending.startedAt < PENDING_CHECKOUT.windowMs ? pending : null;
   } catch {

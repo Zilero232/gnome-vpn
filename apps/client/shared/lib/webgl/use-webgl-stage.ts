@@ -1,5 +1,6 @@
 'use client';
 
+import { useInView, usePageInView } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 
 import type { UseWebglStageInput, WebglTier } from './webgl.types';
@@ -38,9 +39,10 @@ export const useWebglStage = ({ waitFor }: UseWebglStageInput) => {
 
   const [tier, setTier] = useState<WebglTier>('off');
   const [isArmed, setIsArmed] = useState(false);
-  const [isNear, setIsNear] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  const [isPageVisible, setIsPageVisible] = useState(true);
+
+  const isNear = useInView(ref, { once: true, margin: WEBGL_STAGE.nearMargin });
+  const isVisible = useInView(ref);
+  const isPageVisible = usePageInView();
 
   useEffect(() => {
     const nextTier = webglTier(readEnvironment());
@@ -59,28 +61,6 @@ export const useWebglStage = ({ waitFor }: UseWebglStageInput) => {
 
     return nextTier === 'lite' ? onFirstInteraction(() => setIsArmed(true)) : onIdle(() => setIsArmed(true));
   }, [waitFor]);
-
-  useEffect(() => {
-    const node = ref.current;
-
-    if (!node || tier === 'off') {
-      return;
-    }
-
-    const near = new IntersectionObserver(([entry]) => entry.isIntersecting && setIsNear(true), { rootMargin: WEBGL_STAGE.nearMargin });
-    const visible = new IntersectionObserver(([entry]) => setIsVisible(entry.isIntersecting));
-    const onVisibility = () => setIsPageVisible(document.visibilityState === 'visible');
-
-    near.observe(node);
-    visible.observe(node);
-    document.addEventListener('visibilitychange', onVisibility);
-
-    return () => {
-      near.disconnect();
-      visible.disconnect();
-      document.removeEventListener('visibilitychange', onVisibility);
-    };
-  }, [tier]);
 
   return { ref, tier, isActive: tier !== 'off' && isArmed && isNear, isRunning: isVisible && isPageVisible };
 };

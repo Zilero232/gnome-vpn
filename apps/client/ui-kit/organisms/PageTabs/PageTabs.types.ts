@@ -17,3 +17,8 @@ export type PageTabsProps = {
   layout?: PageTabsLayout;
   panelClassName?: string;
 };
+
+export type UsePageTabsInput = {
+  items: PageTab[];
+  layout: PageTabsLayout;
+};

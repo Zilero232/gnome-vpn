@@ -19,4 +19,4 @@ paths:
 Import from a module's barrel across boundaries, never reach into its files.
 Inside a module, relative paths are fine. The one deliberate exception is the
 notify module's two services, `TelegramNotifyService` and `TelegramAlertService`,
-imported by file from billing, the scheduler and admin.
+imported by file from billing, the scheduler, the subscription feed and admin.

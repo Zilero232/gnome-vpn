@@ -51,6 +51,7 @@ export type {
 } from './atoms';
 export {
   Accordion,
+  ActionBanner,
   AppSplash,
   ChartFrame,
   ChoiceGroup,
@@ -81,6 +82,7 @@ export {
 export type {
   AccordionItem,
   AccordionProps,
+  ActionBannerProps,
   ChartFrameLabels,
   ChartFrameProps,
   ChartLegendItem,

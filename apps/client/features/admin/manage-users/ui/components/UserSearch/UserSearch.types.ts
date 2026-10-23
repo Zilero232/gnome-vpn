@@ -1,4 +1,5 @@
 export type UserSearchProps = {
+  value: string;
   isSearching: boolean;
-  onSearch: (query: string) => void;
+  onChange: (value: string) => void;
 };

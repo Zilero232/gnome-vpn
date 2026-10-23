@@ -1,7 +1,7 @@
 'use client';
 
-import { useDebounceCallback } from '@siberiacancode/reactuse';
-import { useEffect, useRef, useState } from 'react';
+import { useDebounceCallback, useMount, useWindowEvent } from '@siberiacancode/reactuse';
+import { useRef, useState } from 'react';
 
 import type { FaqQueryState, UseFaqQueryInput } from './use-faq-query.types';
 
@@ -45,32 +45,24 @@ export const useFaqQuery = ({ groups }: UseFaqQueryInput) => {
     syncUrl({ query: nextQuery, topic: nextTopic });
   };
 
-  const applyRef = useRef(apply);
-
-  applyRef.current = apply;
-
-  useEffect(() => {
+  useMount(() => {
     const params = new URLSearchParams(window.location.search);
     const initialQuery = params.get(SEARCH.queryParam) ?? '';
     const initialTopic = params.get(SEARCH.topicParam);
 
     if (initialQuery !== '' || initialTopic) {
-      applyRef.current({ query: initialQuery, topic: initialTopic });
+      apply({ query: initialQuery, topic: initialTopic });
     }
+  });
 
-    const onKey = (event: KeyboardEvent) => {
-      const isTyping = event.target instanceof HTMLElement && event.target.closest('input, textarea, select, [contenteditable="true"]') !== null;
+  useWindowEvent('keydown', (event) => {
+    const isTyping = event.target instanceof HTMLElement && event.target.closest('input, textarea, select, [contenteditable="true"]') !== null;
 
-      if (event.key === SEARCH.focusKey && !isTyping) {
-        event.preventDefault();
-        inputRef.current?.focus();
-      }
-    };
-
-    window.addEventListener('keydown', onKey);
-
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
+    if (event.key === SEARCH.focusKey && !isTyping) {
+      event.preventDefault();
+      inputRef.current?.focus();
+    }
+  });
 
   const result = searchFaq({ groups, query, topic });
 

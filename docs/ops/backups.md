@@ -104,8 +104,8 @@ docker exec gnomevpn-postgres psql -U gnomevpn -d gnomevpn -c 'SELECT count(*) F
 **6. Then the rest** — `docker compose up -d`, DNS, and the old server stays
 running until the new one answers on the domain.
 
-**`.env.nodes` travels too.** It holds one panel password and one API token per
-VPN node, it is not in git, and `bun run provision:nodes` is the only thing that writes
+**`.env.nodes` travels too.** It holds a panel password, web path and API token
+per VPN node, it is not in git, and `bun run provision:nodes` is the only thing that writes
 it. Without it the server cannot talk to any node, and every tunnel stops being
 issued.
 

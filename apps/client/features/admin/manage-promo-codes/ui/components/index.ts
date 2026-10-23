@@ -1,7 +1,9 @@
 export { CampaignChart } from './CampaignChart';
 export { CampaignFields } from './CampaignFields';
+export { CampaignFilters } from './CampaignFilters';
 export { CampaignForm } from './CampaignForm';
 export { CampaignLimits } from './CampaignLimits';
 export { CampaignsBlock } from './CampaignsBlock';
+export { GiftFilters } from './GiftFilters';
 export { GiftsBlock } from './GiftsBlock';
 export { StopDialog } from './StopDialog';

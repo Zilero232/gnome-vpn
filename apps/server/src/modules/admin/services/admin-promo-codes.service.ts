@@ -5,14 +5,13 @@ import { Injectable, Logger } from '@nestjs/common';
 import { isNonNullish, isNullish, omit } from 'remeda';
 import { match } from 'ts-pattern';
 
-import type { CreateCampaignActionInput, PageAtInput, StopCampaignActionInput } from '../admin.types';
-import type { CampaignSales } from '../lib';
+import type { CampaignPageInput, CreateCampaignActionInput, GiftPageInput, StopCampaignActionInput } from '../admin.types';
 
 import { AppNotFoundException, AppServiceUnavailableException } from '../../../common/exceptions';
 import { PrismaService } from '../../../core';
 import { PromoCampaignService } from '../../promo-codes';
 import { CAMPAIGN_ROW_SELECT, GIFT_ROW_SELECT } from '../config';
-import { campaignExpiry, campaignView, giftView, pageWindow } from '../lib';
+import { campaignExpiry, campaignState, campaignView, giftStateWhere, giftView, groupTotal, pageWindow } from '../lib';
 
 @Injectable()
 export class AdminPromoCodesService {
@@ -23,18 +22,19 @@ export class AdminPromoCodesService {
     private readonly campaigns: PromoCampaignService
   ) {}
 
-  async campaignPage({ page, now }: PageAtInput): Promise<AdminCampaignPage> {
-    const where = { kind: { in: [...CAMPAIGN_KINDS] } };
-    const total = await this.prisma.promoCode.count({ where });
-    const window = pageWindow({ page, total, size: ADMIN_PAGE.size });
-
-    const rows = await this.prisma.promoCode.findMany({
-      where,
+  async campaignPage({ page, now, state, kind }: CampaignPageInput): Promise<AdminCampaignPage> {
+    const campaigns = await this.prisma.promoCode.findMany({
+      where: { kind: kind ?? { in: [...CAMPAIGN_KINDS] } },
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      skip: window.skip,
-      take: window.take,
       select: CAMPAIGN_ROW_SELECT
     });
+
+    const matching = isNullish(state)
+      ? campaigns
+      : campaigns.filter((row) => campaignState({ expiresAt: row.expiresAt, maxUses: row.maxUses, used: row._count.redemptions, now }) === state);
+
+    const window = pageWindow({ page, total: matching.length, size: ADMIN_PAGE.size });
+    const rows = matching.slice(window.skip, window.skip + window.take);
 
     const sales = await this.prisma.payment.groupBy({
       by: ['promoCodeId'],
@@ -43,14 +43,10 @@ export class AdminPromoCodesService {
       _sum: { amount: true }
     });
 
-    const salesOf = (id: string): CampaignSales | undefined => {
-      const row = sales.find((each) => each.promoCodeId === id);
-
-      return row && { payments: row._count._all, revenue: row._sum.amount?.toNumber() ?? 0 };
-    };
-
     return adminCampaignPageSchema.parse({
-      items: rows.map((row) => campaignView({ row, sales: salesOf(row.id), now })).filter(isNonNullish),
+      items: rows
+        .map((row) => campaignView({ row, sales: groupTotal({ groups: sales, by: 'promoCodeId', value: row.id }), now }))
+        .filter(isNonNullish),
       page: omit(window, ['skip', 'take'])
     });
   }
@@ -86,8 +82,8 @@ export class AdminPromoCodesService {
     this.logger.log(`admin ${admin.email} stopped campaign code ${code}`);
   }
 
-  async giftPage({ page, now }: PageAtInput): Promise<AdminGiftPage> {
-    const where = { kind: 'gift' as const };
+  async giftPage({ page, now, state }: GiftPageInput): Promise<AdminGiftPage> {
+    const where = { kind: 'gift' as const, ...giftStateWhere({ state, now }) };
     const total = await this.prisma.promoCode.count({ where });
     const window = pageWindow({ page, total, size: ADMIN_PAGE.size });
 

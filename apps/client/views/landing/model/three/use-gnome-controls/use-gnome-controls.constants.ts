@@ -1,4 +1,3 @@
 export const GNOME_CONTROLS = {
-  firstActionAt: 6,
-  finePointer: '(pointer: fine)'
+  firstActionAt: 6
 } as const;

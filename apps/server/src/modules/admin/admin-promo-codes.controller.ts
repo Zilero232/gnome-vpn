@@ -12,8 +12,9 @@ import {
   AdminCampaignDto,
   AdminCampaignFormDto,
   AdminCampaignPageDto,
+  AdminCampaignQueryDto,
   AdminGiftPageDto,
-  AdminPageQueryDto
+  AdminGiftQueryDto
 } from './dto/admin.dto';
 import { AdminGuard } from './guards';
 import { AdminPromoCodesService } from './services';
@@ -27,8 +28,8 @@ export class AdminPromoCodesController {
 
   @Get('promo-codes')
   @ZodResponse({ type: AdminCampaignPageDto })
-  campaigns(@Query() query: AdminPageQueryDto) {
-    return this.promoCodes.campaignPage({ page: query.page, now: new Date() });
+  campaigns(@Query() query: AdminCampaignQueryDto) {
+    return this.promoCodes.campaignPage({ ...query, now: new Date() });
   }
 
   @Throttle(ADMIN_THROTTLE.write)
@@ -47,7 +48,7 @@ export class AdminPromoCodesController {
 
   @Get('gifts')
   @ZodResponse({ type: AdminGiftPageDto })
-  gifts(@Query() query: AdminPageQueryDto) {
-    return this.promoCodes.giftPage({ page: query.page, now: new Date() });
+  gifts(@Query() query: AdminGiftQueryDto) {
+    return this.promoCodes.giftPage({ ...query, now: new Date() });
   }
 }

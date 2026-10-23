@@ -39,8 +39,9 @@ creates the account itself — `ensureChat` mints a `User` through
 `Subscription`, then writes the `TelegramAccount` row. Nobody has to visit the
 site first, and nobody has to link anything.
 
-**Only four doors call `ensureChat`: `/start`, a `ref_` arrival, a link code and
-the login widget.** Every other command and button resolves the chat with
+**Only three doors call `ensureChat`: `/start`, a `ref_` arrival and the login
+widget.** A link code binds the chat to the code's account itself
+(`consumeCode`). Every other command and button resolves the chat with
 `findChat` and, for a chat it does not know, answers `notLinked` with
 `remove_keyboard`. Before this, any press from an unlinked chat — an old
 keyboard left over after `/unlink`, a stale inline button — silently minted a
@@ -185,7 +186,7 @@ chat id — and is never retried. A retried `sendMessage` whose first attempt di
 arrive shows twice; that is the price of not losing one.
 
 **Every message is HTML, and a message Telegram cannot parse still arrives.**
-`sendDefaults`, the second API transformer, gives `sendMessage` and
+`sendDefaults`, a third API transformer, gives `sendMessage` and
 `editMessageText` `parse_mode: 'HTML'` and no link preview unless the caller
 says otherwise. If Telegram answers `can't parse entities` — or
 `EFFECT_ID_INVALID` for a message effect it no longer knows — it sends the same
@@ -234,7 +235,7 @@ secret is not itself a secret.
 
 **The two refusals a command can give are different answers.** A code that did
 not work and a chat that belongs to someone else's account send a reader to
-different places, so `refusalFor` branches on the error code rather than
+different places, so `refusalText` branches on the error code rather than
 catching everything as an invalid code; the same is true of the trial, where an
 unconfirmed address is not a used-up trial. `errorCodeOf` reads the code back
 out of the app exception's body, which is where the app exceptions carry it.
@@ -320,8 +321,11 @@ in both languages through `isTelegramHtml` (known tags, balanced, no bare angle
 bracket) and fails the build on one Telegram would refuse. `fillText` escapes
 every value it substitutes, because a device names itself and a name like
 `<TV>` would otherwise close a tag nobody opened; `fillLabel` fills button
-labels verbatim, because a button shows text, not markup. The `buttons`,
-`profile` and `commands` blocks stay plain text.
+labels verbatim, because a button shows text, not markup. Both, and the
+emails' `fillEmail`, go through one `fillTokens` (`common/lib`), which hands
+`replaceAll` a function rather than a string, so a value holding `$&` or `` $` ``
+— a Telegram name can — is inserted as written instead of being read as a
+replacement pattern. The `buttons`, `profile` and `commands` blocks stay plain text.
 
 **Announcing the bot never blocks the boot.** Nest does not finish starting
 until `onModuleInit` returns, and `api.telegram.org` is unreachable from some
@@ -330,8 +334,9 @@ raised. The same is why a command list that failed to update is not an error.
 
 **Everything BotFather can set, the server sets on boot** — name, description,
 short description and command list in each locale, and the menu button, which is
-always `type: 'commands'` (it opens the command list). Each value is compared
-with what Telegram already holds and written only when it differs. The one
+always `type: 'commands'` (it opens the command list). Each value but the menu
+button is compared with what Telegram already holds and written only when it
+differs. The one
 exception is the photo, which has no API method and stays a one-off
 `/setuserpic`. Editing any of the rest in BotFather is overwritten on the next
 restart.
@@ -358,7 +363,8 @@ Telegram would otherwise learn nothing about a charge, a failed card or an
 ending period. `NoticeEmailService` sends the money and access notices —
 `paid`, `renewed`, `renewSoon` (before every automatic charge, which the law
 expects us to announce), `chargeFailed`, `endingSoon`, `trialEndingSoon`,
-`expired` — to a verified, real address, whether or not a chat is linked. The
+`expired` — and `giftPurchased`, with its code, to a verified, real address,
+whether or not a chat is linked. The
 copy is its own (`lib/email/locales`), because the bot's text points at bot
 buttons; the locale is `user.locale`, then the linked chat's, then Russian.
 Every failure is logged and swallowed, like the Telegram half.
@@ -376,11 +382,13 @@ and `expired` — carry the reply keyboard rebuilt from the current state; every
 other notice carries the one button that answers it (renew on a declined card
 or an ending period, devices on a registry change, auto-charge on a renewal).
 A message holds one markup or the other, never both. `paid` and `renewed` also
-carry a message effect, and so do the trial starting and a chat getting linked;
+carry a message effect, as do `devicesAdded`, `referralRewarded` and
+`giftPurchased`, and so do the trial starting and a chat getting linked;
 an effect Telegram no longer knows falls back like broken markup does.
 
 It lives in `TelegramNotifyModule`, which imports only `SubscriptionModule` —
-`BillingModule`, the scheduler and the admin module import that rather than the
+`BillingModule`, `SubscriptionLinkModule`, the scheduler and the admin module
+import that rather than the
 whole `TelegramModule`, which imports billing and admin back. `TelegramAlertService`
 lives there for the same reason. The admin panel's «Написать в Telegram» goes
 through it too: `TelegramNotifyService.message` sends the admin's text, escaped
@@ -390,8 +398,8 @@ for the bot's HTML parse mode, and answers `sent`, `notLinked`, `blocked` (403),
 **A payment started in the bot returns to the bot.** `createCheckout` and
 `buyExtraDevices` get `returnUrl: https://t.me/<bot>`; the site's `/account`
 would ask a Telegram-born reader to sign in to an account they have no password
-for. Creating a payment is throttled per Telegram user (`CHECKOUT.throttleMs`),
-in memory — billing reuses a pending payment anyway, this only stops a
+for. Creating a payment is throttled per Telegram user (`CHECKOUT.throttleMs`,
+through `TelegramThrottleService`, below), in memory — billing reuses a pending payment anyway, this only stops a
 double-tap from making two YooKassa calls. A refused press answers
 `checkoutWait` on the button itself. During a paid period `/buy` says the new
 term is added to the current one (`choosePlanStacked`); a stale extra-places
@@ -402,7 +410,7 @@ actually charged and adds `checkoutDiscount` with the code and the full price
 (`checkoutIntro`, [promo-codes.md](promo-codes.md#the-discount-lifecycle)). A
 paid gift is announced with `giftPurchased`, which carries the code.
 
-**Both of its consumers import the files directly, never `telegram` or
+**Every consumer imports the files directly, never `telegram` or
 `telegram/services`** — `telegram-notify.service` and `telegram-alert.service`. Either barrel re-exports a service that injects
 `CheckoutService`, so reaching billing through one loads billing while billing
 is still initialising: `Cannot access 'CheckoutService' before initialization`,
@@ -595,9 +603,9 @@ landing in the support desk.
 
 **The reader is acknowledged once, not per message.** «Передали в поддержку —
 ответим здесь» goes out at most once per `SUPPORT.ackWindowMs` per chat. Abuse is
-held by `createRateLimit` — `SUPPORT.rateLimit` messages per window, a sliding
-count — rather than `createThrottle`, because an album of screenshots arrives as
-up to ten separate messages at once and a once-per-window throttle would drop
+held by a sliding count — `SUPPORT.rateLimit` messages per window — rather
+than a once-per-window limit, because an album of screenshots arrives as
+up to ten separate messages at once and a once-per-window limit would drop
 nine of them. Past the limit messages are dropped and the reader is told so once
 per window. The limit is per Telegram user and in memory; the per-IP throttler
 never sees these updates, which all come from Telegram.
@@ -610,10 +618,21 @@ until a date, lapsed on a date, or never. The original follows with
 `copyMessage`, as a reply to the header. Messages from one chat within
 `SUPPORT.threadWindowMs` of a header reuse it, so an album is one header and its
 photos rather than twice as many messages, and a long conversation gets a fresh
-header — with a fresh status — every few minutes. The cache holds the header's
-_promise_: Telegram delivers webhook updates in parallel, and the photos of one
+header — with a fresh status — every few minutes. The cache (`@isaacs/ttlcache`,
+its lifetime counted from the header, not refreshed by a read) holds the header's
+_promise_, read and set with no `await` between: Telegram delivers webhook updates in parallel, and the photos of one
 album would otherwise race to post a header each. A header that failed to post
 is forgotten, so the next message tries again.
+
+**Every limit in the bot is one call.** `TelegramThrottleService.allow({ throttle, key })`
+counts a hit in the `@nestjs/throttler` storage the HTTP guard already uses,
+under its own key (`telegram:<throttle>:<key>`) and with no block duration, and
+answers whether it fit. The windows and limits are `BOT_THROTTLE.limits` —
+checkout, the owner alerts, the support rate, its slow-down notice, the
+acknowledgement and the answer title. With no block the window slides: a hit
+counts until its own window ends, and a refused hit is not counted, so a reader
+who keeps writing is let through again as soon as the oldest message ages out.
+The storage is in memory, like the rest of the bot's state.
 
 **`copyMessage`, not `forwardMessage`.** A forward from someone who hides their
 forwards links to nobody, and the copy works the same way in both directions.
@@ -659,11 +678,11 @@ private admin chat would otherwise lose it) and that none reaches the menu.
 **`/stats` is one message read straight from the database** — through
 `AdminStatsService.collect`, the same collection the web admin panel's overview
 reads, so the bot and `/admin` can never disagree on a number ([admin.md](admin.md)). Users in total and
-new in the last `STATS.newUsersHours` and `STATS.newUsersDays`; live paid
+new in the last `STATS_WINDOW.newUsersHours` and `STATS_WINDOW.newUsersDays`; live paid
 periods by plan, live trials (`periodKind`, the rule the rest of the server
 uses) and paid periods that renew automatically — a saved card and no
 `cancelAtPeriodEnd`, the same condition the recurring charge selects on; the
-number and sum of payments that succeeded in the last `STATS.paymentsDays`
+number and sum of payments that succeeded in the last `STATS_WINDOW.paymentsDays`
 (refunded ones are no longer `succeeded`); devices; linked chats; and every node
 as up, down — with how long ago it last answered — or switched off. A node is
 down by the same threshold the alerts use (`nodeStatus`, below), so `/stats`
@@ -744,7 +763,7 @@ node still down is announced again, and one that recovered across the restart
 gets no recovery line.
 
 **Load and reconcile alerts are once per node per kind per hour**
-(`createThrottle` keyed `cpu:<node>`, `memory:<node>`, `reconcile:<node>`).
+(`BOT_THROTTLE.limits.ownerAlert`, keyed `cpu:<node>`, `memory:<node>`, `reconcile:<node>`).
 Billing alerts ride on the claims billing already makes: a settled payment is
 announced only by whoever claimed it, and an automatic refund only when this
 call moved the row to `refunded` — a webhook retry racing the pending sweep

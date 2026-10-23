@@ -1,1 +1,1 @@
-export { PAYMENT_FILTER } from './filter';
+export { PAYMENT_FILTERS } from './filter';

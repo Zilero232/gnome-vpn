@@ -1,22 +1,8 @@
-import { getTranslations } from 'next-intl/server';
-import * as rootParams from 'next/root-params';
-
 import { ROUTES } from '@/shared/constants';
-import { resolveLocale } from '@/shared/i18n';
-import { createPageMetadata } from '@/shared/seo';
+import { translatedMetadata } from '@/shared/seo/translated-metadata';
 import { AuthPage } from '@/views/auth';
 
-export const generateMetadata = async () => {
-  const locale = resolveLocale(await rootParams.locale());
-  const t = await getTranslations({ locale, namespace: 'auth' });
-
-  return createPageMetadata({
-    title: t('meta.title'),
-    description: t('meta.description'),
-    path: ROUTES.auth,
-    locale
-  });
-};
+export const generateMetadata = () => translatedMetadata({ namespace: 'auth', path: ROUTES.auth });
 
 const Page = () => <AuthPage />;
 

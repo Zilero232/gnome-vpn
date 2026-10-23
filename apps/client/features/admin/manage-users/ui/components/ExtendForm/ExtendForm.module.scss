@@ -1,21 +1,14 @@
-@use '@/shared/styles/mixins' as *;
-
 .root {
+  min-width: 0;
+}
+
+.control {
   display: flex;
   min-width: 0;
   flex-wrap: wrap;
-  align-items: flex-start;
   gap: 12px;
 }
 
-.field {
+.control .days {
   width: 160px;
-}
-
-.submit {
-  margin-top: 23px;
-
-  @include below(xs) {
-    margin-top: 0;
-  }
 }

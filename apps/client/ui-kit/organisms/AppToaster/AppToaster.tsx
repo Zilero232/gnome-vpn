@@ -1,26 +1,18 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useDocumentEvent } from '@siberiacancode/reactuse';
 import { toast, Toaster } from 'sonner';
 
 import { ACTION_SELECTOR, TOAST_GAP, TOAST_OFFSET, TOAST_OPTIONS, TOAST_SELECTOR } from './AppToaster.constants';
 
 export const AppToaster = () => {
-  useEffect(() => {
-    const onClick = (event: MouseEvent) => {
-      const target = event.target as HTMLElement | null;
+  useDocumentEvent('click', ({ target }) => {
+    if (!(target instanceof Element) || !target.closest(TOAST_SELECTOR) || target.closest(ACTION_SELECTOR)) {
+      return;
+    }
 
-      if (!target?.closest(TOAST_SELECTOR) || target.closest(ACTION_SELECTOR)) {
-        return;
-      }
-
-      toast.dismiss();
-    };
-
-    document.addEventListener('click', onClick);
-
-    return () => document.removeEventListener('click', onClick);
-  }, []);
+    toast.dismiss();
+  });
 
   return (
     <Toaster

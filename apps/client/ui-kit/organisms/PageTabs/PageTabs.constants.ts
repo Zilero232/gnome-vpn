@@ -1,4 +1,3 @@
-export const TAB_KEYS = {
-  previous: new Set(['ArrowLeft', 'ArrowUp']),
-  next: new Set(['ArrowRight', 'ArrowDown'])
-};
+export const PAGE_TABS = {
+  railQuery: '(width >= 900px)'
+} as const;

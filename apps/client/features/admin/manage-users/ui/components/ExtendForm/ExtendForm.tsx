@@ -61,13 +61,15 @@ export const ExtendForm = ({ userId, currentPeriodEnd }: ExtendFormProps) => {
 
   return (
     <form noValidate className={s.root} onSubmit={onSubmit}>
-      <FormField className={s.field} error={fieldError(errors.days)} htmlFor={id} label={t('label')}>
-        <Input id={id} inputMode='numeric' type='number' {...register('days', { valueAsNumber: true })} />
-      </FormField>
+      <FormField error={fieldError(errors.days)} htmlFor={id} label={t('label')}>
+        <div className={s.control}>
+          <Input className={s.days} id={id} inputMode='numeric' type='number' {...register('days', { valueAsNumber: true })} />
 
-      <Button className={s.submit} size='md' type='submit' variant='ghost'>
-        {t('action')}
-      </Button>
+          <Button size='field' type='submit' variant='ghost'>
+            {t('action')}
+          </Button>
+        </div>
+      </FormField>
 
       <ConfirmDialog
         cancelLabel={common('cancel')}

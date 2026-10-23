@@ -3,9 +3,10 @@ import type { ServerStatus } from '@gnomevpn/schemas';
 import { serverStatusSchema } from '@gnomevpn/schemas';
 import { Injectable } from '@nestjs/common';
 
+import { utcDay } from '../../../common/lib';
 import { PrismaService } from '../../../core';
 import { STATUS_NODE_ORDER, STATUS_NODE_SELECT, UPTIME_ROW_SELECT } from '../config';
-import { historyStart, nodeStatus, utcDay } from '../lib';
+import { historyStart, nodeStatus } from '../lib';
 
 @Injectable()
 export class ServerStatusService {

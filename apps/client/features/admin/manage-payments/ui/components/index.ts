@@ -1,4 +1,3 @@
-export { FilterSelect } from './FilterSelect';
 export { PaymentAmount } from './PaymentAmount';
 export { PaymentFilters } from './PaymentFilters';
 export { PaymentRows } from './PaymentRows';

@@ -1,15 +1,5 @@
 import type { AdminDay } from '@gnomevpn/schemas';
 
-export type BucketStartInput = {
-  now: Date;
-  days: number;
-};
-
-export type DayKeysInput = {
-  start: Date;
-  days: number;
-};
-
 export type DayRow = {
   day: string;
   value: number;
