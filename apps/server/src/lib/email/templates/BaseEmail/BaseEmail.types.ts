@@ -13,5 +13,6 @@ export type BaseEmailProps = {
   heading: string;
   action?: EmailAction;
   footer?: string;
+  unsubscribe?: EmailAction;
   children: ReactNode;
 };

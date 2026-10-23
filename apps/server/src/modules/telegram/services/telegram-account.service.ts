@@ -8,6 +8,7 @@ import { AppConfigService } from '../../../config';
 import { AccountService, IdentityService } from '../../auth';
 import { BOT_TEXT, CALLBACK_PREFIX, DEFAULT_BOT_LOCALE, MESSAGE_EFFECT } from '../config';
 import {
+  botBlockChange,
   botUrl,
   deleteCopy,
   fillText,
@@ -97,8 +98,22 @@ export class TelegramAccountService {
   }
 
   async joined(ctx: BotContext): Promise<void> {
-    if (isNonNullish(ctx.myChatMember) && isGroupJoin(ctx.myChatMember)) {
+    const update = ctx.myChatMember;
+
+    if (isNullish(update)) {
+      return;
+    }
+
+    if (isGroupJoin(update)) {
       await this.groupOnly(ctx);
+
+      return;
+    }
+
+    const change = botBlockChange(update);
+
+    if (isNonNullish(change)) {
+      await this.link.setBlocked({ telegramId: BigInt(update.chat.id), blockedAt: change === 'blocked' ? new Date() : null });
     }
   }
 
@@ -231,6 +246,11 @@ export class TelegramAccountService {
   }
 
   private startText(locale: BotLocale): string {
-    return fillText({ text: BOT_TEXT[locale].start, fill: { site: this.config.get('CLIENT_URL') } });
+    const text = BOT_TEXT[locale];
+
+    return html.paragraphs([
+      fillText({ text: text.start, fill: { site: this.config.get('CLIENT_URL') } }),
+      fillText({ text: text.consentLine, fill: { link: this.shared.consentUrl(locale) } })
+    ]);
   }
 }

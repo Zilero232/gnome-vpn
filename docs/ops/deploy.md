@@ -129,10 +129,9 @@ POSTGRES_USER=gnomevpn
 POSTGRES_PASSWORD=<long random password>
 POSTGRES_DB=gnomevpn
 
-# Optional: the backup container defaults to these when they are absent
-# (see backups.md)
+# Optional: the backup schedule (retention is fixed in docker-compose.yml,
+# see backups.md)
 BACKUP_SCHEDULE=0 0 */6 * * *
-BACKUP_KEEP_DAYS=14
 
 # postgres is the service name in docker-compose, not localhost
 DATABASE_URL=postgresql://gnomevpn:<password>@postgres:5432/gnomevpn

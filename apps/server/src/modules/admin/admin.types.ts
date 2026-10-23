@@ -11,12 +11,21 @@ import type { Request } from 'express';
 
 import type { Prisma } from '../../../generated';
 import type { PrismaExecutor } from '../../core';
-import type { STATS_NODE_SELECT } from './config';
+import type { ADMIN_ACTION, STATS_NODE_SELECT } from './config';
 import type { PaymentFilter, SubscriptionTally } from './lib';
 
 export type CurrentAdminUser = {
   userId: string;
   email: string;
+};
+
+export type AdminActionName = (typeof ADMIN_ACTION)[keyof typeof ADMIN_ACTION];
+
+export type RecordAdminActionInput = {
+  admin: CurrentAdminUser;
+  action: AdminActionName;
+  targetUserId?: string | null;
+  details?: Prisma.InputJsonObject;
 };
 
 export type AdminRequest = Request & {
@@ -57,6 +66,11 @@ export type PaymentDayRow = {
 export type ConversionRow = {
   trials: number;
   converted: number;
+};
+
+export type CheckoutReminderRow = {
+  sent: number;
+  recovered: number;
 };
 
 export type AnalyticsInput = {

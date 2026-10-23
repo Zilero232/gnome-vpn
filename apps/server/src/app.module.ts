@@ -9,6 +9,7 @@ import { PrismaModule } from './core';
 import { AdminModule } from './modules/admin';
 import { AuthModule } from './modules/auth';
 import { BillingModule } from './modules/billing';
+import { ConsentsModule } from './modules/consents';
 import { DevicesModule } from './modules/devices';
 import { HealthModule } from './modules/health';
 import { PeersModule } from './modules/peers';
@@ -36,6 +37,7 @@ import { TelegramModule } from './modules/telegram';
     HealthModule,
     SubscriptionModule,
     BillingModule,
+    ConsentsModule,
     DevicesModule,
     PeersModule,
     PlatformsModule,

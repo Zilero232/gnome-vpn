@@ -2,6 +2,7 @@ export { AnalyticsCharts } from './AnalyticsCharts';
 export { AnalyticsSection } from './AnalyticsSection';
 export { DailyChart } from './DailyChart';
 export { DeviceShares } from './DeviceShares';
+export { GrowthBlock } from './GrowthBlock';
 export { KpiGrid } from './KpiGrid';
 export { PaidVsTrials } from './PaidVsTrials';
 export { ReferralsBlock } from './ReferralsBlock';

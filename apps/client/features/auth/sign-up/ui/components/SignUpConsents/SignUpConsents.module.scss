@@ -1,0 +1,9 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  @include stack(12px);
+}
+
+.link {
+  @include text-link(14px);
+}

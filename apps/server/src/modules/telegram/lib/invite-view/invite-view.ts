@@ -2,7 +2,7 @@ import { PLANS, REFERRAL_POLICY, referralReward } from '@gnomevpn/schemas';
 import { InlineKeyboard } from 'grammy';
 
 import type { BotMessage } from '../../telegram.types';
-import type { InviteViewInput, ShareUrlInput } from './invite-view.types';
+import type { InviteLineInput, InviteViewInput, ShareUrlInput } from './invite-view.types';
 
 import { BOT_TEXT, INVITE_SHARE, NEW_LINE } from '../../config';
 import { dayCount } from '../day-count';
@@ -63,4 +63,17 @@ export const inviteView = ({ overview, locale }: InviteViewInput): BotMessage =>
     text: html.paragraphs([text.inviteTitle, html.quote(rewards.join(NEW_LINE)), stats, pending, code, botLink, siteLink, footnote]),
     markup
   };
+};
+
+export const inviteLine = ({ planId, locale }: InviteLineInput): string => {
+  const reward = referralReward(planId);
+
+  return fillText({
+    text: BOT_TEXT[locale].noticeInvite,
+    fill: {
+      plan: planLabel({ planId, locale }),
+      referrer: dayCount({ days: reward.referrerDays, locale }),
+      friend: dayCount({ days: reward.friendDays, locale })
+    }
+  });
 };

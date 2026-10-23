@@ -4,7 +4,7 @@ import { z } from 'zod';
 import type { AutoRenewChoice } from '../../telegram.types';
 import type { CountFromInput, DeviceAnswer, WireguardChoice } from './callback-value.types';
 
-import { AUTO_RENEW_CHOICE, CONFIRMED, DECLINED, SUBJECT_SEPARATOR, WIREGUARD_KINDS } from '../../config';
+import { AUTO_RENEW_CHOICE, CONFIRMED, DECLINED, OFFERS_CHOICE, SUBJECT_SEPARATOR, WIREGUARD_KINDS } from '../../config';
 import { DIGITS, SUBJECT_PARTS } from './callback-value.constants';
 
 export const isConfirmed = (raw: string): boolean => raw === CONFIRMED;
@@ -20,6 +20,14 @@ export const countFrom = ({ raw, max }: CountFromInput): number | null => {
 };
 
 export const autoRenewChoice = (raw: string): AutoRenewChoice | null => (raw === AUTO_RENEW_CHOICE.on || raw === AUTO_RENEW_CHOICE.off ? raw : null);
+
+export const offersChoice = (raw: string): boolean | null => {
+  if (raw === OFFERS_CHOICE.on) {
+    return true;
+  }
+
+  return raw === OFFERS_CHOICE.off ? false : null;
+};
 
 export const parseUuid = (raw: string): string | null => (z.uuid().safeParse(raw).success ? raw : null);
 

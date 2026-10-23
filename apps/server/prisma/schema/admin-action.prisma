@@ -1,0 +1,12 @@
+model AdminAction {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  adminEmail   String  @map("admin_email")
+  action       String
+  targetUserId String? @map("target_user_id")
+  details      Json?
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@map("admin_action")
+}

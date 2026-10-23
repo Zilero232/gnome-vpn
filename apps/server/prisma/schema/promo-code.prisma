@@ -15,6 +15,8 @@ model PromoCode {
   maxUses   Int?      @map("max_uses")
   expiresAt DateTime? @map("expires_at") @db.Timestamptz(3)
 
+  isAutomatic Boolean @default(false) @map("is_automatic")
+
   plan      SubscriptionPlan?
   buyerId   String?           @map("buyer_id")
   paymentId String?           @unique @map("payment_id")
@@ -27,6 +29,7 @@ model PromoCode {
   redemptions        PromoRedemption[]
 
   @@index([buyerId, createdAt])
+  @@index([kind, createdAt])
   @@map("promo_code")
 }
 

@@ -1,5 +1,6 @@
 export { AdminAccessService } from './admin-access.service';
 export { AdminAnalyticsService } from './admin-analytics.service';
+export { AdminAuditService } from './admin-audit.service';
 export { AdminNodesService } from './admin-nodes.service';
 export { AdminOverviewService } from './admin-overview.service';
 export { AdminPaymentsService } from './admin-payments.service';

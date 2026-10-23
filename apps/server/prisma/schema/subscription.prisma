@@ -18,8 +18,6 @@ model Subscription {
 
   bonusDays Int @default(0) @map("bonus_days")
 
-  reminderSentFor DateTime? @map("reminder_sent_for") @db.Timestamptz(3)
-
   savedCardId    String? @map("saved_card_id")
   savedCardTitle String? @map("saved_card_title")
   pendingCardId  String? @unique @map("pending_card_id")

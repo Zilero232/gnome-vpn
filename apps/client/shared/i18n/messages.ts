@@ -6,6 +6,7 @@ import enAdmin from './locales/en/admin.json';
 import enAuth from './locales/en/auth.json';
 import enBlog from './locales/en/blog.json';
 import enCommon from './locales/en/common.json';
+import enConsent from './locales/en/consent.json';
 import enDevices from './locales/en/devices.json';
 import enError from './locales/en/error.json';
 import enErrors from './locales/en/errors.json';
@@ -28,6 +29,7 @@ import enStatus from './locales/en/status.json';
 import enTelegram from './locales/en/telegram.json';
 import enTerms from './locales/en/terms.json';
 import enTrial from './locales/en/trial.json';
+import enUnsubscribe from './locales/en/unsubscribe.json';
 import enValidation from './locales/en/validation.json';
 import enWireguard from './locales/en/wireguard.json';
 import ruAbout from './locales/ru/about.json';
@@ -36,6 +38,7 @@ import ruAdmin from './locales/ru/admin.json';
 import ruAuth from './locales/ru/auth.json';
 import ruBlog from './locales/ru/blog.json';
 import ruCommon from './locales/ru/common.json';
+import ruConsent from './locales/ru/consent.json';
 import ruDevices from './locales/ru/devices.json';
 import ruError from './locales/ru/error.json';
 import ruErrors from './locales/ru/errors.json';
@@ -58,6 +61,7 @@ import ruStatus from './locales/ru/status.json';
 import ruTelegram from './locales/ru/telegram.json';
 import ruTerms from './locales/ru/terms.json';
 import ruTrial from './locales/ru/trial.json';
+import ruUnsubscribe from './locales/ru/unsubscribe.json';
 import ruValidation from './locales/ru/validation.json';
 import ruWireguard from './locales/ru/wireguard.json';
 
@@ -68,6 +72,7 @@ const ru = {
   auth: ruAuth,
   blog: ruBlog,
   common: ruCommon,
+  consent: ruConsent,
   devices: ruDevices,
   error: ruError,
   errors: ruErrors,
@@ -90,6 +95,7 @@ const ru = {
   telegram: ruTelegram,
   terms: ruTerms,
   trial: ruTrial,
+  unsubscribe: ruUnsubscribe,
   validation: ruValidation,
   wireguard: ruWireguard
 };
@@ -101,6 +107,7 @@ const en = {
   auth: enAuth,
   blog: enBlog,
   common: enCommon,
+  consent: enConsent,
   devices: enDevices,
   error: enError,
   errors: enErrors,
@@ -123,6 +130,7 @@ const en = {
   telegram: enTelegram,
   terms: enTerms,
   trial: enTrial,
+  unsubscribe: enUnsubscribe,
   validation: enValidation,
   wireguard: enWireguard
 };

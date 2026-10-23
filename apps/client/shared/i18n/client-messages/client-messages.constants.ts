@@ -7,7 +7,7 @@ export const CLIENT_MESSAGES: ClientRules = {
   devices: 'all',
   error: 'all',
   errors: 'all',
-  faq: ['title', 'intro', 'groups', 'stillStuck', 'search'],
+  faq: ['title', 'intro', 'groups', 'stillStuck', 'search', 'links'],
   footer: 'all',
   gifts: 'all',
   incy: 'all',
@@ -22,6 +22,7 @@ export const CLIENT_MESSAGES: ClientRules = {
   telegram: 'all',
   terms: ['notes'],
   trial: 'all',
+  unsubscribe: 'all',
   validation: 'all',
   wireguard: 'all'
 };

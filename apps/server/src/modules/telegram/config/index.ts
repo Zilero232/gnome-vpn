@@ -7,9 +7,11 @@ export { EDIT } from './edit.config';
 export { INVITE_SHARE } from './invite.config';
 export { BUTTON_STYLE, KEYBOARD_ROWS, LEGACY_BUTTONS, MORE_ROWS } from './keyboard.config';
 export { CURRENT_LANGUAGE_MARK, LANGUAGE_BUTTONS } from './language.config';
+export { LEGAL_PAGE } from './legal.config';
 export { LINK_CODE } from './link-code.config';
 export { NOTICE_EMAIL } from './notice-email.config';
 export { MESSAGE_EFFECT, NOTICES } from './notice.config';
+export { OFFERS_CHOICE } from './offers.config';
 export { OWNER_ALERT } from './owner-alert.config';
 export { SUPPORT, SUPPORT_MEDIA } from './support.config';
 export {

@@ -29,6 +29,21 @@ upsert the same `subscription_link` row — so both go through `withUniqueRetry`
 the row exists and the second upsert only reads it. A genuine duplicate still
 fails on the retry. `withSerializableRetry` is the same idea for `P2034`.
 
+**Say a thing once by inserting its row, not by stamping the row it is
+about.** A job that must notify once claims it in `notice_log` with
+`claimNotice` (`core/notice-log`): an `INSERT … ON CONFLICT DO NOTHING` on
+`(user_id, notice, ref)` whose count says whether this run owns the send.
+Claim columns on business rows (`reminder_sent_for`, `reminded_at`, …) spread
+one concern over every table a notice could be about, and each needed its own
+compare-and-set; [scheduler.md](../../architecture/scheduler.md#the-notice-log)
+lists the claims.
+
+**A column that holds nothing anybody reads is dropped.** `node.hysteria_auth`,
+`device.hwid` and `referral.source` were written on every row and read by
+nothing; `20261026100000_drop_write_only_columns_and_indexes` removed them. A
+column that stores something about a person is a line in the privacy policy, so
+one that nobody reads costs twice.
+
 Both Prisma clients (`PrismaService` for the API, `basePrisma` for better-auth)
 build their pool through `createPool` in `core/prisma/pg-pool.ts` — one place, with a `pool.on('error')`
 listener (pg _requires_ one, or a dropped idle connection crashes the process)

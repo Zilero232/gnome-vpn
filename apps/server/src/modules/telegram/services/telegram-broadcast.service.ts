@@ -161,6 +161,12 @@ export class TelegramBroadcastService {
     } catch (error) {
       const outcome = deliveryOutcome(error);
 
+      if (outcome.kind === 'blocked') {
+        await this.prisma.telegramAccount.updateMany({ where: { telegramId }, data: { blockedAt: new Date() } }).catch((stampError: unknown) => {
+          this.logger.warn(`could not record that chat ${telegramId} blocked the bot: ${describeError(stampError)}`);
+        });
+      }
+
       if (outcome.kind !== 'flood') {
         return outcome.kind;
       }

@@ -185,6 +185,26 @@
       "total": "Total for the period",
       "count": "{count, plural, one {# payment} other {# payments}}",
       "empty": "No payments in this period"
+    },
+    "growth": {
+      "title": "Growth",
+      "caption": "What invites, win-back discounts and payment reminders brought in over the last {days} days",
+      "empty": "No invite payments, win-back discounts or payment reminders in this period.",
+      "referredPayments": {
+        "label": "Payments from invites",
+        "value": "{count, plural, one {# payment} other {# payments}} · {amount}",
+        "hint": "Succeeded subscription payments by accounts that came by invite, refunds excluded"
+      },
+      "winBack": {
+        "label": "Win-back: offered / used / revenue",
+        "value": "{offered} / {redeemed} / {revenue}",
+        "hint": "Automatic discounts for lapsed customers, the payments made with them and their sum"
+      },
+      "checkoutReminders": {
+        "label": "Payment reminders: sent / came back",
+        "value": "{sent} / {recovered}",
+        "hint": "Reminders about an unfinished payment, and how many of those reminded then paid for a subscription"
+      }
     }
   },
   "users": {

@@ -18,11 +18,11 @@ export const DiscountNote = ({ discount }: DiscountNoteProps) => {
 
       <div className={s.text}>
         <Text as='p' className={s.title}>
-          {t('discountNote', { percent: discount.percent, code: discount.code })}
+          {t('discountNote', { percent: discount.percent })}
         </Text>
 
         <Text as='p' size='xs' tone='muted'>
-          {t('discountHint')}
+          {t('discountHint', { code: discount.code })}
         </Text>
       </div>
     </div>

@@ -15,6 +15,5 @@ export type RegisterNodeInput = {
   config: NodeConfig;
   prisma: PrismaLike;
   panel: PanelSession;
-  auth: string;
   cert: InstalledInbounds;
 };

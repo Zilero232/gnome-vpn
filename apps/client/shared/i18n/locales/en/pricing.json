@@ -46,5 +46,10 @@
   "trialCta": "Try it free",
   "offer": "Subscriptions are sold under the <terms>terms of service</terms>: payment, auto-renewal and how to turn it off, refunds.",
   "gift": "Want to give GnomeVPN to someone? Pay for any term in your account and get a code you can send to anyone.",
-  "giftCta": "Give a subscription"
+  "giftCta": "Give a subscription",
+  "referral": {
+    "title": "Invite friends — you both get days",
+    "intro": "Every account has its own promo code and link. A friend gets bonus days on their first payment, and you get up to +{days, plural, one {# day} other {# days}} on your subscription for every friend who subscribes.",
+    "cta": "Get your invite link"
+  }
 }

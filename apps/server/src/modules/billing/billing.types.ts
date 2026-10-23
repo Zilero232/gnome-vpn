@@ -100,7 +100,7 @@ export type CanceledPayment = {
 export type SettledPayment = {
   userId: string;
   kind: PaymentKind;
-  plan: PlanId;
+  plan: PlanId | null;
   isAutoCharge: boolean;
   amount: Prisma.Decimal;
   giftCode: string | null;
@@ -123,7 +123,7 @@ export type UnusablePayment = {
 
 export type PaymentPurchase = {
   kind: PaymentKind;
-  plan: PlanId;
+  plan: PlanId | null;
   extraDevices: number;
 };
 
@@ -140,7 +140,7 @@ export type RefundedPayment = {
   id: string;
   userId: string | null;
   kind: PaymentKind;
-  plan: PlanId;
+  plan: PlanId | null;
   extraDevices: number;
 };
 

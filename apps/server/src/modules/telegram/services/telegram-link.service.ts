@@ -1,7 +1,7 @@
 import type { TelegramStatus } from '@gnomevpn/schemas';
 
-import { isPlaceholderEmail, normaliseShortCode } from '@gnomevpn/schemas';
-import { Injectable } from '@nestjs/common';
+import { isPlaceholderEmail, normaliseShortCode, PERSONAL_DATA_CONSENT_VERSION } from '@gnomevpn/schemas';
+import { Injectable, Logger } from '@nestjs/common';
 import { addMinutes } from 'date-fns';
 import { isNonNullish, isNullish } from 'remeda';
 
@@ -13,16 +13,18 @@ import type {
   LinkedAccount,
   MergeOutcome,
   ResolvedChat,
+  SetBlockedInput,
   SetLocaleInput,
   TelegramIdentity,
   UntouchedUserInput
 } from '../telegram.types';
 
 import { AppBadRequestException, AppServiceUnavailableException } from '../../../common/exceptions';
-import { generateShortCode } from '../../../common/lib';
+import { describeError, generateShortCode } from '../../../common/lib';
 import { AppConfigService } from '../../../config';
 import { isPrismaRequestError, PrismaService, UNIQUE_VIOLATION } from '../../../core';
 import { IdentityService } from '../../auth';
+import { ConsentService } from '../../consents';
 import { PEER_REF_SELECT, PeersService } from '../../peers';
 import { ReferralService } from '../../referrals';
 import { TrialService } from '../../subscription';
@@ -32,6 +34,8 @@ import { TelegramNotifyService } from './telegram-notify.service';
 
 @Injectable()
 export class TelegramLinkService {
+  private readonly logger = new Logger(TelegramLinkService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: AppConfigService,
@@ -39,7 +43,8 @@ export class TelegramLinkService {
     private readonly referrals: ReferralService,
     private readonly trial: TrialService,
     private readonly peers: PeersService,
-    private readonly notify: TelegramNotifyService
+    private readonly notify: TelegramNotifyService,
+    private readonly consents: ConsentService
   ) {}
 
   async issueCode(userId: string): Promise<IssueLinkCodeResult> {
@@ -124,7 +129,13 @@ export class TelegramLinkService {
       select: {
         email: true,
         subscription: { select: { currentPeriodEnd: true, trialStartedAt: true, bonusDays: true } },
-        _count: { select: { payments: { where: { status: { not: 'canceled' } } }, referralsMade: true, promoRedemptions: true } }
+        _count: {
+          select: {
+            payments: { where: { status: { not: 'canceled' } } },
+            referralsMade: true,
+            promoRedemptions: { where: { promoCode: { isAutomatic: false } } }
+          }
+        }
       }
     });
 
@@ -161,6 +172,10 @@ export class TelegramLinkService {
 
       return { ...(await this.findChatOrThrow(telegramId)), isNew: false };
     }
+
+    await this.consents.recordPersonalData({ userId, version: PERSONAL_DATA_CONSENT_VERSION, source: 'telegram' }).catch((error: unknown) => {
+      this.logger.error(`the personal-data consent of ${userId}, created through Telegram, was not recorded: ${describeError(error)}`);
+    });
 
     return { ...(await this.findChatOrThrow(telegramId)), isNew: true };
   }
@@ -217,7 +232,11 @@ export class TelegramLinkService {
   async touch({ telegramId, username, languageCode }: TelegramIdentity): Promise<void> {
     await this.prisma.telegramAccount.updateMany({
       where: { telegramId },
-      data: { lastSeenAt: new Date(), username, languageCode }
+      data: { lastSeenAt: new Date(), username, languageCode, blockedAt: null }
     });
+  }
+
+  async setBlocked({ telegramId, blockedAt }: SetBlockedInput): Promise<void> {
+    await this.prisma.telegramAccount.updateMany({ where: { telegramId }, data: { blockedAt } });
   }
 }

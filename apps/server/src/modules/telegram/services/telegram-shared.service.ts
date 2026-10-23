@@ -14,13 +14,14 @@ import type {
   ConfirmedInput,
   EditInput,
   ReplyInput,
+  SiteUrlInput,
   WithUserInput
 } from '../telegram.types';
 
 import { describeError } from '../../../common/lib';
 import { AppConfigService } from '../../../config';
 import { localizedPath } from '../../../lib/email';
-import { BOT_TEXT, CHECKOUT, EDIT } from '../config';
+import { BOT_TEXT, EDIT, LEGAL_PAGE } from '../config';
 import { adminChatOf, botUrl, confirmKeyboard, identityOf, isAdminChat, isConfirmed, mainKeyboard, resolveLocale } from '../lib';
 import { TelegramLinkService } from './telegram-link.service';
 import { TelegramNotifyService } from './telegram-notify.service';
@@ -42,7 +43,15 @@ export class TelegramSharedService {
   }
 
   termsUrl(locale: BotLocale): string {
-    return new URL(localizedPath({ path: CHECKOUT.termsPath, locale }), this.config.get('CLIENT_URL')).toString();
+    return this.siteUrl({ path: LEGAL_PAGE.terms, locale });
+  }
+
+  consentUrl(locale: BotLocale): string {
+    return this.siteUrl({ path: LEGAL_PAGE.consent, locale });
+  }
+
+  private siteUrl({ path, locale }: SiteUrlInput): string {
+    return new URL(localizedPath({ path, locale }), this.config.get('CLIENT_URL')).toString();
   }
 
   textFor(ctx: BotContext): BotText {

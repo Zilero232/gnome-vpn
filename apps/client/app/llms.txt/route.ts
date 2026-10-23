@@ -1,4 +1,6 @@
+import { BLOG_SLUGS } from '@/entities/app/blog';
 import { SITE } from '@/shared/config';
+import { blogPostRoute } from '@/shared/constants';
 import { DEFAULT_LOCALE, localePath, messages } from '@/shared/i18n';
 
 import { LLMS_CONTENT_TYPE, LLMS_PAGES } from './llms.constants';
@@ -14,7 +16,29 @@ export const GET = () => {
     return `- [${title}](${absolute(path)}): ${description}`;
   });
 
-  const lines = [`# ${SITE.name}`, '', `> ${SITE.description}`, '', '## Страницы', '', ...pages, '', '## Контакты', '', `- Поддержка: ${SITE.email}`];
+  const posts = BLOG_SLUGS.map((slug) => {
+    const { title, excerpt } = copy.blog.posts[slug];
+
+    return `- [${title}](${absolute(blogPostRoute(slug))}): ${excerpt}`;
+  });
+
+  const lines = [
+    `# ${SITE.name}`,
+    '',
+    `> ${SITE.description}`,
+    '',
+    '## Страницы',
+    '',
+    ...pages,
+    '',
+    '## Статьи',
+    '',
+    ...posts,
+    '',
+    '## Контакты',
+    '',
+    `- Поддержка: ${SITE.email}`
+  ];
 
   return new Response(`${lines.join('\n')}\n`, { headers: { 'Content-Type': LLMS_CONTENT_TYPE } });
 };

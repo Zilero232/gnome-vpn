@@ -4,8 +4,9 @@ export {
   adminAnalyticsRangeSchema,
   adminAnalyticsSchema,
   adminDaySchema,
+  adminGrowthSchema,
   adminRevenueSliceSchema,
   adminTopReferrerSchema
 } from './analytics.schemas';
 
-export type { AdminAnalytics, AdminAnalyticsQuery, AdminAnalyticsRange, AdminDay, AdminTopReferrer } from './analytics.types';
+export type { AdminAnalytics, AdminAnalyticsQuery, AdminAnalyticsRange, AdminDay, AdminGrowth, AdminTopReferrer } from './analytics.types';

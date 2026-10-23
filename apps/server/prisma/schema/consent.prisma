@@ -1,0 +1,29 @@
+enum ConsentKind {
+  personalData
+  marketing
+}
+
+enum ConsentSource {
+  signup
+  telegram
+  account
+  bot
+  email
+}
+
+model Consent {
+  id     String @id @default(dbgenerated("gen_random_uuid()"))
+  userId String @map("user_id")
+
+  kind    ConsentKind
+  version String
+  granted Boolean
+  source  ConsentSource
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, kind, createdAt])
+  @@map("consent")
+}

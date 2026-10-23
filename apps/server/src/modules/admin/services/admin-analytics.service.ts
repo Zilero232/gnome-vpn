@@ -1,12 +1,14 @@
-import type { AdminAnalytics } from '@gnomevpn/schemas';
+import type { AdminAnalytics, AdminGrowth } from '@gnomevpn/schemas';
 
 import { ADMIN_ANALYTICS, ADMIN_PERIOD_DAYS, adminAnalyticsSchema, paymentKindSchema, PLANS } from '@gnomevpn/schemas';
 import { Injectable } from '@nestjs/common';
+import { isNonNullish } from 'remeda';
 
-import type { AnalyticsInput, ConversionRow } from '../admin.types';
+import type { AnalyticsInput, CheckoutReminderRow, ConversionRow } from '../admin.types';
 
 import { windowStart } from '../../../common/lib';
-import { PrismaService } from '../../../core';
+import { NOTICE_CLAIM, PrismaService } from '../../../core';
+import { GROWTH } from '../config';
 import { groupTotal } from '../lib';
 import { AdminSeriesService } from './admin-series.service';
 
@@ -21,15 +23,16 @@ export class AdminAnalyticsService {
     const days = ADMIN_PERIOD_DAYS[range];
     const start = windowStart({ now, days });
 
-    const [series, conversion, revenueByPlan, revenueByKind, referrals] = await Promise.all([
+    const [series, conversion, revenueByPlan, revenueByKind, referrals, growth] = await Promise.all([
       this.series.days({ start, days }),
       this.conversion(start),
       this.revenueByPlan(start),
       this.revenueByKind(start),
-      this.referrals(start)
+      this.referrals(start),
+      this.growth(start)
     ]);
 
-    return adminAnalyticsSchema.parse({ range, days: series, conversion, revenueByPlan, revenueByKind, referrals });
+    return adminAnalyticsSchema.parse({ range, days: series, conversion, revenueByPlan, revenueByKind, referrals, growth });
   }
 
   private async conversion(start: Date): Promise<ConversionRow> {
@@ -81,7 +84,7 @@ export class AdminAnalyticsService {
       this.prisma.referral.count({ where: { ...where, rewardedAt: { not: null } } }),
       this.prisma.referral.groupBy({
         by: ['referrerId'],
-        where,
+        where: { ...where, referrerId: { not: null } },
         _count: { _all: true },
         _sum: { referrerDays: true },
         orderBy: [{ _count: { referrerId: 'desc' } }, { referrerId: 'asc' }],
@@ -89,7 +92,7 @@ export class AdminAnalyticsService {
       })
     ]);
 
-    const referrerIds = top.map((row) => row.referrerId);
+    const referrerIds = top.map((row) => row.referrerId).filter(isNonNullish);
 
     const [users, rewardedBy] = await Promise.all([
       this.prisma.user.findMany({ where: { id: { in: referrerIds } }, select: { id: true, email: true } }),
@@ -120,5 +123,51 @@ export class AdminAnalyticsService {
           : [];
       })
     };
+  }
+
+  private async growth(start: Date): Promise<AdminGrowth> {
+    const succeeded = { status: 'succeeded' as const, createdAt: { gte: start } };
+
+    const [referred, offered, winBack, reminders] = await Promise.all([
+      this.prisma.payment.aggregate({
+        where: { ...succeeded, kind: 'subscription', user: { is: { referredBy: { isNot: null } } } },
+        _count: { _all: true },
+        _sum: { amount: true }
+      }),
+      this.prisma.promoRedemption.count({ where: { createdAt: { gte: start }, promoCode: { isAutomatic: true } } }),
+      this.prisma.payment.aggregate({
+        where: { ...succeeded, promoCode: { is: { isAutomatic: true } } },
+        _count: { _all: true },
+        _sum: { amount: true }
+      }),
+      this.checkoutReminders(start)
+    ]);
+
+    return {
+      referredPayments: { count: referred._count._all, amount: referred._sum.amount?.toNumber() ?? 0 },
+      winBack: { offered, redeemed: winBack._count._all, revenue: winBack._sum.amount?.toNumber() ?? 0 },
+      checkoutReminders: reminders
+    };
+  }
+
+  private async checkoutReminders(start: Date): Promise<CheckoutReminderRow> {
+    const [row] = await this.prisma.$queryRaw<CheckoutReminderRow[]>`
+      SELECT count(*)::int AS sent,
+             count(*) FILTER (
+               WHERE EXISTS (
+                 SELECT 1
+                 FROM payment AS paid
+                 WHERE paid.user_id = reminded.user_id
+                   AND paid.kind = 'subscription'
+                   AND paid.status = 'succeeded'
+                   AND paid.created_at > reminded.sent_at
+                   AND paid.created_at <= reminded.sent_at + make_interval(days => ${GROWTH.checkoutRecoveryDays}::int)
+               )
+             )::int AS recovered
+      FROM notice_log AS reminded
+      WHERE reminded.notice = ${NOTICE_CLAIM.checkoutReminder}
+        AND reminded.sent_at >= ${start}`;
+
+    return row ?? { sent: 0, recovered: 0 };
   }
 }

@@ -6,4 +6,5 @@ export type NoticeEmailProps = {
   url: string;
   fill: EmailFill;
   locale: EmailLocale;
+  unsubscribeUrl?: string;
 };

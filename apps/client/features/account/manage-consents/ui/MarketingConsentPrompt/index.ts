@@ -1,0 +1,1 @@
+export { MarketingConsentPrompt } from './MarketingConsentPrompt';

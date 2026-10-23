@@ -11,7 +11,6 @@ const node: SyncableNode = {
   host: '203.0.113.10',
   port: 443,
   serverName: 'www.bing.com',
-  hysteriaAuth: 'secret',
   certFingerprint: null,
   realityPublicKey: null,
   realityShortId: null,
@@ -28,6 +27,14 @@ describe('buildNodeSync', () => {
     expect(sql).toContain("'wg-pub+/='");
     expect(sql).toContain('wg_public_key = i.wg_public_key');
     expect(sql).toContain('i.wg_public_key');
+  });
+
+  it('leaves an existing node in or out of rotation as an admin put it, and puts only a new node into rotation', () => {
+    const sql = buildNodeSync({ nodes: [node], pruneMissing: true });
+    const update = sql.slice(sql.indexOf('UPDATE node SET'), sql.indexOf('INSERT INTO node'));
+
+    expect(update).not.toContain('is_available');
+    expect(sql.slice(sql.indexOf('INSERT INTO node'))).toContain('is_available');
   });
 
   it('refuses an empty list, which would turn into deleting every production node', () => {

@@ -1,4 +1,4 @@
-import type { AdminRedemption, AdminUserCard } from '@gnomevpn/schemas';
+import type { AdminRedemption, AdminReferral, AdminUserCard } from '@gnomevpn/schemas';
 
 import { isPlaceholderEmail } from '@gnomevpn/schemas';
 import { isNonNullish } from 'remeda';
@@ -32,6 +32,16 @@ const redemptionView = ({ promoCode, createdAt, consumedAt, replacedAt }: Redemp
   replacedAt: isoOrNull(replacedAt)
 });
 
+const referredByView = (referral: CardUserRow['referredBy']): AdminReferral | null =>
+  referral?.referrer
+    ? {
+        user: referral.referrer,
+        createdAt: referral.createdAt.toISOString(),
+        rewardedAt: isoOrNull(referral.rewardedAt),
+        days: referral.friendDays
+      }
+    : null;
+
 export const userCard = ({ user, devices, payments, invited, invitedTotal, redemptions, gifts, now }: UserCardInput): AdminUserCard => ({
   profile: {
     id: user.id,
@@ -58,18 +68,10 @@ export const userCard = ({ user, devices, payments, invited, invitedTotal, redem
   payments: payments.map(paymentView),
   referral: {
     code: user.referralCode?.code ?? null,
-    referredBy: user.referredBy && {
-      user: user.referredBy.referrer,
-      createdAt: user.referredBy.createdAt.toISOString(),
-      rewardedAt: isoOrNull(user.referredBy.rewardedAt),
-      days: user.referredBy.friendDays
-    },
-    invited: invited.map((referral) => ({
-      user: referral.referred,
-      createdAt: referral.createdAt.toISOString(),
-      rewardedAt: isoOrNull(referral.rewardedAt),
-      days: referral.referrerDays
-    })),
+    referredBy: referredByView(user.referredBy),
+    invited: invited.flatMap(({ referred, createdAt, rewardedAt, referrerDays }) =>
+      referred ? [{ user: referred, createdAt: createdAt.toISOString(), rewardedAt: isoOrNull(rewardedAt), days: referrerDays }] : []
+    ),
     invitedTotal
   },
   redemptions: redemptions.map(redemptionView),

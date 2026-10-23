@@ -5,8 +5,9 @@ paying reader enters into. YooKassa asks for one before it enables automatic
 payments, and a shop that charges cards without its terms in writing has
 nothing to point to when a charge is disputed. Code: `views/terms` and the
 `terms` message namespace in `apps/client`; the layout it shares with the
-privacy policy is `widgets/site/legal-document`. Part of the
-[documentation index](../README.md).
+privacy policy and the personal data consent is `widgets/site/legal-document`.
+The consent on `/consent` has [its own section](#consent-to-personal-data-processing)
+below. Part of the [documentation index](../README.md).
 
 ## What it covers
 
@@ -64,10 +65,13 @@ after which extra places end, the 1-month plan a code-only account renews on,
 and the age of 14 (the privacy policy says the same). Search the two
 `terms.json` files for them when one of those changes. The privacy policy
 writes out its own: the 30 days a session lasts (`SESSION.expiresIn`), the 90
-days a support thread is remembered (`RETENTION.supportMessageDays`), the 190
-days within which a deleted account leaves the backups (postgres-backup-local
-removes a monthly dump after `BACKUP_KEEP_MONTHS` × 31 + 1 = 187 days, checked
-on every 6-hourly run — [ops/backups.md](../ops/backups.md)), and the 10
+days a support thread is remembered (`RETENTION.supportMessageDays`), the 7
+days after which an expired session goes and the 1 day for verification codes
+and one-time sign-in links (`RETENTION.expiredSessionDays`,
+`RETENTION.expiredCodeDays`, the `expired-records` job), the 30
+days within which a deleted account leaves the backups (retention is fixed in
+`docker-compose.yml` so the oldest dump is at most 22 days old —
+[ops/backups.md](../ops/backups.md)), and the 10
 working days, extendable by 5, to answer a data request (152-ФЗ).
 
 **Referral bonuses are worded generally; promo codes and gifts are not.** The
@@ -121,14 +125,16 @@ optional variables validated in `shared/config/client-env.ts` and grouped as
 An empty value counts as unset, so a missing repository variable is an empty
 build arg and never fails the build; a malformed one fails it. `sellerRows`
 prints only the fields that are set, in that order, and the support email
-always closes the list. The page is prerendered, so the values are read at
+always closes the list. Both live in the legal-document widget
+(`SellerRequisites`, labels under `common.legal.seller`), because the offer's
+«Реквизиты исполнителя» and the consent's «Оператор» render the same list. The page is prerendered, so the values are read at
 build time: `deploy.yml` passes them from the repository variables `vars.SELLER_*`
 through the Dockerfile's build args, the same way `NEXT_PUBLIC_API_URL` goes in,
 and changing them needs a redeploy. The variables are listed in
 [ops/deploy.md](../ops/deploy.md#secrets).
 
-Until `SELLER_NAME` is set the offer names no seller. Set it before taking real
-payments.
+Until `SELLER_NAME` is set the offer names no seller and the consent names no
+operator. Set it before taking real payments.
 
 ## Where the offer is accepted
 
@@ -150,7 +156,9 @@ sits wherever one of those happens:
 
 The bot creates an account on `/start` without showing the offer; using the
 service is acceptance by conduct, and the first payment in the bot shows the
-link before YooKassa does.
+link before YooKassa does. The consent to personal data is stated where the
+press happens — the bot's description and its first message — and recorded
+([consents](#consents)).
 
 `OfferNote` reads `terms.notes`, the only part of the namespace sent to the
 browser (`CLIENT_MESSAGES`); the offer itself is server-rendered and stays out
@@ -168,13 +176,185 @@ unreliable is described by how it behaves for the reader ("easy to recognise,
 often fails on mobile networks"), which is what they need to choose. Technical
 statements about a network — a hotel Wi-Fi that drops UDP, an office filter
 that passes only 443 — are not that, and stay. Two more shapes are out: naming
-the services a reader may want to reach (the bot says «Видео в 4K, игры и
-звонки», not a platform), and presenting a protocol as a disguise. Reality
+the services a reader may want to reach — not even as a list of what people do
+with them: «Видео в 4K, игры и звонки без лагов» went from the bot's greeting
+and description, since video, games and calls are what gets slowed or
+restricted, and they now say «Защищённое соединение в любой сети» and
+«Серверы в нескольких странах» — and presenting a protocol as a disguise. Reality
 "carries the TLS handshake of a real site, so it works where only HTTPS on 443
 is open" — never "looks like ordinary HTTPS" or "only active probing can tell
 it apart"; WireGuard is "easy to recognise by its handshake", not
 "undisguised". New copy follows the same rule; the docs in English are
 internal and may name things as they are.
+
+The October 2026 pass over every namespace, the metadata, `llms.txt` and the
+blog took out the shapes that had slipped back in, and they are worth naming
+so they stay out:
+
+- **No market in the title.** The landing title was "быстрый VPN на Hysteria2
+  для России"; a VPN sold "for Russia" reads as a VPN for what Russia
+  restricts. The title says what the product is, and the routing setting
+  («Российские сайты — напрямую») is the only place Russia is named.
+- **No reaching a service as a reason to pick a server.** "Pick the nearest
+  country unless a location is what you need for a service" and the FAQ's
+  "do streaming services work — if one does not open, try another country"
+  were both a way to reach something by changing country. The rule is now just
+  "the nearest country", and the streaming question became `videoCalls`
+  — speed, lag, the nearest server for a lower ping.
+- **No disguise by comparison.** "Like ordinary HTTPS" went from the servers
+  table and the posts: VLESS "runs over TCP on port 443, the port HTTPS sites
+  use". The post on Reality no longer names an example site whose handshake it
+  borrows.
+- **No unexplained instability.** "The connection drops a few minutes after
+  data starts flowing, and changing port or server helps only briefly" (about)
+  and "sometimes nodes have to change" describe interference without naming
+  it; the copy now talks about packet loss, which is what the protocol choice
+  is actually about.
+- **Lawful use is said where it is asked.** The torrents answer says to
+  download only what is distributed lawfully.
+
+## Consent to personal data processing
+
+Since 1 September 2025 consent to personal data processing has to be a
+document of its own (152-ФЗ, article 9 as amended): a clause in the offer or a
+line in the privacy policy no longer counts. `/consent` — «Согласие на
+обработку персональных данных» — is that document. Code: `views/consent`, the
+`consent` namespace, `CONSENT_SECTIONS` in `views/consent/config` with the
+number of list items each section has (a test checks both locales, as the
+offer's clause counts are checked).
+
+It is written in the first person, the way a consent is given, and holds what
+article 9 asks of one: the operator (the seller's requisites through
+`SellerRequisites`, the support address always), the data, the purposes, the
+actions, transfer to third parties including cross-border (Telegram,
+Cloudflare, the VPN nodes abroad that see the device's IP address), the term,
+how to withdraw it and how it is given. The list of data is the privacy
+policy's list, which was taken from the Prisma schema; a field added to the
+schema that stores something about a person is a line in both. It names no
+dissemination («распространение») — that would need a consent of its own
+(article 10.1). The English text says it is a translation.
+
+**How it is given on the site:**
+
+- the email sign-up form has an unticked checkbox «Я даю согласие на обработку
+  персональных данных», linked to `/consent`, and the form does not submit
+  without it. The field, `isConsentGiven`, exists only in the client:
+  `signUpFormSchema` (`features/auth/sign-up/lib/sign-up-form`) extends the
+  shared `signUpSchema`, the sign-up request still carries only email and
+  password, and the consent is recorded by a separate call once the account
+  exists ([below](#where-the-client-collects-them)). The line about the offer
+  and the privacy policy stays under the button;
+- the Telegram sign-in widget on `/auth` carries «Входя через Telegram, вы
+  даёте согласие на обработку персональных данных», linked. The line is part
+  of `TelegramLoginButton`, so it disappears with the widget when the bot is
+  not configured or Telegram is unreachable.
+
+`/telegram` (a one-time link from the bot) only signs in to an account that
+already exists, so it carries no line. Accounts the bot creates on `/start`
+are told by the bot itself, before and after the press, and the server records
+their consent ([below](#consents)). Recording a consent given on the site is
+the server's job as well, through `POST /consents/personal-data`.
+
+The page is indexed like `/privacy` and `/terms`: `INDEXED_ROUTES`, the
+sitemap, `llms.txt`, the footer's legal group. The privacy policy's footnote
+and its rights section, and the offer's personal data section, point to it.
+
+**Backups follow the 30 days.** Article 21(5) gives an operator 30 days to
+destroy data after consent is withdrawn, so the backup rotation was shortened
+to keep no dump older than 22 days, and the policy and the consent say deleted
+data leaves the backups within 30 days.
+
+## Consents
+
+`consent` (`20261026130000_admin_action_and_consent`) is the record of what
+each account agreed to: `kind` (`personalData`, `marketing`), the `version` of
+the text, `granted`, `source` (`signup`, `telegram`, `account`, `bot`, `email`)
+and when. It is append-only — the latest row of a kind is the current state,
+the rows before it are the history a regulator or a dispute asks for — and it
+cascades away with the account, like the rest of its data. A write that would
+not change the state is skipped, so repeating a request adds no rows. Code:
+`modules/consents`; the contracts are in `packages/schemas/src/consents`.
+
+**Versions.** `PERSONAL_DATA_CONSENT_VERSION` (`@gnomevpn/schemas`) is the date
+of the `/consent` text in force; it moves with that page, and a consent recorded
+for an older version is the reader's agreement to the older text. Nothing asks
+again automatically when the version moves: a material change to `/consent`
+means bumping the constant and deciding then whether to ask existing accounts.
+`MARKETING_CONSENT_VERSION` names the wording of
+the offers checkbox the same way.
+
+**Where each is recorded.**
+
+| Consent       | Recorded                                                                                           | Source     |
+| ------------- | -------------------------------------------------------------------------------------------------- | ---------- |
+| personal data | sign-up on the site: the client posts `POST /consents/personal-data { version, source: 'signup' }`; idempotent for one version | `signup`   |
+| personal data | an account created through Telegram — `/start`, a `ref_` arrival, the site's login widget (`TelegramLinkService.ensureChat`) | `telegram` |
+| marketing     | `PUT /consents/marketing { granted, source }` from the sign-up form or the account page               | `signup`, `account` |
+| marketing     | «Не присылать предложения» / «Присылать предложения» and `/offers` in the bot                       | `bot`      |
+| marketing     | the unsubscribe link in a promotional email (`GET /consents/unsubscribe?token=`, anonymous)          | `email`    |
+
+`GET /consents` answers `{ personalData: { granted, version, at } | null,
+marketing: { granted, at } | null }`. Nothing is backfilled: an account created
+before the table existed has no recorded consent, so it is offered nothing
+until it opts in.
+
+**Offers need the marketing consent; service messages do not.** The law on
+advertising (38-ФЗ, art. 18) allows advertising by email and messenger only
+with the recipient's prior consent and requires stopping on request. The
+promotional notices are the ones that offer something — the three win-back
+messages with a discount (`isPromotional` in `NOTICES`). `win-back` skips an
+account whose latest marketing consent is not granted before it claims or
+grants anything, and `TelegramNotifyService.tell` refuses a promotional notice
+for such an account on both channels, failing closed when the consent cannot
+be read ([telegram-bot.md](telegram-bot.md)). Payments, renewals and their
+advance notice, declined cards, period endings, device changes, an unfinished
+checkout, a bought gift and referral rewards are service messages about the
+reader's own account and order, and are sent regardless; so is the one-line
+invite on a payment and the first device, which describes the account's own
+referral rewards.
+
+**Unsubscribing.** A promotional email ends with an unsubscribe link,
+`${CLIENT_URL}/unsubscribe?token=…` (`/en/unsubscribe` in English), and
+carries it as `List-Unsubscribe`. The token is the account id and an HMAC-SHA256
+of it under `BETTER_AUTH_SECRET` with its own purpose label
+(`signUnsubscribe`), so it needs no table, never expires and cannot be forged
+for another account; rotating that secret invalidates the links already sent.
+The client's page calls `GET /consents/unsubscribe?token=`, which records the
+withdrawal and answers `{ outcome: 'unsubscribed' }`, or `invalid` for a token
+that does not verify; it is throttled per address. A promotional bot message
+carries «🔕 Не присылать предложения», which does the same in one press.
+
+### Where the client collects them
+
+- **Sign-up form** (`features/auth/sign-up`): the required «Я даю согласие на
+  обработку персональных данных» and an optional, unticked «Присылать
+  персональные скидки и предложения» (`isMarketingConsentGiven`, client-only
+  like `isConsentGiven`). After the account is created `useSignUp` posts
+  `POST /consents/personal-data` with `PERSONAL_DATA_CONSENT_VERSION` and,
+  only when the second box is ticked, `PUT /consents/marketing { granted: true,
+  source: 'signup' }`. Neither call can fail the sign-up: a rejection is logged
+  and the reader lands in the account as usual.
+- **The missing personal-data record is retried, and only for the reader who
+  ticked the box.** Before posting, the form stores `{ userId, version }` in
+  `localStorage` (`STORAGE_KEYS.pendingConsent`, `shared/lib/pending-consent`)
+  and clears it when the post succeeds. `useRecordPendingConsent`
+  (`features/account/manage-consents`, called by the account page) posts it
+  once per visit when `GET /consents` has no personal-data record and the
+  stored `userId` is the signed-in account; with no stored entry — an account
+  from before the checkbox, another browser, a Telegram account — nothing is
+  posted, because the client has no evidence that this person agreed.
+- **Profile tab**: «Уведомления» holds the switch «Персональные скидки и
+  предложения» with the line that service notices always arrive. It reads
+  `GET /consents` (`QUERY_KEYS.consents`) and writes `PUT /consents/marketing`
+  with `source: 'account'`, optimistically, rolling back with a toast on an
+  error.
+- **Subscription tab, once**: an account whose `marketing` is `null` — never
+  asked — sees «Присылать персональные скидки?» with «Да» and «Нет» under the
+  tab's main content, only while it has access, so it never sits beside the
+  free-day or verify-email hero, which only an account without access sees.
+  Both answers are a `PUT` (`granted: true` / `false`), so «Нет» is recorded
+  too and the question does not come back on any device.
+- **`/unsubscribe`** — the page the email link opens ([web-client.md](web-client.md#unsubscribe)).
 
 ## What the offer promises that a person has to do
 
@@ -193,9 +373,11 @@ internal and may name things as they are.
   email; bump `TERMS_UPDATED` at least.
 - **Keeping `/broadcast` to service messages.** The offer calls what the bot
   and the emails send service messages and promises advertising only where the
-  law allows; under the advertising law that means the reader's prior consent,
-  which nothing in the product collects. A promotion sent with `/broadcast` is
-  the owner's call and the owner's risk.
+  law allows; under the advertising law that means the reader's prior consent.
+  The product now records that consent ([above](#consents)) and gates its own
+  offers on it, but `/broadcast` copies the owner's message to every chat in
+  the chosen audience without asking: a promotion sent with it is the owner's
+  call and the owner's risk.
 
 The text was written from the product's behaviour, not by a lawyer. Have it
 read by one before relying on it in a dispute.

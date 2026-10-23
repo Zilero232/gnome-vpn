@@ -1,13 +1,12 @@
 import type { Plan, PlanId, PromoDiscount } from '@gnomevpn/schemas';
 
-import type { PromoCodeKind, ReferralSource } from '../../../generated';
+import type { PromoCodeKind } from '../../../generated';
 import type { PrismaExecutor } from '../../core';
 import type { GiftPayment, PromoEffect } from './lib';
 
 export type RedeemInput = {
   userId: string;
   code: string;
-  source?: ReferralSource;
 };
 
 export type ClaimInput = {
@@ -91,3 +90,23 @@ export type StopCampaignInput = {
   code: string;
   now: Date;
 };
+
+export type EnsureAutoCodeInput = {
+  code: string;
+  percent: number;
+};
+
+export type AutomaticCode = {
+  id: string;
+  code: string;
+  percent: number;
+  expiresAt: Date | null;
+};
+
+export type AutoDiscountOfferInput = {
+  userId: string;
+  code: AutomaticCode;
+  db: PrismaExecutor;
+};
+
+export type AutoDiscountOffer = { kind: 'granted' | 'held'; percent: number } | { kind: 'used' };

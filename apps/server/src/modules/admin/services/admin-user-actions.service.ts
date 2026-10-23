@@ -14,6 +14,8 @@ import { DevicesService } from '../../devices';
 import { accessExtension } from '../../promo-codes';
 import { SubscriptionAccessService, SubscriptionLinkService } from '../../subscription-link';
 import { TelegramNotifyService } from '../../telegram/services/telegram-notify.service';
+import { ADMIN_ACTION } from '../config';
+import { AdminAuditService } from './admin-audit.service';
 
 @Injectable()
 export class AdminUserActionsService {
@@ -25,7 +27,8 @@ export class AdminUserActionsService {
     private readonly devices: DevicesService,
     private readonly access: SubscriptionAccessService,
     private readonly links: SubscriptionLinkService,
-    private readonly notify: TelegramNotifyService
+    private readonly notify: TelegramNotifyService,
+    private readonly audit: AdminAuditService
   ) {}
 
   async extend({ admin, userId, days }: ExtendActionInput): Promise<AdminExtendResult> {
@@ -43,6 +46,13 @@ export class AdminUserActionsService {
 
     this.logger.log(`admin ${admin.email} extended ${userId} by ${days} days to ${currentPeriodEnd.toISOString()}`);
 
+    await this.audit.record({
+      admin,
+      action: ADMIN_ACTION.extend,
+      targetUserId: userId,
+      details: { days, currentPeriodEnd: currentPeriodEnd.toISOString() }
+    });
+
     return adminExtendResultSchema.parse({ currentPeriodEnd: currentPeriodEnd.toISOString() });
   }
 
@@ -50,12 +60,16 @@ export class AdminUserActionsService {
     await this.autoRenew.cancelAutoRenew(userId);
 
     this.logger.log(`admin ${admin.email} turned auto-renewal off for ${userId}`);
+
+    await this.audit.record({ admin, action: ADMIN_ACTION.cancelAutoRenew, targetUserId: userId });
   }
 
   async removeDevice({ admin, userId, deviceId }: RemoveDeviceActionInput): Promise<void> {
     await this.devices.remove({ userId, deviceId });
 
     this.logger.log(`admin ${admin.email} removed device ${deviceId} of ${userId}`);
+
+    await this.audit.record({ admin, action: ADMIN_ACTION.removeDevice, targetUserId: userId, details: { deviceId } });
   }
 
   async message({ admin, userId, text }: MessageActionInput): Promise<AdminMessageResult> {
@@ -64,6 +78,8 @@ export class AdminUserActionsService {
     const outcome = await this.notify.message({ userId, text });
 
     this.logger.log(`admin ${admin.email} messaged ${userId} in telegram (${text.length} chars): ${outcome}`);
+
+    await this.audit.record({ admin, action: ADMIN_ACTION.message, targetUserId: userId, details: { length: text.length, outcome } });
 
     return adminMessageResultSchema.parse({ outcome });
   }
@@ -78,6 +94,8 @@ export class AdminUserActionsService {
     await this.prisma.user.update({ where: { id: userId }, data: { emailVerified: true } });
 
     this.logger.log(`admin ${admin.email} marked the email of ${userId} as confirmed`);
+
+    await this.audit.record({ admin, action: ADMIN_ACTION.verifyEmail, targetUserId: userId });
   }
 
   async rotateLink({ admin, userId }: AdminActionInput): Promise<void> {
@@ -85,6 +103,8 @@ export class AdminUserActionsService {
     await this.links.rotate(userId);
 
     this.logger.log(`admin ${admin.email} rotated the subscription link of ${userId}`);
+
+    await this.audit.record({ admin, action: ADMIN_ACTION.rotateLink, targetUserId: userId });
   }
 
   private async emailOf(userId: string): Promise<string> {

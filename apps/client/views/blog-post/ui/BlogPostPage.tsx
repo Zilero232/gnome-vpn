@@ -1,7 +1,10 @@
+import type { ReactNode } from 'react';
+
 import { ArrowLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { mapValues } from 'remeda';
 
-import { BLOG_SLUGS, POST_SECTIONS } from '@/entities/app/blog';
+import { POST_LINKS, POST_RELATED, POST_SECTIONS } from '@/entities/app/blog';
 import { blogPostRoute, ROUTES } from '@/shared/constants';
 import { Link } from '@/shared/i18n/navigation';
 import { GnomeBadge, Text } from '@/ui-kit';
@@ -9,15 +12,17 @@ import { RelatedLinks } from '@/widgets/site/related-links';
 
 import type { BlogPostPageProps } from './BlogPostPage.types';
 
-import { RELATED_COUNT } from './BlogPostPage.constants';
-
 import s from './BlogPostPage.module.scss';
+
+const LINK_TAGS = mapValues(POST_LINKS, (href) => (chunks: ReactNode) => (
+  <Link className={s.link} href={href}>
+    {chunks}
+  </Link>
+));
 
 export const BlogPostPage = ({ slug }: BlogPostPageProps) => {
   const t = useTranslations(`blog.posts.${slug}`);
   const tBlog = useTranslations('blog');
-
-  const related = BLOG_SLUGS.filter((other) => other !== slug).slice(0, RELATED_COUNT);
 
   return (
     <main className={s.root}>
@@ -44,13 +49,13 @@ export const BlogPostPage = ({ slug }: BlogPostPageProps) => {
             </Text>
 
             <Text as='p' className={s.body}>
-              {t(`sections.${section}.body`)}
+              {t.rich(`sections.${section}.body`, LINK_TAGS)}
             </Text>
           </section>
         ))}
       </article>
 
-      <RelatedLinks links={related.map((other) => ({ href: blogPostRoute(other), label: tBlog(`posts.${other}.title`) }))} />
+      <RelatedLinks links={POST_RELATED[slug].map((other) => ({ href: blogPostRoute(other), label: tBlog(`posts.${other}.title`) }))} />
 
       <aside className={s.cta}>
         <GnomeBadge size={56} />

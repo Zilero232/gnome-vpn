@@ -13,6 +13,7 @@ model TelegramAccount {
 
   linkedAt   DateTime  @default(now()) @map("linked_at") @db.Timestamptz(3)
   lastSeenAt DateTime? @map("last_seen_at") @db.Timestamptz(3)
+  blockedAt  DateTime? @map("blocked_at") @db.Timestamptz(3)
 
   @@map("telegram_account")
 }
@@ -29,6 +30,7 @@ model TelegramLinkCode {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
   @@index([userId])
+  @@index([expiresAt])
   @@map("telegram_link_code")
 }
 
@@ -44,6 +46,7 @@ model TelegramWebLogin {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
   @@index([userId])
+  @@index([expiresAt])
   @@map("telegram_web_login")
 }
 

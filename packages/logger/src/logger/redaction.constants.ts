@@ -13,7 +13,6 @@ export const SECRET_FIELDS = [
   'idToken',
   'sessionToken',
   'auth',
-  'hysteriaAuth',
   'nodeCredential',
   'privateKey',
   'apiUrl',

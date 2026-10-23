@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { subDays } from 'date-fns';
 import { isNonNullish, isNullish } from 'remeda';
 
-import type { ExtendInput, RevokeInput, RevokeOutcome, RewardInput, RewardOutcome } from '../referrals.types';
+import type { ExtendInput, ReferrerShareInput, RevokeInput, RevokeOutcome, RewardInput, RewardOutcome } from '../referrals.types';
 
 import { extendPeriod, rewindPeriod } from '../../../common/lib';
 import { periodKind } from '../../subscription';
@@ -31,17 +31,8 @@ export class ReferralRewardService {
 
     const now = new Date();
     const planned = referralReward(planId);
-
-    const earned = await db.referral.aggregate({
-      where: { referrerId: referral.referrerId, rewardedAt: { gte: subDays(now, REFERRAL_POLICY.capWindowDays) } },
-      _sum: { referrerDays: true }
-    });
-
-    const referrerDays = grantedDays({
-      planned: planned.referrerDays,
-      earned: earned._sum.referrerDays ?? 0,
-      cap: REFERRAL_POLICY.capDays
-    });
+    const { referrerId } = referral;
+    const referrerDays = isNullish(referrerId) ? 0 : await this.referrerShare({ referrerId, planned: planned.referrerDays, now, db });
 
     const claimed = await db.referral.updateMany({
       where: { id: referral.id, rewardedAt: null },
@@ -54,9 +45,9 @@ export class ReferralRewardService {
 
     await this.extend({ userId, days: planned.friendDays, db });
 
-    const isBanked = referrerDays > 0 && (await this.creditReferrer({ userId: referral.referrerId, days: referrerDays, db }));
+    const isBanked = isNonNullish(referrerId) && referrerDays > 0 && (await this.creditReferrer({ userId: referrerId, days: referrerDays, db }));
 
-    return { referrerId: referral.referrerId, referrerDays, friendDays: planned.friendDays, isBanked };
+    return { referrerId, referrerDays, friendDays: planned.friendDays, isBanked };
   }
 
   async revoke({ paymentId, db }: RevokeInput): Promise<RevokeOutcome | null> {
@@ -69,8 +60,13 @@ export class ReferralRewardService {
       return null;
     }
 
-    await this.shorten({ userId: referral.referredId, days: referral.friendDays, db });
-    await this.debitReferrer({ userId: referral.referrerId, days: referral.referrerDays, db });
+    if (isNonNullish(referral.referredId)) {
+      await this.shorten({ userId: referral.referredId, days: referral.friendDays, db });
+    }
+
+    if (isNonNullish(referral.referrerId)) {
+      await this.debitReferrer({ userId: referral.referrerId, days: referral.referrerDays, db });
+    }
 
     await db.referral.update({
       where: { id: referral.id },
@@ -83,6 +79,15 @@ export class ReferralRewardService {
       referrerDays: referral.referrerDays,
       friendDays: referral.friendDays
     };
+  }
+
+  private async referrerShare({ referrerId, planned, now, db }: ReferrerShareInput): Promise<number> {
+    const earned = await db.referral.aggregate({
+      where: { referrerId, rewardedAt: { gte: subDays(now, REFERRAL_POLICY.capWindowDays) } },
+      _sum: { referrerDays: true }
+    });
+
+    return grantedDays({ planned, earned: earned._sum.referrerDays ?? 0, cap: REFERRAL_POLICY.capDays });
   }
 
   private async debitReferrer({ userId, days, db }: ExtendInput): Promise<void> {

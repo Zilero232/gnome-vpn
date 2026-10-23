@@ -156,7 +156,7 @@
     "personalData": {
       "title": "Personal data",
       "clauses": [
-        "The Provider processes the User’s personal data to the extent and for the purposes set out in the <privacy>Privacy Policy</privacy>. The processing is necessary to perform the Contract (Article 6(1)(5) of the Federal Law “On Personal Data”).",
+        "The Provider processes the User’s personal data to the extent and for the purposes set out in the <privacy>Privacy Policy</privacy>. The processing is necessary to perform the Contract (Article 6(1)(5) of the Federal Law “On Personal Data”); in addition, on creating an Account on the Site the User gives a separate <consent>consent to personal data processing</consent>.",
         "The Provider keeps no logs of the User’s traffic: no connection history, visited addresses, DNS queries or connection contents.",
         "Notices about the Subscription, payments and charges are sent to the Account’s email address and to the Telegram bot, if one is linked. The Provider may also send service messages about how the Service works — for example, about maintenance or changes to the Offer. These are not advertising; advertising messages, if the Provider ever sends any, are sent only where the law allows."
       ]
@@ -188,19 +188,7 @@
     }
   },
   "seller": {
-    "title": "Provider details",
-    "fields": {
-      "name": "Provider",
-      "status": "Status",
-      "inn": "Taxpayer number (INN)",
-      "ogrnip": "Registration number (OGRNIP)",
-      "address": "Address",
-      "email": "Email"
-    },
-    "statuses": {
-      "entrepreneur": "Individual entrepreneur",
-      "selfEmployed": "Self-employed (professional income tax payer)"
-    }
+    "title": "Provider details"
   },
   "notes": {
     "payment": "By paying you accept the <terms>terms of service</terms>.",

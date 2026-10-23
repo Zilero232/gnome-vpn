@@ -8,6 +8,7 @@ import type { PageTab } from '@/ui-kit';
 
 import { useSubscriptionStatus } from '@/entities/billing/subscription';
 import { InvitePanel, useClaimPendingPromoCode } from '@/features/account/invite-friends';
+import { useRecordPendingConsent } from '@/features/account/manage-consents';
 import { SignOutButton } from '@/features/auth/sign-out';
 import { useTelegramWidget } from '@/features/auth/telegram-sign-in';
 import { useVerifyEmailOutcome } from '@/features/auth/verify-email';
@@ -26,6 +27,7 @@ export const AccountPage = () => {
 
   useVerifyEmailOutcome();
   useClaimPendingPromoCode();
+  useRecordPendingConsent();
 
   const devicesTab: PageTab = { value: ACCOUNT_TAB.devices, label: t('tabs.devices'), icon: MonitorSmartphone, render: () => <DevicesCard /> };
   const telegramTab: PageTab = { value: ACCOUNT_TAB.telegram, label: t('tabs.telegram'), icon: Send, render: () => <TelegramCard /> };

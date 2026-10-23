@@ -18,6 +18,7 @@ import { TelegramAppsService } from './telegram-apps.service';
 import { TelegramBillingService } from './telegram-billing.service';
 import { TelegramBroadcastService } from './telegram-broadcast.service';
 import { TelegramDevicesService } from './telegram-devices.service';
+import { TelegramOffersService } from './telegram-offers.service';
 import { TelegramProfileService } from './telegram-profile.service';
 import { TelegramPromoService } from './telegram-promo.service';
 import { TelegramReferralService } from './telegram-referral.service';
@@ -46,7 +47,8 @@ export class TelegramBotService implements OnModuleInit {
     private readonly support: TelegramSupportService,
     private readonly stats: TelegramStatsService,
     private readonly broadcast: TelegramBroadcastService,
-    private readonly promo: TelegramPromoService
+    private readonly promo: TelegramPromoService,
+    private readonly offers: TelegramOffersService
   ) {
     if (this.bot) {
       this.register(this.bot);
@@ -101,6 +103,7 @@ export class TelegramBotService implements OnModuleInit {
       { button: 'autoRenew', run: (ctx) => this.billing.autoRenew(ctx) },
       { command: 'website', button: 'website', run: (ctx) => this.account.openWebsite(ctx) },
       { command: 'language', button: 'language', run: (ctx) => this.account.chooseLanguage(ctx) },
+      { command: 'offers', run: (ctx) => this.offers.show(ctx) },
       { command: 'help', button: 'help', run: (ctx) => this.account.help(ctx) },
       { command: 'support', button: 'support', run: (ctx) => this.support.open(ctx) },
       { command: 'unlink', button: 'unlink', run: (ctx) => this.account.askUnlink(ctx) },
@@ -133,6 +136,7 @@ export class TelegramBotService implements OnModuleInit {
       { prefix: CALLBACK_PREFIX.deleteAccount, run: (ctx) => this.account.confirmDelete(ctx) },
       { prefix: CALLBACK_PREFIX.rotate, run: (ctx) => this.billing.confirmRotate(ctx) },
       { prefix: CALLBACK_PREFIX.autoRenew, run: (ctx) => this.billing.changeAutoRenew(ctx) },
+      { prefix: CALLBACK_PREFIX.offers, run: (ctx) => this.offers.change(ctx) },
       { prefix: CALLBACK_PREFIX.devices, run: (ctx) => this.devices.buyDevices(ctx) },
       { prefix: CALLBACK_PREFIX.forgetDevice, run: (ctx) => this.devices.askRemove(ctx) },
       { prefix: CALLBACK_PREFIX.removeDevice, run: (ctx) => this.devices.confirmRemove(ctx) },

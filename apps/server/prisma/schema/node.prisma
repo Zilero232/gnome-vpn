@@ -2,14 +2,13 @@ model Node {
   id String @id @default(dbgenerated("gen_random_uuid()"))
 
   country     String
-  countryCode String  @map("country_code")
+  countryCode String  @unique @map("country_code")
   city        String?
 
-  host String
+  host String @unique
   port Int    @default(443)
 
-  serverName   String @map("server_name")
-  hysteriaAuth String @map("hysteria_auth")
+  serverName String @map("server_name")
 
   certFingerprint String? @map("cert_fingerprint")
 

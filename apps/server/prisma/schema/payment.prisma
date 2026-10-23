@@ -16,10 +16,10 @@ model Payment {
   userId            String? @map("user_id")
   yookassaPaymentId String  @unique @map("yookassa_payment_id")
 
-  amount       Decimal          @map("amount") @db.Decimal(10, 2)
-  status       PaymentStatus    @default(pending)
-  plan         SubscriptionPlan @default(monthly)
-  isAutoCharge Boolean          @default(false) @map("is_auto_charge")
+  amount       Decimal           @map("amount") @db.Decimal(10, 2)
+  status       PaymentStatus     @default(pending)
+  plan         SubscriptionPlan?
+  isAutoCharge Boolean           @default(false) @map("is_auto_charge")
 
   paymentMethodId String? @map("payment_method_id")
 
@@ -42,5 +42,6 @@ model Payment {
   @@index([userId, isAutoCharge, status, createdAt])
   @@index([userId, createdAt])
   @@index([status, createdAt])
+  @@index([promoCodeId])
   @@map("payment")
 }

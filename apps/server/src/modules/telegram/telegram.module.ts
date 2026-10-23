@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { AdminModule } from '../admin';
 import { AuthModule } from '../auth';
 import { BillingModule } from '../billing';
+import { ConsentsModule } from '../consents';
 import { DevicesModule } from '../devices';
 import { PeersModule } from '../peers';
 import { PromoCodesModule } from '../promo-codes';
@@ -17,6 +18,7 @@ import {
   TelegramBroadcastService,
   TelegramDevicesService,
   TelegramLinkService,
+  TelegramOffersService,
   TelegramProfileService,
   TelegramPromoService,
   TelegramReferralService,
@@ -37,6 +39,7 @@ import { TelegramController } from './telegram.controller';
     AdminModule,
     AuthModule,
     BillingModule,
+    ConsentsModule,
     DevicesModule,
     PeersModule,
     PromoCodesModule,
@@ -54,6 +57,7 @@ import { TelegramController } from './telegram.controller';
     TelegramBroadcastService,
     TelegramDevicesService,
     TelegramLinkService,
+    TelegramOffersService,
     TelegramProfileService,
     TelegramPromoService,
     TelegramReferralService,

@@ -96,7 +96,9 @@ The reversal runs in one serializable transaction and claims the row
   (`ReferralRewardService.revoke`): the friend's days come off their period,
   the inviter's off their banked `bonus_days` first and their period after, and
   the referral keeps `rewarded_at` but records zero days, so the friend cannot
-  be rewarded twice and the inviter's cap window is freed — and auto-renewal is
+  be rewarded twice and the inviter's cap window is freed; the referral row
+  outlives either account, so a deleted side is simply skipped
+  ([referrals.md](referrals.md#a-referral-outlives-either-account)) — and auto-renewal is
   switched off (`cancelAtPeriodEnd: true`), since a person who asked for their
   money back should not be charged again at the rewound end;
 - an **extraDevices** payment decrements `extraDevices` (not below zero); the
@@ -179,7 +181,41 @@ the card is dropped only on a definite "no" from `isPaymentMethodUsable`.
 
 **Only a card YooKassa saved is a card.** Every settled payment carries a `payment_method.id`, saved or not — a checkout with recurring off, a gift or extra places (both `save_payment_method: false`), a method YooKassa could not save. `settlePayment` used to store any of them as `savedCardId`, and the charge then failed hourly with `This payment_method_id doesn't exist`. `getPayment` now returns the id only when `payment_method.saved` is true. For rows written before that, a failed charge asks `isPaymentMethodUsable`; a definite "no" unbinds the card and tells the reader once, while an unknown answer (network, 5xx) leaves it alone.
 
-`period-reminder` warns before the period ends, once per period — `subscription.reminderSentFor` holds the period end it was sent for, so a renewal that moves the end re-arms it. Three messages: a trial gets `trialEndingSoon` in its last `WINDOW.trialRemindHours`, a period that will not auto-charge gets `endingSoon` within `WINDOW.remindHours`, and one that will gets `renewSoon` with the amount and card — only before the charge window opens, because after it `recurring-charge` speaks for itself.
+`period-reminder` warns before the period ends, once per period — a `periodReminder` row in the notice log, keyed by the period end it was sent for ([scheduler.md](scheduler.md#the-notice-log)), so a renewal that moves the end re-arms it. Three messages: a trial gets `trialEndingSoon` in its last `WINDOW.trialRemindHours`, a period that will not auto-charge gets `endingSoon` within `WINDOW.remindHours`, and one that will gets `renewSoon` with the amount and card — only before the charge window opens, because after it `recurring-charge` speaks for itself.
+
+## Abandoned checkouts
+
+`checkout-reminder` writes once to someone who opened a subscription or gift
+checkout — on the site or in the bot, never an automatic charge — and did not
+pay it. A payment row qualifies when it is `pending` or `canceled`,
+`CHECKOUT_REMINDER.afterMinutes` (an hour) old and younger than
+`lookbackHours`, and its account can be reached (a chat that has not blocked the
+bot, or a confirmed real email — `REACHABLE_USER`, as for win-back). Only the
+newest such checkout of an account is considered (`abandonedCheckouts`).
+
+In one serializable transaction it then skips the account if any payment
+created at or after that checkout is not `canceled` — the reader paid after
+all, or is paying a newer checkout right now — if the checkout is no longer
+`pending` or `canceled`, or if the account was reminded in the last
+`userGapHours`, and otherwise claims a `checkoutReminder` row in the notice log
+keyed by the payment id ([scheduler.md](scheduler.md#the-notice-log)). So a
+payment is reminded about at most once, an account at most once a day, and two
+overlapping runs serialize on the same rows. A reader with a live paid period
+who abandoned a renewal is reminded too: it is still money left on the table.
+
+**It never fights `pending-payments`.** The reminder only reads statuses and
+writes its own log row; settling and cancelling stay with
+`WebhookService.settlePayment`. By the time a checkout is an hour old the sweep
+has re-read it from YooKassa at least five times, so a payment that went
+through is `succeeded` and fails the claim; one that settles in the same
+instant loses the serializable race to one side or the other.
+
+The notice is `checkoutAbandoned` (a button to the plan picker in the bot) or
+`giftCheckoutAbandoned` (the one-time sign-in to the site, where gifts are
+bought); the email's button opens the account's Subscription tab
+(`/account#subscription`). Admin analytics counts the reminders sent in its
+range and those whose account paid a subscription within seven days
+([admin.md](admin.md#growth)).
 
 ## The trial
 
@@ -337,6 +373,16 @@ their account keeps a client nobody owns. The weekly orphan collection in
 server-owned client whose owner id no longer resolves to a `User`, which is
 exactly what a deleted account leaves behind. It skips a client the core reports
 online, so a live session ends when it drops rather than mid-stream.
+
+**A payment's plan is the plan it bought, and extra places buy none.**
+`payment.plan` is null exactly on `extraDevices` payments — a check constraint
+(`payment_plan_kind`) says so — and set on every subscription and gift payment.
+It used to default to `monthly`, which stamped every purchase of extra places as
+a monthly subscription for the admin's plan filter and revenue-by-plan chart;
+`20261026110000_payment_plan_and_referral_survivors` cleared it on the existing
+rows. Code that needs the plan of a subscription or gift payment reads it
+through `paymentPlan` (`common/lib`), which throws on a null rather than guess
+one, so a malformed row fails its transaction instead of granting a month.
 
 **Payments outlive the account.** `payment.user_id` is nullable with
 `ON DELETE SET NULL`: the rows are the shop's record of money taken, and a

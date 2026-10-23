@@ -31,14 +31,17 @@ docker compose exec backup /backup.sh        # take one right now
 ```
 
 Override the schedule in `.env` — `BACKUP_SCHEDULE` becomes the image's
-`SCHEDULE`, a six-field cron with seconds first. These are the defaults:
+`SCHEDULE`, a six-field cron with seconds first; the default is
+`0 0 */6 * * *`.
 
-```bash
-BACKUP_SCHEDULE=0 0 */6 * * *
-BACKUP_KEEP_DAYS=14
-BACKUP_KEEP_WEEKS=8
-BACKUP_KEEP_MONTHS=6
-```
+**Retention is fixed in `docker-compose.yml`, not in `.env`:** 14 daily, 3
+weekly, no monthly dumps. The image deletes a daily dump after
+`KEEP_DAYS + 1` days and a weekly one after `KEEP_WEEKS × 7 + 1`, so the oldest
+dump on the host is at most 22 days old. That is what lets the privacy policy
+and the consent promise that deleted data leaves the backups within 30 days —
+the term 152-ФЗ (art. 21(5)) gives an operator after consent is withdrawn.
+`BACKUP_KEEP_*` lines left in an old `.env` no longer have any effect. A copy
+taken off the host for safekeeping falls under the same 30 days.
 
 **The dumps live on this VPS and nowhere else.** They cover a bad migration, a
 mistaken `DELETE` and a corrupted table; they do not cover losing the machine.

@@ -1,4 +1,3 @@
 export const CHECKOUT = {
-  throttleMs: 10_000,
-  termsPath: '/terms'
+  throttleMs: 10_000
 } as const;

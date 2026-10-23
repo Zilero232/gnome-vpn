@@ -8,7 +8,7 @@ import type { EndingSubscription } from './period-reminder.job.types';
 
 import { describeError } from '../../../../common/lib';
 import { AppConfigService } from '../../../../config';
-import { PrismaService } from '../../../../core';
+import { claimNotice, NOTICE_CLAIM, PrismaService } from '../../../../core';
 import { periodKind } from '../../../subscription';
 import { TelegramNotifyService } from '../../../telegram/services/telegram-notify.service';
 import { WINDOW } from '../../config';
@@ -53,16 +53,16 @@ export class PeriodReminderJob {
       return;
     }
 
-    const claimed = await this.prisma.subscription.updateMany({
-      where: { id: subscription.id, reminderSentFor: subscription.reminderSentFor },
-      data: { reminderSentFor: subscription.currentPeriodEnd }
+    const isClaimed = await claimNotice({
+      db: this.prisma,
+      userId: subscription.userId,
+      notice: NOTICE_CLAIM.periodReminder,
+      ref: subscription.currentPeriodEnd.toISOString()
     });
 
-    if (claimed.count === 0) {
-      return;
+    if (isClaimed) {
+      await this.notify.tell(reminder);
     }
-
-    await this.notify.tell(reminder);
   }
 
   @Cron(CronExpression.EVERY_HOUR)
@@ -72,20 +72,25 @@ export class PeriodReminderJob {
     const ending = await this.prisma.subscription.findMany({
       where: { currentPeriodEnd: { gt: now, lt: addHours(now, WINDOW.remindHours) } },
       select: {
-        id: true,
         userId: true,
         plan: true,
         currentPeriodEnd: true,
         cancelAtPeriodEnd: true,
         savedCardId: true,
         savedCardTitle: true,
-        trialStartedAt: true,
-        reminderSentFor: true
+        trialStartedAt: true
       }
     });
 
+    const reminded = await this.prisma.noticeLog.findMany({
+      where: { notice: NOTICE_CLAIM.periodReminder, userId: { in: ending.map((row) => row.userId) } },
+      select: { userId: true, ref: true }
+    });
+
+    const sent = new Set(reminded.map(({ userId, ref }) => `${userId}|${ref}`));
+
     const unreminded = ending.filter(
-      (row): row is EndingSubscription => row.currentPeriodEnd !== null && row.reminderSentFor?.getTime() !== row.currentPeriodEnd.getTime()
+      (row): row is EndingSubscription => row.currentPeriodEnd !== null && !sent.has(`${row.userId}|${row.currentPeriodEnd.toISOString()}`)
     );
 
     for (const subscription of unreminded) {

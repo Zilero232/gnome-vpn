@@ -5,7 +5,8 @@ import { match, P } from 'ts-pattern';
 
 import { OfferNote, PaymentMethodsNote } from '@/entities/billing/payment-notes';
 import { hasAutoChargeFailed, isAutoRenewActive } from '@/entities/billing/subscription';
-import { PromoCodeForm } from '@/features/account/invite-friends';
+import { InvitePrompt, PromoCodeForm } from '@/features/account/invite-friends';
+import { MarketingConsentPrompt } from '@/features/account/manage-consents';
 import { AutoRenewControl, PendingCheckoutBanner, PlanPicker, RenewPanel, usePendingDiscount } from '@/features/billing/checkout';
 import { GiftPanel } from '@/features/billing/gift-subscription';
 import { ErrorBlock, LoadingBlock, Text } from '@/ui-kit';
@@ -28,6 +29,8 @@ export const SubscriptionCard = ({ subscription, isLoading, isError, onRetry }: 
     .with({ subscription: P.select({ period: 'paid' }) }, (paid) => (
       <>
         <SubscriptionHero subscription={paid} />
+
+        <InvitePrompt />
 
         <AutoRenewControl subscription={paid} />
 
@@ -54,6 +57,8 @@ export const SubscriptionCard = ({ subscription, isLoading, isError, onRetry }: 
       <PendingCheckoutBanner />
 
       {content}
+
+      {subscription?.status === 'active' && <MarketingConsentPrompt />}
 
       {subscription && (
         <>

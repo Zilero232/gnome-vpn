@@ -12,6 +12,7 @@ import { TERMS_VALUES } from '../../../config';
 import s from './TermsSection.module.scss';
 
 const TAGS = {
+  consent: (chunks: ReactNode) => <LegalLink href={ROUTES.consent}>{chunks}</LegalLink>,
   privacy: (chunks: ReactNode) => <LegalLink href={ROUTES.privacy}>{chunks}</LegalLink>,
   pricing: (chunks: ReactNode) => <LegalLink href={ROUTES.pricing}>{chunks}</LegalLink>
 };

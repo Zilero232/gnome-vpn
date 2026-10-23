@@ -1,0 +1,1 @@
+export { MarketingConsentSwitch } from './MarketingConsentSwitch';

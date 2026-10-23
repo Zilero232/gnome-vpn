@@ -1,12 +1,10 @@
 import type { PlanId } from '@gnomevpn/schemas';
 
-import type { ReferralSource } from '../../../generated';
 import type { PrismaExecutor } from '../../core';
 
 export type AttributeInput = {
   userId: string;
   code: string;
-  source: ReferralSource;
 };
 
 export type AttributeResult = {
@@ -38,10 +36,17 @@ export type RewardInput = {
 };
 
 export type RewardOutcome = {
-  referrerId: string;
+  referrerId: string | null;
   referrerDays: number;
   friendDays: number;
   isBanked: boolean;
+};
+
+export type ReferrerShareInput = {
+  referrerId: string;
+  planned: number;
+  now: Date;
+  db: PrismaExecutor;
 };
 
 export type ExtendInput = {
@@ -56,8 +61,8 @@ export type RevokeInput = {
 };
 
 export type RevokeOutcome = {
-  referrerId: string;
-  referredId: string;
+  referrerId: string | null;
+  referredId: string | null;
   referrerDays: number;
   friendDays: number;
 };

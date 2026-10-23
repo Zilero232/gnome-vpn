@@ -1,0 +1,63 @@
+{
+  "meta": {
+    "title": "Consent to personal data processing",
+    "description": "A GnomeVPN user’s consent to the processing of personal data: the operator, the data, the purposes, what is done with it, how long it lasts and how to withdraw it."
+  },
+  "title": "Consent to personal data processing",
+  "updated": "Updated {date}",
+  "intro": "I, acting freely, of my own will and in my own interest, consent to the processing of my personal data on the terms below, under Article 9 of Federal Law No. 152-FZ of 27 July 2006 “On Personal Data”. This is a separate document: it is not part of the terms of service or the privacy policy. This is a translation; the Russian text prevails.",
+  "sections": {
+    "operator": {
+      "title": "Operator",
+      "body": "The operator of the personal data is the person who provides the GnomeVPN service at {site} (the Provider under the <terms>terms of service</terms>; the Operator below). How to reach the Operator:"
+    },
+    "data": {
+      "title": "Personal data covered",
+      "body": "The consent covers the personal data listed below. The Operator does not collect connection history, the addresses of sites visited, DNS queries or the contents of connections, and processes no special categories of personal data and no biometric data.",
+      "items": [
+        "email address, name, password (stored only as an irreversible hash) and site language;",
+        "when I sign in with Telegram or use the Telegram bot — my Telegram id and username, Telegram language and the time I last used the bot;",
+        "technical data: the IP address and user agent of the browser or app in each sign-in session, the device’s IP address when it connects to the Service’s VPN servers, and the amount of data transferred, which the VPN servers count for the in-app counter;",
+        "device data: the device identifier (HWID) the VPN app sends, the model, platform and operating system version, the app name and the time of last activity; for WireGuard configs, the device name and the chosen country;",
+        "subscription and payment data: the plan and the subscription term; the amount, date, status and YooKassa id of each payment; the id of a saved payment method and its label (card type and the last four digits, or the name of another method); promo codes and discounts applied, gift codes bought, and who invited whom. The Operator never receives or stores the card number, its expiry date or the CVC;",
+        "hashes of the email address and the Telegram id, so that the trial and promo codes are not granted twice;",
+        "connection settings: routing (whether Russian sites open directly, whether ads are blocked), the platform and the time of the last subscription refresh;",
+        "support requests: the text of messages and their attachments and, for a request sent through the Telegram bot, the first and last name from the Telegram profile;",
+        "service records: consents (which one, for which version of the document, when and where it was given), marks of the notices sent so that a reminder does not arrive twice, and a log of administrator actions on the account (extending access, refunding a payment, sending a message — without the message text)."
+      ]
+    },
+    "purposes": {
+      "title": "Purposes",
+      "body": "Personal data is processed for these purposes:",
+      "items": [
+        "creating and maintaining the account, signing in to the site and the Telegram bot;",
+        "providing the Service: issuing the subscription link and WireGuard configs, keeping track of devices and enforcing the device limit;",
+        "taking payments, renewing the subscription automatically, making refunds, and crediting bonus days for promo codes, gifts and invitations;",
+        "answering support requests;",
+        "sending notices about the subscription, payments, upcoming charges and the operation of the Service by email and in the Telegram bot;",
+        "protecting accounts and the Service from abuse, including a trial or promo codes claimed twice."
+      ]
+    },
+    "actions": {
+      "title": "What may be done with the data",
+      "body": "I consent to the following actions with my personal data, with or without automation: collection, recording, systematisation, accumulation, storage, clarification (updating, changing), retrieval, use, transfer (provision, access), blocking, deletion and destruction. This consent does not cover making personal data available to the public."
+    },
+    "transfer": {
+      "title": "Transfer to third parties",
+      "body": "The Operator does not sell personal data. To the extent the purposes above require, it is passed to YooKassa, to take payments and renew automatically; to the email service, to send emails; and to Telegram and Cloudflare (Telegram’s requests reach the Operator’s server through Cloudflare’s network) when I sign in with Telegram or use the bot. I consent to cross-border transfer of personal data: Telegram and Cloudflare are outside Russia, the Service’s VPN servers are in other countries, and connecting to them processes my device’s IP address. The full list of recipients is in the <privacy>privacy policy</privacy>."
+    },
+    "term": {
+      "title": "Term and retention",
+      "body": "The consent runs from the moment I give it until the account is deleted or the consent is withdrawn. The Operator then stops processing and deletes the personal data. Only payment records, gift codes bought, and hashes of the email address and the Telegram id are kept, no longer linked to the account, to the extent and on the terms set out in the <privacy>privacy policy</privacy>. Deleted data leaves the backups as they rotate, within 30 days at most."
+    },
+    "withdrawal": {
+      "title": "Withdrawing consent",
+      "body": "I may withdraw the consent at any time: delete the account in my account area or send the Operator a request at {email}. The Operator stops processing and deletes the data as described under “Term and retention”, unless the law allows processing to continue without consent. The Service cannot be provided without this data, so withdrawing the consent also ends access to the Service; a refund for the unused period has to be requested before the account is deleted."
+    },
+    "form": {
+      "title": "How consent is given",
+      "body": "I give this consent electronically, by one of these actions on {site}: ticking the box “I give my consent to the processing of my personal data” and creating an account with an email address, or signing in with Telegram. By doing so I confirm that I have read this document. If I am between 14 and 18, I use the Service with the consent of a parent or other legal guardian."
+    }
+  },
+  "footnote": "How the Operator stores and protects data is in the <privacy>privacy policy</privacy>; the terms of the service are in the <terms>terms of service</terms>. Send questions and requests to withdraw consent to the address below."
+}

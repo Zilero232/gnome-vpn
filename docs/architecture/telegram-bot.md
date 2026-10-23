@@ -22,7 +22,8 @@ and `/trial`; `TelegramAppsService` `/apps`; `TelegramDevicesService`
 `TelegramBillingService` `/rotate` and auto-renewal; `TelegramAccountService` `/start`,
 linking, `/website`, `/language`, `/help`, `/unlink` and `/delete`;
 `TelegramReferralService` `/invite` and a `/start ref_<code>` arrival
-([referrals.md](referrals.md)); `TelegramSupportService` `/support` and the
+([referrals.md](referrals.md)); `TelegramOffersService` `/offers` and the switch under
+an offer ([below](#telegram-is-a-second-door-to-the-same-account)); `TelegramSupportService` `/support` and the
 support desk; `TelegramStatsService` `/stats`, `TelegramBroadcastService`
 `/broadcast` and `TelegramPromoService` `/promo`, the three owner commands.
 `TelegramLinkService` owns the chat rows and link codes, `TelegramWebLoginService`
@@ -38,6 +39,19 @@ creates the account itself — `ensureChat` mints a `User` through
 `internalAdapter.createUser` and so runs the database hook that creates the
 `Subscription`, then writes the `TelegramAccount` row. Nobody has to visit the
 site first, and nobody has to link anything.
+
+**An account made through Telegram records its consent to the processing of
+personal data.** `ensureChat` writes a `personalData` consent with source
+`telegram` and the current `PERSONAL_DATA_CONSENT_VERSION` right after it
+creates the account — from `/start`, a `ref_` arrival or the site's login
+widget alike — because using the bot is the action the consent is given by. The
+bot says so where that action happens: the description shown before «Запустить»
+ends with «Нажимая «Запустить», вы даёте согласие на обработку персональных
+данных», and the greeting of a new account ends with «Пользуясь ботом, вы даёте
+согласие на обработку персональных данных» linking the consent page on the
+site in the reader's language (`TelegramSharedService.consentUrl`,
+`LEGAL_PAGE.consent`). A failed write is logged as an error; the account is
+already there.
 
 **Only three doors call `ensureChat`: `/start`, a `ref_` arrival and the login
 widget.** A link code binds the chat to the code's account itself
@@ -79,7 +93,8 @@ on the site and then sends the bot their code would otherwise be told the chat
 belongs to another account — their own, created seconds earlier by `/start`.
 `consumeCode` therefore deletes the Telegram-born user when it is untouched:
 placeholder email, no period other than a trial, no bonus days, no referrals
-made, no promo code redeemed and no payment that is not `canceled` — an
+made, no promo code redeemed by hand (an automatic win-back grant does not
+count, [promo-codes.md](promo-codes.md#automatic-codes)) and no payment that is not `canceled` — an
 abandoned checkout is not a purchase. A trial-only account is merged: `TrialService.transfer` carries the
 trial (and its grant) over to the site account inside the same transaction,
 and the bot account's peers are released on their nodes after it commits.
@@ -347,9 +362,14 @@ anything until they open the chat and press something — and the keyboard they
 are looking at still offers "Subscribe" on a subscription that is already paid.
 `TelegramNotifyService.tell` sends one of the notices in `NOTICES` — a payment,
 extra devices bought, an automatic renewal, a card that was declined, a period
-about to end (`period-reminder`), a period that ran out, and every change to the
+about to end (`period-reminder`), a period that ran out, every change to the
 device registry: a device added, a device refused at the limit, devices cut by
-a smaller limit, the shared keys retired ([devices.md](devices.md)).
+a smaller limit, the shared keys retired ([devices.md](devices.md)) — and the
+two growth jobs: a win-back offer or reminder after a lapse
+(`winBackOffer`, `trialWinBackOffer`, `winBackReminder`,
+[scheduler.md](scheduler.md#win-back)) and a checkout left unpaid
+(`checkoutAbandoned`, `giftCheckoutAbandoned`,
+[billing.md](billing.md#abandoned-checkouts)).
 
 A caller names the notice (`notice: 'paid'`), not the string, and `NOTICES`
 says what each one carries. `paid` and `renewed` set `refreshHint`: when the
@@ -358,13 +378,60 @@ the subscription in the app if the servers did not appear. A WireGuard config
 is announced as `wireguardAdded`, which does not suggest `/rotate` — the link
 has nothing to do with a config made on the site.
 
+**Two moments of delight carry an invite.** A caller may pass `invite: <plan>`,
+and the notice then ends with one line naming the referral rewards of that
+plan from `REFERRAL_REWARDS` (`inviteLine`: «когда он оплатит подписку на 12
+мес., вы получите +30 дней, а он — +15 дней») and gets the Invite button.
+`paid` passes the plan just paid; the notice for the account's **first device
+ever** passes its current plan (monthly on a trial). "First ever" is a claim,
+not a count: the registry forgets removed devices, so `FeedNoticeService`
+claims a `firstDevice` row in the notice log
+([scheduler.md](scheduler.md#the-notice-log); `20261025110000_first_device_invite`
+backfilled every account that already had a device or a fetched link, and
+`20261026120000_notice_log` moved that mark into the log) and only the call
+that wins it invites.
+`noticeLayout` decides where the line goes: under an inline notice the line is
+appended and `invite` joins the buttons; `paid` carries the reply keyboard,
+which leaves a message no room for an inline button, so the line follows as a
+second message with the button. The effects stay where they were.
+
+**An offer is not a service message, and it goes only to those who asked.**
+`NOTICES` marks the three win-back notices (`winBackOffer`,
+`trialWinBackOffer`, `winBackReminder`) `isPromotional`: they offer a discount,
+which is advertising under the law on advertising (38-ФЗ, art. 18) and needs the
+recipient's prior consent. `tell` checks the account's latest marketing consent
+before a promotional notice and sends nothing — neither the message nor the
+email — when it is not granted, or when the check itself fails
+([legal.md](legal.md#consents)). Everything else is a service message and is
+not gated: a payment, a renewal and its advance notice, a declined card, a
+period ending or ended, every device change, an unfinished checkout (it is
+about an order the reader started, and offers nothing new), a gift bought, and
+the referral rewards. The invite line on `paid` and the first device is a part
+of those service messages — it describes the account's own rewards — and is
+not gated either.
+
+A promotional message carries one more button under its own,
+«🔕 Не присылать предложения» (`offers:off`): pressing it records a withdrawal
+(source `bot`) and turns the message into a short confirmation that payment,
+access and device messages keep coming, with «🔔 Присылать предложения» to
+undo it. `/offers` (`TelegramOffersService`) shows the current state with the
+same switch; it is in the command menu rather than in "⚙️ More", whose layout
+and title stay as they are. `offersChoice` reads the payload strictly, like
+every other callback.
+
 **`tell` is a fan-out, not only a Telegram message.** Someone who never linked
 Telegram would otherwise learn nothing about a charge, a failed card or an
 ending period. `NoticeEmailService` sends the money and access notices —
 `paid`, `renewed`, `renewSoon` (before every automatic charge, which the law
 expects us to announce), `chargeFailed`, `endingSoon`, `trialEndingSoon`,
-`expired` — and `giftPurchased`, with its code, to a verified, real address,
-whether or not a chat is linked. The
+`expired` — `giftPurchased`, with its code, and the growth notices (the three
+win-back ones with their `{percent}`, the two checkout reminders) to a
+verified, real address, whether or not a chat is linked. A promotional email
+ends with a different footer — sent because the reader agreed to offers — and
+an unsubscribe link (`UnsubscribeService.link`,
+`${CLIENT_URL}/unsubscribe?token=…`, also sent as the `List-Unsubscribe`
+header), which withdraws the consent with source `email`. Every email's button
+opens the account's Subscription tab (`NOTICE_EMAIL`, `/account#subscription`). The
 copy is its own (`lib/email/locales`), because the bot's text points at bot
 buttons; the locale is `user.locale`, then the linked chat's, then Russian.
 Every failure is logged and swallowed, like the Telegram half.
@@ -380,7 +447,9 @@ and their callback URLs carry the locale prefix (`/en/account`), so the click
 lands on the page in the language the mail was written in. The two that change which buttons apply — `paid`
 and `expired` — carry the reply keyboard rebuilt from the current state; every
 other notice carries the one button that answers it (renew on a declined card
-or an ending period, devices on a registry change, auto-charge on a renewal).
+or an ending period, devices on a registry change, auto-charge on a renewal,
+renew or buy on a win-back message, buy on an unfinished checkout and the
+website on an unfinished gift), plus Invite when it carries an invite (above).
 A message holds one markup or the other, never both. `paid` and `renewed` also
 carry a message effect, as do `devicesAdded`, `referralRewarded` and
 `giftPurchased`, and so do the trial starting and a chat getting linked;
@@ -421,6 +490,16 @@ back to the barrel brings the crash back — it was tried.
 A chat that is not linked simply gets nothing, and anything that fails — the
 chat lookup included, which sits inside the same `try` — is logged rather than
 raised: an unreachable Telegram must not fail a settled payment.
+
+**A chat that blocked the bot is remembered.** `telegram_account.blocked_at`
+is set when Telegram's `my_chat_member` update says the reader blocked the bot
+in their private chat (`botBlockChange`: `kicked`), and when a notice, an
+admin's message or a broadcast gets a 403
+(`20261025100000_win_back`); it is cleared when they unblock it (`member`),
+press anything (`touch`), or a notice reaches them. Nothing is withheld from a
+blocked chat — a send costs one call and proves the state — but the growth
+jobs skip an account whose only channel is a blocked chat and a placeholder
+email, since neither delivers.
 
 **`/devices` is the bot's copy of the device page.** It lists what
 `DevicesService.list` holds — numbered, with the system, the app, when it was

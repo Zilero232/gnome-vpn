@@ -1,5 +1,7 @@
+export { CheckoutReminderJob } from './checkout-reminder';
 export { DeviceSlotsJob } from './device-slots';
 export { ExpiredAccessJob } from './expired-access';
+export { ExpiredRecordsJob } from './expired-records';
 export { GeoFilesJob } from './geo-files';
 export { NodeHealthJob } from './node-health';
 export { PendingPaymentsJob } from './pending-payments';
@@ -7,3 +9,4 @@ export { PeriodReminderJob } from './period-reminder';
 export { ReconcilePeersJob } from './reconcile-peers';
 export { RecurringChargeJob } from './recurring-charge';
 export { SupportThreadsJob } from './support-threads';
+export { WinBackJob } from './win-back';

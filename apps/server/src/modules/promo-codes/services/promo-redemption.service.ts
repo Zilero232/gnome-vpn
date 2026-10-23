@@ -2,7 +2,7 @@ import type { PromoRedemption } from '@gnomevpn/schemas';
 
 import { DEFAULT_PLAN_ID, isPlaceholderEmail, normalisePromoCode, promoCodeOrigin } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
-import { isEmpty, isNullish } from 'remeda';
+import { isNullish } from 'remeda';
 
 import type { Claimed, ClaimInput, ExtendAccessInput, RedeemInput } from '../promo-codes.types';
 
@@ -13,7 +13,7 @@ import { ReferralService } from '../../referrals';
 import { TrialGrantService } from '../../subscription';
 import { SubscriptionAccessService } from '../../subscription-link';
 import { FRIEND_REDEMPTION, PROMO_REDEEM, REDEMPTION_REFUSAL } from '../config';
-import { accessExtension, promoEffect, redemptionRefusal, redemptionResult } from '../lib';
+import { accessExtension, accountRedemptions, promoEffect, redemptionRefusal, redemptionResult } from '../lib';
 
 @Injectable()
 export class PromoRedemptionService {
@@ -26,11 +26,11 @@ export class PromoRedemptionService {
     private readonly access: SubscriptionAccessService
   ) {}
 
-  async redeem({ userId, code, source = 'web' }: RedeemInput): Promise<PromoRedemption> {
+  async redeem({ userId, code }: RedeemInput): Promise<PromoRedemption> {
     const normalised = normalisePromoCode(code);
 
     if (promoCodeOrigin(normalised) === 'friend') {
-      await this.referrals.attribute({ userId, code: normalised, source });
+      await this.referrals.attribute({ userId, code: normalised });
 
       return FRIEND_REDEMPTION;
     }
@@ -74,10 +74,10 @@ export class PromoRedemptionService {
   private async claim({ userId, code, identities, now, db }: ClaimInput): Promise<Claimed> {
     const promo = await db.promoCode.findUnique({
       where: { code },
-      select: { id: true, kind: true, percent: true, days: true, maxUses: true, expiresAt: true }
+      select: { id: true, kind: true, percent: true, days: true, maxUses: true, expiresAt: true, isAutomatic: true }
     });
 
-    if (isNullish(promo)) {
+    if (isNullish(promo) || promo.isAutomatic) {
       throw new AppNotFoundException('PROMO_CODE_INVALID', 'No promo code matches');
     }
 
@@ -87,7 +87,7 @@ export class PromoRedemptionService {
       throw new AppServiceUnavailableException('INTERNAL_ERROR', `promo code ${promo.id} carries no effect`);
     }
 
-    const sameAccount = isEmpty(identities) ? [{ userId }] : [{ userId }, { identityHashes: { hasSome: identities } }];
+    const sameAccount = accountRedemptions({ userId, identities });
 
     const [uses, usedByAccount] = await Promise.all([
       db.promoRedemption.count({ where: { promoCodeId: promo.id } }),

@@ -44,7 +44,7 @@ guessed; a campaign code is meant to be public and needs no such length.
 to 10 a minute per address) and dispatches on the shape:
 
 - **friend** → `ReferralService.attribute`, unchanged — the same eligibility,
-  the same `REFERRAL_*` refusals, `source: 'web'`;
+  the same `REFERRAL_*` refusals;
 - **campaign or gift** → `PromoRedemptionService`, below.
 
 The answer is `{ kind, percent, days, currentPeriodEnd }`, and the client picks
@@ -91,7 +91,7 @@ the email is confirmed.
 limited code cannot both pass the count. The refusals, in this order
 (`redemptionRefusal`):
 
-1. `PROMO_CODE_INVALID` — no such code;
+1. `PROMO_CODE_INVALID` — no such code, or an automatic one ([below](#automatic-codes));
 2. `PROMO_CODE_ALREADY_USED` — this account has redeemed it already;
 3. `PROMO_CODE_EXPIRED` — `expires_at` has come;
 4. `PROMO_CODE_USED_UP` — `max_uses` redemptions exist (a gift has `max_uses = 1`).
@@ -146,8 +146,10 @@ reads only `current_period_end` — is the guarantee
    amount is the discounted one. A reused pending payment must carry the same
    discount and amount, so a payment opened before the code was redeemed is not
    handed back at the full price. The account page shows the struck-through
-   price and «−20% по промокоду BLOGGER20»; the bot's checkout message names the
-   code and the full price.
+   price and «Ваша скидка −20% уже в цене» with «Промокод BLOGGER20» under it
+   — the code comes second because an automatic discount carries one the
+   reader never typed; the bot's checkout message names the code and the full
+   price.
 4. **Consumed** — only when that payment succeeds, inside the settling
    transaction (`PromoDiscountService.consume`, a compare-and-set on
    `consumed_at`). A cancelled or abandoned payment leaves the discount pending.
@@ -228,15 +230,54 @@ campaign codes with their redemption counts, and `stop({ code, now })` sets the
 expiry of a live one to now — redemptions stop, a discount already redeemed is
 kept.
 
+## Automatic codes
+
+A campaign code with `is_automatic` set is granted by the server, never typed:
+the win-back job's two system codes, `WELCOMEBACK` for lapsed payers and
+`AFTERTRIAL` for trials that were never paid ([scheduler.md](scheduler.md#win-back)).
+They are ordinary `discount` codes otherwise, so the discount lifecycle above
+applies unchanged — the grant is a redemption, checkout prices it, a succeeded
+payment consumes it, a cancelled one leaves it pending.
+
+- **Created idempotently.** `AutoDiscountService.ensure` creates the code on
+  the job's first run (a race on the unique code re-reads the winner), and
+  keeps its percent equal to `WIN_BACK.percent`. A code of that name that
+  exists and is not automatic — an owner's own campaign — is never taken over:
+  the job logs an error and skips that audience.
+- **Not redeemable by typing.** `PromoRedemptionService.redeem` answers
+  `PROMO_CODE_INVALID` for an automatic code, exactly as for a code that does
+  not exist, so `?promo=WELCOMEBACK` or the Invite tab form give nothing away.
+  A friend- or gift-shaped name could never be one: a test runs both names
+  through `campaignProblem`.
+- **Granted once, never over another discount.** `AutoDiscountService.offer`
+  answers `held` when the account already has a pending discount (any code —
+  it is never replaced), `used` when the account or any of its identities has
+  ever redeemed an automatic code, and otherwise writes the redemption with the
+  identity hashes and answers `granted`.
+- **Visible like any campaign.** The admin campaigns list and `/promo` show
+  them with their uses, the payments discounted with them and the revenue
+  (`campaignView` needs nothing special: they are `discount` codes). Stopping
+  one there (`expires_at = now`) pauses that win-back audience; a discount
+  already granted stays, as with any stopped code. The reader sees the code's
+  name beside the discount at checkout («−20% по промокоду WELCOMEBACK»), which
+  is why the names read as greetings rather than internal labels.
+- **Ignored when a bot account is merged.** `isUntouchedTelegramUser` counts
+  only manual redemptions, so a trial-only Telegram account that was offered
+  `AFTERTRIAL` can still be merged into the site account its owner links;
+  the unspent grant goes with the deleted bot account.
+
 ## Data
 
 - `promo_code` — `code` (unique), `kind` (`discount` | `days` | `gift`),
   `percent` or `days` (a check constraint ties them to the kind), `max_uses`,
-  `expires_at`; for a gift also `plan`, `buyer_id`, `payment_id` (unique).
+  `expires_at`, `is_automatic`; for a gift also `plan`, `buyer_id`, `payment_id` (unique).
 - `promo_redemption` — one row per account and code (`unique(promo_code_id,
   user_id)`), the identity hashes, and for a discount `replaced_at`,
   `consumed_at` and the consuming `payment_id` (unique).
 - `payment` — `promo_code_id` and `discount_percent` on a discounted payment;
   the `gift` payment kind.
 
-Migration: `20261023130000_promo_codes_and_gifts`.
+Migrations: `20261023130000_promo_codes_and_gifts`; `is_automatic` came with
+`20261025100000_win_back`; `20261026100000_drop_write_only_columns_and_indexes`
+indexes `payment(promo_code_id)`, which campaign revenue groups by, and
+`promo_code(kind, created_at)`, which the admin lists of one kind read.

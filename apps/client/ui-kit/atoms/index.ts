@@ -4,6 +4,8 @@ export { BrandMark } from './BrandMark';
 export type { BrandMarkProps } from './BrandMark';
 export { Button, buttonVariants } from './Button';
 export type { ButtonProps } from './Button';
+export { Checkbox } from './Checkbox';
+export type { CheckboxProps } from './Checkbox';
 export { CountryFlag } from './CountryFlag';
 export type { CountryFlagProps } from './CountryFlag';
 export { GnomeBadge } from './GnomeBadge';

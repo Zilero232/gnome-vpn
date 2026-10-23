@@ -1,10 +1,10 @@
 {
   "meta": {
-    "title": "VPN blog: protocols, setup, speed",
-    "description": "How Hysteria2 and VLESS Reality work, what to do when a VPN will not connect in a hotel, how to set up a tunnel on a TV and why speed drops."
+    "title": "VPN blog: setup, protocols, speed",
+    "description": "Guides to setting up a VPN on iPhone, Android, Windows, macOS and a router, what to do when a VPN will not connect, and how Hysteria2 and VLESS Reality work."
   },
   "title": "Blog",
-  "intro": "How modern VPN protocols actually work, why a VPN sometimes refuses to connect, and what to do about it. No marketing — only what we have tested on our own infrastructure.",
+  "intro": "Step-by-step guides for phones, computers, televisions and routers, a look at the protocols, and why a VPN sometimes refuses to connect. No marketing — only what we have tested on our own infrastructure.",
   "back": "All articles",
   "cta": "GnomeVPN runs Hysteria2 and VLESS + Reality side by side: if one does not work on a network, the connection goes over the other. One subscription for every device.",
   "ctaAction": "See the plans →",
@@ -20,7 +20,7 @@
         },
         "whatIsReality": {
           "title": "What VLESS + Reality is",
-          "body": "Reality is not a protocol of its own but a way of setting up the TLS connection for VLESS. An ordinary TLS-based VPN needs a domain and a certificate of its own — self-signed or issued for that domain. Reality works differently: the server carries out the TLS handshake with the certificate of a real third-party site, www.bing.com for instance, and a key only your app knows tells your connection apart from the rest. That is why VLESS + Reality works where only HTTPS on port 443 is open."
+          "body": "Reality is not a protocol of its own but a way of setting up the TLS connection for VLESS. An ordinary TLS-based VPN needs a domain and a certificate of its own — self-signed or issued for that domain. Reality works differently: the server carries out the TLS handshake with the certificate of a real third-party site, and a key only your app knows tells your connection apart from the rest. That is why VLESS + Reality works where only HTTPS on port 443 is open."
         },
         "packetLoss": {
           "title": "Packet loss: where Hysteria2 wins",
@@ -28,7 +28,7 @@
         },
         "blocking": {
           "title": "Strict networks: where Reality wins",
-          "body": "Hysteria2 has one weak point — it runs over UDP, and UDP is often dropped wholesale. Corporate networks, hotel Wi-Fi and a few carriers pass only TCP on ports 80 and 443. There Hysteria2 cannot come up at all, however it is configured. Reality rides TCP on 443 like ordinary HTTPS, so it works on those networks. The other side of that: TCP copes worse with packet loss, and on an unstable network VLESS loses more speed."
+          "body": "Hysteria2 has one weak point — it runs over UDP, and UDP is often dropped wholesale. Corporate networks, hotel Wi-Fi and a few carriers pass only TCP on ports 80 and 443. There Hysteria2 cannot come up at all, however it is configured. Reality rides TCP on port 443 — the port every HTTPS site uses — so it works on those networks. The other side of that: TCP copes worse with packet loss, and on an unstable network VLESS loses more speed."
         },
         "howToChoose": {
           "title": "What to pick in practice",
@@ -78,11 +78,11 @@
         },
         "addingSubscription": {
           "title": "Adding the subscription by QR",
-          "body": "In the app on the television choose to add a subscription and pick the QR option — either the camera starts or a field for the code appears. Now open your account on your phone, press QR code, and hold the phone screen up to the television. The app reads the link and pulls in every server by itself. One detail: the QR dialog has a switch — pick the option for any app, which carries the plain link and is read everywhere."
+          "body": "In the app on the television choose to add a subscription and pick the QR option — either the camera starts or a field for the code appears. Now open your account on your phone: the Connect tab, «With a link», your app — and press QR code. Hold the phone screen up to the television: the app reads the link and pulls in every server by itself."
         },
         "remoteControl": {
           "title": "When there is no camera",
-          "body": "Some televisions have no camera and cannot scan a QR code at all. Then the link has to be typed with the remote — tedious, but only once. Copy it in your account with the Subscription URL button and send it to yourself by whatever opens on the television: email, a messenger, a note in the cloud. From there it can be copied and pasted into the app rather than typed. Android TV also supports keyboard apps that turn a phone into a remote with proper text entry."
+          "body": "Some televisions have no camera and cannot scan a QR code at all. Then the link has to be typed with the remote — tedious, but only once. Copy it in your account on the Connect tab with the «Copy for …» button and send it to yourself by whatever opens on the television: email, a messenger, a note in the cloud. From there it can be copied and pasted into the app rather than typed. Android TV also supports keyboard apps that turn a phone into a remote with proper text entry."
         },
         "autoConnect": {
           "title": "Connecting automatically",
@@ -97,7 +97,7 @@
       "sections": {
         "distance": {
           "title": "Distance to the server",
-          "body": "The dominant factor is physical distance. Traffic to the Netherlands and back covers a few thousand extra kilometres, and that adds latency no amount of optimisation removes. From Moscow to a European server the ping usually sits at 40-60 ms against 5-15 ms direct. Page loads barely notice; games and video calls do. The rule is simple: pick the nearest country unless a specific location is what you need for a particular service."
+          "body": "The dominant factor is physical distance. Traffic to the Netherlands and back covers a few thousand extra kilometres, and that adds latency no amount of optimisation removes. From Moscow to a European server the ping usually sits at 40-60 ms against 5-15 ms direct. Page loads barely notice; games and video calls do. The rule is simple: pick the nearest country."
         },
         "protocol": {
           "title": "The protocol and its overhead",
@@ -141,6 +141,141 @@
         "otherApps": {
           "title": "It is not only for INCY",
           "body": "We recommend INCY because we have tested it on every platform, iPhones and televisions included. But the subscription format is a common one, and the same link goes into Hiddify, v2rayNG, Streisand, NekoBox and Clash Meta. Your account page has a separate button for copying the plain link — it differs from the INCY button, which carries a scheme only that app understands. If you prefer another client, nothing stops you using it."
+        }
+      }
+    },
+    "vpn-iphone-ipad": {
+      "title": "How to set up a VPN on iPhone and iPad, step by step",
+      "excerpt": "Install the free INCY app, add one link from your account and connect. Plus Russian sites going direct, ad blocking and the device limit.",
+      "intro": "On iPhone and iPad GnomeVPN runs through INCY, a free app from the App Store. Setup comes down to one link from your account: once it is added, the app shows every country and both protocols, and the list keeps itself current from then on. Here is what to tap, step by step, and what to watch for.",
+      "sections": {
+        "whatYouNeed": {
+          "title": "What you need",
+          "body": "An iPhone or iPad on a current iOS, the INCY app, and an account on our site with an active subscription or free day. The free day is given once, after you confirm your email, and needs no card; the subscription terms and prices are on the <pricing>pricing page</pricing>. INCY comes from the App Store and needs no account of its own: it has no servers, it shows the ones your link delivers. Without a subscription or a free day the link is still added, but the server list stays empty."
+        },
+        "addingLink": {
+          "title": "Adding the link",
+          "body": "Open your account in a browser on the same iPhone: the Connect tab, With a link, INCY. The shortest way is the Open in INCY button: the link is copied, the app opens and adds the subscription by itself. If INCY does not open, press Copy for INCY, then in the app tap + and choose import from clipboard. iOS may ask whether to allow pasting from another app — allow it. What the link is and why one link covers every device is explained in <subscription-link-explained>the post on subscription links</subscription-link-explained>."
+        },
+        "firstConnection": {
+          "title": "The first connection",
+          "body": "Once imported, INCY shows the list of countries, and each country appears twice: Hysteria2 and VLESS, with the protocol labelled on every entry. Start with Hysteria2 — it is faster, on mobile data especially. On the first connection iOS asks to allow adding a VPN configuration and to confirm it with your passcode or Face ID; without that the tunnel cannot come up. Once INCY shows you are connected, open the <status>server status page</status> and press Check connection: it tells you whether your traffic goes through GnomeVPN, and through which country."
+        },
+        "routingAndAds": {
+          "title": "Russian sites and ads",
+          "body": "By default Russian sites go around the VPN: banks, Gosuslugi, marketplaces and everything on .ru, .su and .рф see your usual address, so there is no need to switch the VPN off for them. In your account, on the Connect tab under Routing, you can turn that off and turn ad blocking on. The list of ad domains there is short on purpose: a VPN extension on iPhone has a hard memory limit, and a huge list would get the tunnel quietly shut down by the system. AdGuard's DNS filter catches the rest. INCY applies the settings on its next subscription refresh — pull the server list down to apply them now."
+        },
+        "otherDevices": {
+          "title": "iPad, Mac and other devices",
+          "body": "On iPad everything is the same: INCY from the App Store and the same link from your account. Each device takes its own place in the subscription — two by default — and one you no longer use can be removed on the Devices tab or with /devices in the Telegram bot. Make sure HWID sending is on in INCY's subscription settings: without it a new device gets no servers. A Mac has its own <vpn-windows-macos>guide for computers</vpn-windows-macos>, and Apple TV the <vpn-android-tv>guide for televisions</vpn-android-tv>. And if something will not connect, go through <vpn-not-connecting>the checklist</vpn-not-connecting>."
+        }
+      }
+    },
+    "vpn-android": {
+      "title": "How to set up a VPN on Android: phone, tablet and Android TV",
+      "excerpt": "Install INCY from Google Play, add the subscription with one button and set the phone up so the VPN does not drop on its own. Plus a word on Android TV.",
+      "intro": "On Android GnomeVPN connects through the free INCY app. If you open your account on the same phone, the subscription goes in with one button — nothing to copy or paste. Below: installing, the first connection, and the settings that keep the VPN from dropping on its own.",
+      "sections": {
+        "installing": {
+          "title": "Installing",
+          "body": "Install INCY from Google Play — the app is free and needs no sign-up. If the device has no Google Play, check INCY's own site, which lists the other ways to install it. Another subscription app works too — Hiddify, v2rayNG, NekoBox and Clash Meta read the same link — but the steps below are written for INCY: it is the only one where the routing switches in your account take effect. Every download link is on the <setup>setup page</setup>."
+        },
+        "addingLink": {
+          "title": "The subscription in one tap",
+          "body": "Open your account in a browser on the same phone: the Connect tab, With a link, INCY. Press Open in INCY — the link is copied, the app opens and adds the subscription with every server. If INCY does not open, the link is already on the clipboard: tap + in the app and choose import from clipboard. Without an active subscription or free day the server list stays empty. The free day is switched on in your account once your email is confirmed, and the subscription terms and prices are on the <pricing>pricing page</pricing>."
+        },
+        "firstConnection": {
+          "title": "The first connection",
+          "body": "Pick a country and connect. Android asks once for permission to set up a VPN connection — confirm it, or the tunnel will not come up. Each country has two entries: Hysteria2 over UDP and VLESS over TCP. Start with Hysteria2, and if the connection will not establish — on office Wi-Fi, say — switch to VLESS for the same country. How the two differ is covered in <hysteria2-vs-vless>the post on Hysteria2 and VLESS</hysteria2-vs-vless>. Russian sites go direct by default, and ad blocking can be turned on in your account, under Routing."
+        },
+        "stayingConnected": {
+          "title": "Keeping the VPN on",
+          "body": "Some Android skins save battery aggressively and close background apps, tunnel included. If the VPN disappears while the phone sits idle, exclude INCY from battery optimisation in its app settings. The system VPN settings also have an Always-on VPN option: with it Android brings the tunnel back up by itself after a restart. The exact path depends on the manufacturer — usually somewhere under network or connections. The server list keeps refreshing on its own schedule, so new countries appear without anything from you."
+        },
+        "tvAndTablets": {
+          "title": "Android TV and tablets",
+          "body": "On a tablet everything works as on a phone. On an Android TV set INCY installs from Google Play right on the screen, and there is no need to type the link with the remote: open your account on your phone, press QR code on the Connect tab and scan it in INCY on the television. Every device — phone, tablet, television — takes its own place in the subscription; remove the ones you no longer use on the Devices tab. Televisions are covered in detail in the <vpn-android-tv>Android TV and Apple TV guide</vpn-android-tv>."
+        }
+      }
+    },
+    "vpn-windows-macos": {
+      "title": "How to set up a VPN on Windows and macOS, step by step",
+      "excerpt": "Download INCY for Windows or Mac, paste the link from your account and connect. What to do when an office network will not connect, and what can replace INCY.",
+      "intro": "On a computer GnomeVPN runs through the same INCY app as on a phone; the only difference is that the link is pasted by hand, because a computer has no button that opens the app for you. It takes a couple of minutes. Here is installing on Windows and macOS, the first connection and the fallbacks.",
+      "sections": {
+        "download": {
+          "title": "Where to download",
+          "body": "The installers are on the <setup>setup page</setup>: an .exe for Windows and a .dmg for Apple Silicon Macs — every Mac with an M1 chip or newer. On those Macs INCY is in the App Store as well. For Ubuntu and Debian there is a .deb package in the same place. The app is free and needs no account of its own: the only account is on our site, where your subscription lives. Download INCY from our page or the app's official site rather than from a third-party build."
+        },
+        "installing": {
+          "title": "Installing",
+          "body": "On Windows run the installer and approve the administrator prompt: the rights are needed to create the network adapter the tunnel runs through. On a Mac open the .dmg file and drag INCY into Applications. On the first connection the system may ask for confirmation or an administrator password once more — that is expected, the VPN connection cannot be created without it. From then on the app updates itself, so there is no reinstalling when a new version comes out."
+        },
+        "addingLink": {
+          "title": "Adding the link",
+          "body": "Open your account in a browser: the Connect tab, With a link, INCY, then Copy for INCY. In INCY press + and paste the link. Add it as a subscription rather than as a single server — that way the country list updates itself and the app shows when your subscription ends. If the list is empty, check in your account that a subscription or a free day is active: without one the link delivers no servers. Terms and prices are on the <pricing>pricing page</pricing>."
+        },
+        "officeNetworks": {
+          "title": "Connecting, and office networks",
+          "body": "Pick a country and connect. Every country has two entries: Hysteria2 over UDP and VLESS over TCP. At home start with Hysteria2; at the office or in a hotel, where UDP is often closed, go straight to VLESS — it runs over TCP on port 443, the port HTTPS sites use. Why, and what else such networks do, is in <vpn-not-working-hotel-wifi>the post on hotel and office networks</vpn-not-working-hotel-wifi>. Russian sites go direct by default in INCY on a computer too; the switch is in your account, under Routing."
+        },
+        "alternatives": {
+          "title": "If INCY is not for you",
+          "body": "The same link works in Hiddify on Windows and macOS, and in Streisand on a Mac. If you want WireGuard, create a config in your account: on Windows WireSock Secure Connect opens it best and can send only chosen programs through the VPN; on a Mac use the official WireGuard app. Configs and their limits are covered in <wireguard-router-config>the WireGuard post</wireguard-router-config>. A computer takes one place in the subscription, just like a phone."
+        }
+      }
+    },
+    "wireguard-router-config": {
+      "title": "WireGuard on a router or in an app: getting the config",
+      "excerpt": "How to create a WireGuard config in your account or the Telegram bot, load it into a router or an app, and how it differs from the subscription link.",
+      "intro": "The main way to connect to GnomeVPN is the subscription link in INCY. A router or a WireGuard app cannot read a link, though: it needs a .conf file. You can get one in your account or from the Telegram bot. Here is where the config comes from, where to load it and what its limits are.",
+      "sections": {
+        "whenToUse": {
+          "title": "When WireGuard is the right call",
+          "body": "WireGuard is not part of the subscription, and that is deliberate. The protocol is simple and fast, but easy to recognise, and on mobile networks it often will not connect. So we hand it out as a separate config for two cases: a router that should carry the whole home network, and an app that speaks nothing but WireGuard. For a phone or a computer INCY is the easier choice: one link carries every country, Hysteria2 and VLESS, and Russian sites go direct. If a config will not connect, try INCY — how the protocols differ is in <hysteria2-vs-vless>the post on Hysteria2 and VLESS</hysteria2-vs-vless>."
+        },
+        "gettingConfig": {
+          "title": "Where to get the config",
+          "body": "In your account open the Connect tab and choose With a config. Pick a country, name the device — Router, say — and press Create. The config can be downloaded as a .conf file or opened as a QR code to scan with a phone. The /wireguard command in the Telegram bot does the same and sends the file straight to the chat. Configs are available while a subscription or a free day is active. A server that is not answering right now cannot be picked in the form, and its state is shown on the <status>server status page</status>."
+        },
+        "router": {
+          "title": "A router",
+          "body": "Keenetic, OpenWrt and MikroTik can all act as a WireGuard client. In the router's web interface find the WireGuard connections section and upload the .conf file — or copy its fields over by hand: the keys, the address, the server and the port. Once it is on, every device on the home network goes through the VPN, the TV and the set-top box included, and the router takes a single place in your subscription limit. Keep in mind that the config sends all traffic through the tunnel, Russian sites included: the “Russian sites — direct” switch applies in INCY only."
+        },
+        "apps": {
+          "title": "Apps",
+          "body": "On Windows WireSock Secure Connect works best: it imports the .conf and can send only chosen programs through the VPN. On iPhone and Android, AmneziaVPN: the config goes in as a file or by scanning the QR code, and the app has its own per-site split tunnelling. On macOS, Linux and anywhere the first two do not run, the official WireGuard app; on Linux it is enough to put the file in /etc/wireguard and run wg-quick up with the config name. The file name becomes the tunnel name, which is why we keep it within the 15 characters Windows and Linux allow. Links to the apps are on the <setup>setup page</setup>."
+        },
+        "limits": {
+          "title": "Limits",
+          "body": "One config is one device and one country. To change country, create another config and delete the old one: each takes a place in your device limit. Do not load one config onto several devices — it is made for one. A deleted config stops working within a few minutes and cannot be restored, and its place is freed. Rotating the subscription link does not touch configs. When the subscription ends, configs are switched off and come back with the renewal; if the extra device places you bought run out, the configs past the limit are deleted. The rest is in the <faq>FAQ</faq>."
+        }
+      }
+    },
+    "vpn-not-connecting": {
+      "title": "VPN will not connect: what to check, in order",
+      "excerpt": "The subscription, a refresh in the app, the other protocol, the status page, the device limit and a new link — the checks that settle almost every case.",
+      "intro": "A VPN that will not connect usually comes down to one of a few simple causes, and each takes a minute to check. Work down the list from the top: the checks run from the most common causes to the rarer ones. If none of it helps, the last section says how to write to us so we can sort it out faster.",
+      "sections": {
+        "accessAndRefresh": {
+          "title": "The subscription is active, and the app knows it",
+          "body": "Open your account and the Subscription tab: it shows whether a subscription or a free day is active. Without one the link delivers no servers and the app's list is empty. If you have just paid or renewed, the app may not know yet — refresh the subscription: in INCY with the refresh button or by pulling down on the server list. Read the message from GnomeVPN in the app too, if there is one: it usually names the cause — the subscription has ended, every place is taken, or the servers for a new device are still being prepared and a refresh in a minute will bring them."
+        },
+        "protocolOrCountry": {
+          "title": "Another protocol or another country",
+          "body": "Every country in the subscription comes in two variants: Hysteria2 over UDP and VLESS + Reality over TCP. If Hysteria2 tries for a long time and gives up on a timeout, the network most likely does not pass UDP — common in offices, hotels and with some carriers. Switch to VLESS for the same country. If that does not help, try another country, and then another network — mobile data instead of Wi-Fi, for instance. More in the posts on <vpn-not-working-hotel-wifi>hotel and office networks</vpn-not-working-hotel-wifi> and on <hysteria2-vs-vless>Hysteria2 and VLESS</hysteria2-vs-vless>."
+        },
+        "statusPage": {
+          "title": "The status page and the connection check",
+          "body": "The <status>server status page</status> shows whether each server is working right now: we check them every minute, and Having problems or Unavailable is a reason to pick another country until the server is back. The same page has a Check connection button: your browser asks an independent service for its address, and we compare it with the addresses of our servers. That shows whether your traffic really goes through GnomeVPN. A Russian IP-check site will not do for this: Russian sites open directly by default and see your usual address."
+        },
+        "devicesAndLink": {
+          "title": "The device limit and a new link",
+          "body": "A device takes a place the first time its app fetches the subscription, and there are two places by default. If they are all taken, a new device gets an empty list — remove one you no longer use on the Devices tab or with /devices in the Telegram bot. In INCY make sure HWID sending is on in the subscription settings: without it a new device is not accepted. And if the link has been rotated — in your account or with /rotate — the old one has stopped working on every device: copy the new one on the Connect tab and add it again. WireGuard configs are not affected."
+        },
+        "support": {
+          "title": "If nothing helped",
+          "body": "Write to us: your account has a Need help? block with email and Telegram, and the Telegram bot has a Support button — describe what happened and the answer comes back to the same chat. To help us sort it out faster, name the device and the app, the country and protocol you tried and the network — Wi-Fi or mobile data — and attach a screenshot of the error. We answer within a day. Many questions are already answered in the <faq>FAQ</faq>, and step-by-step setup for every platform is on the <setup>setup page</setup>."
         }
       }
     }

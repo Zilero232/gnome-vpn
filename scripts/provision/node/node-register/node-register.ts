@@ -18,7 +18,7 @@ export const rememberNodeSecrets = async ({ serverEnvPath, countryCode, apiToken
   log.done('the panel secrets are saved to .env.nodes');
 };
 
-export const registerNode = async ({ config, prisma, panel, auth, cert }: RegisterNodeInput): Promise<boolean> => {
+export const registerNode = async ({ config, prisma, panel, cert }: RegisterNodeInput): Promise<boolean> => {
   log.step('writing the node row');
 
   const { wasExisting } = await upsertNode({
@@ -30,7 +30,6 @@ export const registerNode = async ({ config, prisma, panel, auth, cert }: Regist
       host: config.host,
       port: PORTS.hysteria,
       serverName: MASQUERADE_HOST,
-      hysteriaAuth: auth,
       certFingerprint: cert.certFingerprint,
       realityPublicKey: cert.realityPublicKey,
       realityShortId: cert.realityShortId,

@@ -1,9 +1,10 @@
 import type { ReferralOverview } from '@gnomevpn/schemas';
 
+import { REFERRAL_REWARDS } from '@gnomevpn/schemas';
 import { describe, expect, it } from 'vitest';
 
 import { isTelegramHtml } from '../../html';
-import { inviteView, shareUrl } from '../invite-view';
+import { inviteLine, inviteView, shareUrl } from '../invite-view';
 
 const OVERVIEW: ReferralOverview = {
   code: 'ABCDEF23',
@@ -71,5 +72,20 @@ describe('shareUrl', () => {
     expect(url.origin + url.pathname).toBe('https://t.me/share/url');
     expect(url.searchParams.get('url')).toBe('https://gnome-vpn.com/?ref=ABCDEF23');
     expect(url.searchParams.get('text')).toBe('Привет & пока');
+  });
+});
+
+describe('inviteLine', () => {
+  it('names the rewards of the plan it is given, both ways', () => {
+    const line = inviteLine({ planId: 'yearly', locale: 'en' });
+
+    expect(line).toContain(`+${REFERRAL_REWARDS.yearly.referrerDays} days`);
+    expect(line).toContain(`+${REFERRAL_REWARDS.yearly.friendDays} days`);
+    expect(line).toContain('12 mo');
+  });
+
+  it('renders markup Telegram accepts in both languages', () => {
+    expect(isTelegramHtml(inviteLine({ planId: 'monthly', locale: 'ru' }))).toBe(true);
+    expect(isTelegramHtml(inviteLine({ planId: 'monthly', locale: 'en' }))).toBe(true);
   });
 });

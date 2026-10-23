@@ -1,7 +1,9 @@
 import { isAfter } from 'date-fns';
-import { isNonNullish, isNullish } from 'remeda';
+import { isEmpty, isNonNullish, isNullish } from 'remeda';
 
+import type { Prisma } from '../../../../../generated';
 import type {
+  AccountRedemptionsInput,
   PromoEffect,
   PromoEffectRow,
   RedemptionRefusal,
@@ -37,3 +39,6 @@ export const redemptionResult = ({ effect, currentPeriodEnd }: RedemptionResultI
 
   return { kind: effect.kind, percent: null, days: effect.days, currentPeriodEnd: currentPeriodEnd?.toISOString() ?? null };
 };
+
+export const accountRedemptions = ({ userId, identities }: AccountRedemptionsInput): Prisma.PromoRedemptionWhereInput[] =>
+  isEmpty(identities) ? [{ userId }] : [{ userId }, { identityHashes: { hasSome: identities } }];
