@@ -1,15 +1,13 @@
-import { getTranslations } from 'next-intl/server';
-import { notFound } from 'next/navigation';
-import * as rootParams from 'next/root-params';
+import { Suspense } from 'react';
 
 import { BLOG_SLUGS, isBlogSlug } from '@/entities/app/blog';
 import { blogPostRoute } from '@/shared/constants';
-import { LOCALES, resolveLocale } from '@/shared/i18n';
-import { articleJsonLd, JsonLd, PageJsonLd } from '@/shared/seo';
+import { LOCALES } from '@/shared/i18n';
 import { translatedMetadata } from '@/shared/seo/translated-metadata';
-import { BlogPostPage } from '@/views/blog-post';
 
 import type { BlogPostParams } from './page.types';
+
+import { Post } from './post';
 
 export const ensureStatic = 'navigation';
 
@@ -31,25 +29,10 @@ export const generateMetadata = async ({ params }: BlogPostParams) => {
   });
 };
 
-const Page = async ({ params }: BlogPostParams) => {
-  const { slug } = await params;
-
-  if (!isBlogSlug(slug)) {
-    notFound();
-  }
-
-  const locale = resolveLocale(await rootParams.locale());
-  const t = await getTranslations({ locale, namespace: `blog.posts.${slug}` });
-
-  return (
-    <>
-      <PageJsonLd locale={locale} name={t('title')} path={blogPostRoute(slug)} />
-
-      <JsonLd data={articleJsonLd({ headline: t('title'), description: t('excerpt'), path: blogPostRoute(slug), locale })} />
-
-      <BlogPostPage slug={slug} />
-    </>
-  );
-};
+const Page = ({ params }: BlogPostParams) => (
+  <Suspense>
+    <Post params={params} />
+  </Suspense>
+);
 
 export default Page;
