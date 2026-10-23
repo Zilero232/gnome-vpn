@@ -1,0 +1,53 @@
+enum PromoCodeKind {
+  discount
+  days
+  gift
+}
+
+model PromoCode {
+  id   String @id @default(dbgenerated("gen_random_uuid()"))
+  code String @unique
+
+  kind    PromoCodeKind
+  percent Int?
+  days    Int?
+
+  maxUses   Int?      @map("max_uses")
+  expiresAt DateTime? @map("expires_at") @db.Timestamptz(3)
+
+  plan      SubscriptionPlan?
+  buyerId   String?           @map("buyer_id")
+  paymentId String?           @unique @map("payment_id")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  buyer              User?             @relation("GiftsBought", fields: [buyerId], references: [id], onDelete: SetNull)
+  payment            Payment?          @relation("GiftPayment", fields: [paymentId], references: [id], onDelete: SetNull)
+  discountedPayments Payment[]         @relation("DiscountedPayments")
+  redemptions        PromoRedemption[]
+
+  @@index([buyerId, createdAt])
+  @@map("promo_code")
+}
+
+model PromoRedemption {
+  id          String  @id @default(dbgenerated("gen_random_uuid()"))
+  promoCodeId String  @map("promo_code_id")
+  userId      String? @map("user_id")
+
+  identityHashes String[] @map("identity_hashes")
+
+  replacedAt DateTime? @map("replaced_at") @db.Timestamptz(3)
+  consumedAt DateTime? @map("consumed_at") @db.Timestamptz(3)
+  paymentId  String?   @unique @map("payment_id")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  promoCode PromoCode @relation(fields: [promoCodeId], references: [id], onDelete: Cascade)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  payment   Payment?  @relation("ConsumedDiscount", fields: [paymentId], references: [id], onDelete: SetNull)
+
+  @@unique([promoCodeId, userId])
+  @@index([userId, createdAt])
+  @@map("promo_redemption")
+}

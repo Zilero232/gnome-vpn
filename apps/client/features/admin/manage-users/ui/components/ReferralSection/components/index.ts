@@ -1,0 +1,1 @@
+export { InvitedTable } from './InvitedTable';

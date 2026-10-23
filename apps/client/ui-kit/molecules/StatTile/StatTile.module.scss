@@ -1,0 +1,29 @@
+.root {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-raised);
+  gap: 4px;
+}
+
+.label {
+  margin: 0;
+  font-weight: 600;
+}
+
+.value {
+  margin: 0;
+  color: var(--color-text);
+  font-size: clamp(22px, 1.2vw + 16px, 28px);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.trend {
+  margin-top: 6px;
+}

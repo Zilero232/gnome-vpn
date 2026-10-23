@@ -1,0 +1,1 @@
+export { RedemptionTable } from './RedemptionTable';

@@ -1,1 +1,1 @@
-export { claimReferral, getReferrals } from './referrals';
+export { getReferrals } from './referrals';

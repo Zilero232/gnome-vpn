@@ -1,2 +1,3 @@
-export { useClaimPendingReferral } from './model/hooks';
+export { useClaimPendingPromoCode } from './model/hooks';
+export { PromoCodeForm } from './ui/components';
 export { InvitePanel } from './ui/InvitePanel';

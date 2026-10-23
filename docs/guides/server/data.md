@@ -20,6 +20,15 @@ foreign keys, but none of those columns was indexed until
 per-user index cannot serve a filter on status and age. A new query that
 filters or joins on an unindexed column needs an `@@index` in its `prisma/schema/*.prisma` file and the migration that creates it.
 
+**A Prisma `upsert` is not atomic.** It reads, then creates, so two requests
+that reach a missing row together both try to create it and one throws
+`P2002`, which the exception filter answers as `409`. The account's Connect tab
+does exactly that on a first visit — the link and the routing settings each
+upsert the same `subscription_link` row — so both go through `withUniqueRetry`
+(`core/unique-retry`): one more attempt after a unique violation, by which time
+the row exists and the second upsert only reads it. A genuine duplicate still
+fails on the retry. `withSerializableRetry` is the same idea for `P2034`.
+
 Both Prisma clients (`PrismaService` for the API, `basePrisma` for better-auth)
 build their pool through `createPool` in `core/prisma/pg-pool.ts` — one place, with a `pool.on('error')`
 listener (pg _requires_ one, or a dropped idle connection crashes the process)

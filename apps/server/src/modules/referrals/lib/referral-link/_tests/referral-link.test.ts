@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { isReferralStart, referralCodeFromStart, telegramReferralLink, telegramStartPayload, webReferralLink } from '../referral-link';
+import { isReferralStart, referralCodeFromStart, telegramReferralLink, telegramStartPayload, webPromoLink, webReferralLink } from '../referral-link';
 
 describe('webReferralLink', () => {
   it('puts the code on the landing page', () => {
@@ -9,6 +9,12 @@ describe('webReferralLink', () => {
 
   it('ignores a path already on the client URL', () => {
     expect(webReferralLink({ clientUrl: 'https://gnome-vpn.com/en/', code: 'ABCDEF23' })).toBe('https://gnome-vpn.com/?ref=ABCDEF23');
+  });
+});
+
+describe('webPromoLink', () => {
+  it('carries a campaign code in its own parameter, which ?ref= refuses', () => {
+    expect(webPromoLink({ clientUrl: 'https://gnome-vpn.com/en/', code: 'BLOGGER20' })).toBe('https://gnome-vpn.com/?promo=BLOGGER20');
   });
 });
 

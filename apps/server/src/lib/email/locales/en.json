@@ -81,6 +81,16 @@
       "heading": "The subscription has ended",
       "body": ["Access is off. Subscribe to bring it back — the link in your app starts working again."],
       "action": "Subscribe"
+    },
+    "giftPurchased": {
+      "subject": "Your GnomeVPN gift: code {code}",
+      "heading": "Gift paid",
+      "body": [
+        "Gift code: {code}",
+        "Send it to whoever you are giving it to. They enter it on the site when signing up, or in their account under “Have a promo code?” — and the subscription is extended at once.",
+        "All your gifts and their status are in your account, on the Subscription tab."
+      ],
+      "action": "My gifts"
     }
   }
 }

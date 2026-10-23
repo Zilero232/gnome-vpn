@@ -1,0 +1,18 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  @include stack(16px);
+
+  min-width: 0;
+}
+
+.code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.redeemed {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}

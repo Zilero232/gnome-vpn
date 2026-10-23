@@ -9,7 +9,7 @@ import { BOT_TEXT, CALLBACK_PREFIX, SUBJECT_SEPARATOR, WIREGUARD_KINDS } from '.
 import { fillLabel, fillText } from '../fill-text';
 import { html } from '../html';
 import { menuButtons } from '../keyboard';
-import { nodeLabel } from './wireguard-view.helpers';
+import { nodeLabel } from '../node-label';
 
 export const wireguardView = ({ overview, locale, notice }: WireguardViewInput): BotMessage => {
   const text = BOT_TEXT[locale];

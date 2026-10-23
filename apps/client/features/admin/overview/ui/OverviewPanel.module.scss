@@ -1,0 +1,7 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  @include stack(var(--gap-md));
+
+  min-width: 0;
+}

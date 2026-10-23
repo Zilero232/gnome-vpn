@@ -24,10 +24,13 @@ model Node {
   isAvailable   Boolean   @default(true) @map("is_available")
   displayOrder  Int       @default(0) @map("display_order")
   lastHealthyAt DateTime? @map("last_healthy_at") @db.Timestamptz(3)
+  lastCheckedAt DateTime? @map("last_checked_at") @db.Timestamptz(3)
+  isOverloaded  Boolean   @default(false) @map("is_overloaded")
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
-  peers Peer[]
+  peers  Peer[]
+  uptime NodeUptime[]
 
   @@map("node")
 }

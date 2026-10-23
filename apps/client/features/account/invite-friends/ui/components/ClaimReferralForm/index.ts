@@ -1,1 +1,0 @@
-export { ClaimReferralForm } from './ClaimReferralForm';

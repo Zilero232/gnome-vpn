@@ -1,7 +1,7 @@
-import { format } from 'date-fns';
+import { format, formatDistanceStrict } from 'date-fns';
 import { isNullish } from 'remeda';
 
-import type { FormatDateInput } from './format-date.types';
+import type { FormatAgoInput, FormatDateInput } from './format-date.types';
 
 import { DATE_FORMAT, DATE_LOCALES } from './format-date.constants';
 
@@ -12,3 +12,6 @@ export const formatDate = ({ iso, locale }: FormatDateInput) => {
 
   return format(new Date(iso), DATE_FORMAT, { locale: DATE_LOCALES[locale] });
 };
+
+export const formatAgo = ({ date, now, locale }: FormatAgoInput): string =>
+  formatDistanceStrict(date, now, { addSuffix: true, locale: DATE_LOCALES[locale] });

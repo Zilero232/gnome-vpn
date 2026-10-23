@@ -1,0 +1,52 @@
+import type { PaymentMethod, PaymentMethods } from '@gnomevpn/schemas';
+import type { Cache } from 'cache-manager';
+
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { isEmpty, isNonNullish } from 'remeda';
+
+import { describeError } from '../../../common/lib';
+import { YooKassaClient } from '../../../lib';
+import { PAYMENT_METHODS_CACHE } from '../config';
+import { offeredMethods } from '../lib';
+
+@Injectable()
+export class PaymentMethodsService {
+  private readonly logger = new Logger(PaymentMethodsService.name);
+
+  constructor(
+    private readonly yookassa: YooKassaClient,
+    @Inject(CACHE_MANAGER) private readonly cache: Cache
+  ) {}
+
+  async list(): Promise<PaymentMethods> {
+    const cached = await this.cache.get<PaymentMethods>(PAYMENT_METHODS_CACHE.key);
+
+    if (isNonNullish(cached)) {
+      return cached;
+    }
+
+    const offered = await this.fetch();
+    const methods = isEmpty(offered) ? [...PAYMENT_METHODS_CACHE.fallback] : offered;
+
+    await this.cache.set(
+      PAYMENT_METHODS_CACHE.key,
+      { methods },
+      isEmpty(offered) ? PAYMENT_METHODS_CACHE.fallbackTtlMs : PAYMENT_METHODS_CACHE.ttlMs
+    );
+
+    return { methods };
+  }
+
+  private async fetch(): Promise<PaymentMethod[]> {
+    try {
+      const { paymentMethods } = await this.yookassa.shopSettings();
+
+      return offeredMethods(paymentMethods);
+    } catch (error) {
+      this.logger.warn(`yookassa shop settings unavailable, offering cards only for now: ${describeError(error)}`);
+
+      return [];
+    }
+  }
+}

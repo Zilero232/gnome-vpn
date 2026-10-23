@@ -8,6 +8,7 @@ enum PaymentStatus {
 enum PaymentKind {
   subscription
   extraDevices
+  gift
 }
 
 model Payment {
@@ -25,10 +26,18 @@ model Payment {
   kind         PaymentKind @default(subscription)
   extraDevices Int         @default(0) @map("extra_devices")
 
+  promoCodeId     String? @map("promo_code_id")
+  discountPercent Int?    @map("discount_percent")
+
+  refundRequestedAt DateTime? @map("refund_requested_at") @db.Timestamptz(3)
+
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
-  user     User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  referral Referral?
+  user               User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  referral           Referral?
+  promoCode          PromoCode?       @relation("DiscountedPayments", fields: [promoCodeId], references: [id], onDelete: SetNull)
+  gift               PromoCode?       @relation("GiftPayment")
+  consumedRedemption PromoRedemption? @relation("ConsumedDiscount")
 
   @@index([userId, isAutoCharge, status, createdAt])
   @@index([userId, createdAt])

@@ -19,11 +19,6 @@ export type WireguardKindViewInput = {
   locale: BotLocale;
 };
 
-export type NodeLabelInput = {
-  node: Pick<WireguardNode, 'city' | 'country' | 'countryCode'>;
-  locale: BotLocale;
-};
-
 export type WireguardCaptionInput = {
   config: WireguardConfig;
   how: string;

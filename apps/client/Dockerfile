@@ -19,8 +19,20 @@ FROM oven/bun:1.3.14 AS build
 WORKDIR /app
 
 ARG NEXT_PUBLIC_API_URL
+# The seller's requisites on /terms. Public, optional: empty leaves the
+# requisites section off the page. Format is validated in client-env.ts.
+ARG NEXT_PUBLIC_SELLER_NAME=""
+ARG NEXT_PUBLIC_SELLER_STATUS=""
+ARG NEXT_PUBLIC_SELLER_INN=""
+ARG NEXT_PUBLIC_SELLER_OGRNIP=""
+ARG NEXT_PUBLIC_SELLER_ADDRESS=""
 ENV NODE_ENV=production \
-    NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \
+    NEXT_PUBLIC_SELLER_NAME=${NEXT_PUBLIC_SELLER_NAME} \
+    NEXT_PUBLIC_SELLER_STATUS=${NEXT_PUBLIC_SELLER_STATUS} \
+    NEXT_PUBLIC_SELLER_INN=${NEXT_PUBLIC_SELLER_INN} \
+    NEXT_PUBLIC_SELLER_OGRNIP=${NEXT_PUBLIC_SELLER_OGRNIP} \
+    NEXT_PUBLIC_SELLER_ADDRESS=${NEXT_PUBLIC_SELLER_ADDRESS}
 
 COPY package.json bun.lock tsconfig.json ./
 COPY apps/client/package.json ./apps/client/package.json

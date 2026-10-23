@@ -10,7 +10,10 @@ export const ROUTES = {
   resetPassword: '/reset',
   telegramSignIn: '/telegram',
   privacy: '/privacy',
-  account: '/account'
+  account: '/account',
+  admin: '/admin',
+  terms: '/terms',
+  status: '/status'
 } as const;
 
 export const KNOWN_ROUTES: string[] = Object.values(ROUTES);
@@ -26,7 +29,9 @@ export const PUBLIC_ROUTES: string[] = [
   ROUTES.auth,
   ROUTES.resetPassword,
   ROUTES.telegramSignIn,
-  ROUTES.privacy
+  ROUTES.privacy,
+  ROUTES.terms,
+  ROUTES.status
 ];
 
 export const GUEST_ONLY_ROUTES: string[] = [ROUTES.auth];
@@ -39,5 +44,7 @@ export const INDEXED_ROUTES: string[] = [
   ROUTES.servers,
   ROUTES.blog,
   ROUTES.about,
-  ROUTES.privacy
+  ROUTES.privacy,
+  ROUTES.terms,
+  ROUTES.status
 ];

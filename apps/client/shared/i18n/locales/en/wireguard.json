@@ -1,5 +1,5 @@
 {
-  "note": "WireGuard is blocked in Russia more often than the other protocols, especially on mobile networks. If a config does not connect, use INCY — it carries Hysteria2 and VLESS.",
+  "note": "WireGuard is easy to recognise and fails more often than the other protocols, especially on mobile networks. If a config does not connect, use INCY — it carries Hysteria2 and VLESS.",
   "slots": "{count} of {limit, plural, one {# device} other {# devices}}",
   "countryLabel": "Country",
   "serverDown": "Unavailable right now",

@@ -82,7 +82,7 @@ export class SubscriptionService {
 
   private async lastPayment(userId: string): Promise<LastPayment | null> {
     const payment = await this.prisma.payment.findFirst({
-      where: { userId },
+      where: { userId, kind: { not: 'gift' } },
       orderBy: { createdAt: 'desc' },
       select: { status: true, kind: true, isAutoCharge: true, createdAt: true }
     });

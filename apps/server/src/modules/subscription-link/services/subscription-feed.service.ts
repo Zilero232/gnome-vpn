@@ -10,7 +10,8 @@ import { PrismaService } from '../../../core';
 import { NO_TRAFFIC } from '../../../lib/xray';
 import { DEVICE_HEADER, deviceIdentity, deviceIpLimit, DevicesService, headerOf, isKeylessIncy } from '../../devices';
 import { buildTunnelConfig } from '../../peers';
-import { announcement, clientPlatform, hwidHint, incyHeaders, incyServerUri, isClientFetch, liveNodes, tlsMode } from '../lib';
+import { ROUTING_SELECT } from '../config';
+import { announcement, clientPlatform, hwidHint, incyHeaders, incyRouting, incyServerUri, isClientFetch, liveNodes, tlsMode } from '../lib';
 import { FeedNoticeService } from './feed-notice.service';
 import { SubscriptionPeersService } from './subscription-peers.service';
 
@@ -29,7 +30,7 @@ export class SubscriptionFeedService {
   async build({ token, headers }: BuildFeedInput): Promise<SubscriptionBody> {
     const link = await this.prisma.subscriptionLink.findUnique({
       where: { token },
-      select: { userId: true, user: { select: { subscription: { select: SUBSCRIPTION_PERIOD_SELECT } } } }
+      select: { userId: true, ...ROUTING_SELECT.stored, user: { select: { subscription: { select: SUBSCRIPTION_PERIOD_SELECT } } } }
     });
 
     if (!link) {
@@ -82,24 +83,29 @@ export class SubscriptionFeedService {
     }
 
     const traffic = canAdmit ? await this.subscriptionPeers.traffic(link.userId) : NO_TRAFFIC;
+    const routing = isNonNullish(deviceId) ? incyRouting({ app: identity.app, stored: link, apiUrl: this.config.get('API_URL') }) : null;
+    const lines = isNonNullish(routing) ? [...uris, routing.line] : uris;
 
     return {
-      body: Buffer.from(uris.join('\n'), 'utf8').toString('base64'),
-      headers: incyHeaders({
-        currentPeriodEnd,
-        traffic,
-        clientUrl: this.config.get('CLIENT_URL'),
-        supportUrl: this.config.get('SUPPORT_URL') || null,
-        announce: announcement({
-          nodes,
-          hasSubscription: isNonNullish(subscription),
+      body: Buffer.from(lines.join('\n'), 'utf8').toString('base64'),
+      headers: {
+        ...incyHeaders({
           currentPeriodEnd,
-          blockedAtLimit: isBlocked ? deviceLimit : null,
-          hwidHint: hwidHint({ needsHwid, isKeyless, deviceId }),
-          isPreparing: isNonNullish(deviceId) && isEmpty(uris) && !isEmpty(nodes),
-          now
-        })
-      })
+          traffic,
+          clientUrl: this.config.get('CLIENT_URL'),
+          supportUrl: this.config.get('SUPPORT_URL') || null,
+          announce: announcement({
+            nodes,
+            hasSubscription: isNonNullish(subscription),
+            currentPeriodEnd,
+            blockedAtLimit: isBlocked ? deviceLimit : null,
+            hwidHint: hwidHint({ needsHwid, isKeyless, deviceId }),
+            isPreparing: isNonNullish(deviceId) && isEmpty(uris) && !isEmpty(nodes),
+            now
+          })
+        }),
+        ...routing?.headers
+      }
     };
   }
 

@@ -23,9 +23,16 @@
   "TELEGRAM_ALREADY_LINKED": "This Telegram account is linked to another subscription",
   "EMAIL_UNAVAILABLE": "The email could not be sent. Try again later or contact support.",
   "SUBSCRIPTION_LINK_NOT_FOUND": "This link no longer works. Get a new one in your account.",
+  "GEO_FILES_UNAVAILABLE": "The site lists are not ready yet. The app will try again later.",
   "TELEGRAM_LAST_SIGN_IN": "Telegram is the only way into this account. Add an email first, then unlink.",
   "TELEGRAM_WIDGET_INVALID": "Telegram sign-in failed. Please try again.",
   "REFERRAL_CODE_INVALID": "There is no such promo code — check it for typos.",
   "REFERRAL_SELF": "This is your own code — send it to your friends.",
-  "REFERRAL_UNAVAILABLE": "A promo code only applies to a new account — within 7 days of signing up and before its first payment."
+  "REFERRAL_UNAVAILABLE": "A friend's code only applies to a new account — within 7 days of signing up and before its first payment.",
+  "PROMO_CODE_INVALID": "There is no such promo code — check it for typos.",
+  "PROMO_CODE_EXPIRED": "This promo code has expired.",
+  "PROMO_CODE_USED_UP": "This promo code has been used as many times as it allows.",
+  "PROMO_CODE_ALREADY_USED": "You have already used this promo code.",
+  "PROMO_CODE_TAKEN": "This promo code already exists.",
+  "PROMO_EMAIL_UNVERIFIED": "Confirm your email first — the code applies right after."
 }

@@ -1,0 +1,12 @@
+.root {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.status {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}

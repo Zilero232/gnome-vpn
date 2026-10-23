@@ -1,4 +1,3 @@
-import { findPlan } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
 import { isNullish } from 'remeda';
 import { match } from 'ts-pattern';
@@ -12,15 +11,14 @@ import { SubscriptionService, TrialService } from '../../subscription';
 import { SubscriptionLinkService } from '../../subscription-link';
 import { BOT_TEXT, CALLBACK_PREFIX, MESSAGE_EFFECT } from '../config';
 import {
+  checkoutIntro,
   fillLabel,
-  fillText,
   linkMessage,
   menuButtons,
   noAccessMessage,
   offerKeys,
   parsePlanId,
   planKeyboard,
-  planLabel,
   plansText,
   statusText,
   urlMessage
@@ -139,9 +137,14 @@ export class TelegramSubscriptionService {
         this.shared.typing(ctx);
 
         try {
-          const { confirmationUrl } = await this.checkout.createCheckout({ userId: chat.userId, planId, returnUrl: this.shared.returnUrl() });
-          const amount = String(findPlan(planId).priceRub);
-          const intro = fillText({ text: text.checkoutIntro, fill: { plan: planLabel({ planId, locale: chat.locale }), amount } });
+          const { confirmationUrl, amountRub, discount } = await this.checkout.createCheckout({
+            userId: chat.userId,
+            planId,
+            returnUrl: this.shared.returnUrl()
+          });
+
+          const amount = String(amountRub);
+          const intro = checkoutIntro({ planId, amountRub, discount, termsUrl: this.shared.termsUrl(chat.locale), locale: chat.locale });
           const label = fillLabel({ text: text.checkoutButton, fill: { amount } });
 
           return this.shared.edit({ ctx, ...urlMessage({ intro, url: confirmationUrl, label, style: 'success' }) });

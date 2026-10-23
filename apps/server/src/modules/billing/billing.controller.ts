@@ -1,12 +1,20 @@
-import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, UseGuards } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 import { ZodResponse } from 'nestjs-zod';
 
 import { CurrentUserId } from '../../common/decorators';
-import { BindCardResultDto, BuyExtraDevicesDto, CheckoutResultDto, CreateCheckoutDto, WebhookEventDto } from './dto/billing.dto';
+import {
+  BindCardResultDto,
+  BuyExtraDevicesDto,
+  BuyGiftDto,
+  CheckoutResultDto,
+  CreateCheckoutDto,
+  PaymentMethodsDto,
+  WebhookEventDto
+} from './dto/billing.dto';
 import { WebhookIpGuard } from './guards';
-import { AutoRenewService, CardService, CheckoutService, WebhookService } from './services';
+import { AutoRenewService, CardService, CheckoutService, PaymentMethodsService, WebhookService } from './services';
 
 @Controller('billing')
 export class BillingController {
@@ -14,13 +22,29 @@ export class BillingController {
     private readonly checkout: CheckoutService,
     private readonly autoRenew: AutoRenewService,
     private readonly card: CardService,
-    private readonly webhook: WebhookService
+    private readonly webhook: WebhookService,
+    private readonly paymentMethods: PaymentMethodsService
   ) {}
+
+  @AllowAnonymous()
+  @Get('payment-methods')
+  @ZodResponse({ type: PaymentMethodsDto })
+  listPaymentMethods() {
+    return this.paymentMethods.list();
+  }
 
   @Post('checkout')
   @ZodResponse({ type: CheckoutResultDto })
-  createCheckout(@Body() body: CreateCheckoutDto, @CurrentUserId() userId: string) {
-    return this.checkout.createCheckout({ userId, planId: body.planId, locale: body.locale });
+  async createCheckout(@Body() body: CreateCheckoutDto, @CurrentUserId() userId: string) {
+    const { confirmationUrl } = await this.checkout.createCheckout({ userId, planId: body.planId, locale: body.locale });
+
+    return { confirmationUrl };
+  }
+
+  @Post('gift')
+  @ZodResponse({ type: CheckoutResultDto })
+  buyGift(@Body() body: BuyGiftDto, @CurrentUserId() userId: string) {
+    return this.checkout.buyGift({ userId, planId: body.planId, locale: body.locale });
   }
 
   @Post('extra-devices')

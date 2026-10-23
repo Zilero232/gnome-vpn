@@ -16,6 +16,11 @@ export const buyExtraDevicesSchema = z.object({
   locale: checkoutLocaleSchema.optional()
 });
 
+export const buyGiftSchema = z.object({
+  planId: planIdSchema,
+  locale: checkoutLocaleSchema.optional()
+});
+
 export const checkoutResultSchema = z.object({
   confirmationUrl: z.url()
 });

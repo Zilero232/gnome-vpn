@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { isNonNullish, isNullish } from 'remeda';
 
-import type { BotContext, BotLocale, BotMessage, ChatCopy, ConsumeInput, GreetInput, SpeakInput, WelcomeInput } from '../telegram.types';
+import type { BotContext, BotLocale, BotMessage, ConsumeInput, GreetInput, WelcomeInput } from '../telegram.types';
 
 import { describeError, errorCodeOf } from '../../../common/lib';
 import { AppConfigService } from '../../../config';
@@ -15,6 +15,7 @@ import {
   identityOf,
   isGroupJoin,
   languageKeyboard,
+  menuButtons,
   moreKeyboard,
   refusalText,
   resolveLocale,
@@ -59,7 +60,30 @@ export class TelegramAccountService {
   }
 
   async help(ctx: BotContext): Promise<void> {
-    await this.speak({ ctx, pick: (copy) => copy.help });
+    const { chat, copy } = await this.shared.copyFor(ctx);
+
+    if (isNullish(chat)) {
+      await this.shared.notLinked(ctx);
+
+      return;
+    }
+
+    const support = isNullish(this.shared.adminChatId()) ? copy.helpSupportOffline : copy.helpSupport;
+
+    await this.shared.reply({
+      ctx,
+      chat,
+      text: html.paragraphs([copy.help, support]),
+      markup: menuButtons({ locale: chat.locale, keys: ['support'] })
+    });
+  }
+
+  async chatId(ctx: BotContext): Promise<void> {
+    if (isNullish(ctx.chat)) {
+      return;
+    }
+
+    await ctx.reply(fillText({ text: this.shared.textFor(ctx).chatId, fill: { id: String(ctx.chat.id) } }));
   }
 
   async groupOnly(ctx: BotContext): Promise<void> {
@@ -156,7 +180,7 @@ export class TelegramAccountService {
   }
 
   async chooseLanguage(ctx: BotContext): Promise<void> {
-    const { chat, copy } = await this.copyFor(ctx);
+    const { chat, copy } = await this.shared.copyFor(ctx);
 
     await ctx.reply(copy.chooseLanguage, { reply_markup: languageKeyboard(chat?.locale) });
   }
@@ -208,24 +232,5 @@ export class TelegramAccountService {
 
   private startText(locale: BotLocale): string {
     return fillText({ text: BOT_TEXT[locale].start, fill: { site: this.config.get('CLIENT_URL') } });
-  }
-
-  private async speak({ ctx, pick }: SpeakInput): Promise<void> {
-    const { chat, copy } = await this.copyFor(ctx);
-
-    if (isNullish(chat)) {
-      await this.shared.notLinked(ctx);
-
-      return;
-    }
-
-    await this.shared.reply({ ctx, chat, text: pick(copy) });
-  }
-
-  private async copyFor(ctx: BotContext): Promise<ChatCopy> {
-    const identity = identityOf(ctx.from);
-    const chat = isNullish(identity) ? null : await this.link.findChat(identity.telegramId);
-
-    return { chat, copy: chat ? BOT_TEXT[chat.locale] : this.shared.textFor(ctx) };
   }
 }

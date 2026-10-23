@@ -22,12 +22,15 @@ and `/trial`; `TelegramAppsService` `/apps`; `TelegramDevicesService`
 `TelegramBillingService` `/rotate` and auto-renewal; `TelegramAccountService` `/start`,
 linking, `/website`, `/language`, `/help`, `/unlink` and `/delete`;
 `TelegramReferralService` `/invite` and a `/start ref_<code>` arrival
-([referrals.md](referrals.md)).
+([referrals.md](referrals.md)); `TelegramSupportService` `/support` and the
+support desk; `TelegramStatsService` `/stats`, `TelegramBroadcastService`
+`/broadcast` and `TelegramPromoService` `/promo`, the three owner commands.
 `TelegramLinkService` owns the chat rows and link codes, `TelegramWebLoginService`
 the sign-in links, `TelegramProfileService` announces the bot to Telegram,
-`TelegramNotifyService` speaks first (below), and `TelegramSharedService` holds
+`TelegramNotifyService` speaks first (below), `TelegramAlertService` tells the
+owner what the jobs and billing saw, and `TelegramSharedService` holds
 what every handler needs — resolving the chat, picking the locale, replying with
-the keyboard — rather than each of them repeating it.
+the keyboard, recognising the admin chat — rather than each of them repeating it.
 
 **Telegram is a way in, not only a way back.** `/start` from an unknown chat
 creates the account itself — `ensureChat` mints a `User` through
@@ -51,7 +54,9 @@ added (`my_chat_member`, read by `isGroupJoin`) get one `groupOnly` reply with a
 button to the private chat, and nothing else: the subscription link and the
 one-time sign-in link are secrets, a group would show them to everyone, and an
 anonymous admin arrives as the same `GroupAnonymousBot` user for every admin. A
-stray inline press from a group is acknowledged and dropped.
+stray inline press from a group is acknowledged and dropped. Two things are
+deliberately outside that rule: `/chatid`, which answers in any chat, and the
+admin chat ([below](#the-admin-chat)), which may be a group.
 
 **`User.email` stays required, and a Telegram-born account gets a placeholder.**
 The column is required in better-auth's _core_ schema, not in the
@@ -73,8 +78,8 @@ on the site and then sends the bot their code would otherwise be told the chat
 belongs to another account — their own, created seconds earlier by `/start`.
 `consumeCode` therefore deletes the Telegram-born user when it is untouched:
 placeholder email, no period other than a trial, no bonus days, no referrals
-made and no payment that is not `canceled` — an abandoned checkout is not a
-purchase. A trial-only account is merged: `TrialService.transfer` carries the
+made, no promo code redeemed and no payment that is not `canceled` — an
+abandoned checkout is not a purchase. A trial-only account is merged: `TrialService.transfer` carries the
 trial (and its grant) over to the site account inside the same transaction,
 and the bot account's peers are released on their nodes after it commits.
 Anything more is never deleted, and the refusal stands — its copy
@@ -191,6 +196,18 @@ message. HTML rather than
 MarkdownV2 because only `&`, `<`, `>` need escaping, where MarkdownV2 would make
 every full stop and bracket in the copy a hazard.
 
+**Every message in a reader's chat is one width.** Telegram sizes a bubble to its
+longest line and an inline keyboard to its bubble, so a short message ("💳
+Подписка" and a date) came out narrow with its buttons squeezed into a column,
+next to a long one at full width. `withWidth`, part of the same transformer,
+ends the text of every `sendMessage` and `editMessageText` to a private chat
+with one line of blank braille cells (`SEND_DEFAULTS.widthLine`, U+2800, which
+is not whitespace and so is not trimmed): every bubble is at least that wide —
+the full width on a phone — and so is every keyboard. It is added once (an edit
+of a text that already ends with it adds nothing), never to a group such as the
+admin chat, and never to a caption. Copy that has to be widened by hand is
+therefore never needed.
+
 The fallback, if IPv6 egress goes too, is long polling, which needs no inbound
 path at all.
 
@@ -228,11 +245,14 @@ who set it did so because the client was reporting the wrong thing.
 
 **The keyboard is the interface; the commands are the fallback.** The reply
 keyboard holds only what is pressed every week — connect, apps, subscription,
-renew, devices — and one "⚙️ More" that opens the rest (invites, auto-charge, a new link, the
-website, help, language, unlink, delete) as an inline menu, two buttons to a
-row under a full sentence: Telegram makes an inline keyboard as wide as the
-message it hangs under, so a one-line title squeezed the buttons into a narrow
-column. With six
+renew, devices — and one "⚙️ More" that opens the rest (support, help, invites,
+the website, auto-charge, a new link, language, unlink, delete) as an inline
+menu, two buttons to a row under a full sentence (every message is padded to
+one width, above, so the buttons never squeeze into a column). Support and help share the first row — the two
+answers to "something is wrong" — and with nine buttons one has to stand alone:
+it is "Delete", at the bottom, full width and red, which is where a destructive
+button belongs anyway. The menu's title lists exactly the buttons shown, in
+their order, in both its versions (`moreTitle`, `moreTitleNoAccess`). With six
 buttons it can afford to be `persistent()`; the old layout of fourteen could
 not. It changes with the chat: the link and the status only appear once there
 is a subscription to use, and the trial only while it can still be taken —
@@ -360,8 +380,12 @@ carry a message effect, and so do the trial starting and a chat getting linked;
 an effect Telegram no longer knows falls back like broken markup does.
 
 It lives in `TelegramNotifyModule`, which imports only `SubscriptionModule` —
-`BillingModule` and the scheduler import that rather than the whole
-`TelegramModule`, which imports billing back.
+`BillingModule`, the scheduler and the admin module import that rather than the
+whole `TelegramModule`, which imports billing and admin back. `TelegramAlertService`
+lives there for the same reason. The admin panel's «Написать в Telegram» goes
+through it too: `TelegramNotifyService.message` sends the admin's text, escaped
+for the bot's HTML parse mode, and answers `sent`, `notLinked`, `blocked` (403),
+`botOff` or `failed` ([admin.md](admin.md)).
 
 **A payment started in the bot returns to the bot.** `createCheckout` and
 `buyExtraDevices` get `returnUrl: https://t.me/<bot>`; the site's `/account`
@@ -372,10 +396,14 @@ double-tap from making two YooKassa calls. A refused press answers
 `checkoutWait` on the button itself. During a paid period `/buy` says the new
 term is added to the current one (`choosePlanStacked`); a stale extra-places
 press answers `devicesNeedPaid` or `devicesFull` over the list, and a stale
-auto-renewal press without a card simply re-renders the panel.
+auto-renewal press without a card simply re-renders the panel. A pending promo
+discount applies to the bot's checkout as well: the message states the amount
+actually charged and adds `checkoutDiscount` with the code and the full price
+(`checkoutIntro`, [promo-codes.md](promo-codes.md#the-discount-lifecycle)). A
+paid gift is announced with `giftPurchased`, which carries the code.
 
 **Both of its consumers import the files directly, never `telegram` or
-`telegram/services`.** Either barrel re-exports a service that injects
+`telegram/services`** — `telegram-notify.service` and `telegram-alert.service`. Either barrel re-exports a service that injects
 `CheckoutService`, so reaching billing through one loads billing while billing
 is still initialising: `Cannot access 'CheckoutService' before initialization`,
 at boot, with nothing failing to typecheck first. This is the one place in the
@@ -451,7 +479,8 @@ Telegram account is a second door to one subscription rather than a second
 subscription.
 
 **A message is read as a link code only when it is shaped like one.** Anything
-else a reader types gets the help text. The shape is `SHORT_CODE` in
+else a reader types goes to the support desk, or gets the help text while there
+is none ([below](#the-support-desk)). The shape is `SHORT_CODE` in
 `packages/schemas` — the same alphabet, length and `isShortCode` check as an
 invite code, minted by one `generateShortCode`. Without that check, every
 stray message became a database claim attempt — a free guessing oracle across
@@ -486,3 +515,246 @@ what keeps a global flag from carrying `lastIndex` between updates.
 **A Telegram id is a bigint from the edge inwards.** It exceeds what a JS number
 holds safely, so `identityOf` converts once at the boundary rather than leaving
 each call site to remember.
+
+## The admin chat
+
+**`TELEGRAM_ADMIN_CHAT_ID` is the owner's side of the bot, and it is optional.**
+It names one chat — the owner's private chat with the bot, or a group of the
+people who answer — where support requests arrive, the owner commands work and
+the alerts are posted. It defaults to `''`, and `config/env.schema.ts` accepts
+only that or a whole number (a group's id is negative). Empty switches all of it
+off without a word: the owner commands answer nowhere, the alerts are dropped
+before anything is composed, and the support entry falls back to what the bot
+offered before. How to set it up: [ops/deploy.md](../ops/deploy.md#creating-the-telegram-bot).
+
+**A group that becomes a supergroup gets a new id.** Telegram migrates a basic
+group the moment someone turns on a supergroup-only setting (topics, visible
+history, finer admin rights), and from then on every send to the old id fails
+with "group chat was upgraded" — alerts, support threads and the owner commands
+all go quiet together. The failure carries the new id
+(`parameters.migrate_to_chat_id`); `migratedChatId` reads it and the server
+logs an error naming the value to put in `TELEGRAM_ADMIN_CHAT_ID`. The deploy
+guide asks for a supergroup before `/chatid` is run, so the id never moves.
+
+**Membership of the admin chat is the authorisation.** There is no list of owner
+ids to keep in sync: whoever is in that chat can answer users and run
+`/broadcast`, so the group holds only people who should. `isAdminChat` compares
+the update's chat with the configured id and nothing else.
+
+**The admin chat is handled before everything else, and falls through.**
+`register` puts a `bot.filter(isAdminChat)` composer first: the owner commands,
+their buttons, and replies that answer a support thread. Anything else there
+calls `next()`, so when the admin chat is the owner's own private chat it still
+behaves as their ordinary chat — `/status`, the keyboard and the rest. In a
+group the bot runs in privacy mode and sees only commands and replies to its own
+messages, which is exactly what it needs; admins talking among themselves never
+reach it.
+
+**`/chatid` answers in any chat, with that chat's id and a line saying where to
+put it.** Without it the owner had no way to learn a group's id: the bot runs on
+a webhook, so `getUpdates` is not available, and a third-party "id bot" is one
+more account to let into the group. The id is the only thing it reveals — the
+asker is already in that chat. It is registered on the whole bot rather than the
+private-chat router, and kept out of the command menu.
+
+**The admin chat speaks the default language.** What the bot posts there on its
+own — a support header, an alert — is in `DEFAULT_BOT_LOCALE`; an answer to an
+admin's command follows the language of whoever pressed, the same rule the bot
+applies to everyone.
+
+## The support desk
+
+**Support used to be an email address; now it is the chat the reader is already
+in.** «💬 Поддержка» sits in "⚙️ More" beside "Help", under every `/help`, and
+behind `/support` in the command menu. With an admin chat it says that the next
+messages — text, screenshots, files, voice — go to support and the answer comes
+back here. Without one it offers `SUPPORT_URL` (a button when Telegram takes the
+URL, text otherwise) or, when that is empty too, the site — which is what `/help`
+used to say ("write to support on the site"). `/help` closes on the line that
+matches (`helpSupport` or `helpSupportOffline`).
+
+**Every free message in a private chat goes to support — no "support mode".** A
+text that is not a keyboard label, not shaped like a link code and does not start
+with `/`, and any photo, document, voice note, audio, video, video note, GIF or
+sticker (`SUPPORT_MEDIA`), is passed on. Nothing else reads free text — that is
+why `/wireguard` asks for a device kind with buttons — so nothing another flow
+needs is swallowed. Before this, such a text got the help text and media got
+nothing; someone typing "it doesn't connect" to the bot was already writing to
+support, and a mode they would first have to enter needs conversation state the
+bot deliberately does not keep. An unknown `/command` still gets the help text,
+and without an admin chat free text gets it too. A chat with no account is
+served as well: someone who unlinked or deleted their account is exactly who may
+need help, and the header says there is no account.
+
+**A keyboard an older release left behind still works.** A reply keyboard stays
+on a reader's screen until the bot sends another, so labels that were renamed
+(«➕ Устройства», «🔄 Автосписание», «🔁 Обновить ссылку», «🗑️ Удалить аккаунт» and
+their English twins) still arrive. `LEGACY_BUTTONS` maps each to the action it
+named — all of them still exist — so such a tap opens that screen instead of
+landing in the support desk.
+
+**The reader is acknowledged once, not per message.** «Передали в поддержку —
+ответим здесь» goes out at most once per `SUPPORT.ackWindowMs` per chat. Abuse is
+held by `createRateLimit` — `SUPPORT.rateLimit` messages per window, a sliding
+count — rather than `createThrottle`, because an album of screenshots arrives as
+up to ten separate messages at once and a once-per-window throttle would drop
+nine of them. Past the limit messages are dropped and the reader is told so once
+per window. The limit is per Telegram user and in memory; the per-IP throttler
+never sees these updates, which all come from Telegram.
+
+**Each thread gets one compact header, and the copies hang under it.** The header
+(`supportHeader`) names the sender — name, `@username`, Telegram id — and, for a
+linked chat, the account's email (a placeholder shows as "no email"), the bot
+language, the device count, and the access: paid until a date on a plan, a trial
+until a date, lapsed on a date, or never. The original follows with
+`copyMessage`, as a reply to the header. Messages from one chat within
+`SUPPORT.threadWindowMs` of a header reuse it, so an album is one header and its
+photos rather than twice as many messages, and a long conversation gets a fresh
+header — with a fresh status — every few minutes. The cache holds the header's
+_promise_: Telegram delivers webhook updates in parallel, and the photos of one
+album would otherwise race to post a header each. A header that failed to post
+is forgotten, so the next message tries again.
+
+**`copyMessage`, not `forwardMessage`.** A forward from someone who hides their
+forwards links to nobody, and the copy works the same way in both directions.
+
+**The way back is stored, not remembered.** `telegram_support_message` maps a
+message in the admin chat — the header and every copy — to the Telegram chat it
+came from, keyed by the admin chat and the message id (an id is unique only
+within its chat, and a new admin chat starts a fresh numbering). A reply
+therefore works after a restart or a deploy. The row stores the chat, not the
+account, because a reply goes to a chat, and it should reach someone who has
+since unlinked. Storing is best-effort: a failed insert is logged, since the
+message already arrived and the reader must not be told it did not. The
+`support-threads` job forgets rows after `RETENTION.supportMessageDays`
+([scheduler.md](scheduler.md)).
+
+**An answer is a Telegram reply to the header or to a copy.** The bot copies the
+admin's message to the user, preceded by «💬 Ответ поддержки» in the user's
+language — the linked chat's locale, or, for a chat with no account, the
+Telegram language the sender had when the thread opened, kept on the
+`telegram_support_message` row (`locale`) for exactly that case. The line is a message of its own: a caption prefix would not survive a
+sticker, a voice or video note, or plain text, which `copyMessage` cannot alter,
+and the one form that works for every type is a separate line. It is sent at most
+once per `SUPPORT.answerTitleWindowMs` per user, so an answer in three messages
+reads as one answer. A delivered answer gets a 👍 reaction on the admin's
+message; one that did not arrive gets a reply saying why — the user blocked the
+bot (`403`) or it simply failed. A reply to anything that is not a support
+message falls through and is ignored.
+
+## Owner commands
+
+**`/stats`, `/broadcast` and `/promo` work only in the admin chat.** Anywhere else they are
+not registered at all: they are not in the command menu, and typed into a
+reader's chat they are an unknown command like any other, which gets the help
+text. Nothing hints they exist.
+
+**They are a registry, beside the reader's.** `TelegramBotService.ownerActions`
+maps a command to a handler and `ownerCallbacks` an inline-button prefix, exactly
+like `actions` and `callbacks`, and both are registered on the admin-chat filter.
+`/promo` was added exactly that way: one entry there and `TelegramPromoService`.
+A test asserts that no owner command shadows a reader's command (a
+private admin chat would otherwise lose it) and that none reaches the menu.
+
+**`/stats` is one message read straight from the database** — through
+`AdminStatsService.collect`, the same collection the web admin panel's overview
+reads, so the bot and `/admin` can never disagree on a number ([admin.md](admin.md)). Users in total and
+new in the last `STATS.newUsersHours` and `STATS.newUsersDays`; live paid
+periods by plan, live trials (`periodKind`, the rule the rest of the server
+uses) and paid periods that renew automatically — a saved card and no
+`cancelAtPeriodEnd`, the same condition the recurring charge selects on; the
+number and sum of payments that succeeded in the last `STATS.paymentsDays`
+(refunded ones are no longer `succeeded`); devices; linked chats; and every node
+as up, down — with how long ago it last answered — or switched off. A node is
+down by the same threshold the alerts use (`nodeStatus`, below), so `/stats`
+never contradicts an alert.
+
+**`/broadcast` sends a message the owner already wrote.** Reply to any message in
+the admin chat with `/broadcast` — text, a photo with a caption, whatever
+Telegram can hold — and choose the audience: every linked chat, those with
+access (a live period, trials included) or those without. The next screen shows
+the number of recipients and asks to confirm; only then does anything go out.
+The message is sent with `copyMessage`, so it arrives as the bot's own message
+rather than "Forwarded from". The buttons carry `bcast:<audience>:<message id>`
+and `bsend:<yes|no>:<audience>:<message id>`, parsed strictly
+(`broadcastChoice`, `broadcastAnswer`) and far under Telegram's 64 bytes even
+for the largest id, which a test checks.
+
+**The sending runs in the background, paced and counted.** The confirming update
+returns as soon as the run starts: a webhook that waited minutes would be
+retried by Telegram. One broadcast runs at a time; a second confirmation is
+told to wait. `sendWait` spaces the copies `1000 / BROADCAST.perSecond` ms apart
+(25 a second, under Telegram's limit), a `429` waits the `retry_after` Telegram
+names and tries the same chat again up to `BROADCAST.floodRetries` times — short
+floods are already absorbed by the bot's own `autoRetry` — and every chat ends
+as delivered, blocked (`403`: the user blocked the bot or deleted their account)
+or failed. A source message deleted mid-run stops it, since every other copy
+would fail the same way. The report — the three counts — is posted as a reply to
+the source. A chat that blocked the bot is treated as `TelegramNotifyService`
+treats it: counted and left alone; its row stays, since unblocking the bot makes
+it reachable again. A restart mid-run loses the rest of it and its report.
+
+**`/promo` creates, lists and stops campaign codes.** `/promo BLOGGER20 20%` is
+a discount on one payment, `/promo WELCOME 7d` bonus days; the answer ends with
+a ready link, `<site>/?promo=CODE` (`webPromoLink`), that fills the code into
+sign-up by itself; `uses=100` and
+`until=2026-12-31` are optional and come in any order. `until` names the last
+day the code works, to its end in Moscow (`T23:59:59+03:00`), because that is
+the day the owner means. `/promo off CODE` stops a code by setting its expiry to
+now: nobody can redeem it any more, while a discount someone already redeemed
+stays theirs. `/promo` alone prints the syntax and the last
+`CAMPAIGN_LIST.limit` codes with how many accounts redeemed each, out of the
+limit, and whether it is stopped. `parsePromoCommand` is strict — no effect, two
+effects, an unknown word or a date like `2026-02-30` are refused rather than
+guessed, the last one so it is not silently rolled into March — and the checks
+are `campaignProblem`, the service's own, run before the call so every refusal
+reads in the admin's language. Gift codes are never listed or stopped here: a
+paid gift is the buyer's, and a refund is what disables it
+([promo-codes.md](promo-codes.md)).
+
+## Operational alerts
+
+**What the jobs and billing used to only log now also reaches the owner.**
+`TelegramAlertService` posts to the admin chat when a node stops answering or
+comes back, when a node's CPU or memory crosses `ALERT.nodeCpuPercent` or
+`ALERT.nodeMemoryRatio`, when reconciliation fails
+`ALERT.reconcileFailureStreak` times in a row, on every settled payment (the plan
+or the extra places, the amount, and the payer's email — or Telegram handle and
+id for a Telegram-born account), on every refund (taken back from the YooKassa
+dashboard, partial and left for review, automatic for an orphaned or lapsed
+payment, or an automatic one YooKassa declined), and on a failed automatic
+renewal (YooKassa's reason, and whether the card was dropped).
+
+**An alert never costs the caller anything.** Every method returns `void`: it
+decides synchronously, then composes and sends detached, and any failure —
+including the database lookup for a name — is logged and dropped. A YooKassa
+webhook or a cron job never waits for Telegram and never fails because of it.
+It lives in `TelegramNotifyModule` and is imported by file, like
+`TelegramNotifyService` ([above](#telegram-is-a-second-door-to-the-same-account)).
+
+**A node is down when it has been silent for a while, not when one probe
+failed.** `node-health` reports every probe; a failed one counts only once the
+node's last healthy probe — or its creation, for a node that never answered — is
+`OWNER_ALERT.nodeDownAfterMinutes` old. `nodeAlert` then announces "down" once,
+repeats it every `OWNER_ALERT.repeatMs` while the node stays down, and announces
+"recovered" only for a node whose "down" was sent. A flapping node therefore
+costs at most one of each per hour, and the owner's latest message about it is
+never more than an hour out of date. The state is in memory: after a restart a
+node still down is announced again, and one that recovered across the restart
+gets no recovery line.
+
+**Load and reconcile alerts are once per node per kind per hour**
+(`createThrottle` keyed `cpu:<node>`, `memory:<node>`, `reconcile:<node>`).
+Billing alerts ride on the claims billing already makes: a settled payment is
+announced only by whoever claimed it, and an automatic refund only when this
+call moved the row to `refunded` — a webhook retry racing the pending sweep
+announces nothing twice. The one alert that could repeat is a refund YooKassa
+canceled: the payment stays pending and the sweep tries again every ten
+minutes for a week, so `refundCanceled` speaks once per payment per
+`OWNER_ALERT.refundCanceledRepeatMs` (a day). The settled alert goes out before
+the reader's own notice, so a failure there cannot swallow it.
+
+**A node is named, never located.** Alerts use `nodeLabel` — flag, country,
+city — and never the panel URL, which carries a secret path, for the same reason
+logs do not. A reconcile error is cut to `OWNER_ALERT.errorLength` characters and
+escaped.

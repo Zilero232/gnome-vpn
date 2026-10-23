@@ -1,0 +1,1 @@
+export { GiftsBlock } from './GiftsBlock';

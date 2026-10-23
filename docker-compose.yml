@@ -14,11 +14,21 @@ x-healthcheck: &healthcheck
   retries: 3
   start_period: 15s
 
+# Docker keeps container logs forever by default. Caddy's access log is the
+# busiest of them, and a capped, rotating file is part of what the privacy
+# policy promises about it (docs/architecture/logging.md).
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: '3'
+
 services:
   caddy:
-    image: caddy:2-alpine
+    image: caddy:2.11-alpine
     container_name: gnomevpn-caddy
     restart: always
+    logging: *logging
     depends_on:
       - web
       - server
@@ -37,6 +47,7 @@ services:
     image: ghcr.io/zilero232/gnomevpn-web:latest
     container_name: gnomevpn-web
     restart: always
+    logging: *logging
     depends_on:
       - server
     expose:
@@ -51,6 +62,7 @@ services:
     image: ghcr.io/zilero232/gnomevpn-server:latest
     container_name: gnomevpn-server
     restart: always
+    logging: *logging
     depends_on:
       postgres:
         condition: service_healthy
@@ -74,6 +86,7 @@ services:
     image: postgres:17-alpine
     container_name: gnomevpn-postgres
     restart: always
+    logging: *logging
     env_file:
       - ./.env
     ports:
@@ -96,6 +109,7 @@ services:
     image: prodrigestivill/postgres-backup-local:17-alpine
     container_name: gnomevpn-backup
     restart: always
+    logging: *logging
     depends_on:
       postgres:
         condition: service_healthy

@@ -1,6 +1,14 @@
+@use '@/shared/styles/mixins' as *;
+
 .upgrade {
   display: flex;
   width: 100%;
   flex-direction: column;
   gap: var(--gap-sm);
+}
+
+.notes {
+  @include stack(4px);
+
+  text-align: center;
 }

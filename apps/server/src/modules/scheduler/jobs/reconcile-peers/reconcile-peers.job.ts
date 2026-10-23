@@ -7,6 +7,7 @@ import type { NoteFailureInput, ReconcileNodeInput } from './reconcile-peers.job
 import { describeError, IDENTIFIED_NODE_SELECT, xrayClientForNode } from '../../../../common/lib';
 import { PrismaService } from '../../../../core';
 import { LEGACY_PEER } from '../../../devices';
+import { TelegramAlertService } from '../../../telegram/services/telegram-alert.service';
 import { TelegramNotifyService } from '../../../telegram/services/telegram-notify.service';
 import { ALERT, SCHEDULE } from '../../config';
 import {
@@ -30,7 +31,8 @@ export class ReconcilePeersJob {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly notify: TelegramNotifyService
+    private readonly notify: TelegramNotifyService,
+    private readonly alerts: TelegramAlertService
   ) {}
 
   private async reconcileNode({ node, withOrphans }: ReconcileNodeInput): Promise<string[]> {
@@ -141,6 +143,7 @@ export class ReconcilePeersJob {
 
     if (streak >= ALERT.reconcileFailureStreak) {
       this.logger.error(`${message}. Revoked peers on this node stay connected until it converges.`);
+      this.alerts.reconcileFailing({ nodeId, streak, error: describeError(reason) });
 
       return;
     }

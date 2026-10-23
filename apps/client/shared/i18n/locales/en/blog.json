@@ -1,34 +1,34 @@
 {
   "meta": {
-    "title": "VPN blog: protocols, setup, blocking",
+    "title": "VPN blog: protocols, setup, speed",
     "description": "How Hysteria2 and VLESS Reality work, what to do when a VPN will not connect in a hotel, how to set up a tunnel on a TV and why speed drops."
   },
   "title": "Blog",
-  "intro": "How the protocols that get around blocking actually work, why a VPN sometimes refuses to connect, and what to do about it. No marketing — only what we have tested on our own infrastructure.",
+  "intro": "How modern VPN protocols actually work, why a VPN sometimes refuses to connect, and what to do about it. No marketing — only what we have tested on our own infrastructure.",
   "back": "All articles",
-  "cta": "GnomeVPN runs Hysteria2 and VLESS + Reality side by side: when a network blocks one, the connection goes over the other. One subscription for every device.",
+  "cta": "GnomeVPN runs Hysteria2 and VLESS + Reality side by side: if one does not work on a network, the connection goes over the other. One subscription for every device.",
   "ctaAction": "See the plans →",
   "posts": {
     "hysteria2-vs-vless": {
       "title": "Hysteria2 or VLESS + Reality: what differs and which to pick",
-      "excerpt": "Two protocols solve one problem in opposite ways. One holds its speed under packet loss, the other gets through where UDP is blocked.",
-      "intro": "Both protocols get around blocking, and they are built on opposite principles. Hysteria2 runs over UDP and wins on unstable networks. VLESS + Reality disguises itself as ordinary HTTPS and passes where UDP is dropped outright. Here is when to use which.",
+      "excerpt": "Two protocols solve one problem in opposite ways. One holds its speed under packet loss, the other works where UDP is closed.",
+      "intro": "Both protocols give you a private connection, and they are built on opposite principles. Hysteria2 runs over UDP and wins on unstable networks. VLESS + Reality runs over TCP with the TLS handshake of a real site and works where UDP is dropped outright. Here is when to use which.",
       "sections": {
         "whatIsHysteria": {
           "title": "What Hysteria2 is",
-          "body": "Hysteria2 is a protocol built on QUIC, the transport Google designed for HTTP/3. QUIC runs over UDP and does something TCP cannot: it recovers a lost packet without stalling the whole stream. In TCP a single lost packet holds up everything queued behind it — head-of-line blocking. On a wired connection the difference is invisible, but on a mobile network, where 2-5% loss is ordinary, it decides everything. Hysteria2 also masquerades as an ordinary HTTP/3 site: point a browser at the server and you get a normal web page rather than any sign of a VPN."
+          "body": "Hysteria2 is a protocol built on QUIC, the transport Google designed for HTTP/3. QUIC runs over UDP and does something TCP cannot: it recovers a lost packet without stalling the whole stream. In TCP a single lost packet holds up everything queued behind it — head-of-line blocking. On a wired connection the difference is invisible, but on a mobile network, where 2-5% loss is ordinary, it decides everything. On top of that, TLS 1.3 encryption is built into QUIC itself, so a connection is set up faster than with a VPN over TCP."
         },
         "whatIsReality": {
           "title": "What VLESS + Reality is",
-          "body": "Reality is not a protocol of its own but a way of disguising VLESS. An ordinary TLS-based VPN gives itself away through its certificate: either self-signed or issued for a suspicious domain. Reality solves that outright — it presents the certificate of a real third-party site, www.bing.com for instance. From outside, the connection looks like an ordinary visit to that site: same certificate, same name in the TLS handshake. Telling them apart takes active probing, and even then the server answers as the real bing.com to anyone who does not hold the key."
+          "body": "Reality is not a protocol of its own but a way of setting up the TLS connection for VLESS. An ordinary TLS-based VPN needs a domain and a certificate of its own — self-signed or issued for that domain. Reality works differently: the server carries out the TLS handshake with the certificate of a real third-party site, www.bing.com for instance, and a key only your app knows tells your connection apart from the rest. That is why VLESS + Reality works where only HTTPS on port 443 is open."
         },
         "packetLoss": {
           "title": "Packet loss: where Hysteria2 wins",
           "body": "Mobile networks lose packets constantly — handing over between towers, weak signal, a congested cell. Over TCP that shows up as speed collapsing in waves, because the connection keeps waiting on retransmission. QUIC in Hysteria2 handles each stream independently, so a loss in one does not hold up the rest. In practice the difference shows wherever loss exceeds 1-2%: on the underground, on a train, on crowded Wi-Fi. That is why Hysteria2 is first in our server list."
         },
         "blocking": {
-          "title": "Blocking: where Reality wins",
-          "body": "Hysteria2 has one weak point — it runs over UDP, and UDP is often dropped wholesale. Corporate networks, hotel Wi-Fi and a few carriers pass only TCP on ports 80 and 443. There Hysteria2 cannot come up at all, however it is configured. Reality rides TCP on 443 and looks like ordinary HTTPS, so it gets through those filters. The other side of that: TCP connections are easier to analyse, and deep packet inspection eventually learns to recognise even Reality. We have watched sessions die a few minutes in."
+          "title": "Strict networks: where Reality wins",
+          "body": "Hysteria2 has one weak point — it runs over UDP, and UDP is often dropped wholesale. Corporate networks, hotel Wi-Fi and a few carriers pass only TCP on ports 80 and 443. There Hysteria2 cannot come up at all, however it is configured. Reality rides TCP on 443 like ordinary HTTPS, so it works on those networks. The other side of that: TCP copes worse with packet loss, and on an unstable network VLESS loses more speed."
         },
         "howToChoose": {
           "title": "What to pick in practice",
@@ -38,12 +38,12 @@
     },
     "vpn-not-working-hotel-wifi": {
       "title": "The VPN will not work in a hotel or at the office: what to do",
-      "excerpt": "Public and corporate networks filter more than you would expect. Here is each cause and the way around it.",
+      "excerpt": "Public and corporate networks filter more than you would expect. Here is each cause and what to do about it.",
       "intro": "Everything works at home, and then in a hotel or an office the VPN will not connect. The cause is almost always that the network filters traffic — but it filters in different ways, and the fix depends on which.",
       "sections": {
         "whyItFails": {
           "title": "Why these networks specifically",
-          "body": "A home provider generally passes anything not forbidden by law. A corporate network works the other way round: what the administrator explicitly opened is allowed and nothing else. Hotel Wi-Fi sits closer to the corporate model — the owner wants no trouble and closes everything surplus. In both cases the filter is not aimed at VPNs in particular; the rule is simply \"leave the web working\". The side effect is that a VPN stops working alongside games, video calls and anything else that does not look like a browser."
+          "body": "A home provider usually does not restrict protocols or ports. A corporate network works the other way round: what the administrator explicitly opened is allowed and nothing else. Hotel Wi-Fi sits closer to the corporate model — the owner wants no trouble and closes everything surplus. In both cases the filter is not aimed at VPNs in particular; the rule is simply \"leave the web working\". The side effect is that a VPN stops working alongside games, video calls and anything else that does not look like a browser."
         },
         "udpBlocked": {
           "title": "The usual cause: UDP is blocked",
@@ -59,7 +59,7 @@
         },
         "stillStuck": {
           "title": "If none of that helped",
-          "body": "Two possibilities remain. The first is to tether from a phone: mobile networks almost never filter UDP, and ordinary Hysteria2 works there. The second is that the network runs deep packet inspection and blocks on content rather than on ports. That is rare and mostly confined to large companies with a serious security team. Getting around it from the client side is close to impossible, and it is more honest to accept that a VPN will not work on that network."
+          "body": "Two possibilities remain. The first is to tether from a phone: mobile networks almost never filter UDP, and ordinary Hysteria2 works there. The second is that the network runs deep packet inspection and blocks on content rather than on ports. That is rare and mostly confined to large companies with a serious security team. There is little to be done about it from the client side, and it is more honest to accept that a VPN will not work on that network."
         }
       }
     },
@@ -108,8 +108,8 @@
           "body": "If speed drops in bursts rather than evenly, packet loss is almost certainly the cause. Over TCP each loss stalls the stream until retransmission, and at 2-3% loss speed falls by multiples rather than percentages. Ping will tell you: if some packets never come back, you have found it. Hysteria2 holds up considerably better in those conditions, because it recovers losses without stalling the other streams."
         },
         "provider": {
-          "title": "Throttling by the provider",
-          "body": "Some providers deliberately slow encrypted traffic, or traffic on unusual ports. It is not blocking but throttling, and it is hard to spot: the connection works, only slowly. The tell is that VPN speed is consistently low at any hour and on any server while direct speed is fine. Switching protocol usually gets around it: if UDP is being throttled try the TCP entry, and the other way round."
+          "title": "How a network treats different protocols",
+          "body": "On some networks one kind of traffic moves slower than another: UDP may be rate-limited or given a lower priority than TCP, for example — or the other way round. It is hard to spot: the connection works, only slowly. The tell is that VPN speed is consistently low at any hour and on any server while direct speed is fine. Switching protocol helps: if Hysteria2 over UDP is slow, try VLESS over TCP, and the other way round."
         },
         "whatToDo": {
           "title": "What to check, in order",

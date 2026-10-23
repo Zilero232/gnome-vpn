@@ -36,6 +36,21 @@ Settings → Secrets and variables → Actions:
 No signing keys: nothing here ships a binary. The VPN client is INCY, installed
 from the user's own app store.
 
+**Repository variables** (the Variables tab beside Secrets) carry the seller's
+requisites printed on `/terms`. They are public, so they are not secrets; all
+are optional and an unset one becomes an empty build arg. Set them before taking
+payments — an offer without them names no seller (see
+[architecture/legal.md](../architecture/legal.md)). A malformed value fails the
+web image build, which is the point.
+
+| Variable         | What it is                                                         |
+| ---------------- | ------------------------------------------------------------------ |
+| `SELLER_NAME`    | full name, e.g. `Иванов Иван Иванович`; empty hides the section    |
+| `SELLER_STATUS`  | `entrepreneur` (ИП) or `selfEmployed` (самозанятый)                |
+| `SELLER_INN`     | ИНН, 12 digits                                                     |
+| `SELLER_OGRNIP`  | ОГРНИП, 15 digits — an individual entrepreneur only                |
+| `SELLER_ADDRESS` | optional; an ИП may publish a city rather than a home address      |
+
 `deploy.yml` runs by hand (`workflow_dispatch`). It runs every check, builds both
 images and pushes them to ghcr.io, copies `docker-compose.yml` and the
 `Caddyfile` to the VPS, then over SSH pulls `web` and `server`, runs migrations,
@@ -146,7 +161,8 @@ EMAIL_FROM=GnomeVPN <noreply@example.com>
 # Where the links in the emails lead.
 CLIENT_URL=https://example.com
 
-# Optional: sent to INCY as the support-url header.
+# Optional: sent to INCY as the support-url header, and offered by the bot's
+# "Support" button while TELEGRAM_ADMIN_CHAT_ID is empty.
 SUPPORT_URL=
 
 # Telegram bot — optional. Leave the token empty and the bot never starts.
@@ -154,6 +170,14 @@ TELEGRAM_BOT_TOKEN=
 TELEGRAM_BOT_USERNAME=
 TELEGRAM_WEBHOOK_SECRET=
 TELEGRAM_WEBHOOK_URL=https://bot.example.com
+# Optional: the owner's support and admin chat. Empty switches off the support
+# desk, /stats, /broadcast and the alerts.
+TELEGRAM_ADMIN_CHAT_ID=
+
+# Optional: who may open the web admin panel at /admin — comma-separated,
+# case-insensitive. The account must also have confirmed that email. Empty: no
+# admins, and every /admin route answers 404 (see architecture/admin.md).
+ADMIN_EMAILS=owner@example.com
 
 ```
 
@@ -243,6 +267,29 @@ BotFather holds exactly one thing the API cannot set: the bot's photo. Send him
 `/setuserpic` once. Everything else edited there is overwritten on the next
 restart, because the locale files under
 `apps/server/src/modules/telegram/config/locales/` are the source.
+
+**4. The admin chat (optional).** Support requests from users, `/stats`,
+`/broadcast` and the operational alerts (a node down or overloaded, payments,
+refunds, failed renewals) all go to one chat, `TELEGRAM_ADMIN_CHAT_ID`. It can
+be your own private chat with the bot or a group of the people who answer:
+
+1. For a group, create it and add the bot. Every member can answer users and
+   run the owner commands, so add only people who should. Make it a supergroup
+   first (Telegram does so when you turn on visible history for new members or
+   topics): converting later gives the chat a new id, and everything stops
+   until `TELEGRAM_ADMIN_CHAT_ID` is updated — the server logs the new id when
+   that happens.
+2. Send `/chatid` in that chat (in a group with other bots, `/chatid@gnomevpn_bot`).
+   The bot answers with the chat's id — negative for a group.
+3. Put it in `/opt/gnomevpn/.env` as `TELEGRAM_ADMIN_CHAT_ID=<id>` and restart
+   the server.
+
+In a group the bot sees commands and replies to its own messages, which is all
+it needs: a support request arrives as a header and a copy of the user's
+message, and replying to either sends the reply to the user. Leaving the
+variable empty keeps the bot's old behaviour — the "Support" button points at
+`SUPPORT_URL`, or at the site when that is empty. Why it works this way:
+[architecture/telegram-bot.md](../architecture/telegram-bot.md#the-support-desk).
 
 ---
 
@@ -387,6 +434,23 @@ mount pins the inode it saw at container start; `scp` writes a new file, so the
 container keeps reading the old one, and `up -d` does not recreate a container
 whose spec did not change. The deploy therefore ends with
 `docker compose restart caddy` — `caddy reload` would re-read the stale inode.
+
+**The Caddyfile needs Caddy 2.8 or later, so the image is pinned.** The access
+log skips the subscription feed with `log_skip`, which older versions refuse as
+an unknown directive, and Caddy then does not start. The deploy pulls only `web`
+and `server`, so a floating `caddy:2-alpine` would have stayed whatever the VPS
+pulled on its first day. `docker-compose.yml` names `caddy:2.11-alpine` (the
+Caddyfile is validated against 2.11), and `docker compose up -d` pulls a
+pinned tag that is not on the machine yet before it recreates the container —
+no manual step. Moving to a newer Caddy is a change to that tag.
+What the access log keeps and drops is in
+[architecture/logging.md](../architecture/logging.md).
+
+**Container logs rotate.** Every service logs to `json-file` capped at three
+files of 10 MB (`x-logging` in `docker-compose.yml`); `docker compose logs`
+shows what is left. The first `up -d` after the anchor was added recreates
+every container, postgres included — a few seconds without the database, which
+the healthchecks wait out.
 
 **The API also answers on `api.gnomevpn.ru`.** The project lived on
 `gnomevpn.ru` before moving, and a subscription link imported then still names

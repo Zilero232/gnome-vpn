@@ -18,6 +18,20 @@ describe('referralFromUrl', () => {
     expect(referralFromUrl(new URL('https://gnome-vpn.com/?ref=abcdef23'))).toBe('ABCDEF23');
   });
 
+  it('takes a friend or a gift code from ?ref=', () => {
+    expect(referralFromUrl(new URL('https://gnome-vpn.com/?ref=ABCD-EFGH-JKMN'))).toBe('ABCDEFGHJKMN');
+  });
+
+  it('ignores a word in ?ref= that only looks like a campaign code, as referrer tags from other sites do', () => {
+    expect(referralFromUrl(new URL('https://gnome-vpn.com/?ref=producthunt'))).toBeNull();
+    expect(referralFromUrl(new URL('https://gnome-vpn.com/pricing?ref=habr'))).toBeNull();
+  });
+
+  it('takes a campaign code from ?promo=, and prefers it to ?ref= on the same link', () => {
+    expect(referralFromUrl(new URL('https://gnome-vpn.com/?promo=blogger20'))).toBe('BLOGGER20');
+    expect(referralFromUrl(new URL('https://gnome-vpn.com/?promo=BLOGGER20&ref=ABCDEF23'))).toBe('BLOGGER20');
+  });
+
   it('ignores a missing or malformed code', () => {
     expect(referralFromUrl(new URL('https://gnome-vpn.com/'))).toBeNull();
     expect(referralFromUrl(new URL('https://gnome-vpn.com/?ref=<script>'))).toBeNull();
@@ -43,6 +57,6 @@ describe('rememberReferral', () => {
   });
 
   it('stores nothing without a valid code', () => {
-    expect(remembered(new NextRequest('https://gnome-vpn.com/?ref=nope'))).toBeUndefined();
+    expect(remembered(new NextRequest('https://gnome-vpn.com/?ref=no'))).toBeUndefined();
   });
 });

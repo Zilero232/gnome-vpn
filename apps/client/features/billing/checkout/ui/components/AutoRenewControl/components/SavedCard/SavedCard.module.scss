@@ -1,0 +1,58 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border-bright);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  gap: 10px;
+}
+
+.icon {
+  @include icon-tile;
+
+  background-color: var(--color-surface-raised);
+  color: var(--color-text);
+}
+
+.text {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.title {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.note {
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.unbind {
+  height: auto;
+  min-height: 32px;
+  flex-shrink: 0;
+  padding: 0 8px;
+  border: none;
+  background: none;
+  color: var(--color-text-muted);
+  font-size: 12px;
+
+  &:hover:not(:disabled) {
+    background: none;
+    color: var(--color-danger);
+  }
+
+  @include touch-target;
+}

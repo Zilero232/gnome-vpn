@@ -4,9 +4,13 @@ import { DevicesModule } from '../devices';
 import { PeersModule } from '../peers';
 import { SubscriptionModule } from '../subscription';
 import { TelegramNotifyModule } from '../telegram/telegram-notify.module';
+import { GeoFilesController } from './geo-files.controller';
+import { RoutingSettingsController } from './routing-settings.controller';
 import {
   FeedNoticeService,
+  GeoFilesService,
   NodeTrafficService,
+  RoutingSettingsService,
   SubscriptionAccessService,
   SubscriptionFeedService,
   SubscriptionLinkService,
@@ -19,7 +23,7 @@ import { WireguardConfigController } from './wireguard-config.controller';
 
 @Module({
   imports: [DevicesModule, PeersModule, SubscriptionModule, TelegramNotifyModule],
-  controllers: [SubscriptionLinkController, SubscriptionFeedController, WireguardConfigController],
+  controllers: [SubscriptionLinkController, SubscriptionFeedController, WireguardConfigController, RoutingSettingsController, GeoFilesController],
   providers: [
     FeedNoticeService,
     NodeTrafficService,
@@ -27,8 +31,10 @@ import { WireguardConfigController } from './wireguard-config.controller';
     SubscriptionFeedService,
     SubscriptionPeersService,
     SubscriptionAccessService,
-    WireguardConfigService
+    WireguardConfigService,
+    RoutingSettingsService,
+    GeoFilesService
   ],
-  exports: [NodeTrafficService, SubscriptionLinkService, SubscriptionAccessService, WireguardConfigService]
+  exports: [NodeTrafficService, SubscriptionLinkService, SubscriptionAccessService, WireguardConfigService, GeoFilesService]
 })
 export class SubscriptionLinkModule {}

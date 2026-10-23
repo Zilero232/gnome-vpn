@@ -1,0 +1,1 @@
+export { visibleTrend } from './trend';

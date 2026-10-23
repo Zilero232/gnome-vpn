@@ -1,0 +1,27 @@
+.root {
+  display: flex;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border: 1px dashed var(--color-accent);
+  border-radius: var(--radius-md);
+  background-color: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  gap: 10px;
+}
+
+.icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-accent);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--step-sm);
+  font-weight: 600;
+}

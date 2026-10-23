@@ -1,0 +1,11 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  @include stack(12px);
+
+  min-width: 0;
+}
+
+.submit {
+  align-self: flex-start;
+}

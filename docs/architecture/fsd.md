@@ -42,24 +42,26 @@ A layer never imports from itself across slices. Two features that need the same
 ```text
 features/
 ├── account/    # delete-account, link-telegram, manage-devices
+├── admin/      # overview, manage-users, manage-payments, manage-promo-codes, manage-nodes
 ├── app/        # cross-domain application concerns
 │   └── switch-locale/
 ├── auth/       # sign-in, sign-up, sign-out, telegram-sign-in, change-email,
 │               # change-password, forgot-password, reset-password, update-name,
 │               # verify-email
 ├── billing/    # checkout, claim-trial
-└── vpn/        # connect-incy
+└── vpn/        # connect-incy, routing-settings, wireguard-config, check-connection
 entities/
-├── app/        # about, blog, faq, incy, locale, protocols
+├── admin/      # access, navigation, records
+├── app/        # about, blog, country, faq, incy, locale, protocols
 ├── auth/       # user
-├── billing/    # subscription
-└── vpn/        # device
+├── billing/    # payment-notes, subscription
+└── vpn/        # device, node-status
 widgets/
 ├── billing/    # pricing-plans
 └── site/       # site-header, site-footer, related-links
 ```
 
-`views/` does not group by domain — route screens sit directly in it: `views/landing`, `views/account`, `views/faq`, `views/setup`, `views/about`, `views/pricing`, `views/privacy`, `views/servers`, `views/blog`, `views/blog-post`, `views/auth`, `views/reset-password`, `views/telegram-sign-in`, `views/error`, `views/not-found`.
+`views/` does not group by domain — route screens sit directly in it: `views/landing`, `views/account`, `views/faq`, `views/setup`, `views/about`, `views/pricing`, `views/privacy`, `views/terms`, `views/servers`, `views/status`, `views/admin`, `views/blog`, `views/blog-post`, `views/auth`, `views/reset-password`, `views/telegram-sign-in`, `views/error`, `views/not-found`.
 
 ## 3. Public API
 
@@ -101,11 +103,14 @@ A folder is one concern, not one function: each gets its own `index.ts`, `<name>
 ```text
 ui-kit/
 ├── atoms/       # Badge, BrandMark, Button, CountryFlag, IconSwap, Input, Label,
-│                # PasswordInput, QrCard, Spinner, Stack, StatusIcon, Text
-├── molecules/   # Accordion, AppSplash, ChoiceGroup, ConfirmDialog, Dialog, ErrorBlock,
-│                # FormField, LinkCard, LoadingBlock, Segmented, SelectableCard, StepList,
+│                # PasswordInput, QrCard, Select, Sparkline, Spinner, Stack, StatusIcon,
+│                # Switch, Text, Textarea
+├── molecules/   # Accordion, AppSplash, ChartFrame, ChoiceGroup, ConfirmDialog, Dialog,
+│                # ErrorBlock, FactList, FormField, LinkCard, LoadingBlock, Pagination,
+│                # SectionHead, Segmented, SelectableCard, StatTile, StepList,
 │                # SubmitButton, Tabs, TiltCard
-├── organisms/   # AppToaster, StatusScreen
+├── organisms/   # AppToaster, BarList, ColumnChart, DataTable, LineChart, PageTabs,
+│                # StatusScreen
 └── index.ts     # the one barrel the rest of the app imports
 ```
 
@@ -122,9 +127,9 @@ From outside — only `@/ui-kit`. Inside it, imports between segments are relati
 ```text
 app/
 ├── [locale]/              # every page lives under the locale segment
-│   ├── (marketing)/       # landing, pricing, setup, servers, faq, blog, about, privacy
+│   ├── (marketing)/       # landing, pricing, setup, servers, status, faq, blog, about, privacy
 │   ├── (auth)/            # auth, reset, telegram
-│   ├── (account)/         # account
+│   ├── (account)/         # account, admin
 │   ├── layout.tsx         # the root layout — html, providers, fonts
 │   ├── opengraph-image.tsx
 │   ├── error.tsx

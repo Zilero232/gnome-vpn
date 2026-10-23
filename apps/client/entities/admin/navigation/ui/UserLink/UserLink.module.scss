@@ -1,0 +1,7 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  @include text-link(14px);
+
+  overflow-wrap: anywhere;
+}

@@ -1,0 +1,13 @@
+model NodeUptime {
+  nodeId String   @map("node_id")
+  day    DateTime @db.Date
+
+  checkedMinutes Int @default(0) @map("checked_minutes")
+  upMinutes      Int @default(0) @map("up_minutes")
+
+  node Node @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+
+  @@id([nodeId, day])
+  @@index([day])
+  @@map("node_uptime")
+}

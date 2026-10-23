@@ -23,3 +23,8 @@
   background-color: color-mix(in srgb, var(--color-danger) 14%, transparent);
   color: var(--color-danger);
 }
+
+.warning {
+  background-color: color-mix(in srgb, var(--color-warning) 14%, transparent);
+  color: var(--color-warning);
+}

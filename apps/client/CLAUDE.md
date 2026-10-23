@@ -16,8 +16,8 @@ Full rules: [docs/architecture/fsd.md](../../docs/architecture/fsd.md); code sty
 app/          # Next.js routes — [locale]/ with (marketing) (auth) (account) groups
 views/        # whole screens per route
 widgets/      # composable blocks shared by several views
-features/     # user interactions, by domain: account/, app/, auth/, billing/, vpn/
-entities/     # domain concepts, by domain: app/, auth/, billing/
+features/     # user interactions, by domain: account/, admin/, app/, auth/, billing/, vpn/
+entities/     # domain concepts, by domain: admin/, app/, auth/, billing/, vpn/
 shared/       # project-agnostic: api/ config/ constants/ i18n/ lib/ seo/ styles/
 ui-kit/       # the design system: atoms/ molecules/ organisms/
 ```
@@ -56,8 +56,8 @@ canonical URL and the `hreflang` alternates for both locales.
 public page to `INDEXED_ROUTES` and it follows; the full list of places a new
 page touches is in [docs/architecture/web-client.md](../../docs/architecture/web-client.md).
 
-Private routes (`/account`, `/auth`, `/reset`, `/telegram`) are explicitly
-disallowed in `robots.ts` and carry `index: false`.
+Private routes (`/account`, `/admin`, `/auth`, `/reset`, `/telegram`) are
+explicitly disallowed in `robots.ts` and carry `index: false`.
 
 ## Platform downloads are a shared constant
 

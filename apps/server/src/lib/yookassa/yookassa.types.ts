@@ -3,6 +3,14 @@ export type YooKassaClientOptions = {
   secretKey: string;
 };
 
+export type ShopSettingsResponse = {
+  payment_methods?: string[];
+};
+
+export type ShopSettings = {
+  paymentMethods: string[];
+};
+
 export type CardData = {
   last4?: string;
   card_type?: string;

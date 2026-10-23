@@ -10,5 +10,7 @@ export const LLMS_PAGES = [
   { path: ROUTES.blog, namespace: 'blog' },
   { path: ROUTES.faq, namespace: 'faq' },
   { path: ROUTES.about, namespace: 'about' },
-  { path: ROUTES.privacy, namespace: 'privacy' }
+  { path: ROUTES.privacy, namespace: 'privacy' },
+  { path: ROUTES.terms, namespace: 'terms' },
+  { path: ROUTES.status, namespace: 'status' }
 ] as const;

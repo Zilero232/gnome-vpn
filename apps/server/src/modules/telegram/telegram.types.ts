@@ -1,11 +1,15 @@
 import type { ClientId, DeviceList, WireguardConfigFile } from '@gnomevpn/schemas';
-import type { Bot, Context, InlineKeyboard } from 'grammy';
+import type { Bot, Context, InlineKeyboard, NextFunction } from 'grammy';
+import type { Message, User } from 'grammy/types';
 
 import type { PrismaExecutor } from '../../core';
 import type { PeerRef } from '../peers';
+import type { CreateCampaignInput } from '../promo-codes';
 import type { AUTO_RENEW_CHOICE, BOT_LOCALES, NOTICES, WIREGUARD_KINDS } from './config';
 import type { TextFill } from './lib/fill-text';
 import type { ButtonKey } from './lib/keyboard';
+import type { AlertPurchase, LoadResource, RefundAlertReason } from './lib/owner-alert-text';
+import type { PromoCommand } from './lib/promo-command';
 import type { WireguardNotice } from './lib/wireguard-view';
 
 export type BotLocale = (typeof BOT_LOCALES)[number];
@@ -41,6 +45,11 @@ export type BotAction = {
 
 export type BotCallback = {
   prefix: string;
+  run: BotHandler;
+};
+
+export type OwnerAction = {
+  command: string;
   run: BotHandler;
 };
 
@@ -150,11 +159,6 @@ export type ConfirmedInput = {
   act: (chat: ResolvedChat) => Promise<unknown>;
 };
 
-export type SpeakInput = {
-  ctx: BotContext;
-  pick: (copy: BotText) => string;
-};
-
 export type ChatCopy = {
   chat: ResolvedChat | null;
   copy: BotText;
@@ -231,6 +235,11 @@ export type NotifyInput = {
   days?: number;
 };
 
+export type DirectMessageInput = {
+  userId: string;
+  text: string;
+};
+
 export type NoticeEmailInput = Pick<NotifyInput, 'date' | 'fill' | 'notice' | 'userId'>;
 
 export type NoticeTextInput = {
@@ -268,4 +277,102 @@ export type WireguardMakeInput = Answer & {
 
 export type WireguardRefusedInput = ChatInput & {
   error: unknown;
+};
+
+export type SupportAnswerInput = {
+  ctx: BotContext;
+  next: NextFunction;
+};
+
+export type SupportThreadInput = {
+  ctx: BotContext;
+  sender: User;
+  adminChatId: number;
+  chat: ResolvedChat | null;
+};
+
+export type SupportDeliverInput = {
+  ctx: BotContext;
+  message: Message;
+  telegramId: bigint;
+  locale: BotLocale;
+};
+
+export type RememberThreadInput = {
+  adminChatId: number;
+  messageId: number;
+  telegramId: number;
+  locale: BotLocale;
+};
+
+export type BroadcastRunInput = {
+  api: BotContext['api'];
+  recipients: bigint[];
+  chatId: number;
+  source: number;
+  locale: BotLocale;
+};
+
+export type BroadcastSendInput = {
+  api: BotContext['api'];
+  telegramId: bigint;
+  chatId: number;
+  source: number;
+  attempt: number;
+};
+
+export type BroadcastDelivery = 'blocked' | 'delivered' | 'failed' | 'missing';
+
+export type NodeProbeInput = {
+  nodeId: string;
+  isUp: boolean;
+  healthyAt: Date;
+};
+
+export type NodeLoadInput = {
+  nodeId: string;
+  resource: LoadResource;
+  percent: number;
+};
+
+export type ReconcileFailingInput = {
+  nodeId: string;
+  streak: number;
+  error: string;
+};
+
+export type PaymentSettledInput = {
+  userId: string;
+  purchase: AlertPurchase;
+  amount: number;
+  isAutoCharge: boolean;
+};
+
+export type PaymentRefundedInput = {
+  userId: string | null;
+  purchase: AlertPurchase;
+  amount: number;
+  reason: RefundAlertReason;
+};
+
+export type RefundCanceledInput = Omit<PaymentRefundedInput, 'reason'> & {
+  paymentId: string;
+};
+
+export type ChargeFailedInput = {
+  userId: string;
+  reason: string | null;
+  isCardDropped: boolean;
+};
+
+export type PromoAnswerInput = {
+  command: PromoCommand;
+  locale: BotLocale;
+  now: Date;
+};
+
+export type PromoCreateInput = {
+  input: CreateCampaignInput;
+  locale: BotLocale;
+  now: Date;
 };

@@ -1,1 +1,1 @@
-export { describeExtraDevices, describePlan, describeRenewal } from './payment-description';
+export { describeExtraDevices, describeGift, describePlan, describeRenewal } from './payment-description';

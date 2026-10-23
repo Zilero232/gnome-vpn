@@ -1,3 +1,4 @@
+import type { AdminMessageOutcome } from '@gnomevpn/schemas';
 import type { InlineKeyboard, Keyboard } from 'grammy';
 
 import { Inject, Injectable, Logger } from '@nestjs/common';
@@ -5,14 +6,14 @@ import { Bot } from 'grammy';
 import { isNonNullish, isNullish } from 'remeda';
 
 import type { ChatState } from '../lib';
-import type { MarkupForInput, NoticeSpec, NoticeTextInput, NotifiedChat, NotifyInput } from '../telegram.types';
+import type { DirectMessageInput, MarkupForInput, NoticeSpec, NoticeTextInput, NotifiedChat, NotifyInput } from '../telegram.types';
 
 import { describeError } from '../../../common/lib';
 import { PrismaService } from '../../../core';
 import { TrialService } from '../../subscription';
 import { TELEGRAM_BOT } from '../bot';
 import { BOT_TEXT, NOTICES } from '../config';
-import { dayCount, fillText, formatDate, html, mainKeyboard, menuButtons, resolveLocale } from '../lib';
+import { dayCount, failedDelivery, fillText, formatDate, html, mainKeyboard, menuButtons, resolveLocale } from '../lib';
 import { NoticeEmailService } from './notice-email.service';
 
 @Injectable()
@@ -45,6 +46,28 @@ export class TelegramNotifyService {
       await this.bot.api.sendMessage(Number(chat.telegramId), BOT_TEXT[chat.locale].unlinked, { reply_markup: { remove_keyboard: true } });
     } catch (error) {
       this.logger.warn(`could not say goodbye to ${userId} in telegram: ${describeError(error)}`);
+    }
+  }
+
+  async message({ userId, text }: DirectMessageInput): Promise<AdminMessageOutcome> {
+    if (isNullish(this.bot)) {
+      return 'botOff';
+    }
+
+    const chat = await this.chatOf(userId);
+
+    if (isNullish(chat)) {
+      return 'notLinked';
+    }
+
+    try {
+      await this.bot.api.sendMessage(Number(chat.telegramId), html.escape(text));
+
+      return 'sent';
+    } catch (error) {
+      this.logger.warn(`could not message ${userId} in telegram: ${describeError(error)}`);
+
+      return failedDelivery(error);
     }
   }
 

@@ -1,0 +1,71 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  gap: 10px;
+
+  &[data-redeemed='true'] {
+    border-style: dashed;
+  }
+}
+
+.main {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.code {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-text);
+  cursor: pointer;
+  gap: 8px;
+
+  @include touch-target;
+
+  .root[data-redeemed='true'] & {
+    color: var(--color-text-muted);
+  }
+}
+
+.value {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.meta,
+.status {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.status {
+  .root[data-redeemed='false'] & {
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+}
+
+.share {
+  flex-shrink: 0;
+
+  @include below(sm) {
+    width: 100%;
+  }
+}

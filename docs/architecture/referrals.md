@@ -3,7 +3,9 @@
 Invite a friend, both get days. Code: `apps/server/src/modules/referrals/`, the
 reward inside `WebhookService.settlePayment`, the bot's `/invite` in
 `TelegramReferralService`, the account tab in
-`apps/client/features/account/invite-friends`. The numbers live in
+`apps/client/features/account/invite-friends`. A friend's code is one of three
+kinds of promo code; campaign and gift codes, and the one endpoint that takes
+all three, are in [promo-codes.md](promo-codes.md). The numbers live in
 `REFERRAL_REWARDS` and `REFERRAL_POLICY` (`packages/schemas`), so the account
 page, the bot and the server read one table. Part of the
 [documentation index](../README.md).
@@ -55,16 +57,19 @@ unique violation still maps to `REFERRAL_UNAVAILABLE`.
 lives on another origin, so a cookie set by the site never reaches it. The
 client's `proxy.ts` therefore stores `?ref=<code>` from any page as
 `gnomevpn-ref` for 30 days — only when none is stored yet — and
-`useClaimPendingReferral` on the account page posts it to `/referrals/claim`
-after sign-up or sign-in. It deletes the cookie before the request and puts it
+`useClaimPendingPromoCode` on the account page posts it to `/promo-codes/redeem`
+after sign-up or sign-in, which hands a friend's code to `ReferralService.attribute`
+unchanged ([promo-codes.md](promo-codes.md#one-entry-point)). It deletes the cookie before the request and puts it
 back only after a network error or a `401` from a session that was not up yet,
 which used to lose the invite for good; a final refusal (`isFinalRefusal`: a
-`REFERRAL_*` code or a malformed code) leaves it deleted, since it would only be
+`REFERRAL_*` or `PROMO_CODE_*` refusal, or a malformed code) leaves it deleted, since it would only be
 refused again on every visit. Deleting first is what keeps one code to one
 request — a StrictMode double mount or a remount while the claim is in flight
 finds no cookie, where a second request would lose the unique-row race and
 toast a refusal right after the success. A friend who lost the link can
-type the code on the Invite tab instead, for as long as the account is eligible.
+type the code on the Invite tab instead, for as long as the account is eligible;
+the form is shown to every account now, since a campaign or gift code applies
+after the first payment too.
 
 **The code is a promo code, and sign-up takes one.** People pass codes around
 in chats more than links, so the UI calls it a promo code everywhere and shows
@@ -73,10 +78,13 @@ below as the way to apply it without typing; the bot's `/invite` prints it
 too. The sign-up form has an optional promo code field behind «Есть
 промокод?» — open and filled in when the visitor came by a link, so they can
 see the code that will apply. It is checked by `signUpSchema` through
-`optionalReferralCodeSchema` (`referralCodeSchema` that also lets an empty
-field through). Every keystroke mirrors the field into the same
-`gnomevpn-ref` cookie the `?ref=` link uses (`syncPendingReferral`): a whole
-code replaces what a link stored, an erased or half-typed one deletes it. The
+`optionalPromoCodeSchema`, the general promo format (4–24 letters and digits)
+that also lets an empty field through, so a campaign or gift code typed there
+is carried the same way. Every keystroke mirrors the field into the same
+`gnomevpn-ref` cookie the `?ref=` link uses (`syncPendingPromoCode`): anything
+shaped like a code (4–24 letters and digits — a campaign code can be that
+short) replaces what a link stored, and an erased field or fewer than four
+characters deletes it. The
 cookie is the one place the code lives, so the Telegram button above the form
 claims a typed code exactly as the email form does, and erasing a prefilled
 code really opts out. The account page then claims it through the path above,

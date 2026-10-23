@@ -51,6 +51,14 @@
   }
 }
 
+.sm {
+  height: 34px;
+  padding: 0 12px;
+  font-size: 13px;
+
+  @include touch-target;
+}
+
 .md {
   height: 42px;
   padding: 0 18px;

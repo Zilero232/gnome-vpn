@@ -6,21 +6,25 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Bot } from 'grammy';
 import { isNonNullish, isNullish } from 'remeda';
 
-import type { BotAction, BotCallback, BotContext } from '../telegram.types';
+import type { BotAction, BotCallback, BotContext, OwnerAction } from '../telegram.types';
 
 import { describeError } from '../../../common/lib';
 import { isReferralStart, referralCodeFromStart } from '../../referrals';
 import { TELEGRAM_BOT } from '../bot';
-import { CALLBACK_PREFIX, GROUP_CHATS } from '../config';
+import { CALLBACK_PREFIX, CHAT_ID_COMMAND, GROUP_CHATS, SUPPORT, SUPPORT_MEDIA } from '../config';
 import { buttonFor, callbackPattern } from '../lib';
 import { TelegramAccountService } from './telegram-account.service';
 import { TelegramAppsService } from './telegram-apps.service';
 import { TelegramBillingService } from './telegram-billing.service';
+import { TelegramBroadcastService } from './telegram-broadcast.service';
 import { TelegramDevicesService } from './telegram-devices.service';
 import { TelegramProfileService } from './telegram-profile.service';
+import { TelegramPromoService } from './telegram-promo.service';
 import { TelegramReferralService } from './telegram-referral.service';
 import { TelegramSharedService } from './telegram-shared.service';
+import { TelegramStatsService } from './telegram-stats.service';
 import { TelegramSubscriptionService } from './telegram-subscription.service';
+import { TelegramSupportService } from './telegram-support.service';
 import { TelegramWireguardService } from './telegram-wireguard.service';
 
 @Injectable()
@@ -38,7 +42,11 @@ export class TelegramBotService implements OnModuleInit {
     private readonly devices: TelegramDevicesService,
     private readonly profile: TelegramProfileService,
     private readonly referral: TelegramReferralService,
-    private readonly wireguard: TelegramWireguardService
+    private readonly wireguard: TelegramWireguardService,
+    private readonly support: TelegramSupportService,
+    private readonly stats: TelegramStatsService,
+    private readonly broadcast: TelegramBroadcastService,
+    private readonly promo: TelegramPromoService
   ) {
     if (this.bot) {
       this.register(this.bot);
@@ -94,8 +102,24 @@ export class TelegramBotService implements OnModuleInit {
       { command: 'website', button: 'website', run: (ctx) => this.account.openWebsite(ctx) },
       { command: 'language', button: 'language', run: (ctx) => this.account.chooseLanguage(ctx) },
       { command: 'help', button: 'help', run: (ctx) => this.account.help(ctx) },
+      { command: 'support', button: 'support', run: (ctx) => this.support.open(ctx) },
       { command: 'unlink', button: 'unlink', run: (ctx) => this.account.askUnlink(ctx) },
       { command: 'delete', button: 'deleteAccount', run: (ctx) => this.account.askDelete(ctx) }
+    ];
+  }
+
+  get ownerActions(): OwnerAction[] {
+    return [
+      { command: 'stats', run: (ctx) => this.stats.show(ctx) },
+      { command: 'broadcast', run: (ctx) => this.broadcast.start(ctx) },
+      { command: 'promo', run: (ctx) => this.promo.handle(ctx) }
+    ];
+  }
+
+  get ownerCallbacks(): BotCallback[] {
+    return [
+      { prefix: CALLBACK_PREFIX.broadcastAudience, run: (ctx) => this.broadcast.choose(ctx) },
+      { prefix: CALLBACK_PREFIX.broadcastSend, run: (ctx) => this.broadcast.confirm(ctx) }
     ];
   }
 
@@ -120,6 +144,20 @@ export class TelegramBotService implements OnModuleInit {
   }
 
   private register(bot: Bot): void {
+    bot.command(CHAT_ID_COMMAND, (ctx) => this.account.chatId(ctx));
+
+    const owner = bot.filter((ctx) => this.shared.isAdminChat(ctx));
+
+    for (const { command, run } of this.ownerActions) {
+      owner.command(command, run);
+    }
+
+    for (const { prefix, run } of this.ownerCallbacks) {
+      owner.callbackQuery(callbackPattern(prefix), run);
+    }
+
+    owner.on('message', (ctx, next) => this.support.answer({ ctx, next }));
+
     const direct = bot.chatType('private');
 
     direct.command('start', (ctx) => this.start(ctx));
@@ -135,6 +173,7 @@ export class TelegramBotService implements OnModuleInit {
     }
 
     direct.on('message:text', (ctx) => this.read(ctx));
+    direct.on([...SUPPORT_MEDIA], (ctx) => this.support.relay(ctx));
 
     bot.chatType([...GROUP_CHATS]).command('start', (ctx) => this.account.groupOnly(ctx));
     bot.on('my_chat_member', (ctx) => this.account.joined(ctx));
@@ -169,7 +208,11 @@ export class TelegramBotService implements OnModuleInit {
       return pressed.run(ctx);
     }
 
-    return isShortCode(text) ? this.account.consume({ ctx, text }) : this.account.help(ctx);
+    if (isShortCode(text)) {
+      return this.account.consume({ ctx, text });
+    }
+
+    return this.support.accepts(ctx) && !text.startsWith(SUPPORT.commandPrefix) ? this.support.relay(ctx) : this.account.help(ctx);
   }
 
   private actionFor(button: string | null | undefined): BotAction | undefined {

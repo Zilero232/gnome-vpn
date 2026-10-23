@@ -1,0 +1,1 @@
+export { CampaignsBlock } from './CampaignsBlock';

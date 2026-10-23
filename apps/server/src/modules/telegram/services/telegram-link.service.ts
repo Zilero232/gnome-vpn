@@ -124,7 +124,7 @@ export class TelegramLinkService {
       select: {
         email: true,
         subscription: { select: { currentPeriodEnd: true, trialStartedAt: true, bonusDays: true } },
-        _count: { select: { payments: { where: { status: { not: 'canceled' } } }, referralsMade: true } }
+        _count: { select: { payments: { where: { status: { not: 'canceled' } } }, referralsMade: true, promoRedemptions: true } }
       }
     });
 
@@ -134,7 +134,8 @@ export class TelegramLinkService {
 
     const subscription = user.subscription;
     const isTrialOnly = isNonNullish(subscription?.trialStartedAt) || isNullish(subscription?.currentPeriodEnd);
-    const hasNothingOwed = (subscription?.bonusDays ?? 0) === 0 && user._count.payments === 0 && user._count.referralsMade === 0;
+    const hasNothingOwed =
+      (subscription?.bonusDays ?? 0) === 0 && user._count.payments === 0 && user._count.referralsMade === 0 && user._count.promoRedemptions === 0;
 
     return isTrialOnly && hasNothingOwed;
   }

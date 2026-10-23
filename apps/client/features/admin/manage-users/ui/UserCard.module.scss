@@ -1,0 +1,17 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  @include stack(var(--gap-md));
+
+  min-width: 0;
+}
+
+.back {
+  align-self: flex-start;
+}
+
+.sections {
+  @include stack(14px);
+
+  min-width: 0;
+}

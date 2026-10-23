@@ -54,22 +54,22 @@ describe('signUpSchema', () => {
   });
 
   it('takes a promo code as optional, so an empty field never blocks the sign-up', () => {
-    expect(signUpSchema.safeParse({ ...valid, referralCode: '' }).success).toBe(true);
+    expect(signUpSchema.safeParse({ ...valid, promoCode: '' }).success).toBe(true);
   });
 
   it('normalises a typed promo code the way the claim expects it', () => {
-    expect(signUpSchema.parse({ ...valid, referralCode: 'abcd2345' }).referralCode).toBe('ABCD2345');
+    expect(signUpSchema.parse({ ...valid, promoCode: 'abcd2345' }).promoCode).toBe('ABCD2345');
   });
 
   it('trims a pasted promo code before checking it', () => {
-    expect(signUpSchema.parse({ ...valid, referralCode: '  abcd2345 ' }).referralCode).toBe('ABCD2345');
+    expect(signUpSchema.parse({ ...valid, promoCode: '  abcd2345 ' }).promoCode).toBe('ABCD2345');
   });
 
   it('rejects a promo code that is not shaped like one', () => {
-    const issue = firstIssue(signUpSchema.safeParse({ ...valid, referralCode: 'nope' }));
+    const issue = firstIssue(signUpSchema.safeParse({ ...valid, promoCode: 'no!' }));
 
-    expect(issue?.message).toBe('validation.referralCodeInvalid');
-    expect(issue?.path).toEqual(['referralCode']);
+    expect(issue?.message).toBe('validation.promoCodeInvalid');
+    expect(issue?.path).toEqual(['promoCode']);
   });
 });
 

@@ -1,10 +1,10 @@
 {
   "meta": {
     "title": "VPN pricing and plans",
-    "description": "What a GnomeVPN subscription costs: monthly or discounted over a longer period. The first day is free, payment by card through YooKassa, a refund for the unused period within 14 days."
+    "description": "What a GnomeVPN subscription costs: monthly or discounted over a longer period. The first day is free, payment through YooKassa, a refund for the unused period within 14 days."
   },
   "title": "Pricing",
-  "intro": "One plan, every server. The longer the term, the cheaper the month. Pay by card and turn auto-renewal off whenever you like.",
+  "intro": "One plan, every server. The longer the term, the cheaper the month. Pay through YooKassa and turn auto-renewal off whenever you like.",
   "includedTitle": "Included in every plan",
   "included": {
     "servers": "Every server in every country",
@@ -26,7 +26,7 @@
     },
     "payment": {
       "title": "Paying and renewing",
-      "body": "By card on the site, through YooKassa. Access opens the moment the payment clears — the app sees the new expiry on its next subscription refresh, usually within a few minutes. If you save the card while paying, auto-renewal turns on at the price of the term you chose. It is one button to turn off in your account: access stays until the end of the period you paid for, and nothing is charged after that. You can also extend by hand at any time — the new term is added to the current one."
+      "body": "On the site, through YooKassa — by card or any other method the payment page offers. Access opens the moment the payment clears — the app sees the new expiry on its next subscription refresh, usually within a few minutes. If no paid period is running — the first time, during the free day or after a break — your payment method is saved and auto-renewal turns on at the full price of the term you chose, with no discount; YooKassa says so on the payment page. It is one button to turn off in your account: access stays until the end of the period you paid for, and nothing is charged after that. You can also extend by hand at any time — the new term is added to the current one."
     },
     "refund": {
       "title": "A refund within 14 days",
@@ -43,5 +43,8 @@
     "subscription": "What a subscription link is"
   },
   "trial": "Not sure yet? Start with a free day: full access for 24 hours, no card needed.",
-  "trialCta": "Try it free"
+  "trialCta": "Try it free",
+  "offer": "Subscriptions are sold under the <terms>terms of service</terms>: payment, auto-renewal and how to turn it off, refunds.",
+  "gift": "Want to give GnomeVPN to someone? Pay for any term in your account and get a code you can send to anyone.",
+  "giftCta": "Give a subscription"
 }

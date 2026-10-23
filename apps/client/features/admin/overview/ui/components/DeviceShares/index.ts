@@ -1,0 +1,1 @@
+export { DeviceShares } from './DeviceShares';

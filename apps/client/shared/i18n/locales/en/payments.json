@@ -1,0 +1,10 @@
+{
+  "accepted": "{count, plural, one {Payment by {list}, through YooKassa.} other {You can pay by {list} — pick one on the YooKassa page.}}",
+  "method": {
+    "card": "bank card",
+    "sbp": "SBP (Faster Payments)",
+    "sberPay": "SberPay",
+    "tPay": "T-Pay",
+    "yooMoney": "YooMoney"
+  }
+}

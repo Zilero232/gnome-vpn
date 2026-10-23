@@ -4,3 +4,4 @@ export { basePrisma, isPrismaRequestError, PrismaModule, PrismaService, UNIQUE_V
 export type { PrismaExecutor, PrismaRequestError } from './prisma';
 
 export { withSerializableRetry } from './serializable-retry';
+export { withUniqueRetry } from './unique-retry';

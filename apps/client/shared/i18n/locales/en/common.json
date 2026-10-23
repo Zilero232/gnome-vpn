@@ -10,5 +10,8 @@
   "language": "Language",
   "skipToContent": "Skip to content",
   "ogAccent": "gnome",
-  "ogOffer": "First day free · from {price} ₽ a month"
+  "ogOffer": "First day free · from {price} ₽ a month",
+  "legal": {
+    "contents": "Contents"
+  }
 }

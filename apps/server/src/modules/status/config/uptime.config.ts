@@ -1,0 +1,1 @@
+export const UPTIME_RETENTION_DAYS = 90;

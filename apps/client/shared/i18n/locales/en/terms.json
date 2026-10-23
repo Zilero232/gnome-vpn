@@ -1,0 +1,220 @@
+{
+  "meta": {
+    "title": "Terms of Service",
+    "description": "The terms GnomeVPN is provided under: plans and payment, auto-renewal and how to turn it off, the free day, refunds, promo codes and gifts, and the device limit."
+  },
+  "title": "Terms of Service",
+  "updated": "Updated {date}",
+  "intro": "This public offer (the Offer) sets out the terms on which the Provider delivers the GnomeVPN service: subscription access to VPN servers, payment and automatic renewal of the subscription, refunds, promo codes and gift codes. Please read it before signing up or paying.",
+  "footnote": "How we handle your data is described in the <privacy>privacy policy</privacy>. Send questions about these terms to the address below.",
+  "sections": {
+    "definitions": {
+      "title": "Terms and definitions",
+      "clauses": [
+        "“Service” means GnomeVPN: a secure connection to the internet through the Provider’s servers, together with the website {site} (the Site), the account area on the Site and the Service’s Telegram bot.",
+        "“Provider” means the person who delivers services under the name GnomeVPN and offers to enter into a contract on the terms of this Offer.",
+        "“User” means an individual who has accepted this Offer.",
+        "“Account” means the User’s account with the Service, created on the Site with an email address or in the Service’s Telegram bot. The Account is managed in the account area on the Site and in the Telegram bot.",
+        "“Subscription” means the right to use the Service’s servers during the Paid Period under the plan the User has chosen from those listed on the <pricing>Pricing</pricing> page.",
+        "“Paid Period” means the term of the Subscription, made up of the plans paid for, any bonus days credited and any days added by activating a Promo Code or a Gift Code.",
+        "“Subscription Link” means the personal address from which a Client App fetches the list of servers and the User’s connection settings.",
+        "“Client App” means third-party software that connects to the servers through the Subscription Link or a configuration file, such as INCY, Hiddify, v2rayNG or the official WireGuard apps. The Provider does not develop or distribute Client Apps.",
+        "“Device” means an installation of a Client App that has received servers through the Subscription Link, or a WireGuard configuration file created in the Account.",
+        "“Trial” means free full access to the Service for {trialDays, plural, one {# day} other {# days}}, granted once.",
+        "“Promo Code” means a code that gives a bonus: a friend’s code issued by another User as an invitation, a campaign promo code of the Provider, or a Gift Code.",
+        "“Gift Code” means a single-use code for the term of one of the plans, which a User pays for in order to pass access to the Service to anyone, themselves included.",
+        "“Auto-Renewal” means the automatic charge for the next Subscription period to a saved payment method: a bank card or another method that YooKassa saves for automatic charges."
+      ]
+    },
+    "subject": {
+      "title": "Subject of the Offer",
+      "clauses": [
+        "This document is a public offer by the Provider within the meaning of Article 437(2) of the Civil Code of the Russian Federation and contains all the essential terms of a contract for the paid provision of services (the Contract).",
+        "The Provider gives the User access to the Service to the extent and for the term set by the chosen plan and this Offer, and the User pays for that access and complies with the Offer.",
+        "The Contract is in force from acceptance until the Account is deleted or the Contract otherwise ends. Access to the servers is provided only during a current Paid Period or Trial.",
+        "The parties’ relationship is governed by the version of the Offer published on the Site at the time of the relevant action (a payment, turning on Auto-Renewal), subject to the section “Changes to the Offer”."
+      ]
+    },
+    "acceptance": {
+      "title": "Acceptance",
+      "clauses": [
+        "Any of the following actions by the User constitutes acceptance of the Offer: creating an Account on the Site or in the Service’s Telegram bot; activating the Trial, a Promo Code or a Gift Code; paying for a Subscription, extra Device places or a Gift Code (Article 438(3) of the Civil Code of the Russian Federation).",
+        "By accepting, the User confirms that they have read the Offer and the <privacy>Privacy Policy</privacy> and accept them in full and without reservation.",
+        "The User confirms that they have the legal capacity required to enter into the Contract. The Service is not intended for anyone under 14; a User aged 14 to 18 uses and pays for the Service with the consent of a parent or legal guardian."
+      ]
+    },
+    "service": {
+      "title": "The Service and how it is provided",
+      "clauses": [
+        "Under the Subscription the Provider gives access to the Service’s servers in the countries listed on the Site: over the Hysteria2 and VLESS + Reality protocols through the Subscription Link, and over WireGuard through configuration files. The list of countries, servers and protocols may change.",
+        "The User gets the Subscription Link in the account area or in the Telegram bot and adds it to a Client App. WireGuard configuration files are created in the same places; each file is a separate Device that connects to a server in one country.",
+        "Client Apps are distributed by their owners on their own terms. The Provider is not responsible for how Client Apps work, for their availability in app stores or for changes to them.",
+        "A Subscription allows up to {deviceLimit, plural, one {# Device} other {# Devices}}. A Device takes a place when a Client App on it first receives servers through the Subscription Link, or when a WireGuard configuration file is created in the Account. A Device over the limit receives no servers.",
+        "A place is not freed because a Device goes unused: a Device holds its place until the User removes it in the account area or in the Telegram bot.",
+        "If the Device limit shrinks — because extra places have ended or their payment has been refunded — the most recently connected Devices over the new limit stop receiving servers, and WireGuard configuration files over the limit are deleted.",
+        "During a paid Subscription the User may buy extra Device places, up to {maxExtraDevices}, at the price shown in the account area. Extra places are not sold during the Trial. They last for as long as the Subscription is renewed without a break, and are cancelled if the Subscription is not renewed within 6 hours of the end of the Paid Period.",
+        "The Subscription Link is personal and is the means of access to the servers. The User may issue a new Link at any time in the account area or in the Telegram bot; the old Link then stops working and the Devices connected through it are disconnected.",
+        "Access opens or is extended once YooKassa confirms the payment, or at once when a Promo Code or Gift Code that adds days is activated. The Client App receives the new data at its next subscription refresh, usually within a few minutes.",
+        "The Provider does not guarantee that the Service is available on every network, with every carrier or from every location: availability depends, among other things, on the actions of carriers and other third parties the Provider does not control. Connection speed depends on the User’s connection, network load and the distance to the server, and is not guaranteed.",
+        "The Provider may carry out maintenance, replace, add and retire servers and change the set of protocols. The Provider aims to keep any interruption as short as possible; after such changes the subscription may need refreshing in the Client App. A WireGuard configuration file is deleted if the server it was created for is retired or changes its connection settings; the User may create a new one in its place."
+      ]
+    },
+    "obligations": {
+      "title": "User obligations and prohibited use",
+      "clauses": [
+        "The User uses the Service only for lawful purposes, in accordance with the laws of the Russian Federation and of the country where the User is located.",
+        "The Service must not be used to send spam; for network attacks, including DDoS attacks, port and vulnerability scanning and password guessing; to distribute malware; to distribute information whose distribution is prohibited by law; for fraud or any other unlawful activity; or to infringe the rights of third parties, including intellectual property rights.",
+        "The User must not resell access to the Service, give the Subscription Link or configuration files to third parties for use beyond the Device limit, or circumvent the Device limit, including by copying connection settings out of a Client App onto other devices. Within the limit the User may connect the devices of their family members and is responsible for how they are used.",
+        "The User must not interfere with the Service: overload the servers, run load tests, or create Accounts automatically or in bulk, including to obtain the Trial or bonuses again.",
+        "The User keeps the Account password, the Subscription Link and configuration files secret and is responsible for anything done with them. If the Link reaches anyone else, the User issues a new one.",
+        "The User provides a working email address and confirms it: notices about the Subscription, payments and upcoming charges are sent there. An Account created in the Telegram bot receives these notices in the bot."
+      ]
+    },
+    "payment": {
+      "title": "Prices and payment",
+      "clauses": [
+        "The price of a Subscription is shown on the <pricing>Pricing</pricing> page; a Gift Code costs the price of the plan whose term it carries; the price of extra Device places is shown in the account area. Prices are in Russian roubles. The price in effect at the moment of payment applies.",
+        "Payments are accepted through the YooKassa payment service by bank card or any other method available on the YooKassa payment page. The card number, expiry date and CVC are entered on the YooKassa page and never reach the Provider. For a saved payment method the Provider keeps only its YooKassa identifier and a description to show in the Account — the card type and the last 4 digits of its number, or the name of another method.",
+        "The User’s obligation to pay is fulfilled when YooKassa confirms the payment. Returning to the Site after paying is not confirmation in itself; if the payment is not confirmed, access is not provided.",
+        "Any plan can be paid for at any time. If a Paid Period or Trial is running at the time of payment, the new term is added to its end and no remaining time is lost.",
+        "A term bought under a plan is counted in calendar months: if the month in which it ends has no matching day, the term ends on the last day of that month. Bonus days and days added by a Promo Code or Gift Code are counted in calendar days.",
+        "Price changes do not affect terms already paid for.",
+        "A document confirming payment (a receipt) is provided in the manner and in the cases required by the laws of the Russian Federation."
+      ]
+    },
+    "autoRenewal": {
+      "title": "Automatic renewal",
+      "clauses": [
+        "Auto-Renewal is available when YooKassa has enabled automatic payments for the Provider; otherwise the Subscription can only be renewed manually.",
+        "Auto-Renewal turns on: when the User pays for a Subscription while no Paid Period is running, including during the Trial and after an earlier term has ended — the payment method is then saved for automatic charges, as YooKassa states on the payment page before the payment is confirmed; when the User adds a card in the account area; and when the User turns Auto-Renewal on in the account area or in the Telegram bot while a payment method is already saved.",
+        "A payment for a Subscription made during a running Paid Period also saves the payment method, replacing the one saved before, and leaves the User’s choice as it was: Auto-Renewal the User has turned off stays off. If the User has never paid for a plan (for example, the Paid Period comes from Promo Codes or Gift Codes) and has not turned Auto-Renewal off, such a payment turns it on. Paying for a Gift Code or for extra Device places saves no payment method and does not affect Auto-Renewal. By confirming a payment or taking the actions above, the User agrees to charges on the terms of this section.",
+        "Auto-Renewal does not apply during the Trial, and nothing is charged.",
+        "The charge is made to the saved payment method within the last 24 hours of the Paid Period. Its amount is the price, in effect on the date of the charge, of the plan the User paid for most recently — or, if the User has never paid for a plan (for example, the Paid Period comes from Promo Codes or Gift Codes), of the 1-month plan — and the renewal term equals that plan’s term. Promo Code discounts never apply to automatic charges. Extra Device places are not charged separately on Auto-Renewal and are kept.",
+        "Before the last 24 hours of the Paid Period begin — usually three days before it ends — the Provider sends a reminder of the upcoming charge with its date, amount and payment method: to the Account’s confirmed email address and to the Telegram bot, if one is linked. If Auto-Renewal is turned on later than that, the reminder may not arrive. After a successful charge the Provider confirms the renewal.",
+        "One charge attempt is made per Paid Period per payment method. If the charge fails, the Provider tells the User; there are no further attempts with the same payment method in that period, access continues until the end of the Paid Period, and the Subscription can be renewed manually, with another payment method as well. A payment method that the bank or YooKassa reports as unusable for charges is removed automatically.",
+        "Auto-Renewal can be turned off at any time: in the account area with the “Turn off auto-renewal” or “Remove card” button; in the Telegram bot under “⚙️ More” → “🔄 Auto-renewal”; or, without access to the Account, by writing to {email}. Once it is off nothing is charged, and access continues until the end of the Paid Period. For this to affect the next charge, it must be done before the last 24 hours of the period begin.",
+        "Removing the card deletes the saved payment method from the Account and turns Auto-Renewal off; a card can be added again at any time. Money charged through Auto-Renewal is refunded under the section “Refunds”."
+      ]
+    },
+    "trial": {
+      "title": "The Trial",
+      "clauses": [
+        "The Trial gives full access to the Service for {trialDays, plural, one {# day} other {# days}}. It is activated in the account area once the email address is confirmed (no confirmation is needed when signing in with Telegram), or in the Telegram bot.",
+        "The Trial is granted once, and only to an Account that has not yet had access to the Service — paid for, gifted or from a Promo Code. It is not granted again to the same email address, including one written differently, or to the same Telegram account — including after the Account is deleted and a new one is created.",
+        "No bank card is needed for the Trial. Nothing is charged when it ends, and the Subscription does not renew by itself.",
+        "A Subscription can be paid for during the Trial: the paid term starts when the Trial ends, and Auto-Renewal turns on as described in the section “Automatic renewal”."
+      ]
+    },
+    "refunds": {
+      "title": "Refunds",
+      "clauses": [
+        "Within 14 days of the payment date the User may, without giving a reason, ask for a refund of the unused part of the term paid for. To do so, write to {email} stating the Account’s email address (or Telegram account) and, if possible, the date and amount of the payment.",
+        "The refund is calculated in proportion to the number of whole days of the term bought with that payment that have not yet passed on the date of the request. If the term has not started yet — for example, because it was added to a running period — the whole payment is refunded. The amount actually paid, after any discount, is what is refunded.",
+        "Refunds are made through YooKassa to the payment method used for the payment. The Provider issues the refund within 10 days of receiving the request; when the money arrives depends on the bank or payment system.",
+        "After a refund for a Subscription the Subscription is shortened by the refunded term, Auto-Renewal is turned off, and bonus days credited for that payment to the User and to whoever invited them are taken back to the extent they have not been used. A Promo Code discount used in that payment is not restored. After a refund for extra places the Device limit is reduced.",
+        "After a refund for a Gift Code the code is cancelled; if it has already been activated, the Subscription of whoever activated it is shortened by the days the code added, but not to before the moment of the refund.",
+        "Bonus days, discounts, days from campaign promo codes, the Trial and other bonuses have no monetary value and are not refunded.",
+        "If a payment cannot be fulfilled, the money is refunded automatically in full: when payment for extra places arrives after the Subscription has ended; when the Account was deleted before the payment was confirmed; or when the Promo Code discount the payment was priced with has already been used by another payment of the same Account.",
+        "Deleting the Account does not by itself refund the remaining term. A refund request must be sent before deleting: afterwards it may be impossible to establish whose payment it was.",
+        "This section does not limit the rights of a User who is a consumer, including the right to withdraw from the Contract at any time on paying the Provider the expenses actually incurred (Article 32 of the Russian Federation Law “On Protection of Consumer Rights”)."
+      ]
+    },
+    "bonuses": {
+      "title": "Bonuses, promo codes and gifts",
+      "clauses": [
+        "The Provider may offer bonuses — bonus Subscription days, discounts and others, including for inviting friends and through campaign promo codes. The size of a bonus, how to get it and its limits are shown in the Service — on the Site, in the account area or in the Telegram bot — and apply as shown at the time the bonus is received.",
+        "Bonuses have no monetary value and cannot be exchanged for money. Bonus days and discounts credited to an Account cannot be moved to another Account. A friend’s code and a Gift Code, on the other hand, are meant to be passed on to other people.",
+        "A campaign promo code gives either a discount on one Subscription payment or bonus days, which are added at once on activation — to the end of the running period or, if there is none, counted from the moment of activation. The discount does not apply to Auto-Renewal, to payments for extra Device places or to payments for Gift Codes.",
+        "A discount is used up only by a successful payment and is not restored if that payment is refunded. An Account holds at most one unused discount at a time: a code for a new discount replaces the earlier one, which can no longer be used. A promo code’s expiry does not cancel a discount already applied to the Account.",
+        "A campaign promo code can be activated once per email address and once per Telegram account — including after the Account is deleted and a new one is created. Campaign promo codes and Gift Codes are activated once the Account’s email address is confirmed; an Account created in the Telegram bot without an email address needs no confirmation.",
+        "The User may pay for a Gift Code for the term of one of the plans. The code is issued once the payment is confirmed: it is shown in the account area and sent to the Account’s email address and to the Telegram bot, if one is linked. A Gift Code does not expire; it can be passed on to anyone or activated by the buyer.",
+        "A Gift Code is activated once and adds to the Subscription of whoever activates it the days of the plan paid for: {giftMonthDays, plural, one {# day} other {# days}} for 1 month, {giftHalfYearDays, plural, one {# day} other {# days}} for 6 months, {giftYearDays, plural, one {# day} other {# days}} for 12 months. The days are added to the end of the running period or, if there is none, counted from the moment of activation.",
+        "Paying for a Gift Code is not a payment for the buyer’s own Subscription: it does not extend it, does not turn on Auto-Renewal and earns no invitation bonus. A Gift Code stays valid after the buyer’s Account is deleted.",
+        "If a payment for which a bonus was credited is refunded, the unused part of the bonus is cancelled.",
+        "The Provider may withhold or cancel bonuses obtained in breach of the Offer or of a promotion’s terms, including by inviting one’s own Accounts or creating Accounts in bulk."
+      ]
+    },
+    "termination": {
+      "title": "End of the subscription, suspension and termination",
+      "clauses": [
+        "When a Paid Period or Trial ends and is not renewed, access to the servers stops: Client Apps stop receiving servers and WireGuard configuration files are disabled within a few hours. The Account and the Subscription Link are kept. Once extra places are cancelled (see the section “The Service and how it is provided”), the limit returns to {deviceLimit, plural, one {# Device} other {# Devices}}: the most recently connected Devices over it receive no servers, and WireGuard configuration files over it are deleted. For the other Devices access resumes after payment without setting anything up again.",
+        "The Provider may suspend access to the Service or delete the Account if the User breaches the section “User obligations and prohibited use”, or where the laws of the Russian Federation require it. Where possible the Provider tells the User the reason. A refund for the unused term is then decided under the section “Refunds” and the laws of the Russian Federation.",
+        "The User may delete the Account at any time — in the account area or in the Telegram bot (the /delete command or the “🗑️ Delete” button under “⚙️ More”); this is the User’s withdrawal from the Contract. Deletion is irreversible: the Subscription ends at once, Devices are disconnected, the Subscription Link stops working, and the Account’s data are deleted in accordance with the <privacy>Privacy Policy</privacy>. An Account cannot be deleted while a payment on it is in progress. Gift Codes the User has paid for remain valid.",
+        "If the Provider shuts the Service down, it notifies Users in advance and refunds the unused part of the terms paid for."
+      ]
+    },
+    "liability": {
+      "title": "Liability",
+      "clauses": [
+        "The Service is provided “as is”. The Provider makes reasonable efforts to keep it running without interruption but does not guarantee that it will be available on every network, with any equipment, or free of errors.",
+        "The Provider is not responsible for interruptions caused by carriers or by restrictions imposed by third parties; for how Client Apps or the User’s equipment work; for the content of resources the User opens through the Service; or for the consequences of the User sharing the password, the Subscription Link or configuration files with third parties.",
+        "The User is responsible for their own actions when using the Service and for their lawfulness.",
+        "To the extent permitted by the laws of the Russian Federation, the Provider’s liability to the User is limited to the amount the User paid for the current Paid Period.",
+        "The parties are released from liability for failure to perform caused by force majeure."
+      ]
+    },
+    "personalData": {
+      "title": "Personal data",
+      "clauses": [
+        "The Provider processes the User’s personal data to the extent and for the purposes set out in the <privacy>Privacy Policy</privacy>. The processing is necessary to perform the Contract (Article 6(1)(5) of the Federal Law “On Personal Data”).",
+        "The Provider keeps no logs of the User’s traffic: no connection history, visited addresses, DNS queries or connection contents.",
+        "Notices about the Subscription, payments and charges are sent to the Account’s email address and to the Telegram bot, if one is linked. The Provider may also send service messages about how the Service works — for example, about maintenance or changes to the Offer. These are not advertising; advertising messages, if the Provider ever sends any, are sent only where the law allows."
+      ]
+    },
+    "changes": {
+      "title": "Changes to the Offer",
+      "clauses": [
+        "The Provider may change the Offer. A new version takes effect when it is published on the Site unless it states otherwise; the date of the last change is shown at the top of the document.",
+        "Changes do not affect terms already paid for. The Provider additionally announces material changes by email to the Account’s address or through the Telegram bot, and a change in the Auto-Renewal amount in the reminder before the charge.",
+        "A User who does not agree with a new version may turn off Auto-Renewal or delete the Account. Continuing to use the Service after the changes take effect means accepting them.",
+        "The Offer is published in Russian. The English translation is provided for convenience; if the texts differ, the Russian version prevails."
+      ]
+    },
+    "law": {
+      "title": "Governing law and disputes",
+      "clauses": [
+        "The Contract is governed by the laws of the Russian Federation.",
+        "Claims are sent to {email}. A claim should state the Account’s email address or Telegram account, the substance of the claim and, if it concerns a payment, its date and amount.",
+        "The Provider considers a claim and replies within 10 days of receiving it.",
+        "Disputes that cannot be settled by negotiation are resolved in court under the laws of the Russian Federation, including the rules on jurisdiction over disputes involving consumers."
+      ]
+    },
+    "contacts": {
+      "title": "Contacts",
+      "clauses": [
+        "For questions about the Service, the Contract, payments and refunds, write to {email}. Other ways to get in touch are listed on the Site.",
+        "Messages from the Provider sent to the Account’s email address or to the linked Telegram bot are deemed received by the User."
+      ]
+    }
+  },
+  "seller": {
+    "title": "Provider details",
+    "fields": {
+      "name": "Provider",
+      "status": "Status",
+      "inn": "Taxpayer number (INN)",
+      "ogrnip": "Registration number (OGRNIP)",
+      "address": "Address",
+      "email": "Email"
+    },
+    "statuses": {
+      "entrepreneur": "Individual entrepreneur",
+      "selfEmployed": "Self-employed (professional income tax payer)"
+    }
+  },
+  "notes": {
+    "payment": "By paying you accept the <terms>terms of service</terms>.",
+    "autoRenew": "By turning on auto-renewal you agree to automatic charges under the <terms>terms of service</terms>."
+  },
+  "summary": {
+    "title": "The short version",
+    "points": {
+      "subscription": "A subscription opens every server and protocol for the term you paid for, at the price shown on the Pricing page when you pay.",
+      "autoRenewal": "Paying saves your payment method for auto-renewal. Turn it off in your account or in the Telegram bot at any time; the charge happens in the last day of the term, at the plan's full price.",
+      "refunds": "Not for you? We refund the unused days — write to us within 14 days of paying.",
+      "devices": "A subscription includes {deviceLimit, plural, one {# device} other {# devices}}; you can add up to {maxExtraDevices} more places.",
+      "trial": "The trial is {trialDays, plural, one {# day} other {# days}}, once per email or Telegram account, with no card and no auto-renewal."
+    },
+    "note": "This is a plain-language summary. The full offer below is what applies."
+  }
+}

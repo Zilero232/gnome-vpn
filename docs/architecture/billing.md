@@ -3,9 +3,24 @@
 YooKassa checkout, automatic renewal, the trial, and what deleting an account
 does to the nodes. Code: `apps/server/src/modules/billing/` and the billing jobs
 in `apps/server/src/modules/scheduler/` (the full job list is in
-[scheduler.md](scheduler.md)). Part of the [documentation index](../README.md).
+[scheduler.md](scheduler.md)). Discount codes, bonus-day codes and gift
+subscriptions — what a promo code does to a checkout and to a settlement — are
+in [promo-codes.md](promo-codes.md). Part of the [documentation index](../README.md).
 
 ## Prices, flags and webhooks
+
+**The site names the payment methods the shop actually accepts.** Checkout sends
+no `payment_method_data`, so YooKassa's own page offers whatever is enabled for
+the shop — cards, SBP, SberPay and so on are switched on in the YooKassa
+dashboard, not in this code. `PaymentMethodsService` asks `GET /v3/me` which
+methods those are (`payment_methods`), maps the ones we have a name for
+(`offeredMethods`, `YOOKASSA_METHODS`) and caches the answer for an hour, so
+enabling SBP in the dashboard shows up on the pricing page and under the pay
+button (`PaymentMethodsNote`, from the anonymous `GET /billing/payment-methods`)
+within the hour, with no release. If YooKassa does not answer, the list is
+cards only and is asked again after five minutes rather than an hour. The fixed
+texts (pricing, FAQ) therefore never promise a method: they say "by card or any
+other method the payment page offers".
 
 Prices live in `PLANS` ([`packages/schemas`](../../packages/schemas)), not in the environment: the server charges from that list and the landing page renders from it, so an advertised price cannot drift from a billed one.
 
@@ -52,8 +67,10 @@ for a day for nothing.
 
 ## Refunds
 
-Refunds stay manual — they are made in the YooKassa dashboard — but the system
-now follows them. `refund.succeeded` (subscribe to it in the shop's HTTP
+Refunds are a person's decision — made in the YooKassa dashboard, or with
+«Вернуть платёж» in the web admin panel, which asks YooKassa for a full refund
+and changes nothing itself ([admin.md](admin.md#refunds-go-through-the-webhook)) —
+and the system follows them. `refund.succeeded` (subscribe to it in the shop's HTTP
 notification settings beside the payment events) reaches `handleRefund`, which
 re-reads the refund and its payment from the API like every other webhook, and
 acts only on a payment that is `succeeded` here and refunded **in full** at
@@ -64,6 +81,10 @@ of days.
 The reversal runs in one serializable transaction and claims the row
 `succeeded` → `refunded` first, so a replayed webhook does nothing:
 
+- a **gift** payment disables its gift code and, if it was redeemed, takes its
+  days back from the redeemer's period, never before now
+  ([promo-codes.md](promo-codes.md#the-gift-lifecycle)); this runs even when the
+  buyer's account is gone;
 - a **subscription** payment moves `currentPeriodEnd` back by the plan's months
   (`rewindPeriod`, never before now — a refund cannot reach back into time
   already used), and takes back the referral days granted for that payment
@@ -91,7 +112,11 @@ id>`, so the sweep retrying the same payment asks for the same refund:
   config grace (`hasLapsedBeyondGrace`, `PERIOD_GRACE.hours`): the places would
   be wiped by the next `activate` anyway, so granting them would be selling
   nothing;
-- any payment whose account was deleted while it was pending (`userId` is null).
+- any payment whose account was deleted while it was pending (`userId` is null);
+- a payment priced with a promo discount that another payment of the same
+  account has already used (`discountUsed`): a discount pays for one payment,
+  and the settling transaction that finds it consumed rolls back and refunds
+  instead ([promo-codes.md](promo-codes.md#the-discount-lifecycle)).
 
 The row goes `pending` → `refunded` and `settlePayment` returns `'refunded'`
 (it now returns a `SettleResult` for every call), so a caller can tell the
@@ -147,7 +172,7 @@ keeps `dropUnusableCard` only for a charge that **threw**: a thrown error is
 logged rather than announced, because it is not proof the card was declined, and
 the card is dropped only on a definite "no" from `isPaymentMethodUsable`.
 
-**Only a card YooKassa saved is a card.** Every settled payment carries a `payment_method.id`, saved or not — an SBP payment, a checkout with recurring off, a buyer who unticked "remember card". `settlePayment` used to store any of them as `savedCardId`, and the charge then failed hourly with `This payment_method_id doesn't exist`. `getPayment` now returns the id only when `payment_method.saved` is true. For rows written before that, a failed charge asks `isPaymentMethodUsable`; a definite "no" unbinds the card and tells the reader once, while an unknown answer (network, 5xx) leaves it alone.
+**Only a card YooKassa saved is a card.** Every settled payment carries a `payment_method.id`, saved or not — a checkout with recurring off, a gift or extra places (both `save_payment_method: false`), a method YooKassa could not save. `settlePayment` used to store any of them as `savedCardId`, and the charge then failed hourly with `This payment_method_id doesn't exist`. `getPayment` now returns the id only when `payment_method.saved` is true. For rows written before that, a failed charge asks `isPaymentMethodUsable`; a definite "no" unbinds the card and tells the reader once, while an unknown answer (network, 5xx) leaves it alone.
 
 `period-reminder` warns before the period ends, once per period — `subscription.reminderSentFor` holds the period end it was sent for, so a renewal that moves the end re-arms it. Three messages: a trial gets `trialEndingSoon` in its last `WINDOW.trialRemindHours`, a period that will not auto-charge gets `endingSoon` within `WINDOW.remindHours`, and one that will gets `renewSoon` with the amount and card — only before the charge window opens, because after it `recurring-charge` speaks for itself.
 
@@ -232,15 +257,30 @@ client's error messages still name it, but nothing throws it.
 
 **The status carries the last payment.** `lastPayment` (`status`, `kind`,
 `isAutoCharge`, `createdAt`, or `null`) is the newest payment row of the
-account, read in parallel with the subscription row through the
+account other than a gift purchase (a gift says nothing about the reader's own
+subscription, and would hide a failed renewal behind it), read in parallel with the subscription row through the
 `payment(user_id, created_at)` index, so the account page can say "the last
 automatic charge failed" without another request.
 
-**Auto-renewal on a fresh period follows the card the payment saved.** Outside
-a running paid period, a payment that saved a card turns renewal on — ticking
-"remember card" at checkout is the consent. Without a new card the stored
-preference stands, so a reader who turned renewal off and later pays by SBP
-stays off. Inside a paid period the stored preference always stands.
+**Auto-renewal on a fresh period follows the method the payment saved.**
+`createCheckout` sends `save_payment_method: isRecurringEnabled()`, and YooKassa
+reads `true` as unconditional: there is no "remember card" box to untick — the
+payment page tells the payer that confirming authorises automatic charges, and
+the method (a card, SberPay, T-Pay, SBP, ЮMoney) is saved when the payment
+succeeds. So outside a running paid period — the first purchase, a purchase
+during the trial, one after a lapse — `activate` turns renewal on
+(`isConsentGiven`): confirming that page is the consent, and the account page
+says so above the button (`account.plans.renewalNote`). Inside a paid period
+the saved method is replaced but the stored preference stands, so a reader who
+turned renewal off stays off; an account whose period came only from promo or
+gift days never stored a preference (`cancelAtPeriodEnd` defaults to `false`),
+so a payment there turns it on as well. A payment that saved nothing keeps
+renewal off (`resolveCancelAtPeriodEnd` needs a method). Binding a card in the
+account (`attachPaymentMethod`) and the "Turn on auto-renewal" toggle
+(`resumeAutoRenew`, which needs a saved method) turn it on; unbinding turns it
+off. The renewal charges `findPlan(subscription.plan).priceRub` — the plan last
+paid for at today's price, and the monthly plan on a row a trial or a code
+created — never with a discount.
 
 **Extra devices need a paid period, and last as long as it does.** A trial day
 is a taster; extras bought on it would be paid for a few hours, so checkout

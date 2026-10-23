@@ -60,6 +60,12 @@ describe('indexedRoutes', () => {
   it('never lists a route behind the session', () => {
     expect(indexedRoutes()).not.toContain(ROUTES.account);
     expect(indexedRoutes()).not.toContain(ROUTES.auth);
+    expect(indexedRoutes()).not.toContain(ROUTES.admin);
+  });
+
+  it('keeps the admin panel behind the session', () => {
+    expect(isKnownRoute(ROUTES.admin)).toBe(true);
+    expect(isPublicRoute(ROUTES.admin)).toBe(false);
   });
 
   it('leaves out the guest-only route, which has nothing to index', () => {

@@ -13,7 +13,9 @@ export const CALLBACK_PREFIX = {
   wireguardNode: 'wgnode:',
   wireguardCreate: 'wgnew:',
   wireguardFile: 'wgfile:',
-  deleteAccount: 'delete:'
+  deleteAccount: 'delete:',
+  broadcastAudience: 'bcast:',
+  broadcastSend: 'bsend:'
 } as const;
 
 export const CONFIRMED = 'yes';

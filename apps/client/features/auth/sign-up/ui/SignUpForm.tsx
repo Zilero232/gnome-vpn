@@ -18,7 +18,7 @@ import { PromoCodeField, StrengthMeter } from './components';
 
 import s from './SignUpForm.module.scss';
 
-const DEFAULT_VALUES: SignUpValues = { email: '', password: '', referralCode: '' };
+const DEFAULT_VALUES: SignUpValues = { email: '', password: '', promoCode: '' };
 
 export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
   const t = useTranslations('auth');
@@ -59,7 +59,7 @@ export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
       </FormField>
       <StrengthMeter password={password} />
 
-      <PromoCodeField error={fieldError(errors.referralCode)} isOpen={promo.isOpen} registration={promo.registration} onOpen={promo.open} />
+      <PromoCodeField error={fieldError(errors.promoCode)} isOpen={promo.isOpen} registration={promo.registration} onOpen={promo.open} />
 
       <SubmitButton isPending={isPending} size='lg'>
         {t('signUpAction')}
@@ -67,6 +67,11 @@ export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
 
       <Text as='p' className={s.consent}>
         {t.rich('consent', {
+          terms: (chunks) => (
+            <Link className={s.link} href={ROUTES.terms}>
+              {chunks}
+            </Link>
+          ),
           privacy: (chunks) => (
             <Link className={s.link} href={ROUTES.privacy}>
               {chunks}

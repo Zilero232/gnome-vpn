@@ -1,4 +1,4 @@
-import type { Plan, PlanId } from '@gnomevpn/schemas';
+import type { Plan, PlanId, PromoDiscount } from '@gnomevpn/schemas';
 
 import type { BotLocale } from '../../telegram.types';
 
@@ -9,6 +9,14 @@ export type PlanButtonLabelInput = {
 
 export type PlanLabelInput = {
   planId: PlanId;
+  locale: BotLocale;
+};
+
+export type CheckoutIntroInput = {
+  planId: PlanId;
+  amountRub: number;
+  discount: PromoDiscount | null;
+  termsUrl: string;
   locale: BotLocale;
 };
 

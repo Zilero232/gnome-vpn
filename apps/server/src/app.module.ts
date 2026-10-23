@@ -6,14 +6,17 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AllExceptionsFilter } from './common/filters';
 import { AppConfigModule } from './config/config.module';
 import { PrismaModule } from './core';
+import { AdminModule } from './modules/admin';
 import { AuthModule } from './modules/auth';
 import { BillingModule } from './modules/billing';
 import { DevicesModule } from './modules/devices';
 import { HealthModule } from './modules/health';
 import { PeersModule } from './modules/peers';
 import { PlatformsModule } from './modules/platforms';
+import { PromoCodesModule } from './modules/promo-codes';
 import { ReferralsModule } from './modules/referrals';
 import { SchedulerModule } from './modules/scheduler';
+import { StatusModule } from './modules/status';
 import { SubscriptionModule } from './modules/subscription';
 import { SubscriptionLinkModule } from './modules/subscription-link';
 import { TelegramModule } from './modules/telegram';
@@ -39,7 +42,10 @@ import { TelegramModule } from './modules/telegram';
     ReferralsModule,
     SubscriptionLinkModule,
     TelegramModule,
-    SchedulerModule
+    SchedulerModule,
+    StatusModule,
+    PromoCodesModule,
+    AdminModule
   ],
   providers: [
     { provide: APP_FILTER, useClass: AllExceptionsFilter },

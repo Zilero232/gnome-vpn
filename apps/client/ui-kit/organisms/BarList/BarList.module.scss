@@ -1,0 +1,94 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  display: grid;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  gap: 14px 16px;
+  grid-template-columns: minmax(5rem, 0.9fr) minmax(4rem, 2fr) auto;
+  list-style: none;
+
+  @include below(md) {
+    gap: 6px 12px;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+.item {
+  display: grid;
+  align-items: center;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+
+  @include below(md) {
+    row-gap: 6px;
+
+    & + & {
+      padding-top: 8px;
+    }
+  }
+}
+
+.label {
+  min-width: 0;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+
+  @include below(md) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+}
+
+.track {
+  overflow: hidden;
+  height: 10px;
+  border-radius: 0 4px 4px 0;
+  background-color: color-mix(in srgb, var(--chart-series-1) 12%, transparent);
+
+  @include below(md) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+.fill {
+  display: block;
+  min-width: 2px;
+  height: 100%;
+  border-radius: 0 4px 4px 0;
+  background-color: var(--chart-series-1);
+
+  &[data-empty='true'] {
+    min-width: 0;
+  }
+}
+
+.numbers {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+
+  @include below(md) {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
+.share {
+  @include visually-hidden;
+}
+
+.detail {
+  color: var(--color-text-muted);
+}
+
+.value {
+  color: var(--color-text);
+  font-weight: 650;
+}

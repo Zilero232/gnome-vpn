@@ -1,0 +1,19 @@
+@use '@/shared/styles/mixins' as *;
+
+.code {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+
+.kind {
+  min-width: 0;
+}
+
+.kindLabel {
+  font-size: 13px;
+  line-height: inherit;
+}
+
+.kind .switch {
+  height: 46px;
+}

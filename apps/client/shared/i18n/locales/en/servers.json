@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Servers and protocols: Hysteria2, VLESS Reality and WireGuard",
-    "description": "How Hysteria2, VLESS + Reality and WireGuard differ, which protocol to pick when a network blocks UDP, and how the server list keeps itself current."
+    "description": "How Hysteria2, VLESS + Reality and WireGuard differ, which protocol to pick when a network does not pass UDP, and how the server list keeps itself current."
   },
   "title": "Servers and protocols",
   "intro": "Every country in your subscription comes in two variants: over Hysteria2 and over VLESS + Reality. The app labels each entry with its protocol, and you switch between them right there. WireGuard is handed out separately, as a config for one device.",
@@ -11,7 +11,7 @@
     "transport": "Transport",
     "port": "Port",
     "lossBehaviour": "Under packet loss",
-    "blocking": "When blocked",
+    "blocking": "When it fails",
     "bestFor": "Best for"
   },
   "protocols": {
@@ -28,26 +28,26 @@
       "transport": "TCP with a real TLS handshake",
       "port": "443/TCP",
       "lossBehaviour": "Slows down like any TCP connection: one lost packet stalls everything behind it.",
-      "blocking": "Passes where UDP is dropped, because it looks like an ordinary HTTPS connection to a real site.",
+      "blocking": "Works where UDP is closed: it is TCP on 443 with the TLS handshake of a real site, like ordinary HTTPS.",
       "bestFor": "Networks that allow only TCP."
     },
     "wireguard": {
       "name": "WireGuard",
-      "transport": "Its own protocol over UDP, with no disguise",
+      "transport": "Its own protocol over UDP",
       "port": "51820/UDP",
       "lossBehaviour": "Keeps its speed: a small, light protocol that barely taxes the phone.",
-      "blocking": "Recognisable by its handshake — in Russia it is often blocked, especially on mobile networks.",
-      "bestFor": "Home internet and networks where it is not blocked, and apps that only speak WireGuard."
+      "blocking": "Recognisable by its handshake — often fails, especially on mobile networks.",
+      "bestFor": "Home internet and networks where it runs reliably, and apps that only speak WireGuard."
     }
   },
   "sections": {
     "whySeveral": {
       "title": "Why several and not one",
-      "body": "Hysteria2 is the better tunnel almost everywhere: QUIC keeps its speed on a network that loses packets, which is exactly what a phone on mobile data does. But QUIC is UDP, and some networks drop UDP wholesale — there the tunnel cannot come up at all. VLESS + Reality is the way through those: it is plain TCP on 443 wearing the TLS handshake of a real third-party site, so a network that allows HTTPS allows it too. WireGuard is there for those who know it and for whom it works: simple and fast, but undisguised, so in Russia it is blocked more often than the others."
+      "body": "Hysteria2 is the better tunnel almost everywhere: QUIC keeps its speed on a network that loses packets, which is exactly what a phone on mobile data does. But QUIC is UDP, and some networks drop UDP wholesale — there the tunnel cannot come up at all. VLESS + Reality is for those networks: it is plain TCP on 443 carrying the TLS handshake of a real third-party site, so a network that allows HTTPS allows it too. WireGuard is there for those who know it and for whom it works: simple and fast, but easy to recognise by its handshake, so on mobile networks it works worse than the others."
     },
     "whichToPick": {
       "title": "Which one to pick",
-      "body": "Start with Hysteria2 — on most networks it is the fastest. If it will not connect, switch to VLESS for the same country: it gets through where UDP is closed. Nothing needs configuring: both variants are already in your subscription, and the app remembers which one worked. WireGuard is for a router or an app that only speaks it: make a config in your account or in the Telegram bot."
+      "body": "Start with Hysteria2 — on most networks it is the fastest. If it will not connect, switch to VLESS for the same country: it works where UDP is closed. Nothing needs configuring: both variants are already in your subscription, and the app remembers which one worked. WireGuard is for a router or an app that only speaks it: make a config in your account or in the Telegram bot."
     },
     "howMany": {
       "title": "How many devices",

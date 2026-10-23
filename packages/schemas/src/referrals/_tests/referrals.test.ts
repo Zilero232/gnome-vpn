@@ -3,18 +3,6 @@ import { describe, expect, it } from 'vitest';
 import { PLANS } from '../../billing/plans';
 import { referralReward } from '../referrals';
 import { MAX_FRIEND_DAYS, MAX_REFERRER_DAYS } from '../referrals.constants';
-import { claimReferralSchema } from '../referrals.schemas';
-
-describe('claimReferralSchema', () => {
-  it('normalises the code it accepts', () => {
-    expect(claimReferralSchema.parse({ code: ' abcd ef23' })).toEqual({ code: 'ABCDEF23' });
-  });
-
-  it('refuses a malformed code', () => {
-    expect(claimReferralSchema.safeParse({ code: 'nope' }).success).toBe(false);
-    expect(claimReferralSchema.safeParse({ code: 42 }).success).toBe(false);
-  });
-});
 
 describe('referralReward', () => {
   it('rewards every plan on both sides', () => {

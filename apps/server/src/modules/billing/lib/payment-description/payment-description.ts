@@ -12,5 +12,7 @@ export const describePlan = (plan: Plan): string => describeSubscription({ plan,
 
 export const describeRenewal = (plan: Plan): string => describeSubscription({ plan, kind: 'renewal' });
 
+export const describeGift = (plan: Plan): string => describeSubscription({ plan, kind: 'gift' });
+
 export const describeExtraDevices = (quantity: number): string =>
   `${EXTRA_DEVICES_PREFIX} ${quantity} ${pluralize({ count: quantity, forms: DEVICE_FORMS })}`;

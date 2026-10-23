@@ -21,6 +21,10 @@ export const KEYBOARD_ROWS: KeyboardRow[] = [
 
 export const MORE_ROWS: KeyboardRow[] = [
   [
+    { key: 'support', when: 'always' },
+    { key: 'help', when: 'always' }
+  ],
+  [
     { key: 'invite', when: 'always' },
     { key: 'website', when: 'always' }
   ],
@@ -29,13 +33,10 @@ export const MORE_ROWS: KeyboardRow[] = [
     { key: 'rotate', when: 'subscribed' }
   ],
   [
-    { key: 'help', when: 'always' },
-    { key: 'language', when: 'always' }
+    { key: 'language', when: 'always' },
+    { key: 'unlink', when: 'always' }
   ],
-  [
-    { key: 'unlink', when: 'always' },
-    { key: 'deleteAccount', when: 'always' }
-  ]
+  [{ key: 'deleteAccount', when: 'always' }]
 ];
 
 export const BUTTON_STYLE: Partial<Record<ButtonKey, ButtonStyle>> = {
@@ -44,4 +45,14 @@ export const BUTTON_STYLE: Partial<Record<ButtonKey, ButtonStyle>> = {
   buy: 'success',
   trial: 'success',
   deleteAccount: 'danger'
+};
+
+export const LEGACY_BUTTONS: Readonly<Record<string, ButtonKey>> = {
+  '➕ Устройства': 'devices',
+  '➕ Devices': 'devices',
+  '🔄 Автосписание': 'autoRenew',
+  '🔄 Auto-charge': 'autoRenew',
+  '🔁 Обновить ссылку': 'rotate',
+  '🗑️ Удалить аккаунт': 'deleteAccount',
+  '🗑️ Delete account': 'deleteAccount'
 };

@@ -1,2 +1,2 @@
-export { createThrottle } from './throttle';
-export type { Throttle, ThrottleInput } from './throttle.types';
+export { createRateLimit, createThrottle } from './throttle';
+export type { RateLimitInput, Throttle, ThrottleInput } from './throttle.types';

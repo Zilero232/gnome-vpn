@@ -16,10 +16,3 @@ export const BLOCK_MOTION: Variants = {
   hidden: { opacity: 0, y: 12 },
   visible: { opacity: 1, y: 0, transition: { type: 'spring', duration: 0.45, bounce: 0 } }
 };
-
-export const TAB_PANEL_MOTION: Variants = {
-  hidden: { opacity: 0, y: 6 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.2, ease: EASE_OUT } }
-};
-
-export const PILL_MOTION = { type: 'spring', stiffness: 380, damping: 32 } as const;

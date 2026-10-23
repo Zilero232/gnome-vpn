@@ -1,15 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { isNonNullish } from 'remeda';
+import { isNonNullish, isNullish } from 'remeda';
 
-import type { NoteLoadInput, ProbeNodeRow, RecordNodeInput } from './node-health.job.types';
+import type { NoteLoadInput, ProbedNode, ProbeNodeRow, RecordNodeInput } from './node-health.job.types';
 
 import { describeError, xrayClientForNode } from '../../../../common/lib';
 import { PrismaService } from '../../../../core';
+import { NodeUptimeService } from '../../../status';
 import { NodeTrafficService } from '../../../subscription-link';
+import { TelegramAlertService } from '../../../telegram/services/telegram-alert.service';
 import { ALERT } from '../../config';
-import { deviceActivity } from './lib';
-import { ACTIVITY_PEER_SELECT } from './node-health.job.constants';
+import { deviceActivity, isOverloaded } from './lib';
+import { ACTIVITY_PEER_SELECT, PROBE_NODE_SELECT } from './node-health.job.constants';
 
 @Injectable()
 export class NodeHealthJob {
@@ -17,30 +19,59 @@ export class NodeHealthJob {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly nodeTraffic: NodeTrafficService
+    private readonly nodeTraffic: NodeTrafficService,
+    private readonly uptime: NodeUptimeService,
+    private readonly alerts: TelegramAlertService
   ) {}
 
   private async probe(node: ProbeNodeRow): Promise<void> {
+    const probed = await this.check(node);
+    const isUp = isNonNullish(probed);
+
+    this.alerts.nodeProbed({ nodeId: node.id, isUp, healthyAt: isUp ? new Date() : (node.lastHealthyAt ?? node.createdAt) });
+
+    if (!isUp) {
+      return;
+    }
+
+    const { xray, health } = probed;
+
+    await this.prisma.node.update({
+      where: { id: node.id },
+      data: { lastHealthyAt: new Date(), isOverloaded: isOverloaded(health) }
+    });
+
+    await Promise.all([this.recordActivity({ node, xray }), this.recordTraffic({ node, xray })]);
+  }
+
+  private async connect(node: ProbeNodeRow): Promise<ProbedNode> {
     const xray = xrayClientForNode(node);
 
-    const health = await xray.health().catch((error: unknown) => {
-      throw new Error(`${node.id}: ${describeError(error)}`);
+    return { xray, health: await xray.health() };
+  }
+
+  private async check(node: ProbeNodeRow): Promise<ProbedNode | null> {
+    const probed = await this.connect(node).catch((error: unknown) => {
+      this.logger.warn(`Node probe failed: ${node.id}: ${describeError(error)}`);
+
+      return null;
     });
+
+    if (isNullish(probed)) {
+      return null;
+    }
+
+    const { health } = probed;
 
     this.noteLoad({ node, health });
 
     if (!health.isHealthy) {
       this.logger.warn(`node ${node.id} answered but its inbound is disabled`);
 
-      return;
+      return null;
     }
 
-    await this.prisma.node.update({
-      where: { id: node.id },
-      data: { lastHealthyAt: new Date() }
-    });
-
-    await Promise.all([this.recordActivity({ node, xray }), this.recordTraffic({ node, xray })]);
+    return probed;
   }
 
   private async recordTraffic({ node, xray }: RecordNodeInput): Promise<void> {
@@ -65,18 +96,22 @@ export class NodeHealthJob {
   private noteLoad({ node, health }: NoteLoadInput): void {
     if (isNonNullish(health.cpu) && health.cpu >= ALERT.nodeCpuPercent) {
       this.logger.warn(`node ${node.id} is at ${health.cpu.toFixed(0)}% cpu`);
+      this.alerts.nodeLoad({ nodeId: node.id, resource: 'cpu', percent: health.cpu });
     }
 
     if (isNonNullish(health.memoryRatio) && health.memoryRatio >= ALERT.nodeMemoryRatio) {
       this.logger.warn(`node ${node.id} is at ${(health.memoryRatio * 100).toFixed(0)}% memory`);
+      this.alerts.nodeLoad({ nodeId: node.id, resource: 'memory', percent: health.memoryRatio * 100 });
     }
   }
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_MINUTE, { waitForCompletion: true })
   async run(): Promise<void> {
+    const checkedAt = new Date();
+
     const nodes = await this.prisma.node.findMany({
       where: { isAvailable: true },
-      select: { id: true, apiUrl: true, apiTokenEnvVar: true }
+      select: PROBE_NODE_SELECT
     });
 
     this.nodeTraffic.keepOnly(new Set(nodes.map((node) => node.id)));
@@ -88,5 +123,9 @@ export class NodeHealthJob {
         this.logger.warn(`Node probe failed: ${describeError(result.reason)}`);
       }
     }
+
+    await this.uptime.record({ checkedAt, nodeIds: nodes.map((node) => node.id) }).catch((error: unknown) => {
+      this.logger.warn(`Node uptime not recorded: ${describeError(error)}`);
+    });
   }
 }

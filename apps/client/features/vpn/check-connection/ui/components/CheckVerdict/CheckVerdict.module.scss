@@ -1,0 +1,46 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  display: flex;
+  align-items: flex-start;
+  padding: 16px 18px;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 30%, var(--color-border));
+  border-radius: var(--radius-md);
+  background-color: color-mix(in srgb, var(--color-accent) 6%, var(--color-surface));
+  gap: 14px;
+
+  &[data-via='false'] {
+    border-color: color-mix(in srgb, var(--color-danger) 30%, var(--color-border));
+    background-color: color-mix(in srgb, var(--color-danger) 5%, var(--color-surface));
+  }
+}
+
+.icon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.body {
+  @include stack(6px);
+
+  min-width: 0;
+}
+
+.title {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0;
+  font-size: 17px;
+  gap: 8px;
+}
+
+.flag {
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgb(var(--color-tint) / 12%);
+}
+
+.link {
+  @include text-link(14px);
+}

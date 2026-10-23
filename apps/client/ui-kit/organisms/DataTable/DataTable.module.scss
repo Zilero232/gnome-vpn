@@ -1,0 +1,128 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  min-width: 0;
+  transition: opacity var(--duration-base) ease;
+
+  &[data-faded='true'] {
+    opacity: 0.55;
+  }
+}
+
+.empty {
+  padding: 20px 16px;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.caption {
+  @include visually-hidden;
+}
+
+.th {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.cell {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--chart-grid);
+  color: var(--color-text);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.th,
+.cell {
+  &[data-align='end'] {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+}
+
+.row:last-child .cell {
+  border-bottom: none;
+}
+
+@include below(2xl) {
+  .head {
+    @include visually-hidden;
+  }
+
+  .table,
+  .body {
+    display: block;
+  }
+
+  .body {
+    @include stack(8px);
+  }
+
+  .row {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface-raised);
+    gap: 6px;
+  }
+
+  .cell {
+    display: flex;
+    min-width: 0;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 0;
+    border: none;
+    gap: 12px;
+    overflow-wrap: anywhere;
+
+    &:before {
+      flex: none;
+      color: var(--color-text-muted);
+      content: attr(data-label);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    &[data-align='end'],
+    &[data-align='start'] {
+      text-align: right;
+    }
+
+    &[data-primary='true'] {
+      order: -1;
+      font-weight: 600;
+      text-align: left;
+
+      &:before {
+        content: none;
+      }
+    }
+  }
+}
+
+@include from(2xl) {
+  .root {
+    overflow-x: auto;
+  }
+
+  .row {
+    height: 54px;
+  }
+}

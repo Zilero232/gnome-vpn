@@ -109,7 +109,7 @@ export class TelegramDevicesService {
         try {
           const { confirmationUrl } = await this.checkout.buyExtraDevices({ userId: chat.userId, quantity, returnUrl: this.shared.returnUrl() });
           const amount = String(extraDevicesPriceRub(quantity));
-          const intro = fillText({ text: text.devicesIntro, fill: { count: String(quantity), amount } });
+          const intro = fillText({ text: text.devicesIntro, fill: { count: String(quantity), amount, link: this.shared.termsUrl(chat.locale) } });
           const label = fillLabel({ text: text.checkoutButton, fill: { amount } });
 
           return this.shared.reply({ ctx, chat, ...urlMessage({ intro, url: confirmationUrl, label, style: 'success' }) });

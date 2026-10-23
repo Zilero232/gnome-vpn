@@ -76,4 +76,19 @@ describe('validateEnv', () => {
   it('rejects a malformed dev email override', () => {
     expect(() => validateEnv({ ...validEnv, DEV_EMAIL_OVERRIDE: 'nope' })).toThrow('Invalid environment:');
   });
+
+  it('has no admins unless the list names some', () => {
+    expect(validateEnv(validEnv).ADMIN_EMAILS).toEqual([]);
+  });
+
+  it('reads the admin list case-insensitively, once per address, skipping empty entries', () => {
+    const admins = ['owner@example.com', 'support@example.com'];
+    const raw = ` ${admins[0].toUpperCase()} ,, ${admins[1]}, ${admins[0]} `;
+
+    expect(validateEnv({ ...validEnv, ADMIN_EMAILS: raw }).ADMIN_EMAILS).toEqual(admins);
+  });
+
+  it('refuses to boot with an admin entry that is not an email', () => {
+    expect(() => validateEnv({ ...validEnv, ADMIN_EMAILS: 'owner@example.com, owner' })).toThrow(/ADMIN_EMAILS/);
+  });
 });

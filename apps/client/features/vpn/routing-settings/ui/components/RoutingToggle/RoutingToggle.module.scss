@@ -1,0 +1,56 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border-bright);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-raised);
+  cursor: pointer;
+  gap: 14px;
+
+  @include below(sm) {
+    padding: 12px;
+    gap: 12px;
+  }
+}
+
+.icon {
+  @include icon-tile(36px);
+
+  background-color: var(--color-bg-deep);
+  color: var(--color-accent);
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  @include below(sm) {
+    display: none;
+  }
+}
+
+.text {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.label {
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.hint {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}

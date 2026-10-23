@@ -27,5 +27,7 @@ Three or more branches → `match` from `ts-pattern`, never nested
 `if (...) return <X />` or chained ternaries. One branch → `cond && <X />`, with
 a boolean condition (`apps.length > 0`, not `apps.length`). Forms are
 react-hook-form + `zodResolver` with the schema from `@gnomevpn/schemas` and a
-module-level `DEFAULT_VALUES`. A leaf that can call a global hook does so rather
-than taking drilled props.
+module-level `DEFAULT_VALUES`; every `reset` passes `{ keepFieldsRef: true }`,
+because the React Compiler memoises `{...register(name)}` and a plain reset
+leaves the field unregistered — it never turns dirty again. A leaf that can
+call a global hook does so rather than taking drilled props.

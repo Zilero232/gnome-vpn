@@ -23,6 +23,8 @@ model User {
   referralCode     ReferralCode?
   referralsMade    Referral[]         @relation("ReferralsMade")
   referredBy       Referral?          @relation("ReferredBy")
+  giftsBought      PromoCode[]        @relation("GiftsBought")
+  promoRedemptions PromoRedemption[]
 
   @@map("user")
 }

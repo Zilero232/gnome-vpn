@@ -2,14 +2,12 @@ import { describe, expect, it } from 'vitest';
 
 import type { TelegramBotService } from '../telegram-bot.service';
 
-import { KEYBOARD_ROWS, MORE_ROWS, NOTICES } from '../../config';
+import { BOT_COMMANDS, CALLBACK_PREFIX, CHAT_ID_COMMAND, KEYBOARD_ROWS, MORE_ROWS, NOTICES } from '../../config';
 import { TelegramBotService as Bot } from '../telegram-bot.service';
 
-const actionsOf = (): TelegramBotService['actions'] => {
-  const bot = Object.create(Bot.prototype) as TelegramBotService;
+const botOf = (): TelegramBotService => Object.create(Bot.prototype) as TelegramBotService;
 
-  return bot.actions;
-};
+const actionsOf = (): TelegramBotService['actions'] => botOf().actions;
 
 describe('bot actions', () => {
   it('handles every button the keyboard can show, so no press is silently ignored', () => {
@@ -48,5 +46,40 @@ describe('bot actions', () => {
     for (const action of actionsOf()) {
       expect(typeof action.run).toBe('function');
     }
+  });
+});
+
+describe('owner commands', () => {
+  const ownerCommands = (): string[] => botOf().ownerActions.map((action) => action.command);
+
+  it('names each owner command once', () => {
+    expect(new Set(ownerCommands()).size).toBe(ownerCommands().length);
+  });
+
+  it('never shadows a command a reader has, since the admin chat may be the owner’s own private chat', () => {
+    const readerCommands = new Set([...actionsOf().flatMap((action) => (action.command ? [action.command] : [])), 'start', CHAT_ID_COMMAND]);
+
+    for (const command of ownerCommands()) {
+      expect(readerCommands.has(command), command).toBe(false);
+    }
+  });
+
+  it('stays out of the public command menu', () => {
+    const menu = new Set(BOT_COMMANDS.ru.map((entry) => entry.command));
+
+    for (const command of ownerCommands()) {
+      expect(menu.has(command), command).toBe(false);
+    }
+  });
+
+  it('gives each owner button prefix its own handler, apart from the reader’s buttons', () => {
+    const prefixes = botOf().ownerCallbacks.map((callback) => callback.prefix);
+    const known = new Set<string>(Object.values(CALLBACK_PREFIX));
+
+    for (const prefix of prefixes) {
+      expect(known.has(prefix), prefix).toBe(true);
+    }
+
+    expect(new Set(prefixes).size).toBe(prefixes.length);
   });
 });

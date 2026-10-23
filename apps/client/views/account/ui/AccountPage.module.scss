@@ -25,6 +25,16 @@
   overflow-wrap: anywhere;
 }
 
+.actions {
+  display: none;
+
+  @include from(2xl) {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+}
+
 .signOut {
   display: none;
 
@@ -36,6 +46,7 @@
 .signOutBottom {
   display: flex;
   flex-direction: column;
+  gap: 10px;
 
   @include from(2xl) {
     display: none;

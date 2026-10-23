@@ -1,0 +1,84 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  display: grid;
+  align-items: start;
+  padding: var(--pad-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface-raised);
+  box-shadow: var(--shadow-soft);
+  gap: 16px 20px;
+  grid-template-areas:
+    'icon text action'
+    '. text .';
+  grid-template-columns: auto minmax(0, 1fr) auto;
+
+  @include below(lg) {
+    grid-template-areas:
+      'icon text'
+      '. action';
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  @include below(sm) {
+    grid-template-areas:
+      'icon'
+      'text'
+      'action';
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.icon {
+  @include icon-tile(48px);
+
+  background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  color: var(--color-accent);
+  grid-area: icon;
+}
+
+.text {
+  @include stack(14px);
+
+  align-items: flex-start;
+  grid-area: text;
+}
+
+.title {
+  @include display-heading(24px, 600);
+}
+
+.body {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.outcome {
+  width: 100%;
+
+  &:empty {
+    position: absolute;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.failed {
+  margin: 0;
+  color: var(--color-danger);
+}
+
+.action {
+  grid-area: action;
+  place-self: start start;
+
+  @include below(sm) {
+    width: 100%;
+  }
+}

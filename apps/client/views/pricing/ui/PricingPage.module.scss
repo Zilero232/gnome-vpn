@@ -4,7 +4,23 @@
   @include marketing-page(1080px, 56px, 40px);
 }
 
-.trial {
+.plans {
+  @include stack(16px);
+}
+
+.offer {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.offerLink {
+  @include text-link(inherit);
+}
+
+.trial,
+.gift {
   display: flex;
   align-items: center;
   padding: 20px 24px;
@@ -21,6 +37,11 @@
 
 .trialBadge {
   flex-shrink: 0;
+}
+
+.giftIcon {
+  flex-shrink: 0;
+  color: var(--color-accent);
 }
 
 .trialText {

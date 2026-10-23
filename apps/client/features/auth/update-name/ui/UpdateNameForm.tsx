@@ -37,7 +37,7 @@ export const UpdateNameForm = () => {
     mutate(values, {
       onSuccess: () => {
         toast.success(t('nameUpdated'));
-        reset(values);
+        reset(values, { keepFieldsRef: true });
       },
       onError: toastError
     });
