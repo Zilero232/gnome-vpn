@@ -2,11 +2,10 @@
 
 import { useTranslations } from 'next-intl';
 
+import { useCountryName } from '@/entities/app/country';
 import { ChoiceGroup, CountryFlag } from '@/ui-kit';
 
 import type { CountryPickerProps } from './CountryPicker.types';
-
-import { useCountryName } from '../../../../../model/hooks';
 
 import s from './CountryPicker.module.scss';
 

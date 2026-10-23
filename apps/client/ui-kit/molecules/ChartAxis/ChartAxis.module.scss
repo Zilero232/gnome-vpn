@@ -1,0 +1,18 @@
+.grid {
+  shape-rendering: crispedges;
+  stroke: var(--chart-grid);
+  stroke-width: 1px;
+}
+
+.baseline {
+  shape-rendering: crispedges;
+  stroke: var(--chart-axis);
+  stroke-width: 1px;
+}
+
+.tick {
+  fill: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}

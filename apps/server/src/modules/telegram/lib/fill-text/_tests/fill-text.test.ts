@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { TEXT_TOKEN } from '../../../config';
+import { html } from '../../html';
 import { fillLabel, fillText } from '../fill-text';
 
 describe('fillText', () => {
@@ -30,6 +31,15 @@ describe('fillText', () => {
 describe('fillText escaping', () => {
   it('escapes what it puts in, so a device called "<TV>" cannot break the markup around it', () => {
     expect(fillText({ text: `<b>${TEXT_TOKEN.name}</b>`, fill: { name: 'Tom & <TV>' } })).toBe('<b>Tom &amp; &lt;TV&gt;</b>');
+  });
+});
+
+describe('replacement patterns', () => {
+  it('puts a value in verbatim even when it looks like a replacement pattern, as a Telegram name may', () => {
+    for (const name of ["$'", '$&', '$`', '$$', '$1']) {
+      expect(fillText({ text: `<b>${TEXT_TOKEN.name}</b>`, fill: { name } })).toBe(`<b>${html.escape(name)}</b>`);
+      expect(fillLabel({ text: `x ${TEXT_TOKEN.name}`, fill: { name } })).toBe(`x ${name}`);
+    }
   });
 });
 

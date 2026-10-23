@@ -1,0 +1,1 @@
+export const SERVER_STATUS_REFRESH_MS = 60_000;

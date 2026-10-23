@@ -1,0 +1,22 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  @include stack(10px);
+}
+
+.heading {
+  @include display-heading(22px, 600);
+}
+
+.body {
+  @include stack(10px);
+
+  color: var(--color-text);
+  font-size: 16px;
+  line-height: 1.75;
+  white-space: pre-line;
+
+  > * {
+    margin: 0;
+  }
+}

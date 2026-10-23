@@ -6,7 +6,7 @@ import { Injectable } from '@nestjs/common';
 import type { PresentLinkInput } from '../subscription-link.service.types';
 
 import { AppConfigService } from '../../../config';
-import { PrismaService } from '../../../core';
+import { PrismaService, withUniqueRetry } from '../../../core';
 import { DEVICE_KEY } from '../../devices';
 import { FEED } from '../config';
 import { clientLinks, generateSubscriptionToken } from '../lib';
@@ -19,12 +19,14 @@ export class SubscriptionLinkService {
   ) {}
 
   async get(userId: string): Promise<SubscriptionLink> {
-    const row = await this.prisma.subscriptionLink.upsert({
-      where: { userId },
-      update: {},
-      create: { userId, token: generateSubscriptionToken() },
-      select: { token: true, createdAt: true }
-    });
+    const row = await withUniqueRetry(() =>
+      this.prisma.subscriptionLink.upsert({
+        where: { userId },
+        update: {},
+        create: { userId, token: generateSubscriptionToken() },
+        select: { token: true, createdAt: true }
+      })
+    );
 
     return this.present(row);
   }

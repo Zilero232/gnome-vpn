@@ -3,8 +3,11 @@
 import { useTranslations } from 'next-intl';
 import { match, P } from 'ts-pattern';
 
+import { OfferNote, PaymentMethodsNote } from '@/entities/billing/payment-notes';
 import { hasAutoChargeFailed, isAutoRenewActive } from '@/entities/billing/subscription';
-import { AutoRenewControl, PendingCheckoutBanner, PlanPicker, RenewPanel } from '@/features/billing/checkout';
+import { PromoCodeForm } from '@/features/account/invite-friends';
+import { AutoRenewControl, PendingCheckoutBanner, PlanPicker, RenewPanel, usePendingDiscount } from '@/features/billing/checkout';
+import { GiftPanel } from '@/features/billing/gift-subscription';
 import { ErrorBlock, LoadingBlock, Text } from '@/ui-kit';
 
 import type { SubscriptionCardProps } from './SubscriptionCard.types';
@@ -15,6 +18,7 @@ import s from './SubscriptionCard.module.scss';
 
 export const SubscriptionCard = ({ subscription, isLoading, isError, onRetry }: SubscriptionCardProps) => {
   const t = useTranslations('account');
+  const discount = usePendingDiscount();
 
   const isUnavailable = isError && !subscription;
 
@@ -27,7 +31,7 @@ export const SubscriptionCard = ({ subscription, isLoading, isError, onRetry }: 
 
         <AutoRenewControl subscription={paid} />
 
-        {!isAutoRenewActive(paid) && <RenewPanel hasChargeFailed={hasAutoChargeFailed(paid)} subscription={paid} />}
+        {(!isAutoRenewActive(paid) || discount !== null) && <RenewPanel hasChargeFailed={hasAutoChargeFailed(paid)} subscription={paid} />}
       </>
     ))
     .with({ subscription: P.select({ period: 'trial' }) }, (trial) => (
@@ -50,6 +54,20 @@ export const SubscriptionCard = ({ subscription, isLoading, isError, onRetry }: 
       <PendingCheckoutBanner />
 
       {content}
+
+      {subscription && (
+        <>
+          <PromoCodeForm />
+
+          <GiftPanel />
+
+          <div className={s.notes}>
+            <PaymentMethodsNote />
+
+            <OfferNote kind='payment' />
+          </div>
+        </>
+      )}
     </>
   );
 };

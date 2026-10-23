@@ -38,7 +38,7 @@ export const ChangeEmailForm = () => {
     mutate(values, {
       onSuccess: () => {
         toast.success(t(hasEmail ? 'emailChangeRequested' : 'emailAdded'));
-        reset(DEFAULT_VALUES);
+        reset(DEFAULT_VALUES, { keepFieldsRef: true });
       },
       onError: toastError
     });

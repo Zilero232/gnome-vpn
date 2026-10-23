@@ -16,6 +16,14 @@ name: deploy
 #   DEPLOY_SSH_PASSWORD       only used when no key is set
 #   DEPLOY_SSH_PORT           optional, defaults to 22
 #   DEPLOY_PATH               where docker-compose.yml lives, e.g. /opt/gnomevpn
+#
+# Repository variables (not secrets: they are printed on /terms), all optional —
+# an unset one is an empty build arg and its line is left off the page:
+#   SELLER_NAME               full name; empty drops the requisites section
+#   SELLER_STATUS             entrepreneur | selfEmployed
+#   SELLER_INN                12 digits
+#   SELLER_OGRNIP             15 digits, individual entrepreneurs only
+#   SELLER_ADDRESS
 
 on:
   workflow_dispatch:
@@ -135,7 +143,13 @@ jobs:
           image: web
           dockerfile: apps/client/Dockerfile
           token: ${{ secrets.GITHUB_TOKEN }}
-          build-args: NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_SELLER_NAME=${{ vars.SELLER_NAME || '' }}
+            NEXT_PUBLIC_SELLER_STATUS=${{ vars.SELLER_STATUS || '' }}
+            NEXT_PUBLIC_SELLER_INN=${{ vars.SELLER_INN || '' }}
+            NEXT_PUBLIC_SELLER_OGRNIP=${{ vars.SELLER_OGRNIP || '' }}
+            NEXT_PUBLIC_SELLER_ADDRESS=${{ vars.SELLER_ADDRESS || '' }}
 
   server:
     needs: [checks, e2e]

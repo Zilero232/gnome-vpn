@@ -95,7 +95,7 @@
   },
   "wireguard": {
     "title": "A WireGuard config",
-    "intro": "For people who prefer WireGuard, and for routers. Configs are made on your account's Connect tab, under With a config, or in the Telegram bot with /wireguard; each one is for one device and one country and takes a place in your subscription limit. WireGuard is blocked in Russia more often than the other protocols, mobile networks especially: if it will not connect, use INCY.",
+    "intro": "For people who prefer WireGuard, and for routers. Configs are made on your account's Connect tab, under With a config, or in the Telegram bot with /wireguard; each one is for one device and one country and takes a place in your subscription limit. WireGuard is easy to recognise and fails more often than the other protocols, mobile networks especially: if it will not connect, use INCY.",
     "stepsTitle": "Connect the config",
     "cta": "Create a config in your account →",
     "platforms": {

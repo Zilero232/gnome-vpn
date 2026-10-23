@@ -2,7 +2,7 @@ import type { Plan } from '@gnomevpn/schemas';
 
 import { describe, expect, it } from 'vitest';
 
-import { describePlan, describeRenewal, describeSubscription } from '../payment-description';
+import { describeGift, describePlan, describeRenewal, describeSubscription } from '../payment-description';
 
 const plan = (months: number): Plan => ({ id: 'monthly', months, priceRub: 100 });
 
@@ -62,5 +62,12 @@ describe('describeRenewal', () => {
     expect(purchase).toBe('Подписка GnomeVPN на 6 месяцев');
     expect(renewal).toBe('Продление подписки GnomeVPN на 6 месяцев');
     expect(renewal.endsWith(purchase.replace('Подписка GnomeVPN на', '').trim())).toBe(true);
+  });
+});
+
+describe('describeGift', () => {
+  it('names the purchase as a gift, so a statement never reads as a second subscription', () => {
+    expect(describeGift(plan(6))).toBe(describeSubscription({ kind: 'gift', plan: plan(6) }));
+    expect(describeGift(plan(6))).not.toBe(describePlan(plan(6)));
   });
 });

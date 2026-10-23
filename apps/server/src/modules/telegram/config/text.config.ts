@@ -19,7 +19,27 @@ export const TEXT_TOKEN = {
   friend: '{friend}',
   server: '{server}',
   how: '{how}',
-  code: '{code}'
+  code: '{code}',
+  id: '{id}',
+  email: '{email}',
+  locale: '{locale}',
+  node: '{node}',
+  ago: '{ago}',
+  error: '{error}',
+  user: '{user}',
+  reason: '{reason}',
+  audience: '{audience}',
+  delivered: '{delivered}',
+  blocked: '{blocked}',
+  failed: '{failed}',
+  day: '{day}',
+  week: '{week}',
+  chats: '{chats}',
+  plans: '{plans}',
+  min: '{min}',
+  max: '{max}',
+  used: '{used}',
+  effect: '{effect}'
 } as const;
 
 export const AUTO_RENEW_CHOICE = {

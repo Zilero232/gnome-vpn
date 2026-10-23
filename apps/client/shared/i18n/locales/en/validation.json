@@ -5,6 +5,6 @@
   "passwordMin": "At least 8 characters",
   "passwordsMismatch": "Passwords do not match",
   "required": "This field is required",
-  "referralCodeInvalid": "A promo code is 8 letters and digits",
+  "promoCodeInvalid": "A promo code is {promoCodeMin} to {promoCodeMax} latin letters and digits",
   "wireguardNameMax": "No longer than {wireguardNameMax, plural, one {# character} other {# characters}}"
 }

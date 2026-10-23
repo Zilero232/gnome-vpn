@@ -1,6 +1,7 @@
-import { Check } from 'lucide-react';
+import { Check, Gift } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
+import { PaymentMethodsNote } from '@/entities/billing/payment-notes';
 import { AUTH_MODE, blogPostRoute, QUERY_PARAMS, ROUTES } from '@/shared/constants';
 import { Link } from '@/shared/i18n/navigation';
 import { Accordion, buttonVariants, GnomeBadge, Text } from '@/ui-kit';
@@ -19,7 +20,21 @@ export const PricingPage = () => {
     <main className={s.root}>
       <PageIntro intro={t('intro')} title={t('title')} />
 
-      <PricingCard withFeatures={false} />
+      <div className={s.plans}>
+        <PricingCard withFeatures={false} />
+
+        <PaymentMethodsNote className={s.offer} />
+
+        <Text as='p' className={s.offer}>
+          {t.rich('offer', {
+            terms: (chunks) => (
+              <Link className={s.offerLink} href={ROUTES.terms}>
+                {chunks}
+              </Link>
+            )
+          })}
+        </Text>
+      </div>
 
       <aside className={s.trial}>
         <GnomeBadge className={s.trialBadge} size={56} />
@@ -31,6 +46,16 @@ export const PricingPage = () => {
           href={{ pathname: ROUTES.account, query: { [QUERY_PARAMS.mode]: AUTH_MODE.signup } }}
         >
           {t('trialCta')}
+        </Link>
+      </aside>
+
+      <aside className={s.gift}>
+        <Gift aria-hidden className={s.giftIcon} size={40} />
+        <Text as='p' className={s.trialText}>
+          {t('gift')}
+        </Text>
+        <Link className={buttonVariants({ variant: 'ghost', class: s.trialCta })} href={ROUTES.account}>
+          {t('giftCta')}
         </Link>
       </aside>
 

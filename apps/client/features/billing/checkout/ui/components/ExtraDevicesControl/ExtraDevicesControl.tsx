@@ -5,6 +5,7 @@ import { MonitorSmartphone } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { OfferNote } from '@/entities/billing/payment-notes';
 import { SubmitButton } from '@/ui-kit';
 
 import type { ExtraDevicesControlProps, SlotState } from './ExtraDevicesControl.types';
@@ -84,6 +85,8 @@ export const ExtraDevicesControl = ({ limits, usedSeats }: ExtraDevicesControlPr
           <p aria-live='polite' className={s.result}>
             {t('extraDevicesResult', { total: limits.deviceLimit + quantity })}
           </p>
+
+          <OfferNote className={s.offer} kind='payment' />
         </>
       )}
     </section>

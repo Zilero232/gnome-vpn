@@ -6,6 +6,15 @@ const boolean = (fallback: 'false' | 'true') =>
     .default(fallback)
     .transform((value) => value === 'true');
 
+const emailList = (value: string): string[] => [
+  ...new Set(
+    value
+      .split(',')
+      .map((entry) => entry.trim().toLowerCase())
+      .filter((entry) => entry !== '')
+  )
+];
+
 export const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(4000),
@@ -36,7 +45,10 @@ export const envSchema = z.object({
   TELEGRAM_BOT_TOKEN: z.string().default(''),
   TELEGRAM_BOT_USERNAME: z.string().default(''),
   TELEGRAM_WEBHOOK_SECRET: z.string().default(''),
-  TELEGRAM_WEBHOOK_URL: z.union([z.literal(''), z.url({ protocol: /^https$/u })]).default('')
+  TELEGRAM_WEBHOOK_URL: z.union([z.literal(''), z.url({ protocol: /^https$/u })]).default(''),
+  TELEGRAM_ADMIN_CHAT_ID: z.union([z.literal(''), z.string().regex(/^-?\d+$/u)]).default(''),
+
+  ADMIN_EMAILS: z.string().default('').transform(emailList).pipe(z.array(z.email()))
 });
 
 export type Env = z.infer<typeof envSchema>;

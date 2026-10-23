@@ -26,10 +26,9 @@
   "pending": "{days, plural, one {# more day waits} other {# more days wait}} for your next payment — you have no paid period to add them to right now.",
   "referred": "A friend invited you — the bonus days come with your first payment.",
   "claimTitle": "Have a promo code?",
-  "claimHint": "A promo code can be entered within {days, plural, one {# day} other {# days}} of signing up and before your first payment — the bonus days are then added to it.",
+  "claimHint": "A friend's code, a gift code or a campaign code all go here. A friend's code works within {days, plural, one {# day} other {# days}} of signing up and before your first payment.",
   "claimLabel": "Promo code",
   "claimSubmit": "Apply",
-  "claimed": "Promo code applied — the bonus days come with your first payment",
   "rules": "The bonus comes once per friend, for their first payment. With a paid subscription running, the days extend it right away; without one, they are added to your next payment. No more than {days, plural, one {# day} other {# days}} per 30 days.",
   "loading": "Loading invites…",
   "unavailable": "Could not load invites. Check your connection.",
@@ -51,5 +50,17 @@
   "codeHint": "A friend enters it when signing up and gets bonus days on their first payment, and you get days on your subscription.",
   "copyCode": "Copy promo code {code}",
   "codeCopied": "Promo code copied",
-  "codeCopyFailed": "Could not copy — type the promo code by hand"
+  "codeCopyFailed": "Could not copy — type the promo code by hand",
+  "redeemed": {
+    "friend": "Promo code applied — the bonus days come with your first payment",
+    "discount": "Promo code applied — {percent}% off one subscription payment (not on auto-renewal)",
+    "days": "Promo code applied: +{days, plural, one {# day} other {# days}} on your subscription",
+    "gift": "Gift redeemed: +{days, plural, one {# day} other {# days}} on your subscription"
+  },
+  "giftPending": {
+    "title": "You have a gift code",
+    "description": "The code {code} came with the link. Activate it on this account? A gift can be activated only once.",
+    "redeem": "Activate",
+    "later": "Not now"
+  }
 }

@@ -48,7 +48,7 @@ import { SubscriptionGuard } from '../subscription'; // yes
 import { SubscriptionGuard } from '../subscription/guards/subscription.guard'; // no
 ```
 
-Inside a module, relative paths are fine. The barrel exports only what other modules legitimately need — a controller or a DTO has no business being imported elsewhere. The one deliberate exception is `TelegramNotifyService`, which billing and the scheduler import by file — see [telegram-bot.md](../../architecture/telegram-bot.md).
+Inside a module, relative paths are fine. The barrel exports only what other modules legitimately need — a controller or a DTO has no business being imported elsewhere. The one deliberate exception is the notify module's two services, `TelegramNotifyService` and `TelegramAlertService`, which billing, the scheduler and admin import by file — see [telegram-bot.md](../../architecture/telegram-bot.md).
 
 The better-auth instance lives in `lib/auth/`, not in `modules/auth/`: it is configuration for an external library, and `modules/auth/` only wires it into Nest beside the account endpoints.
 

@@ -265,7 +265,9 @@ Before this work the same pages scored 70/77 with LCP 3.4/3.3 s and TBT
   `clientMessages(locale)` (`shared/i18n/client-messages`) filters the bundle by
   `CLIENT_MESSAGES`: whole namespaces for the shell, the account and auth;
   named keys for `faq` (the search UI, not the 15 KB of answers, which the
-  server renders) and `landing` (the picker, the phone, the city names); `meta`
+  server renders), `landing` (the picker, the phone, the city names) and
+  `status` (the node list and the check card; the intro and the related links
+  stay on the server); `meta`
   nowhere; `blog`, `privacy`, `about`, `pricing`, `servers` and `notFound` not
   at all — they are rendered by server components only. 75 K characters → 36 K
   in every page's payload. A test scans every `'use client'` file and fails if
@@ -273,6 +275,14 @@ Before this work the same pages scored 70/77 with LCP 3.4/3.3 s and TBT
   only because a client parent imports it is caught by the build instead
   (`MISSING_MESSAGE` during prerender). Adding a client component that reads a
   new namespace means a line in `CLIENT_MESSAGES`.
+- **A namespace one route owns rides only with that route.** `admin` is the
+  largest namespace and is read by one page that almost nobody opens, so it is
+  in `ROUTE_MESSAGES`, not `CLIENT_MESSAGES`: the root bundle leaves it out and
+  `/admin`'s page wraps its view in its own `NextIntlClientProvider` with
+  `routeMessages({ locale, namespaces: ['admin'] })` — the root bundle plus that
+  namespace, `meta` dropped. The client-messages test accepts a route namespace
+  and checks the root bundle never carries one
+  ([admin.md](admin.md#on-the-site)).
 - **No flag-icons stylesheet.** Its 28 KB of CSS listed all 271 flags with
   hashed URLs, inlined twice (in `<style>` and in the RSC payload), and did not
   compress: 22 KB of the home's 104 KB gzipped HTML. `CountryFlag` imports the

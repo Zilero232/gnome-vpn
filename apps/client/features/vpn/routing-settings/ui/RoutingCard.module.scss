@@ -1,0 +1,37 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border);
+  gap: 14px;
+}
+
+.header {
+  display: flex;
+  max-width: 560px;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font-weight: 700;
+}
+
+.toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.5;
+}
+
+.noteIcon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-accent);
+}

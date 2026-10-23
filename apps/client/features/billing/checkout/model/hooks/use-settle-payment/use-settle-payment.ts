@@ -4,10 +4,9 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { markCheckoutPending, statusFingerprint, useInvalidateSubscription } from '@/entities/billing/subscription';
 import { QUERY_KEYS } from '@/shared/constants';
+import { redirectToConfirmation } from '@/shared/lib';
 
 import type { SettlePaymentInput } from './use-settle-payment.types';
-
-import { redirectToConfirmation } from '../../checkout.helpers';
 
 export const useSettlePayment = () => {
   const queryClient = useQueryClient();

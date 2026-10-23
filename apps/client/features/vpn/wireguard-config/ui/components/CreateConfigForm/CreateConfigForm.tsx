@@ -48,7 +48,7 @@ export const CreateConfigForm = ({ nodes, isFull, onCreated }: CreateConfigFormP
     mutate(values, {
       onSuccess: (file) => {
         celebrate(t('created'));
-        reset({ nodeId: values.nodeId, name: '' });
+        reset({ nodeId: values.nodeId, name: '' }, { keepFieldsRef: true });
         onCreated(file);
       },
       onError: toastError

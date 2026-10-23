@@ -1,0 +1,1 @@
+export { ChartTableView } from './ChartTableView';

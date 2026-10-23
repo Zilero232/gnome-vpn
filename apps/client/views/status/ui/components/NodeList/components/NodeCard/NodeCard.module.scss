@@ -1,0 +1,85 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  @include stack(18px);
+
+  padding: 22px 22px 20px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface-raised);
+  box-shadow: var(--shadow-soft);
+
+  &[data-state='down'] {
+    border-color: color-mix(in srgb, var(--color-danger) 35%, var(--color-border));
+  }
+
+  &[data-state='degraded'] {
+    border-color: color-mix(in srgb, var(--color-warning) 35%, var(--color-border));
+  }
+}
+
+.head {
+  display: grid;
+  align-items: center;
+  gap: 2px 14px;
+  grid-template-areas:
+    'flag country state'
+    '. checked checked';
+  grid-template-columns: auto minmax(0, 1fr) auto;
+
+  @include below(xs) {
+    grid-template-areas:
+      'flag country'
+      '. checked'
+      '. state';
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+}
+
+.flag {
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px rgb(var(--color-tint) / 12%);
+  grid-area: flag;
+}
+
+.country {
+  @include truncate;
+
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  grid-area: country;
+}
+
+.state {
+  grid-area: state;
+
+  @include below(xs) {
+    margin-top: 6px;
+    justify-self: start;
+  }
+}
+
+.checked {
+  grid-area: checked;
+}
+
+.protocols {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0;
+  margin: 0;
+  gap: 6px;
+  list-style: none;
+}
+
+.protocol {
+  padding: 4px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}

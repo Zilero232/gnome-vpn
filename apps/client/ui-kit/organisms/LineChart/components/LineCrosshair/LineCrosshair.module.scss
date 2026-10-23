@@ -1,0 +1,23 @@
+.rule {
+  shape-rendering: crispedges;
+  stroke: var(--chart-axis);
+  stroke-width: 1px;
+}
+
+.marker {
+  paint-order: stroke;
+  stroke: var(--color-surface-raised);
+  stroke-width: 4px;
+
+  &[data-slot='1'] {
+    fill: var(--chart-series-1);
+  }
+
+  &[data-slot='2'] {
+    fill: var(--chart-series-2);
+  }
+
+  &[data-slot='3'] {
+    fill: var(--chart-series-3);
+  }
+}

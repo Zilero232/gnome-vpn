@@ -16,11 +16,15 @@ export {
   Reveal,
   SCENE_VIEWBOX,
   ScenePoster,
+  Select,
   SkyArt,
+  Sparkline,
   Spinner,
   Stack,
   StatusIcon,
-  Text
+  Switch,
+  Text,
+  Textarea
 } from './atoms';
 export type {
   BadgeProps,
@@ -36,14 +40,19 @@ export type {
   QrCardProps,
   RevealProps,
   ScenePosterProps,
+  SelectProps,
+  SparklineProps,
   SpinnerProps,
   StackProps,
   StatusIconProps,
+  SwitchProps,
+  TextareaProps,
   TextProps
 } from './atoms';
 export {
   Accordion,
   AppSplash,
+  ChartFrame,
   ChoiceGroup,
   ConfirmDialog,
   Dialog,
@@ -53,11 +62,16 @@ export {
   DialogTitle,
   DialogTrigger,
   ErrorBlock,
+  FactList,
   FormField,
   LinkCard,
   LoadingBlock,
+  Pagination,
+  Panel,
+  SectionHead,
   Segmented,
   SelectableCard,
+  StatTile,
   StepList,
   SubmitButton,
   Tabs,
@@ -67,16 +81,29 @@ export {
 export type {
   AccordionItem,
   AccordionProps,
+  ChartFrameLabels,
+  ChartFrameProps,
+  ChartLegendItem,
+  ChartSlot,
+  ChartTable,
+  ChartTableRow,
   ChoiceGroupProps,
   ChoiceOption,
   ConfirmDialogProps,
   ErrorBlockProps,
+  FactItem,
+  FactListProps,
   FormFieldProps,
   LinkCardProps,
   LoadingBlockProps,
+  PaginationLabels,
+  PaginationProps,
+  PanelProps,
+  SectionHeadProps,
   SegmentedOption,
   SegmentedProps,
   SelectableCardProps,
+  StatTileProps,
   StepListItem,
   StepListProps,
   SubmitButtonProps,
@@ -84,5 +111,19 @@ export type {
   TabsProps,
   TiltCardProps
 } from './molecules';
-export { AppToaster, celebrate, copyWithToast, StatusScreen } from './organisms';
-export type { CopyWithToastInput, StatusScreenProps } from './organisms';
+export { AppToaster, BarList, celebrate, ColumnChart, copyWithToast, DataTable, LineChart, PageTabs, StatusScreen } from './organisms';
+export type {
+  BarListItem,
+  BarListProps,
+  ColumnChartProps,
+  ColumnPoint,
+  CopyWithToastInput,
+  DataColumn,
+  DataTableProps,
+  LineChartProps,
+  LineSeries,
+  PageTab,
+  PageTabsLayout,
+  PageTabsProps,
+  StatusScreenProps
+} from './organisms';

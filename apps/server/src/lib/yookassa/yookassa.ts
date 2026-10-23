@@ -12,6 +12,8 @@ import type {
   PaymentResponse,
   RefundInfo,
   RefundResponse,
+  ShopSettings,
+  ShopSettingsResponse,
   YooKassaClientOptions,
   YooKassaRequestInput
 } from './yookassa.types';
@@ -191,6 +193,12 @@ export class YooKassaClient {
     });
 
     return this.toPaymentMethodInfo(payload);
+  }
+
+  async shopSettings(): Promise<ShopSettings> {
+    const payload = await this.request<ShopSettingsResponse>({ path: '/me', init: { method: 'GET' } });
+
+    return { paymentMethods: payload.payment_methods ?? [] };
   }
 
   async isPaymentMethodUsable(paymentMethodId: string): Promise<boolean | null> {

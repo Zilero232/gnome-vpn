@@ -1,6 +1,5 @@
 export { AccountIdentity } from './AccountIdentity';
-export { AccountTabs } from './AccountTabs';
-export type { AccountTab } from './AccountTabs';
+export { AdminLink } from './AdminLink';
 export { ConnectCard } from './ConnectCard';
 export { DevicesCard } from './DevicesCard';
 export { ProfileCard } from './ProfileCard';

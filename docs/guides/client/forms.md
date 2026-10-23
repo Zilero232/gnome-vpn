@@ -33,6 +33,12 @@ const {
 - Validation messages are i18n keys (`validation.emailInvalid`), resolved by
   `useFieldError` from `@/entities/app/locale` — the schema never carries
   user-visible prose.
+- **Reset with `{ keepFieldsRef: true }`** — `reset(DEFAULT_VALUES, { keepFieldsRef: true })`.
+  A plain `reset(values)` empties react-hook-form's field registry and relies on
+  every input calling `register` again on the next render; the React Compiler
+  memoises `{...register(name)}`, so nothing does. The input keeps its old text,
+  never turns dirty and the submit button stays disabled until a reload — every
+  form that reset after a success shipped that way once.
 - A boolean toggle outside a form uses `useBoolean` from
   `@siberiacancode/reactuse` rather than `useState` — except when the setter is
   passed into an effect or a ref, where its identity changes every render.

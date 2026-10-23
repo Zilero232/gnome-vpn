@@ -26,11 +26,15 @@
     },
     "whichProtocol": {
       "q": "There are several servers per country — which one do I pick?",
-      "a": "Start with Hysteria2: it is faster and steadier on mobile. VLESS is for networks that block UDP — usually office Wi-Fi, hotels and some corporate networks. The app labels each entry with its protocol. WireGuard is not part of the subscription: simple and fast, but blocked more often in Russia, so we hand it out as a separate config — for a router or a WireGuard app."
+      "a": "Start with Hysteria2: it is faster and steadier on mobile. VLESS is for networks that block UDP — usually office Wi-Fi, hotels and some corporate networks. The app labels each entry with its protocol. WireGuard is not part of the subscription: simple and fast, but easy to recognise and often unreliable on mobile networks, so we hand it out as a separate config — for a router or a WireGuard app."
     },
     "howManyDevices": {
       "q": "How many devices can I use?",
       "a": "Two by default. There is one link per account; a device takes a place the first time its app fetches the subscription. Remove a device you no longer use on the Devices tab of your account or with /devices in the Telegram bot, or add more device places. In INCY, make sure HWID sending is on in the subscription settings: a new device without an HWID is not accepted, because it cannot be told apart from the others."
+    },
+    "family": {
+      "q": "Can my whole family use it?",
+      "a": "Yes, on one subscription. It includes {devices, plural, one {# device} other {# devices}}, and if you need more, add up to {extraDevices} places at {extraDevicePrice} RUB each — on the Devices tab of your account or with /devices in the Telegram bot. A place is paid once, works while the subscription is active and stays when you renew; it cannot be added on the free day. If someone close should have an account of their own, give them a subscription — you get the code after paying."
     },
     "whichCountries": {
       "q": "Which countries do you have servers in?",
@@ -47,6 +51,10 @@
     "streaming": {
       "q": "Do streaming services work?",
       "a": "Usually yes, but we cannot promise it: streaming platforms block server addresses constantly. If one service refuses to open, try another country — that often fixes it."
+    },
+    "russianSites": {
+      "q": "Do banks and Gosuslugi work with the VPN on?",
+      "a": "In INCY, yes, with nothing to change. Russian sites go direct, around the VPN: banks, Gosuslugi, marketplaces and everything on .ru, .su and .рф see your usual Russian address. That is the default, and you can change it in your account — the Connect tab, the “With a link” way, the Routing block. Ad blocking is there too. INCY applies the change on its next subscription refresh. Hiddify, v2rayNG, Streisand and other apps have their own “Russia direct” setting for this. A WireGuard config sends all traffic through the VPN."
     },
     "notConnecting": {
       "q": "The app will not connect. What now?",
@@ -70,7 +78,7 @@
     },
     "howToPay": {
       "q": "How do I pay?",
-      "a": "By card on the site, through YooKassa. Access starts the moment the payment goes through, and the app picks up the new expiry date."
+      "a": "On the site, through YooKassa: by card or any other method the payment page offers. Access starts the moment the payment goes through, and the app picks up the new expiry date."
     },
     "refund": {
       "q": "Can I get a refund?",
@@ -78,7 +86,7 @@
     },
     "autoRenew": {
       "q": "How does auto-renewal work, and how do I turn it off?",
-      "a": "Auto-renewal only turns on if you saved the card while paying or added it in your account. To turn it off, press Turn off auto-renewal on the Subscription tab of your account: access stays until the end of the period you paid for, and nothing is charged after that."
+      "a": "Auto-renewal turns on when you pay for a subscription while no paid period is running — the first time, for instance, or during the free day: your payment method is saved, and YooKassa says so on the payment page. It also turns on when you add a card in your account. It charges the full price of the plan you paid for last — promo code discounts do not apply to renewals. To turn it off, press Turn off auto-renewal on the Subscription tab of your account, or use the Telegram bot: access stays until the end of the period you paid for, and nothing is charged after that."
     },
     "trial": {
       "q": "Is there a free trial?",
@@ -94,7 +102,11 @@
     },
     "wireguard": {
       "q": "Can I connect over WireGuard?",
-      "a": "Yes, as a config — WireGuard is not part of the subscription link. For a router or a WireGuard app, your account's Connect tab makes configs under With a config: pick a country, name the device and download the .conf file or scan the QR code. In the Telegram bot, /wireguard does the same and sends the file straight to the chat. On Windows WireSock Secure Connect works best, on iPhone and Android AmneziaVPN, on macOS, Linux and routers the official WireGuard app. Each config takes one place in your device limit. WireGuard is blocked in Russia more often than the other protocols: if it will not connect, use INCY."
+      "a": "Yes, as a config — WireGuard is not part of the subscription link. For a router or a WireGuard app, your account's Connect tab makes configs under With a config: pick a country, name the device and download the .conf file or scan the QR code. In the Telegram bot, /wireguard does the same and sends the file straight to the chat. On Windows WireSock Secure Connect works best, on iPhone and Android AmneziaVPN, on macOS, Linux and routers the official WireGuard app. Each config takes one place in your device limit. WireGuard is easy to recognise and works worse than the other protocols on mobile networks: if it will not connect, use INCY."
+    },
+    "promoCodes": {
+      "q": "How do promo codes and gift subscriptions work?",
+      "a": "A promo code is one of three kinds: a friend's code, a campaign code or a gift code. They all go into one field — when you sign up, or in your account on the “Invite” tab under “Have a promo code?”. A friend's code gives bonus days on your first payment. A campaign code gives either a discount on your next payment for any plan (renewals stay at the regular price) or days on your subscription right away. You can also give a subscription: on the “Subscription” tab, under “Give a subscription”, pick a term and pay — you get a code that extends the subscription of whoever enters it. Each gift code works once, and all your gifts and their status are shown right there."
     }
   },
   "stillStuck": "Still stuck? Email us — we answer within a day.",

@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { ErrorBlock, LoadingBlock, Text } from '@/ui-kit';
 
 import { useReferrals } from '../model/hooks';
-import { ClaimReferralForm, InviteHero, InviteRewards, InviteShare, InviteStats } from './components';
+import { InviteHero, InviteRewards, InviteShare, InviteStats } from './components';
 
 import s from './InvitePanel.module.scss';
 
@@ -53,8 +53,6 @@ export const InvitePanel = () => {
       <InviteRewards />
 
       {overview.invited > 0 && <InviteStats overview={overview} />}
-
-      {overview.canBeReferred && <ClaimReferralForm />}
 
       <Text as='p' className={s.rules} size='xs' tone='muted'>
         <Info aria-hidden className={s.rulesIcon} size={14} />

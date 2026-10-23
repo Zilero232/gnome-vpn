@@ -15,6 +15,10 @@ renders the server list and the subscription state. Code:
 | `POST /subscription-link/rotate` | session  | new token; every device on the old one is revoked   |
 | `GET /sub/:token`                | **none** | what INCY (or any other client) fetches             |
 
+The two routing switches sit beside them, on `GET` and `PATCH
+/subscription-link/routing`, and the trimmed geo files INCY's routing downloads
+are served anonymously under `/routing/geo/` — see [routing.md](routing.md).
+
 **The token is the credential.** INCY cannot log in, so the URL is all the
 authentication there is: 32 random bytes, `base64url`, one row per user. That is
 why rotation exists — and why it revokes the keys of every device that fetched
@@ -96,7 +100,10 @@ lib/
 ├── client-fetch/      # whether the fetch is a VPN client, not a browser or a link preview
 ├── client-links/      # the third-party clients and their import links
 ├── client-platform/   # what the User-Agent says the caller is
+├── geo-files/         # the geo file routes: which name is which file, and its public URL
+├── geo-list/          # cutting a geosite/geoip .dat down to the tags the profile names
 ├── incy-headers/      # the response headers, with header-value/ and userinfo/
+├── incy-routing/      # the INCY routing profile line and its geo-update header
 ├── incy-uri/          # the server list, with hysteria2/ and vless/ beside it
 ├── live-nodes/        # the nodes whose health probe is fresh, or all when none is
 ├── server-name/       # the flag-and-country label every protocol shares
@@ -229,6 +236,17 @@ rather than hand-rolled suffix rules.
 The format is documented at <https://incy.gitbook.io/docs/docs-en> — the pages
 that matter are `subscription-format` (headers, body) and `share-links`
 (the exact `hysteria2://` query parameters).
+
+## The routing profile
+
+An admitted INCY device also gets one `incy://routing/onadd/<base64>` line after
+the server URIs — or `incy://routing/off` when both switches are off — and, with a
+profile, the `routing-geo-update-interval` header. That is what sends Russian
+sites around the tunnel and blocks ads; the geo files the profile points at are
+our own, cut to under half a megabyte. It goes to INCY alone, in the body and not
+the `routing` header, because Happ reads that header in its own format. The whole
+design, the verified geo tags and the cost of a re-download are in
+[routing.md](routing.md).
 
 ## Any client, not only INCY
 

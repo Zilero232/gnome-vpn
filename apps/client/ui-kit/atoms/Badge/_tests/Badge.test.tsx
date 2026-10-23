@@ -56,4 +56,11 @@ describe('Badge', () => {
 
     expect(danger.firstElementChild?.className).not.toBe(accent.firstElementChild?.className);
   });
+
+  it('renders a warning tone distinctly from danger, so trouble and failure read apart', () => {
+    const { container: danger } = render(<Badge tone='danger'>x</Badge>);
+    const { container: warning } = render(<Badge tone='warning'>x</Badge>);
+
+    expect(warning.firstElementChild?.className).not.toBe(danger.firstElementChild?.className);
+  });
 });

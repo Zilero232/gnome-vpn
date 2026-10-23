@@ -1,0 +1,29 @@
+{
+  "title": "Give a subscription",
+  "hint": "Pay for a term and get a code you can send to anyone. It extends the subscription of whoever enters it, you included.",
+  "planLabel": "Gift term",
+  "plans": {
+    "monthly": "1 month",
+    "halfYearly": "6 months",
+    "yearly": "12 months"
+  },
+  "pay": "Pay for the gift — {price} ₽",
+  "listTitle": "Gifts",
+  "pending": "Waiting for the payment to be confirmed — the code appears here in a few seconds.",
+  "unavailable": "Could not load your gifts. Check your connection.",
+  "purchased": "Bought {date}",
+  "unredeemed": "Waiting for its recipient",
+  "redeemed": "Redeemed {date}",
+  "copy": "Copy code {code}",
+  "copied": "Gift code copied",
+  "copyFailed": "Could not copy — write the code down by hand",
+  "share": "Share",
+  "shareText": "A GnomeVPN gift for you! Gift code: {code}. Enter it on the site or just open the link.",
+  "linkCopied": "Gift link copied",
+  "revoked": "Refunded — the code no longer works",
+  "planShort": {
+    "monthly": "1 mo",
+    "halfYearly": "6 mo",
+    "yearly": "12 mo"
+  }
+}

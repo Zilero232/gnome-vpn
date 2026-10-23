@@ -21,5 +21,6 @@ export const NOTICES = {
   legacyRetired: { markup: ['devices'] },
   referralBonus: { markup: ['invite'] },
   referralRewarded: { markup: ['invite'], effect: MESSAGE_EFFECT.celebrate },
-  referralBanked: { markup: ['buy'] }
+  referralBanked: { markup: ['buy'] },
+  giftPurchased: { markup: ['website'], effect: MESSAGE_EFFECT.celebrate }
 } as const satisfies Record<string, NoticeSpec>;

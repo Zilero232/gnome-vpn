@@ -1,9 +1,9 @@
-import type { TunnelProtocol } from '@gnomevpn/schemas';
+import type { TunnelProtocol, UpdateRoutingSettingsInput } from '@gnomevpn/schemas';
 
 import type { Prisma } from '../../../generated';
 import type { NodeTraffic } from '../../lib';
 import type { DeviceHeaders, DeviceIdentity } from '../devices';
-import type { TlsMode } from './lib';
+import type { GeoKind, TlsMode } from './lib';
 
 export type SubscriptionNode = {
   id: string;
@@ -130,3 +130,16 @@ export type RenderConfigInput = {
   node: SubscriptionNode;
   peer: FeedPeer;
 };
+
+export type UpdateRoutingSettingsServiceInput = {
+  userId: string;
+  patch: UpdateRoutingSettingsInput;
+};
+
+export type GeoFile = {
+  data: Buffer;
+  sha256: string;
+  builtAt: Date;
+};
+
+export type GeoFileSet = Record<GeoKind, GeoFile>;

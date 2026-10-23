@@ -3,12 +3,11 @@
 import { Download, QrCode, Trash2 } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
 
+import { useCountryName } from '@/entities/app/country';
 import { DATE_FORMAT } from '@/shared/i18n';
 import { Button, CountryFlag } from '@/ui-kit';
 
 import type { ConfigRowProps } from './ConfigRow.types';
-
-import { useCountryName } from '../../../../../model/hooks';
 
 import s from './ConfigRow.module.scss';
 

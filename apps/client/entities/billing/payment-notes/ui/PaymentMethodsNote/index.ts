@@ -1,0 +1,1 @@
+export { PaymentMethodsNote } from './PaymentMethodsNote';

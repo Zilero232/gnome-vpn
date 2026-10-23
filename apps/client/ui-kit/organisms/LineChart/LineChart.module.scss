@@ -1,0 +1,31 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.svg {
+  display: block;
+  overflow: visible;
+  border-radius: var(--radius-sm);
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+  }
+}
+
+.overlay {
+  cursor: crosshair;
+  fill: transparent;
+}
+
+.readout {
+  @include visually-hidden;
+}

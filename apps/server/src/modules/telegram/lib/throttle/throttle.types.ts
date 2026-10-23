@@ -4,3 +4,8 @@ export type ThrottleInput = {
 };
 
 export type Throttle = (input: ThrottleInput) => boolean;
+
+export type RateLimitInput = {
+  limit: number;
+  windowMs: number;
+};

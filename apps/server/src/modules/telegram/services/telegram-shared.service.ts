@@ -8,7 +8,9 @@ import type {
   AskInput,
   AttemptInput,
   BotContext,
+  BotLocale,
   BotText,
+  ChatCopy,
   ConfirmedInput,
   EditInput,
   ReplyInput,
@@ -17,8 +19,9 @@ import type {
 
 import { describeError } from '../../../common/lib';
 import { AppConfigService } from '../../../config';
+import { localizedPath } from '../../../lib/email';
 import { BOT_TEXT, CHECKOUT, EDIT } from '../config';
-import { botUrl, confirmKeyboard, createThrottle, identityOf, isConfirmed, mainKeyboard, resolveLocale } from '../lib';
+import { adminChatOf, botUrl, confirmKeyboard, createThrottle, identityOf, isAdminChat, isConfirmed, mainKeyboard, resolveLocale } from '../lib';
 import { TelegramLinkService } from './telegram-link.service';
 import { TelegramNotifyService } from './telegram-notify.service';
 
@@ -37,8 +40,27 @@ export class TelegramSharedService {
     return botUrl(this.config.get('TELEGRAM_BOT_USERNAME'));
   }
 
+  termsUrl(locale: BotLocale): string {
+    return new URL(localizedPath({ path: CHECKOUT.termsPath, locale }), this.config.get('CLIENT_URL')).toString();
+  }
+
   textFor(ctx: BotContext): BotText {
     return BOT_TEXT[resolveLocale(ctx.from?.language_code)];
+  }
+
+  async copyFor(ctx: BotContext): Promise<ChatCopy> {
+    const identity = identityOf(ctx.from);
+    const chat = isNullish(identity) ? null : await this.link.findChat(identity.telegramId);
+
+    return { chat, copy: chat ? BOT_TEXT[chat.locale] : this.textFor(ctx) };
+  }
+
+  adminChatId(): number | null {
+    return adminChatOf(this.config.get('TELEGRAM_ADMIN_CHAT_ID'));
+  }
+
+  isAdminChat(ctx: BotContext): boolean {
+    return isAdminChat({ chatId: ctx.chat?.id, adminChatId: this.adminChatId() });
   }
 
   async reply({ ctx, chat, text, markup, effect }: ReplyInput): Promise<void> {

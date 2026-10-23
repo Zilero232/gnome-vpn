@@ -12,7 +12,9 @@ const PRIORITIES: Partial<Record<string, number>> = {
   [ROUTES.blog]: 0.7,
   [ROUTES.faq]: 0.7,
   [ROUTES.about]: 0.6,
-  [ROUTES.privacy]: 0.3
+  [ROUTES.privacy]: 0.3,
+  [ROUTES.terms]: 0.3,
+  [ROUTES.status]: 0.4
 };
 
 const CHANGE_FREQUENCIES: Partial<Record<string, ChangeFrequency>> = {
@@ -23,7 +25,9 @@ const CHANGE_FREQUENCIES: Partial<Record<string, ChangeFrequency>> = {
   [ROUTES.blog]: 'weekly',
   [ROUTES.faq]: 'monthly',
   [ROUTES.about]: 'yearly',
-  [ROUTES.privacy]: 'yearly'
+  [ROUTES.privacy]: 'yearly',
+  [ROUTES.terms]: 'yearly',
+  [ROUTES.status]: 'daily'
 };
 
 export const SITEMAP = {

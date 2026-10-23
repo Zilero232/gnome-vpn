@@ -1,0 +1,41 @@
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0;
+  margin: 0;
+  gap: 6px 16px;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  color: var(--color-text);
+  font-size: 13px;
+  gap: 8px;
+}
+
+.mark {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  border-radius: 2px;
+
+  &[data-mark='line'] {
+    width: 14px;
+    height: 2px;
+    border-radius: 1px;
+  }
+
+  &[data-slot='1'] {
+    background-color: var(--chart-series-1);
+  }
+
+  &[data-slot='2'] {
+    background-color: var(--chart-series-2);
+  }
+
+  &[data-slot='3'] {
+    background-color: var(--chart-series-3);
+  }
+}

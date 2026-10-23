@@ -11,7 +11,13 @@ describe('isFinalRefusal', () => {
     }
   });
 
-  it('keeps the invite after a failure that a later visit can get past', () => {
+  it('treats a promo code that can never apply as final too', () => {
+    for (const code of ['PROMO_CODE_INVALID', 'PROMO_CODE_EXPIRED', 'PROMO_CODE_USED_UP', 'PROMO_CODE_ALREADY_USED'] as const) {
+      expect(isFinalRefusal(new ApiError({ code, message: 'no' })), code).toBe(true);
+    }
+  });
+
+  it('keeps the code after a failure that a later visit can get past', () => {
     expect(isFinalRefusal(new ApiError({ code: 'UNAUTHORIZED', message: 'no' }))).toBe(false);
     expect(isFinalRefusal(new ApiError({ code: 'INTERNAL_ERROR', message: 'no' }))).toBe(false);
     expect(isFinalRefusal(new Error('Network Error'))).toBe(false);

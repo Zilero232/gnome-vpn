@@ -1,0 +1,23 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.field {
+  min-width: 0;
+  flex: 1 1 280px;
+}
+
+.submit {
+  margin-top: 26px;
+
+  @include below(sm) {
+    width: 100%;
+    margin-top: 0;
+  }
+}

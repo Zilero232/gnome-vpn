@@ -1,0 +1,36 @@
+.root {
+  display: grid;
+  margin: 0;
+  gap: 12px 20px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+}
+
+.fact {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.label {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.value {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0;
+  color: var(--color-text);
+  font-size: 14px;
+  gap: 6px;
+  overflow-wrap: anywhere;
+
+  &[data-mono='true'] {
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+}

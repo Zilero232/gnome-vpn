@@ -1,0 +1,15 @@
+.bar {
+  fill: var(--chart-series-1);
+
+  &[data-active='true'] {
+    fill: color-mix(in srgb, var(--chart-series-1) 78%, var(--color-text));
+  }
+}
+
+.value {
+  fill: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}

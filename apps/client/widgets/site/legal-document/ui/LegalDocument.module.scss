@@ -1,0 +1,80 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  @include shell-container;
+
+  padding-block: 72px 96px;
+
+  @include below(md) {
+    padding-block: 44px 64px;
+  }
+
+  @include from(3xl) {
+    display: grid;
+    align-items: start;
+    justify-content: space-between;
+    gap: 56px;
+    grid-template-columns: minmax(0, 760px) 240px;
+  }
+}
+
+.article {
+  @include stack(28px);
+
+  max-width: 760px;
+}
+
+.inlineContents {
+  @include from(3xl) {
+    display: none;
+  }
+}
+
+.side {
+  display: none;
+  height: 100%;
+
+  @include from(3xl) {
+    display: block;
+  }
+}
+
+.head {
+  @include stack(12px);
+  @include rise(0.5s, 0s, 10px);
+
+  margin-bottom: 12px;
+}
+
+.title {
+  @include marketing-title;
+}
+
+.updated {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.intro {
+  @include marketing-lead;
+}
+
+.footer {
+  @include stack(12px);
+
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border);
+  margin-top: 12px;
+}
+
+.footnote {
+  color: var(--color-text-muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.email {
+  overflow-wrap: anywhere;
+
+  @include text-link(15px);
+}

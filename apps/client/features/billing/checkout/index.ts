@@ -5,6 +5,7 @@ export {
   useCancelAutoRenew,
   useCheckout,
   usePendingCheckout,
+  usePendingDiscount,
   useResumeAutoRenew,
   useUnbindCard
 } from './model/hooks';

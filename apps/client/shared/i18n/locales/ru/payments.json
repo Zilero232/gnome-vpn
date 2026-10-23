@@ -1,0 +1,10 @@
+{
+  "accepted": "{count, plural, one {Оплата: {list}, через ЮKassa.} other {Способы оплаты: {list} — выбор на странице ЮKassa.}}",
+  "method": {
+    "card": "банковская карта",
+    "sbp": "СБП",
+    "sberPay": "SberPay",
+    "tPay": "T-Pay",
+    "yooMoney": "ЮMoney"
+  }
+}

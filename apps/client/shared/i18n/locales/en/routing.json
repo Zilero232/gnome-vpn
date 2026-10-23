@@ -1,0 +1,16 @@
+{
+  "title": "Routing",
+  "intro": "What goes through the VPN and what goes around it. These settings apply in INCY.",
+  "loading": "Loading settings…",
+  "unavailable": "Could not load your routing settings. Check your connection and try again.",
+  "retry": "Try again",
+  "ruDirect": {
+    "label": "Russian sites — direct",
+    "hint": "Banks, Gosuslugi, marketplaces and sites on .ru, .su and .рф open without the VPN, from your usual address — no need to switch the VPN off for them."
+  },
+  "blockAds": {
+    "label": "Block ads",
+    "hint": "Cuts ads and trackers, by our list and through AdGuard DNS. Now and then it breaks a site that will not load without its ads."
+  },
+  "note": "INCY applies these on its next subscription refresh — refresh the subscription in the app to apply them now. The site lists weigh under a megabyte and update themselves. In Hiddify, v2rayNG, Streisand and other apps these switches do nothing: they have their own “Russia direct” setting."
+}

@@ -22,7 +22,7 @@ export const PromoCodeField = ({ isOpen, registration, error, onOpen }: PromoCod
   }
 
   return (
-    <FormField error={error} hint={t('promo.hint')} htmlFor='signup-promo' label={t('fields.referralCode')}>
+    <FormField error={error} hint={t('promo.hint')} htmlFor='signup-promo' label={t('fields.promoCode')}>
       <Input autoCapitalize='characters' autoComplete='off' className={s.input} id='signup-promo' spellCheck={false} {...registration} />
     </FormField>
   );

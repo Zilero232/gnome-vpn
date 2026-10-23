@@ -1,8 +1,8 @@
 import type { WebhookEvent } from '@gnomevpn/schemas';
 
-import { findPlan } from '@gnomevpn/schemas';
+import { findPlan, formatGiftCode, giftDays } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
-import { isNullish } from 'remeda';
+import { isNonNullish, isNullish } from 'remeda';
 
 import type {
   AnnounceReferralInput,
@@ -17,11 +17,13 @@ import type {
   UnusablePayment
 } from '../billing.types';
 
-import { describeError, hasLapsedBeyondGrace } from '../../../common/lib';
+import { describeError, errorCodeOf, hasLapsedBeyondGrace } from '../../../common/lib';
 import { PrismaService, withSerializableRetry } from '../../../core';
 import { YooKassaClient } from '../../../lib';
+import { GiftCodeService, PromoDiscountService } from '../../promo-codes';
 import { ReferralRewardService } from '../../referrals';
 import { SubscriptionAccessService } from '../../subscription-link';
+import { TelegramAlertService } from '../../telegram/services/telegram-alert.service';
 import { TelegramNotifyService } from '../../telegram/services/telegram-notify.service';
 import { CARD_LOST_REASONS, REFUND, REFUND_DESCRIPTION, WEBHOOK_EVENT } from '../config';
 import { BillingSharedService } from './billing-shared.service';
@@ -38,7 +40,10 @@ export class WebhookService {
     private readonly card: CardService,
     private readonly access: SubscriptionAccessService,
     private readonly notify: TelegramNotifyService,
-    private readonly referralReward: ReferralRewardService
+    private readonly referralReward: ReferralRewardService,
+    private readonly alerts: TelegramAlertService,
+    private readonly discounts: PromoDiscountService,
+    private readonly gifts: GiftCodeService
   ) {}
 
   async handleWebhook(event: WebhookEvent): Promise<void> {
@@ -75,6 +80,7 @@ export class WebhookService {
         extraDevices: true,
         isAutoCharge: true,
         amount: true,
+        promoCodeId: true,
         createdAt: true
       }
     });
@@ -115,7 +121,7 @@ export class WebhookService {
     const refundReason = await this.unusableReason(row);
 
     if (refundReason) {
-      return this.refundUnusable({ id: row.id, paymentId, amount: row.amount, reason: refundReason });
+      return this.refundUnusable({ id: row.id, userId: row.userId, paymentId, amount: row.amount, reason: refundReason, purchase: row });
     }
 
     const userId = row.userId;
@@ -124,51 +130,77 @@ export class WebhookService {
       return 'skipped';
     }
 
-    const settled = await withSerializableRetry(() =>
-      this.prisma.$transaction(
-        async (tx): Promise<SettleOutcome | null> => {
-          const claimed = await tx.payment.updateMany({
-            where: { id: row.id, status: 'pending' },
-            data: { status: 'succeeded' }
-          });
+    let settled: SettleOutcome | null;
 
-          if (claimed.count === 0) {
-            this.logger.debug(`payment ${paymentId} was claimed by a concurrent webhook`);
+    try {
+      settled = await withSerializableRetry(() =>
+        this.prisma.$transaction(
+          async (tx): Promise<SettleOutcome | null> => {
+            const claimed = await tx.payment.updateMany({
+              where: { id: row.id, status: 'pending' },
+              data: { status: 'succeeded' }
+            });
 
-            return null;
-          }
+            if (claimed.count === 0) {
+              this.logger.debug(`payment ${paymentId} was claimed by a concurrent webhook`);
 
-          if (row.kind === 'extraDevices') {
-            await this.shared.grantExtraDevices({ userId, quantity: row.extraDevices, db: tx });
+              return null;
+            }
 
-            return { referral: null };
-          }
+            if (row.kind === 'extraDevices') {
+              await this.shared.grantExtraDevices({ userId, quantity: row.extraDevices, db: tx });
 
-          await this.shared.activate({
-            userId,
-            planId: row.plan,
-            method: payment.paymentMethodId ? { id: payment.paymentMethodId, title: payment.paymentMethodTitle } : null,
-            orderedAt: row.createdAt,
-            db: tx
-          });
+              return { referral: null, giftCode: null };
+            }
 
-          const referral = await this.referralReward.reward({ userId, planId: row.plan, paymentId: row.id, db: tx });
+            if (row.kind === 'gift') {
+              const giftCode = await this.gifts.issue({ payment: { ...row, userId }, db: tx });
 
-          return { referral };
-        },
-        { isolationLevel: 'Serializable' }
-      )
-    );
+              return { referral: null, giftCode };
+            }
+
+            if (row.promoCodeId) {
+              await this.discounts.consume({ userId, promoCodeId: row.promoCodeId, paymentId: row.id, db: tx });
+            }
+
+            await this.shared.activate({
+              userId,
+              planId: row.plan,
+              method: payment.paymentMethodId ? { id: payment.paymentMethodId, title: payment.paymentMethodTitle } : null,
+              orderedAt: row.createdAt,
+              db: tx
+            });
+
+            const referral = await this.referralReward.reward({ userId, planId: row.plan, paymentId: row.id, db: tx });
+
+            return { referral, giftCode: null };
+          },
+          { isolationLevel: 'Serializable' }
+        )
+      );
+    } catch (error) {
+      if (errorCodeOf(error) !== 'PROMO_CODE_ALREADY_USED') {
+        throw error;
+      }
+
+      this.logger.warn(`payment ${paymentId} was priced with a discount another payment already used`);
+
+      return this.refundUnusable({ id: row.id, userId, paymentId, amount: row.amount, reason: 'discountUsed', purchase: row });
+    }
 
     if (!settled) {
       return 'skipped';
     }
 
-    await this.access.setEnabledAll({ userId, enabled: true }).catch((error: unknown) => {
-      this.logger.error(`paid access for ${userId} was not re-enabled, the sweep will retry: ${describeError(error)}`);
-    });
+    if (row.kind !== 'gift') {
+      await this.access.setEnabledAll({ userId, enabled: true }).catch((error: unknown) => {
+        this.logger.error(`paid access for ${userId} was not re-enabled, the sweep will retry: ${describeError(error)}`);
+      });
+    }
 
-    await this.announce({ ...row, userId });
+    this.alerts.paymentSettled({ userId, purchase: row, amount: row.amount.toNumber(), isAutoCharge: row.isAutoCharge });
+
+    await this.announce({ ...row, userId, giftCode: settled.giftCode });
 
     if (settled.referral) {
       await this.announceReferral({ friendId: userId, outcome: settled.referral });
@@ -210,6 +242,8 @@ export class WebhookService {
         `payment ${refund.paymentId} was refunded in part (${payment.refundedRub} of ${row.amount.toFixed(2)}): the period is left as it is, review it by hand`
       );
 
+      this.alerts.paymentRefunded({ userId: row.userId, purchase: row, amount: payment.refundedRub, reason: 'partial' });
+
       return null;
     }
 
@@ -219,6 +253,8 @@ export class WebhookService {
 
     if (outcome) {
       this.logger.log(`payment ${refund.paymentId} was refunded: ${outcome.kind} taken back from ${outcome.userId}`);
+
+      this.alerts.paymentRefunded({ userId: outcome.userId, purchase: row, amount: row.amount.toNumber(), reason: 'manual' });
     }
 
     return outcome;
@@ -230,7 +266,19 @@ export class WebhookService {
       data: { status: 'refunded' }
     });
 
-    if (claimed.count === 0 || isNullish(row.userId)) {
+    if (claimed.count === 0) {
+      return null;
+    }
+
+    if (row.kind === 'gift') {
+      const gift = await this.gifts.revoke({ paymentId: row.id, db });
+
+      this.logger.log(`gift of payment ${row.id} disabled; ${gift?.days ?? 0} days taken back from ${gift?.redeemerId ?? 'nobody'}`);
+
+      return { userId: row.userId, kind: row.kind, referral: null };
+    }
+
+    if (isNullish(row.userId)) {
       return null;
     }
 
@@ -261,7 +309,7 @@ export class WebhookService {
     return hasLapsedBeyondGrace({ currentPeriodEnd: subscription?.currentPeriodEnd, at: new Date() }) ? 'lapsed' : null;
   }
 
-  private async refundUnusable({ id, paymentId, amount, reason }: RefundUnusableInput): Promise<SettleResult> {
+  private async refundUnusable({ id, userId, paymentId, amount, reason, purchase }: RefundUnusableInput): Promise<SettleResult> {
     const refund = await this.yookassa.createRefund({
       paymentId,
       amountRub: amount.toNumber(),
@@ -272,15 +320,21 @@ export class WebhookService {
     if (refund.status === 'canceled') {
       this.logger.error(`the automatic refund of ${paymentId} (${reason}) was canceled by YooKassa — refund it by hand`);
 
+      this.alerts.refundCanceled({ paymentId: id, userId, purchase, amount: amount.toNumber() });
+
       return 'waiting';
     }
 
-    await this.prisma.payment.updateMany({
+    const marked = await this.prisma.payment.updateMany({
       where: { id, status: 'pending' },
       data: { status: 'refunded' }
     });
 
     this.logger.warn(`payment ${paymentId} was refunded automatically: ${reason}`);
+
+    if (marked.count === 1) {
+      this.alerts.paymentRefunded({ userId, purchase, amount: amount.toNumber(), reason });
+    }
 
     return 'refunded';
   }
@@ -333,11 +387,15 @@ export class WebhookService {
       return;
     }
 
-    if (reason && CARD_LOST_REASONS.includes(reason)) {
+    const isCardLost = isNonNullish(reason) && CARD_LOST_REASONS.includes(reason);
+
+    if (isCardLost) {
       await this.card.unbindCard(userId);
 
       this.logger.warn(`Dropped the saved card of ${userId}: ${reason}`);
     }
+
+    this.alerts.chargeFailed({ userId, reason, isCardDropped: isCardLost });
 
     const subscription = await this.prisma.subscription.findUnique({
       where: { userId },
@@ -347,9 +405,17 @@ export class WebhookService {
     await this.notify.tell({ userId, notice: 'chargeFailed', date: subscription?.currentPeriodEnd });
   }
 
-  private async announce({ userId, kind, isAutoCharge, amount }: SettledPayment): Promise<void> {
+  private async announce({ userId, kind, plan, isAutoCharge, amount, giftCode }: SettledPayment): Promise<void> {
     if (kind === 'extraDevices') {
       await this.notify.tell({ userId, notice: 'devicesAdded' });
+
+      return;
+    }
+
+    if (kind === 'gift') {
+      if (giftCode) {
+        await this.notify.tell({ userId, notice: 'giftPurchased', days: giftDays(plan), fill: { code: formatGiftCode(giftCode) } });
+      }
 
       return;
     }

@@ -1,0 +1,16 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  @include stack(var(--gap-md));
+
+  min-width: 0;
+}
+
+.list {
+  display: grid;
+  padding: 0;
+  margin: 0;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+  list-style: none;
+}

@@ -1,11 +1,11 @@
 import type { PlanId } from '@gnomevpn/schemas';
 
-import { planDiscountPercent, planMonthlyRub, PLANS } from '@gnomevpn/schemas';
+import { findPlan, planDiscountPercent, planMonthlyRub, PLANS } from '@gnomevpn/schemas';
 import { InlineKeyboard } from 'grammy';
-import { firstBy } from 'remeda';
+import { firstBy, isNullish } from 'remeda';
 
 import type { BotLocale } from '../../telegram.types';
-import type { PlanButtonLabelInput, PlanLabelInput, PlansTextInput } from './plan-label.types';
+import type { CheckoutIntroInput, PlanButtonLabelInput, PlanLabelInput, PlansTextInput } from './plan-label.types';
 
 import { BOT_TEXT, CALLBACK_PREFIX, NEW_LINE } from '../../config';
 import { fillLabel, fillText } from '../fill-text';
@@ -27,6 +27,20 @@ export const planLabel = ({ planId, locale }: PlanLabelInput): string => {
   const plan = PLANS.find((each) => each.id === planId);
 
   return plan ? `${plan.months} ${BOT_TEXT[locale].monthShort}` : planId;
+};
+
+export const checkoutIntro = ({ planId, amountRub, discount, termsUrl, locale }: CheckoutIntroInput): string => {
+  const text = BOT_TEXT[locale];
+  const intro = fillText({ text: text.checkoutIntro, fill: { plan: planLabel({ planId, locale }), amount: String(amountRub) } });
+  const terms = fillText({ text: text.checkoutTerms, fill: { link: termsUrl } });
+
+  if (isNullish(discount)) {
+    return html.paragraphs([intro, terms]);
+  }
+
+  const fill = { percent: String(discount.percent), code: discount.code, price: String(findPlan(planId).priceRub) };
+
+  return html.paragraphs([intro, fillText({ text: text.checkoutDiscount, fill }), terms]);
 };
 
 export const parsePlanId = (raw: string): PlanId | null => PLANS.find((plan) => plan.id === raw)?.id ?? null;

@@ -1,0 +1,1 @@
+export { ColumnHits } from './ColumnHits';

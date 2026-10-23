@@ -1,7 +1,8 @@
-import { isString, omit } from 'remeda';
+import { isNumber, isString, omit } from 'remeda';
 
 import type { ApiFailure, ApiPayload, Repair } from './send-defaults.types';
 
+import { NEW_LINE } from '../../config';
 import { html } from '../html';
 import { SEND_DEFAULTS } from './send-defaults.constants';
 
@@ -22,11 +23,24 @@ const REPAIRS = [
 
 export const isFormatted = (method: string): boolean => FORMATTED_METHODS.includes(method);
 
-export const withDefaults = (payload: ApiPayload): ApiPayload => ({
-  parse_mode: 'HTML',
-  link_preview_options: { is_disabled: true },
-  ...payload
-});
+const isPrivateChat = (chatId: unknown): boolean => (isNumber(chatId) || isString(chatId)) && Number(chatId) > 0;
+
+export const withWidth = (payload: ApiPayload): ApiPayload => {
+  const { text, chat_id: chatId } = payload;
+
+  if (!isString(text) || !isPrivateChat(chatId) || text.endsWith(SEND_DEFAULTS.widthLine)) {
+    return payload;
+  }
+
+  return { ...payload, text: `${text}${NEW_LINE}${SEND_DEFAULTS.widthLine}` };
+};
+
+export const withDefaults = (payload: ApiPayload): ApiPayload =>
+  withWidth({
+    parse_mode: 'HTML',
+    link_preview_options: { is_disabled: true },
+    ...payload
+  });
 
 export const repairFor = ({ error_code, description }: ApiFailure): Repair | null => {
   if (error_code !== SEND_DEFAULTS.badRequest) {

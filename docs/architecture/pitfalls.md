@@ -13,6 +13,20 @@ full, the entry links to it. Part of the [documentation index](../README.md).
 - **A count of hours is not a calendar duration.** `intervalToDuration` splits an interval into months **and** days, so `days * 24 + hours` silently dropped a whole month: a 31-day tunnel rendered as `72:00:00`. Compute elapsed time from the millisecond difference.
 - **Tolerant parsing on a write path erases data.** A forgiving parse turned unreadable settings into `{}` and overwrote a node's real client list once already — see [nodes-and-peers.md](nodes-and-peers.md#one-module-talks-to-the-panel).
 - **A peer's client name must carry its protocol.** Leaving the protocol out made a WireGuard peer collide with a Hysteria2 one and reconcile disabled live configs — see [nodes-and-peers.md](nodes-and-peers.md#device-limits).
+- **Two upserts of one row raced into a 409.** The Connect tab asks for the
+  subscription link and the routing settings at once, and each upserted the
+  same `subscription_link` row; on a first visit one lost with `P2002` and the
+  page logged a `409`. Prisma's `upsert` reads before it creates, so it is not
+  atomic — such writes go through `withUniqueRetry`
+  ([data](../guides/server/data.md#prisma)).
+- **A form could be submitted only once.** After a success the forms called
+  `reset(values)`, which empties react-hook-form's field registry and waits for
+  each input to `register` again — and the React Compiler memoises
+  `{...register(name)}`, so none did. The field kept the old text, never turned
+  dirty, and the submit button stayed disabled until a reload: changing the
+  password, email or name twice, making a second WireGuard config, entering a
+  second promo code. Every `reset` passes `{ keepFieldsRef: true }` now
+  ([forms](../guides/client/forms.md)).
 - **`next/root-params` needs the root layout inside the dynamic segment.** With an
   outer `app/layout.tsx` present, `next typegen` reports "No root params detected"
   and every `rootParams.locale()` import fails to resolve. The locale layout must

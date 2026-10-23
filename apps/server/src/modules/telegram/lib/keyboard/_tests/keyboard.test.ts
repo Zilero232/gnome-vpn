@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { ChatState } from '../keyboard.types';
 
-import { BOT_BUTTONS, BOT_LOCALES } from '../../../config';
+import { BOT_BUTTONS, BOT_LOCALES, LEGACY_BUTTONS } from '../../../config';
 import { mainKeyboard } from '../keyboard';
 import { buttonFor } from '../keyboard.helpers';
 
@@ -68,6 +68,13 @@ describe('buttonFor', () => {
       for (const [key, label] of Object.entries(BOT_BUTTONS[locale])) {
         expect(buttonFor(label)).toBe(key);
       }
+    }
+  });
+
+  it('still answers a label an older release put on the keyboard, so it never lands in the support desk', () => {
+    for (const [label, key] of Object.entries(LEGACY_BUTTONS)) {
+      expect(buttonFor(label)).toBe(key);
+      expect(Object.keys(BOT_BUTTONS.ru)).toContain(key);
     }
   });
 

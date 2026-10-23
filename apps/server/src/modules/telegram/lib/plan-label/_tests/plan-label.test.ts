@@ -1,11 +1,13 @@
-import { PLANS } from '@gnomevpn/schemas';
+import { discountedPriceRub, PLANS } from '@gnomevpn/schemas';
 import { describe, expect, it } from 'vitest';
 
 import { BOT_LOCALES, BOT_TEXT } from '../../../config';
 import { fillLabel } from '../../fill-text';
-import { parsePlanId, planButtonLabel, plansText } from '../plan-label';
+import { isTelegramHtml } from '../../html';
+import { checkoutIntro, parsePlanId, planButtonLabel, plansText } from '../plan-label';
 
 const [plan] = PLANS;
+const TERMS_URL = 'https://gnomevpn.test/terms';
 
 describe('planButtonLabel', () => {
   it('names the term and the price of the plan it is given', () => {
@@ -57,5 +59,45 @@ describe('parsePlanId', () => {
     expect(parsePlanId('made-up')).toBeNull();
     expect(parsePlanId('')).toBeNull();
     expect(parsePlanId('__proto__')).toBeNull();
+  });
+});
+
+describe('checkoutIntro', () => {
+  const discount = { code: 'BLOGGER20', percent: 20 };
+  const amountRub = discountedPriceRub({ priceRub: plan.priceRub, percent: discount.percent });
+
+  it('states the amount actually charged', () => {
+    for (const locale of BOT_LOCALES) {
+      expect(checkoutIntro({ planId: plan.id, amountRub: plan.priceRub, discount: null, termsUrl: TERMS_URL, locale })).toContain(
+        String(plan.priceRub)
+      );
+
+      expect(checkoutIntro({ planId: plan.id, amountRub, discount, termsUrl: TERMS_URL, locale })).toContain(String(amountRub));
+    }
+  });
+
+  it('names the code, the percent and the full price only when a discount applies', () => {
+    for (const locale of BOT_LOCALES) {
+      const discounted = checkoutIntro({ planId: plan.id, amountRub, discount, termsUrl: TERMS_URL, locale });
+      const plain = checkoutIntro({ planId: plan.id, amountRub: plan.priceRub, discount: null, termsUrl: TERMS_URL, locale });
+
+      expect(discounted).toContain(discount.code);
+      expect(discounted).toContain(`${discount.percent}%`);
+      expect(discounted).toContain(String(plan.priceRub));
+      expect(plain).not.toContain(discount.code);
+      expect(isTelegramHtml(discounted)).toBe(true);
+    }
+  });
+
+  it('ends with the link to the terms, discount or not', () => {
+    for (const locale of BOT_LOCALES) {
+      const discounted = checkoutIntro({ planId: plan.id, amountRub, discount, termsUrl: TERMS_URL, locale });
+      const plain = checkoutIntro({ planId: plan.id, amountRub: plan.priceRub, discount: null, termsUrl: TERMS_URL, locale });
+
+      expect(plain).toContain(`<a href="${TERMS_URL}">`);
+      expect(discounted.indexOf(discount.code)).toBeLessThan(discounted.indexOf(TERMS_URL));
+      expect(discounted.trimEnd().endsWith('</i>')).toBe(true);
+      expect(isTelegramHtml(plain)).toBe(true);
+    }
   });
 });

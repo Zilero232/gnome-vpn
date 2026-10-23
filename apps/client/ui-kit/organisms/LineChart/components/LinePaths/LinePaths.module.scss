@@ -1,0 +1,35 @@
+.line {
+  fill: none;
+  stroke: var(--line-color);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2px;
+}
+
+.marker {
+  fill: var(--line-color);
+  paint-order: stroke;
+  stroke: var(--color-surface-raised);
+  stroke-width: 4px;
+}
+
+.label {
+  fill: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.series {
+  &[data-slot='1'] {
+    --line-color: var(--chart-series-1);
+  }
+
+  &[data-slot='2'] {
+    --line-color: var(--chart-series-2);
+  }
+
+  &[data-slot='3'] {
+    --line-color: var(--chart-series-3);
+  }
+}

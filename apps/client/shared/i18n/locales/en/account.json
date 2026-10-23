@@ -35,7 +35,10 @@
     "save": "−{percent}%",
     "pay": "Pay {price} ₽",
     "extend": "Extend for {price} ₽",
-    "renewalNote": "If you save the card on the payment page, auto-renewal turns on — {price} ₽ {plan, select, monthly {every month} halfYearly {every six months} other {every year}}. You can turn it off right here in one click."
+    "renewalNote": "Your payment method will be saved, and auto-renewal will charge {price} ₽ {plan, select, monthly {every month} halfYearly {every six months} other {every year}} — the plan’s full price, as discounts do not apply to it. YooKassa says so on the payment page. You can turn auto-renewal off right here in one click.",
+    "discountNote": "−{percent}% with promo code {code}",
+    "discountHint": "The discount applies to this one payment — renewals are at the regular price.",
+    "fullPrice": "Without the discount: {price} ₽"
   },
   "profile": {
     "title": "Profile",
@@ -131,5 +134,6 @@
     "email": "Email {email}",
     "bot": "Message us on Telegram"
   },
-  "subscribeNow": "Subscribe right away"
+  "subscribeNow": "Subscribe right away",
+  "adminLink": "Admin"
 }

@@ -1,0 +1,35 @@
+@use '@/shared/styles/mixins' as *;
+
+.root {
+  @include stack(12px);
+
+  padding: 22px 24px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-raised);
+
+  @include below(md) {
+    padding: 18px;
+  }
+}
+
+.title {
+  @include display-heading(20px, 600);
+
+  margin: 0;
+}
+
+.list {
+  @include stack(8px);
+
+  padding-left: 20px;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.note {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}

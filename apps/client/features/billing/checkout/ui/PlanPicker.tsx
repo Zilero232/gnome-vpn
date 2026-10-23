@@ -2,7 +2,7 @@
 
 import type { PlanId } from '@gnomevpn/schemas';
 
-import { DEFAULT_PLAN_ID, findPlan, planDiscountPercent, planMonthlyRub, PLANS } from '@gnomevpn/schemas';
+import { DEFAULT_PLAN_ID, discountedPriceRub, findPlan, planDiscountPercent, planMonthlyRub, PLANS } from '@gnomevpn/schemas';
 import { useMount } from '@siberiacancode/reactuse';
 import { clsx } from 'clsx';
 import { useTranslations } from 'next-intl';
@@ -14,13 +14,15 @@ import { Badge, SelectableCard, Stack, Text } from '@/ui-kit';
 import type { PlanPickerProps } from './PlanPicker.types';
 
 import { planFromSearch } from '../lib';
-import { CheckoutButton } from './components';
+import { usePendingDiscount } from '../model/hooks';
+import { CheckoutButton, DiscountNote, PlanPrice } from './components';
 
 import s from './PlanPicker.module.scss';
 
 export const PlanPicker = ({ className, defaultPlan = DEFAULT_PLAN_ID, intent = 'buy' }: PlanPickerProps) => {
   const t = useTranslations('account.plans');
   const { subscription } = useSubscriptionStatus();
+  const promo = usePendingDiscount();
 
   const [selected, setSelected] = useState<PlanId>(defaultPlan);
 
@@ -33,7 +35,8 @@ export const PlanPicker = ({ className, defaultPlan = DEFAULT_PLAN_ID, intent = 
   });
 
   const plan = findPlan(selected);
-  const isRenewalDisclosed = subscription?.isRecurringAvailable === true && subscription.period !== 'paid';
+  const isRenewalDisclosed = subscription?.isRecurringAvailable === true && !(subscription.period === 'paid' && subscription.cancelAtPeriodEnd);
+  const price = promo ? discountedPriceRub({ priceRub: plan.priceRub, percent: promo.percent }) : plan.priceRub;
 
   return (
     <Stack className={clsx(s.root, className)} gap='md'>
@@ -56,16 +59,16 @@ export const PlanPicker = ({ className, defaultPlan = DEFAULT_PLAN_ID, intent = 
                 </Text>
               </Stack>
 
-              <Text as='span' className={s.price}>
-                {t('price', { price: option.priceRub })}
-              </Text>
+              <PlanPrice discount={promo} priceRub={option.priceRub} />
             </SelectableCard>
           );
         })}
       </Stack>
 
+      {promo && <DiscountNote discount={promo} />}
+
       <CheckoutButton className={s.submit} planId={selected}>
-        {intent === 'extend' ? t('extend', { price: plan.priceRub }) : t('pay', { price: plan.priceRub })}
+        {intent === 'extend' ? t('extend', { price }) : t('pay', { price })}
       </CheckoutButton>
 
       {isRenewalDisclosed && (

@@ -17,5 +17,7 @@
     "help": "Help",
     "legal": "Legal"
   },
-  "language": "Language"
+  "language": "Language",
+  "terms": "Terms",
+  "status": "Server status"
 }

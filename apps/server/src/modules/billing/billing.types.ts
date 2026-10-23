@@ -1,7 +1,8 @@
-import type { CheckoutLocale, Plan, PlanId } from '@gnomevpn/schemas';
+import type { CheckoutLocale, CheckoutResult, Plan, PlanId, PromoDiscount } from '@gnomevpn/schemas';
 
 import type { PaymentKind, Prisma } from '../../../generated';
 import type { PrismaExecutor } from '../../core';
+import type { AppliedDiscount } from '../promo-codes';
 import type { RevokeOutcome, RewardOutcome } from '../referrals';
 
 export type PaymentMethodRef = {
@@ -34,6 +35,9 @@ export type RecordPaymentInput = {
   plan: Plan;
   isAutoCharge: boolean;
   paymentMethodId?: string | null;
+  kind?: PaymentKind;
+  amountRub?: number;
+  discount?: AppliedDiscount | null;
 };
 
 export type GrantExtraDevicesInput = {
@@ -55,6 +59,13 @@ export type BuyExtraDevicesServiceInput = CheckoutReturnInput & {
 export type CreateCheckoutServiceInput = CheckoutReturnInput & {
   userId: string;
   planId: PlanId;
+};
+
+export type BuyGiftServiceInput = CreateCheckoutServiceInput;
+
+export type CheckoutOutcome = CheckoutResult & {
+  amountRub: number;
+  discount: PromoDiscount | null;
 };
 
 export type ReusablePaymentInput = {
@@ -89,17 +100,20 @@ export type CanceledPayment = {
 export type SettledPayment = {
   userId: string;
   kind: PaymentKind;
+  plan: PlanId;
   isAutoCharge: boolean;
   amount: Prisma.Decimal;
+  giftCode: string | null;
 };
 
 export type SettleOutcome = {
   referral: RewardOutcome | null;
+  giftCode: string | null;
 };
 
 export type SettleResult = 'canceled' | 'refunded' | 'settled' | 'skipped' | 'unknown' | 'waiting';
 
-export type RefundReason = 'lapsed' | 'orphan';
+export type RefundReason = 'discountUsed' | 'lapsed' | 'orphan';
 
 export type UnusablePayment = {
   id: string;
@@ -107,11 +121,19 @@ export type UnusablePayment = {
   kind: PaymentKind;
 };
 
+export type PaymentPurchase = {
+  kind: PaymentKind;
+  plan: PlanId;
+  extraDevices: number;
+};
+
 export type RefundUnusableInput = {
   id: string;
+  userId: string | null;
   paymentId: string;
   amount: Prisma.Decimal;
   reason: RefundReason;
+  purchase: PaymentPurchase;
 };
 
 export type RefundedPayment = {
@@ -123,7 +145,7 @@ export type RefundedPayment = {
 };
 
 export type RefundOutcome = {
-  userId: string;
+  userId: string | null;
   kind: PaymentKind;
   referral: RevokeOutcome | null;
 };

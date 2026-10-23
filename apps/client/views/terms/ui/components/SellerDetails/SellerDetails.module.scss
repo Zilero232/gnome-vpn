@@ -1,0 +1,29 @@
+@use '@/shared/styles/mixins' as *;
+
+.list {
+  display: grid;
+  gap: 8px 24px;
+  grid-template-columns: max-content minmax(0, 1fr);
+
+  @include below(sm) {
+    gap: 2px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.row {
+  display: contents;
+}
+
+.term {
+  color: var(--color-text-muted);
+
+  @include below(sm) {
+    margin-top: 8px;
+  }
+}
+
+.value {
+  margin: 0;
+  overflow-wrap: anywhere;
+}

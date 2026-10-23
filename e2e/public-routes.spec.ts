@@ -20,7 +20,14 @@ test.describe('public routes', () => {
     const response = await page.goto(ROUTES.privacy);
 
     expect(response?.status()).toBe(200);
-    await expect(page.locator('body')).toContainText(/privacy|конфиденциальност/i);
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(/privacy policy|политика конфиденциальности/i);
+  });
+
+  test('the terms of service are reachable without auth', async ({ page }) => {
+    const response = await page.goto(ROUTES.terms);
+
+    expect(response?.status()).toBe(200);
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(/terms of service|публичная оферта/i);
   });
 
   test('the password reset page is reachable without auth', async ({ page }) => {
@@ -35,6 +42,14 @@ test.describe('public routes', () => {
 
     expect(response?.status()).toBe(200);
     await expect(page.locator('body')).toBeVisible();
+  });
+
+  test('the server status page renders without the API behind it', async ({ page }) => {
+    const response = await page.goto(ROUTES.status);
+
+    expect(response?.status()).toBe(200);
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(/server status|статус серверов/i);
+    await expect(page.getByRole('button', { name: /check connection|проверить подключение/i })).toBeVisible();
   });
 
   test('an unknown route renders the not-found page', async ({ page }) => {

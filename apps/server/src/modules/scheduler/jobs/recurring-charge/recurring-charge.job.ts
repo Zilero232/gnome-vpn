@@ -12,6 +12,7 @@ import { PrismaService } from '../../../../core';
 import { YooKassaClient } from '../../../../lib';
 import { CardService, CheckoutService, describeRenewal, renewalIdempotenceKey, WebhookService } from '../../../billing';
 import { periodKind } from '../../../subscription';
+import { TelegramAlertService } from '../../../telegram/services/telegram-alert.service';
 import { TelegramNotifyService } from '../../../telegram/services/telegram-notify.service';
 import { PENDING, WINDOW } from '../../config';
 
@@ -26,7 +27,8 @@ export class RecurringChargeJob {
     private readonly checkout: CheckoutService,
     private readonly card: CardService,
     private readonly webhook: WebhookService,
-    private readonly notify: TelegramNotifyService
+    private readonly notify: TelegramNotifyService,
+    private readonly alerts: TelegramAlertService
   ) {}
 
   private async wasAttempted({ userId, currentPeriodEnd, paymentMethodId }: ChargeAttemptInput): Promise<boolean> {
@@ -118,6 +120,8 @@ export class RecurringChargeJob {
   }
 
   private async tellChargeFailed({ userId, currentPeriodEnd }: DueSubscription): Promise<void> {
+    this.alerts.chargeFailed({ userId, reason: null, isCardDropped: true });
+
     await this.notify.tell({ userId, notice: 'chargeFailed', date: currentPeriodEnd });
   }
 

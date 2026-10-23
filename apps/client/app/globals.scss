@@ -57,6 +57,13 @@
   --safe-area-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
   --safe-area-left: env(safe-area-inset-left, 0px);
   --viewport-height: calc(100dvh - var(--safe-area-top) - var(--safe-area-bottom));
+  --chart-series-1: #2a78d6;
+  --chart-series-2: #eb6834;
+  --chart-series-3: #1baf7a;
+  --chart-muted: #a39275;
+  --chart-grid: #efe9dd;
+  --chart-axis: #c9bba1;
+  --chart-hover: rgb(22 32 28 / 5%);
 }
 
 html {

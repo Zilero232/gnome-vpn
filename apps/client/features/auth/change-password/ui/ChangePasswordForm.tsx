@@ -45,7 +45,7 @@ export const ChangePasswordForm = () => {
     mutate(values, {
       onSuccess: () => {
         toast.success(t('passwordChanged'));
-        reset(DEFAULT_VALUES);
+        reset(DEFAULT_VALUES, { keepFieldsRef: true });
       },
       onError: toastError
     });

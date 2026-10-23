@@ -10,7 +10,7 @@ import { Link } from '@/shared/i18n/navigation';
 import { ErrorBlock, LoadingBlock } from '@/ui-kit';
 
 import { useSubscriptionLink } from '../model/hooks';
-import { ClientPicker, LinkSteps, RotateLink } from './components';
+import { ClientPicker, LinkSteps } from './components';
 
 import s from './IncyCard.module.scss';
 
@@ -43,8 +43,6 @@ export const IncyCard = () => {
       <Link className={s.setupLink} href={ROUTES.setup}>
         {t('setupLink')}
       </Link>
-
-      <RotateLink />
     </div>
   );
 };

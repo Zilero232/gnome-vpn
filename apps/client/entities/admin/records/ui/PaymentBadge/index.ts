@@ -1,0 +1,1 @@
+export { PaymentBadge } from './PaymentBadge';

@@ -1,0 +1,15 @@
+.hit {
+  cursor: default;
+  fill: transparent;
+  outline: none;
+
+  &:hover {
+    fill: var(--chart-hover);
+  }
+
+  &:focus-visible {
+    fill: var(--chart-hover);
+    stroke: var(--color-accent);
+    stroke-width: 2px;
+  }
+}

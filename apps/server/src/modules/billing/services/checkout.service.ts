@@ -6,15 +6,23 @@ import { subMinutes } from 'date-fns';
 import { randomUUID } from 'node:crypto';
 import { isNullish } from 'remeda';
 
-import type { BuyExtraDevicesServiceInput, CreateCheckoutServiceInput, RecordPaymentInput, ReusablePaymentInput } from '../billing.types';
+import type {
+  BuyExtraDevicesServiceInput,
+  BuyGiftServiceInput,
+  CheckoutOutcome,
+  CreateCheckoutServiceInput,
+  RecordPaymentInput,
+  ReusablePaymentInput
+} from '../billing.types';
 
 import { AppBadRequestException } from '../../../common/exceptions';
 import { describeError } from '../../../common/lib';
 import { PrismaService, withSerializableRetry } from '../../../core';
 import { YooKassaClient } from '../../../lib';
+import { PromoDiscountService } from '../../promo-codes';
 import { periodKind } from '../../subscription';
 import { CHECKOUT_REUSE } from '../config';
-import { describeExtraDevices, describePlan } from '../lib';
+import { describeExtraDevices, describeGift, describePlan } from '../lib';
 import { BillingSharedService } from './billing-shared.service';
 
 @Injectable()
@@ -24,25 +32,27 @@ export class CheckoutService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly yookassa: YooKassaClient,
-    private readonly shared: BillingSharedService
+    private readonly shared: BillingSharedService,
+    private readonly discounts: PromoDiscountService
   ) {}
 
-  async createCheckout({ userId, planId, returnUrl, locale }: CreateCheckoutServiceInput): Promise<CheckoutResult> {
-    const plan = findPlan(planId);
+  async createCheckout({ userId, planId, returnUrl, locale }: CreateCheckoutServiceInput): Promise<CheckoutOutcome> {
+    const { plan, amountRub, discount } = await this.discounts.quote({ userId, planId });
     const target = this.shared.returnUrl({ returnUrl, locale });
+    const shown = discount && { code: discount.code, percent: discount.percent };
 
     const reused = await this.reusablePayment({
       userId,
       returnUrl: target,
-      where: { kind: 'subscription', plan: plan.id }
+      where: { kind: 'subscription', plan: plan.id, promoCodeId: discount?.promoCodeId ?? null, amount: amountRub }
     });
 
     if (reused) {
-      return reused;
+      return { ...reused, amountRub, discount: shown };
     }
 
     const payment = await this.yookassa.createPayment({
-      amountRub: plan.priceRub,
+      amountRub,
       description: describePlan(plan),
       returnUrl: target,
       idempotenceKey: randomUUID(),
@@ -57,7 +67,46 @@ export class CheckoutService {
       userId,
       paymentId: payment.id,
       plan,
-      isAutoCharge: false
+      isAutoCharge: false,
+      amountRub,
+      discount
+    });
+
+    return { confirmationUrl: payment.confirmationUrl, amountRub, discount: shown };
+  }
+
+  async buyGift({ userId, planId, returnUrl, locale }: BuyGiftServiceInput): Promise<CheckoutResult> {
+    const plan = findPlan(planId);
+    const target = this.shared.returnUrl({ returnUrl, locale });
+
+    const reused = await this.reusablePayment({
+      userId,
+      returnUrl: target,
+      where: { kind: 'gift', plan: plan.id }
+    });
+
+    if (reused) {
+      return reused;
+    }
+
+    const payment = await this.yookassa.createPayment({
+      amountRub: plan.priceRub,
+      description: describeGift(plan),
+      returnUrl: target,
+      idempotenceKey: randomUUID(),
+      savePaymentMethod: false
+    });
+
+    if (!payment.confirmationUrl) {
+      throw new AppBadRequestException('PAYMENT_FAILED', 'YooKassa returned no confirmation URL');
+    }
+
+    await this.recordPendingPayment({
+      userId,
+      paymentId: payment.id,
+      plan,
+      isAutoCharge: false,
+      kind: 'gift'
     });
 
     return { confirmationUrl: payment.confirmationUrl };
@@ -145,18 +194,30 @@ export class CheckoutService {
     return { confirmationUrl: payment.confirmationUrl };
   }
 
-  async recordPendingPayment({ userId, paymentId, plan, isAutoCharge, paymentMethodId = null }: RecordPaymentInput): Promise<void> {
+  async recordPendingPayment({
+    userId,
+    paymentId,
+    plan,
+    isAutoCharge,
+    paymentMethodId = null,
+    kind = 'subscription',
+    amountRub = plan.priceRub,
+    discount = null
+  }: RecordPaymentInput): Promise<void> {
     await this.prisma.payment.upsert({
       where: { yookassaPaymentId: paymentId },
       update: {},
       create: {
         userId,
         yookassaPaymentId: paymentId,
-        amount: plan.priceRub,
+        amount: amountRub,
         status: 'pending',
         isAutoCharge,
         paymentMethodId,
-        plan: plan.id
+        kind,
+        plan: plan.id,
+        promoCodeId: discount?.promoCodeId ?? null,
+        discountPercent: discount?.percent ?? null
       }
     });
   }

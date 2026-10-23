@@ -12,6 +12,14 @@ export const webReferralLink = ({ clientUrl, code }: WebReferralLinkInput): stri
   return url.toString();
 };
 
+export const webPromoLink = ({ clientUrl, code }: WebReferralLinkInput): string => {
+  const url = new URL('/', clientUrl);
+
+  url.searchParams.set(REFERRAL_CODE.promoParam, code);
+
+  return url.toString();
+};
+
 export const telegramStartPayload = (code: string): string => `${REFERRAL_LINK.telegramPrefix}${code}`;
 
 export const telegramReferralLink = ({ botUsername, code }: TelegramReferralLinkInput): string | null => {

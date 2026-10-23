@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "title": "GnomeVPN server status",
+    "description": "Whether GnomeVPN servers are working right now, which protocols each one offers and how much of the last 30 days it was available. Check whether your traffic goes through the VPN."
+  },
+  "title": "Server status",
+  "intro": "We check every server once a minute. Here you can see whether it is working right now, which protocols it offers and how much of the last 30 days it was available.",
+  "states": {
+    "up": "Operational",
+    "degraded": "Having problems",
+    "down": "Unavailable"
+  },
+  "protocols": {
+    "label": "Protocols",
+    "hysteria2": "Hysteria2",
+    "vless": "VLESS + Reality",
+    "wireguard": "WireGuard"
+  },
+  "nodes": {
+    "title": "Servers",
+    "loading": "Loading server status…",
+    "unavailable": "Could not load the server status.",
+    "retry": "Try again",
+    "empty": "No server is in service right now — check back a little later.",
+    "checkedAgo": "Checked {time}",
+    "neverChecked": "Not checked yet",
+    "historyLabel": "Availability by day",
+    "uptime": "{percent} over {days, plural, one {# day} other {# days}}",
+    "uptimeUnknown": "No data yet",
+    "day": "{date}: {percent}",
+    "dayUnknown": "{date}: no data",
+    "note": "A server counts as available when it answers the check and its tunnel is on. “Having problems” means the latest check failed or the server is overloaded; “Unavailable” means it has not answered for several minutes in a row. Days are counted in UTC; an empty bar is a day the server was not checked yet."
+  },
+  "check": {
+    "title": "Check your connection",
+    "body": "Find out whether this browser’s traffic goes through GnomeVPN. When you press the button, the browser asks the ipify service for its IP address and we compare it with the addresses of our servers. The address is not stored anywhere.",
+    "action": "Check connection",
+    "again": "Check again",
+    "via": "You are connected through GnomeVPN — {country}",
+    "viaNoCountry": "You are connected through GnomeVPN",
+    "notVia": "Your traffic is not going through GnomeVPN right now",
+    "notViaHint": "Turn the VPN on in the app and check again.",
+    "setup": "How to connect",
+    "ip": "Your IP address: {ip}",
+    "failed": "Could not check the connection. The browser or an ad blocker may have blocked the request to ipify — try again."
+  },
+  "related": {
+    "servers": "Servers and protocols: how they differ",
+    "setup": "How to set up the VPN — step by step",
+    "hotel": "What to do when the VPN does not work in a hotel"
+  }
+}

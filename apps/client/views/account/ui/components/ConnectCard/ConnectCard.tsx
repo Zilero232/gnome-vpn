@@ -5,7 +5,8 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { entries } from 'remeda';
 
-import { IncyCard } from '@/features/vpn/connect-incy';
+import { IncyCard, RotateLink } from '@/features/vpn/connect-incy';
+import { RoutingCard } from '@/features/vpn/routing-settings';
 import { WireguardPanel } from '@/features/vpn/wireguard-config';
 import { ErrorBlock, LoadingBlock } from '@/ui-kit';
 
@@ -54,6 +55,10 @@ export const ConnectCard = ({ hasAccess, isLoading, isUnavailable, onRetry }: Co
       {!hasAccess && <AccessNotice isWireguard={way === 'config'} />}
 
       {way === 'link' && <IncyCard />}
+
+      {way === 'link' && <RoutingCard />}
+
+      {way === 'link' && <RotateLink />}
 
       {way === 'config' && hasAccess && <WireguardPanel />}
     </div>

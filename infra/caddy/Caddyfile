@@ -23,10 +23,37 @@
 	}
 }
 
+# The access log keeps no full client address and no credential: IPs are cut
+# to /16 (IPv4) and /32 (IPv6), the query parameters that carry one-time codes
+# and tokens are dropped, and so are the headers that carry sessions or the
+# webhook secret. Paths that would build a per-account IP history are not
+# logged at all (log_skip, Caddy 2.8+). docs/architecture/logging.md.
 (access_log) {
 	log {
 		output stdout
-		format console
+		format filter {
+			wrap console
+			fields {
+				request>remote_ip ip_mask {
+					ipv4 16
+					ipv6 32
+				}
+				request>client_ip ip_mask {
+					ipv4 16
+					ipv6 32
+				}
+				request>uri query {
+					delete token
+					delete code
+					delete ref
+				}
+				request>headers>Authorization delete
+				request>headers>Cookie delete
+				request>headers>X-Telegram-Bot-Api-Secret-Token delete
+				resp_headers>Set-Cookie delete
+				resp_headers>Set-Auth-Token delete
+			}
+		}
 	}
 }
 
@@ -38,6 +65,11 @@ www.gnome-vpn.com, gnomevpn.ru, www.gnomevpn.ru {
 }
 
 api.gnome-vpn.com, api.gnomevpn.ru {
+	# Every INCY refresh fetches the feed and the geo files: logging them would
+	# record each subscriber's address over time, and the feed path is the token.
+	@unlogged path /sub/* /routing/geo/* /auth/reset-password/*
+	log_skip @unlogged
+
 	encode gzip zstd
 
 	reverse_proxy server:4000

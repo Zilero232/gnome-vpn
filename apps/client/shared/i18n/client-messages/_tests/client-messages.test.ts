@@ -5,7 +5,8 @@ import { describe, expect, it } from 'vitest';
 import type { Messages } from '../../messages';
 
 import { messages } from '../../messages';
-import { clientMessages, keepsKey } from '../client-messages';
+import { clientMessages, isRouteNamespace, keepsKey, routeMessages } from '../client-messages';
+import { ROUTE_MESSAGES } from '../client-messages.constants';
 
 const CLIENT_ROOT = resolve(import.meta.dirname, '../../../..');
 const SKIPPED = new Set(['node_modules', '.next', '_tests', 'public']);
@@ -39,7 +40,9 @@ describe('clientMessages', () => {
         throw new Error(`Unknown namespace in ${path}`);
       }
 
-      expect(key ? keepsKey({ namespace, key }) : Object.keys(clientMessages('ru')).includes(namespace), path).toBe(true);
+      const isKept = key ? keepsKey({ namespace, key }) : Object.keys(clientMessages('ru')).includes(namespace);
+
+      expect(isKept || isRouteNamespace(namespace), path).toBe(true);
     }
   });
 
@@ -48,8 +51,28 @@ describe('clientMessages', () => {
 
     expect(bundle).not.toHaveProperty('blog');
     expect(bundle).not.toHaveProperty('privacy');
+    expect(bundle).not.toHaveProperty('terms.sections');
     expect(bundle).not.toHaveProperty('faq.questions');
     expect(bundle).not.toHaveProperty('landing.meta');
+  });
+
+  it('leaves a route-scoped namespace out of the bundle every page carries', () => {
+    const bundle = clientMessages('ru');
+
+    for (const namespace of ROUTE_MESSAGES) {
+      expect(bundle).not.toHaveProperty(namespace);
+    }
+  });
+
+  it('adds a route-scoped namespace only where the route asks for it', () => {
+    const scoped = routeMessages({ locale: 'ru', namespaces: ROUTE_MESSAGES });
+
+    expect(Object.keys(scoped)).toEqual(expect.arrayContaining([...Object.keys(clientMessages('ru')), ...ROUTE_MESSAGES]));
+    expect(scoped).toMatchObject({ account: clientMessages('ru').account });
+
+    for (const namespace of ROUTE_MESSAGES) {
+      expect(scoped[namespace]).not.toHaveProperty('meta');
+    }
   });
 
   it('cuts the same keys in every locale', () => {

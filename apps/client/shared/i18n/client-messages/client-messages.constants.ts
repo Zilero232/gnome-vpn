@@ -9,16 +9,23 @@ export const CLIENT_MESSAGES: ClientRules = {
   errors: 'all',
   faq: ['title', 'intro', 'groups', 'stillStuck', 'search'],
   footer: 'all',
+  gifts: 'all',
   incy: 'all',
   landing: ['connect', 'phone', 'locations', 'inside'],
   nav: 'all',
+  payments: 'all',
   plans: 'all',
   referrals: 'all',
+  routing: 'all',
   setup: 'all',
+  status: ['states', 'protocols', 'nodes', 'check'],
   telegram: 'all',
+  terms: ['notes'],
   trial: 'all',
   validation: 'all',
   wireguard: 'all'
 };
 
 export const SERVER_ONLY_KEYS = ['meta'] as const;
+
+export const ROUTE_MESSAGES = ['admin'] as const;

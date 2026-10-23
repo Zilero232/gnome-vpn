@@ -1,0 +1,543 @@
+{
+  "meta": {
+    "title": "Admin",
+    "description": "GnomeVPN users, payments, promo codes and nodes."
+  },
+  "title": "Admin",
+  "toAccount": "Back to account",
+  "tabs": {
+    "label": "Admin sections",
+    "overview": "Overview",
+    "users": "Users",
+    "payments": "Payments",
+    "promo": "Promo codes",
+    "nodes": "Nodes"
+  },
+  "common": {
+    "loading": "Loading…",
+    "unavailable": "Could not load the data.",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "pages": {
+      "previous": "Previous",
+      "next": "Next",
+      "status": "Page {page} of {pages} · {total} in total"
+    },
+    "view": {
+      "label": "View",
+      "chart": "Chart",
+      "table": "Table"
+    }
+  },
+  "format": {
+    "money": "{amount}\u00a0₽"
+  },
+  "export": {
+    "done": "Exported rows: {rows}",
+    "truncated": "Exported the first {max} rows of a longer list — narrow the filter"
+  },
+  "validation": {
+    "codeFormat": "A code is {codeMin}–{codeMax} latin letters and digits",
+    "codeShape": "The code looks like a friend or gift code — change its length or add 0, O, 1, I or L",
+    "whole": "Enter a whole number",
+    "percent": "A discount is a whole number from {percentMin} to {percentMax}\u00a0%",
+    "days": "Days are a whole number from {daysMin} to {daysMax}",
+    "maxUses": "The limit is a whole number from 1, or leave it empty",
+    "until": "Invalid date",
+    "extendDays": "From {extendMin} to {extendMax} days",
+    "messageRequired": "Write a message",
+    "messageLength": "At most {messageMax} characters"
+  },
+  "records": {
+    "access": {
+      "none": "No access",
+      "trial": "Free day",
+      "paid": "Subscription"
+    },
+    "payment": {
+      "pending": "Pending",
+      "succeeded": "Paid",
+      "refundRequested": "Refund requested",
+      "canceled": "Canceled",
+      "refunded": "Refunded"
+    }
+  },
+  "overview": {
+    "title": "Overview",
+    "description": "What is happening right now. The same numbers as /stats in the bot.",
+    "kpi": {
+      "users": {
+        "label": "Users",
+        "hint": "+{day} in 24 h · +{week} in 7 days"
+      },
+      "paid": "Paid subscriptions",
+      "plan": "{plan}: {count}",
+      "trials": "On a free day now",
+      "autoRenew": {
+        "label": "Renewing automatically",
+        "hint": "of {paid} paid"
+      },
+      "payments": {
+        "label": "Revenue for {days, plural, one {# day} other {# days}}",
+        "hint": "{count, plural, one {# payment} other {# payments}}",
+        "none": "no payments"
+      },
+      "devices": "Devices",
+      "chats": "Linked Telegram",
+      "nodes": {
+        "label": "Nodes",
+        "value": "{up} of {total} healthy",
+        "hint": "degraded: {degraded} · down: {down} · out of rotation: {off}"
+      },
+      "paidNone": "none right now"
+    },
+    "devices": {
+      "platform": "Devices by platform",
+      "app": "Devices by app",
+      "unknown": "Not reported",
+      "other": "Others",
+      "empty": "No devices yet.",
+      "caption": "Every registered device right now: {total}"
+    }
+  },
+  "analytics": {
+    "title": "Trends",
+    "description": "Days are UTC days. Revenue is succeeded payments by the date they were created; refunds are not in it.",
+    "range": {
+      "label": "Period",
+      "30d": "30 days",
+      "90d": "90 days"
+    },
+    "table": {
+      "date": "Day"
+    },
+    "paidVsTrials": {
+      "title": "New paid accounts and free days",
+      "newPaid": "First payment",
+      "trials": "Free day",
+      "summary": "{caption}. First payments: {paid}, free days: {trials}.",
+      "caption": "First succeeded subscription payment and free-day starts, per day, last {days} days",
+      "empty": "No first payments and no free days in this period"
+    },
+    "conversion": {
+      "label": "Free day to payment",
+      "hint": "{converted} of the {trials} who took a free day in the last {days} days have paid. Recent free days may still convert.",
+      "none": "—",
+      "noTrials": "No free days in the last {days} days"
+    },
+    "referrals": {
+      "title": "Invitations",
+      "invited": "Invited",
+      "rewarded": "Paid",
+      "referrerDays": "Days to inviters",
+      "friendDays": "Days to friends",
+      "top": "Top inviters",
+      "empty": "Nobody was invited in this period.",
+      "columns": {
+        "user": "User",
+        "invited": "Invited",
+        "rewarded": "Paid",
+        "days": "Days earned"
+      },
+      "caption": "Invitations made in the last {days} days and the days granted for them"
+    },
+    "daily": {
+      "summary": "{caption}. Total {total}, peak {peak} on {date}.",
+      "revenue": {
+        "title": "Revenue per day",
+        "caption": "Succeeded payments by the day they were created, last {days} days, refunds excluded",
+        "empty": "No payments in this period"
+      },
+      "payments": {
+        "title": "Payments per day",
+        "caption": "Succeeded payments counted by the day they were created, last {days} days",
+        "empty": "No payments in this period"
+      },
+      "signups": {
+        "title": "Sign-ups per day",
+        "caption": "New accounts by the day they signed up, last {days} days",
+        "empty": "Nobody signed up in this period"
+      }
+    },
+    "revenue": {
+      "title": "Revenue",
+      "viewLabel": "Revenue breakdown",
+      "views": {
+        "plan": "By plan",
+        "kind": "By kind"
+      },
+      "captions": {
+        "plan": "Subscription payments over the last {days} days by plan — extra devices, gifts and refunds excluded",
+        "kind": "Every succeeded payment over the last {days} days by kind, refunds excluded"
+      },
+      "total": "Total for the period",
+      "count": "{count, plural, one {# payment} other {# payments}}",
+      "empty": "No payments in this period"
+    }
+  },
+  "users": {
+    "title": "Users",
+    "description": "Newest first. Click an email to open the card.",
+    "caption": "Users",
+    "export": "Download CSV",
+    "empty": "Nobody found.",
+    "search": {
+      "label": "Search",
+      "placeholder": "email, @username, Telegram id or id",
+      "hint": "Emails, names and @usernames match in part, Telegram ids and user ids exactly.",
+      "submit": "Search"
+    },
+    "columns": {
+      "email": "Email",
+      "unverified": "not confirmed",
+      "created": "Signed up",
+      "access": "Access",
+      "until": "{isOver, select, true {ended {date}} other {until {date}}}",
+      "plan": "Plan",
+      "devices": "Devices",
+      "telegram": "Telegram"
+    }
+  },
+  "user": {
+    "back": "All users",
+    "since": "With us since {date}",
+    "payments": "Payments",
+    "profile": {
+      "title": "Profile",
+      "name": "Name",
+      "email": "Email",
+      "noEmail": "No email (signed in with Telegram)",
+      "verified": "confirmed",
+      "unverified": "not confirmed",
+      "id": "ID",
+      "created": "Signed up",
+      "locale": "Language",
+      "telegram": "Telegram",
+      "noTelegram": "Not linked",
+      "botSeen": "Last seen in the bot",
+      "verify": {
+        "action": "Mark the email confirmed",
+        "title": "Confirm the email without the letter?",
+        "body": "{email} will count as confirmed, as if the link in the letter had been opened. Only do this once you are sure the mailbox is theirs.",
+        "confirm": "Confirm",
+        "done": "The email is marked confirmed"
+      }
+    },
+    "message": {
+      "label": "Message in Telegram",
+      "hint": "Plain text, sent as the bot.",
+      "action": "Send",
+      "title": "Send the message?",
+      "body": "They will receive it from the GnomeVPN bot. It cannot be taken back.",
+      "confirm": "Send",
+      "outcomes": {
+        "sent": "Message sent",
+        "notLinked": "This user has no linked Telegram",
+        "blocked": "The user has blocked the bot",
+        "botOff": "The bot is off on the server",
+        "failed": "Telegram did not accept the message"
+      }
+    },
+    "subscription": {
+      "title": "Subscription",
+      "none": "No subscription and no free day yet.",
+      "access": "Access",
+      "plan": "Plan",
+      "end": "Active until",
+      "renewal": {
+        "label": "Auto-renewal",
+        "on": "on · {card}",
+        "off": "off"
+      },
+      "extras": "Extra devices",
+      "bonus": "Banked bonus days",
+      "trial": "Free day",
+      "noTrial": "never taken",
+      "cancelRenewal": {
+        "action": "Turn auto-renewal off",
+        "title": "Turn auto-renewal off?",
+        "body": "The card stays linked, but there will be no next charge. They can turn renewal back on themselves.",
+        "confirm": "Turn off",
+        "done": "Auto-renewal is off"
+      }
+    },
+    "extend": {
+      "label": "Extend by, days",
+      "action": "Extend",
+      "title": "Extend access by {days, plural, one {# day} other {# days}}?",
+      "body": "Access will last until {date}. The days are added to the current term, or counted from today if it has already ended. Disabled devices start working again.",
+      "confirm": "Extend",
+      "done": "Extended until {date}"
+    },
+    "link": {
+      "title": "Subscription link",
+      "description": "The admin panel never shows the link itself.",
+      "created": "Issued",
+      "seen": "Last fetched",
+      "platform": "Platform",
+      "never": "never fetched",
+      "none": "No link issued yet.",
+      "rotate": {
+        "action": "Issue a new link",
+        "title": "Issue a new subscription link?",
+        "body": "The old link stops working and the devices that fetched it are disconnected — they will have to add the new link to INCY or another app again.",
+        "confirm": "Issue",
+        "done": "The link is renewed"
+      }
+    },
+    "devices": {
+      "title": "Devices",
+      "count": "{count} of {limit}",
+      "empty": "No devices.",
+      "unnamed": "Device",
+      "overLimit": "over the limit",
+      "columns": {
+        "name": "Device",
+        "details": "System",
+        "added": "Added",
+        "seen": "Last seen",
+        "state": "State",
+        "action": "Action"
+      },
+      "remove": {
+        "action": "Remove",
+        "title": "Remove “{name}”?",
+        "body": "Its keys are deleted from the nodes on the next reconcile. If the app fetches the subscription again, the device is added back while there is a free place.",
+        "confirm": "Remove",
+        "done": "The device is removed"
+      }
+    },
+    "referral": {
+      "title": "Invitations",
+      "code": "Friend code",
+      "referredBy": "Invited by",
+      "since": "since {date}",
+      "rewarded": "rewarded {date}, +{days} d",
+      "notRewarded": "has not paid yet",
+      "invited": "Invited themselves",
+      "invitedCaption": "Who they invited",
+      "more": "Showing the latest {shown} of {total}",
+      "columns": {
+        "user": "User",
+        "since": "Joined",
+        "rewarded": "Paid",
+        "days": "Days earned"
+      }
+    },
+    "promo": {
+      "title": "Promo codes and gifts",
+      "empty": "No codes entered, no gifts bought.",
+      "redemptions": "Entered codes",
+      "gifts": "Gifts bought",
+      "notRedeemed": "not redeemed",
+      "revoked": "revoked",
+      "columns": {
+        "code": "Code",
+        "effect": "Gives",
+        "date": "When",
+        "state": "State",
+        "plan": "Plan",
+        "bought": "Bought",
+        "redeemed": "Redeemed by"
+      },
+      "effect": {
+        "discount": "−{percent}\u00a0% off a payment",
+        "days": "+{days} d",
+        "gift": "gift, +{days} d"
+      },
+      "states": {
+        "applied": "applied",
+        "pending": "waiting for a payment",
+        "consumed": "used",
+        "replaced": "replaced by another"
+      }
+    }
+  },
+  "payments": {
+    "title": "Payments",
+    "description": "Newest first. The totals cover every payment under the filter, not only this page.",
+    "caption": "Payments",
+    "export": "Download CSV",
+    "empty": "No payments.",
+    "deletedUser": "account deleted",
+    "discount": "−{percent}\u00a0% with {code}",
+    "filters": {
+      "label": "Payment filters",
+      "any": "Any",
+      "period": "Period",
+      "status": "Status",
+      "kind": "Kind",
+      "plan": "Plan"
+    },
+    "periods": {
+      "7d": "7 days",
+      "30d": "30 days",
+      "90d": "90 days",
+      "365d": "A year",
+      "all": "All time"
+    },
+    "statuses": {
+      "pending": "Pending",
+      "succeeded": "Paid",
+      "canceled": "Canceled",
+      "refunded": "Refunded"
+    },
+    "kindNames": {
+      "subscription": "Subscription",
+      "extraDevices": "Extra devices",
+      "gift": "Gift"
+    },
+    "kinds": {
+      "subscription": "{plan}{auto, select, true { · automatic charge} other {}}",
+      "extraDevices": "+{count, plural, one {# device} other {# devices}}",
+      "gift": "Gift · {plan}"
+    },
+    "totals": {
+      "count": "Payments",
+      "paid": "Paid",
+      "paidHint": "refunds excluded",
+      "refunded": "Refunded",
+      "refundedHint": "returned to buyers"
+    },
+    "columns": {
+      "date": "When",
+      "user": "User",
+      "amount": "Amount",
+      "what": "For",
+      "status": "Status",
+      "action": "Action"
+    },
+    "refund": {
+      "action": "Refund",
+      "title": "Refund {amount} in full?",
+      "body": "The money goes back through YooKassa: {who}. Access, invitation days and the gift are taken back by the refund webhook once YooKassa confirms it. Until then the payment reads «Refund requested».",
+      "deletedUser": "the account owner is deleted",
+      "confirm": "Refund",
+      "cancel": "Cancel",
+      "requested": "Refund requested — waiting for YooKassa to confirm it",
+      "failed": "YooKassa did not accept the refund. Check the shop balance and try later — or refund it in the YooKassa dashboard."
+    }
+  },
+  "promo": {
+    "title": "Promo codes",
+    "description": "Campaign codes and gifted subscriptions.",
+    "form": {
+      "title": "New code",
+      "description": "The same rules as /promo in the bot.",
+      "code": "Code",
+      "codeHint": "Latin letters and digits, no spaces",
+      "kind": "Gives",
+      "kinds": {
+        "discount": "A discount",
+        "days": "Days"
+      },
+      "kindHint": {
+        "discount": "Off one subscription payment",
+        "days": "Added to access right away"
+      },
+      "value": {
+        "discount": "Discount, %",
+        "days": "Days of access"
+      },
+      "valueHint": "From {min} to {max}",
+      "maxUses": "Redemption limit",
+      "maxUsesHint": "Empty means no limit",
+      "until": "Last day",
+      "untilHint": "Until 23:59 Moscow time. Empty means no expiry",
+      "submit": "Create the code",
+      "created": "Code {code} created",
+      "refused": "The server refused the code: check that the last day has not passed and the values are within range."
+    },
+    "campaigns": {
+      "title": "Campaign codes",
+      "description": "Newest first. Payments and revenue are succeeded payments discounted with the code.",
+      "empty": "No campaign codes yet.",
+      "forever": "no expiry",
+      "usedOf": "{used} of {max}",
+      "effect": {
+        "discount": "−{percent}\u00a0% off a payment",
+        "days": "+{days} d"
+      },
+      "states": {
+        "active": "Active",
+        "expired": "Stopped",
+        "usedUp": "Used up"
+      },
+      "columns": {
+        "code": "Code",
+        "effect": "Gives",
+        "used": "Redeemed",
+        "payments": "Payments",
+        "revenue": "Revenue",
+        "until": "Until",
+        "state": "State",
+        "action": "Action"
+      },
+      "stop": {
+        "action": "Stop",
+        "title": "Stop {code}?",
+        "body": "New redemptions stop at once. A discount someone already redeemed stays theirs.",
+        "confirm": "Stop",
+        "cancel": "Cancel",
+        "done": "Code {code} stopped"
+      }
+    },
+    "effect": {
+      "used": "Redemptions",
+      "revenue": "Discounted revenue",
+      "noRevenue": "No discounted payments with these codes yet.",
+      "usedCaption": "How often the codes on this page were redeemed",
+      "revenueCaption": "Succeeded payments discounted with the code, refunds excluded"
+    },
+    "gifts": {
+      "title": "Gifts",
+      "description": "Read only: a gift belongs to its buyer and only a refund revokes it. The code is hidden.",
+      "empty": "No gifts bought yet.",
+      "deleted": "account deleted",
+      "states": {
+        "waiting": "Waiting for a recipient",
+        "redeemed": "Redeemed",
+        "revoked": "Revoked"
+      },
+      "columns": {
+        "code": "Code",
+        "plan": "Plan",
+        "buyer": "Buyer",
+        "bought": "Bought",
+        "redeemed": "Redeemed",
+        "state": "State"
+      }
+    }
+  },
+  "nodes": {
+    "title": "Nodes",
+    "description": "Every node, including those out of rotation. State and uptime are computed exactly as on the /status page.",
+    "empty": "No nodes.",
+    "off": "Out of rotation",
+    "overloaded": "Overloaded",
+    "takeOut": "Take out of rotation",
+    "putBack": "Put back into rotation",
+    "takeOutDone": "{name} is out of rotation",
+    "putBackDone": "{name} is back in rotation",
+    "facts": {
+      "host": "Address",
+      "protocols": "Protocols",
+      "healthy": "Last healthy",
+      "checked": "Last checked",
+      "never": "not yet"
+    },
+    "confirm": {
+      "cancel": "Cancel",
+      "off": {
+        "title": "Take {name} out of rotation?",
+        "body": "The node leaves the subscriptions on their next refresh, the /status page and the minute checks. Keys on the node itself are untouched, so open connections do not drop at once.",
+        "action": "Take out"
+      },
+      "on": {
+        "title": "Put {name} back into rotation?",
+        "body": "The node comes back to the subscriptions on their next refresh and to the /status page.",
+        "action": "Put back"
+      }
+    }
+  }
+}
