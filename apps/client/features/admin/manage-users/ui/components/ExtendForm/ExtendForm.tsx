@@ -30,6 +30,7 @@ export const ExtendForm = ({ userId, currentPeriodEnd }: ExtendFormProps) => {
   const extend = useUserAction(extendAdminUser);
 
   const [pending, setPending] = useState<PendingExtension | null>(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const {
     formState: { errors },
@@ -37,13 +38,10 @@ export const ExtendForm = ({ userId, currentPeriodEnd }: ExtendFormProps) => {
     register
   } = useForm<AdminExtendInput>({ resolver: zodResolver(adminExtendSchema), defaultValues: EXTEND_FORM.defaults });
 
-  const onSubmit = handleSubmit(({ days }) => setPending({ days, end: projectedEnd({ currentPeriodEnd, days, now: new Date() }) }));
-
-  const onOpenChange = (isOpen: boolean) => {
-    if (!isOpen) {
-      setPending(null);
-    }
-  };
+  const onSubmit = handleSubmit(({ days }) => {
+    setPending({ days, end: projectedEnd({ currentPeriodEnd, days, now: new Date() }) });
+    setIsConfirmOpen(true);
+  });
 
   const onConfirm = () => {
     if (!pending) {
@@ -54,7 +52,7 @@ export const ExtendForm = ({ userId, currentPeriodEnd }: ExtendFormProps) => {
       { id: userId, days: pending.days },
       {
         onSuccess: (result) => {
-          setPending(null);
+          setIsConfirmOpen(false);
           toast.success(t('done', { date: format.dateTime(result.currentPeriodEnd) }));
         }
       }
@@ -75,12 +73,12 @@ export const ExtendForm = ({ userId, currentPeriodEnd }: ExtendFormProps) => {
         cancelLabel={common('cancel')}
         confirmLabel={t('confirm')}
         description={t('body', { date: pending ? format.dateTime(pending.end.toISOString()) : '' })}
-        isOpen={pending !== null}
+        isOpen={isConfirmOpen}
         isPending={extend.isPending}
         title={t('title', { days: pending?.days ?? 0 })}
         tone='primary'
         onConfirm={onConfirm}
-        onOpenChange={onOpenChange}
+        onOpenChange={setIsConfirmOpen}
       />
     </form>
   );

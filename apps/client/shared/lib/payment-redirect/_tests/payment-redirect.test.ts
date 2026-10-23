@@ -1,10 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const isBrowser = vi.fn();
-
-vi.mock('../../env', () => ({ isBrowser }));
-
-const { redirectToConfirmation } = await import('../payment-redirect');
+import { redirectToConfirmation } from '../payment-redirect';
 
 const URL_YOOKASSA = 'https://yoomoney.ru/checkout/payments/v2/contract?orderId=42';
 
@@ -22,28 +18,23 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.unstubAllGlobals();
   Object.defineProperty(window, 'location', { configurable: true, value: realLocation });
-
-  vi.clearAllMocks();
 });
 
 describe('redirectToConfirmation', () => {
   it('sends the browser to the confirmation page', () => {
-    isBrowser.mockReturnValue(true);
-
     expect(redirectToConfirmation(URL_YOOKASSA)).toBe(true);
     expect(assign).toHaveBeenCalledWith(URL_YOOKASSA);
   });
 
   it('reports no redirect when the payment carries no confirmation url', () => {
-    isBrowser.mockReturnValue(true);
-
     expect(redirectToConfirmation(null)).toBe(false);
     expect(assign).not.toHaveBeenCalled();
   });
 
   it('navigates nothing during prerender, where there is no window to navigate', () => {
-    isBrowser.mockReturnValue(false);
+    vi.stubGlobal('window', undefined);
 
     expect(redirectToConfirmation(URL_YOOKASSA)).toBe(false);
     expect(assign).not.toHaveBeenCalled();

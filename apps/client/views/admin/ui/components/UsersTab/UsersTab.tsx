@@ -10,15 +10,19 @@ import type { UsersTabProps } from './UsersTab.types';
 export const UsersTab = ({ userId }: UsersTabProps) => {
   const t = useTranslations('admin.user');
 
-  if (!userId) {
-    return <UsersPanel />;
-  }
-
   return (
-    <UserCard
-      key={userId}
-      renderPayments={({ payments }) => <PaymentRows caption={t('payments')} payments={payments} withUser={false} />}
-      userId={userId}
-    />
+    <>
+      <div hidden={Boolean(userId)}>
+        <UsersPanel />
+      </div>
+
+      {userId && (
+        <UserCard
+          key={userId}
+          renderPayments={({ payments }) => <PaymentRows caption={t('payments')} payments={payments} withUser={false} />}
+          userId={userId}
+        />
+      )}
+    </>
   );
 };

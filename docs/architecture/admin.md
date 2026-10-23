@@ -188,7 +188,9 @@ date, access (none, free day or paid) and its end, plan, devices and Telegram.
 The search box takes one string (`parseUserSearch`, tested): a UUID is a user
 id, digits are a Telegram id (and an email fragment), `@name` is a Telegram
 username, anything else matches the email, the name or the username in part,
-case-insensitively. «Скачать CSV» exports the same filtered list.
+case-insensitively, and the user id exactly — the id better-auth issues is a
+32-character string, not a UUID, so it lands in this branch. «Скачать CSV»
+exports the same filtered list.
 
 The card gathers what support asks about: profile and Telegram, the
 subscription (period kind, end, auto-renewal and the card's title, extra

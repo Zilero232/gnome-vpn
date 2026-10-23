@@ -47,10 +47,16 @@ describe('userSearchWhere', () => {
     const where = userSearchWhere({ kind: 'text', text: 'ivan' });
     const conditions = JSON.stringify(where.OR);
 
-    expect(where.OR).toHaveLength(3);
+    expect(where.OR).toHaveLength(4);
     expect(conditions).toContain('insensitive');
     expect(conditions).toContain('email');
     expect(conditions).toContain('telegramAccount');
+  });
+
+  it('finds a user by the id better-auth issued, exactly as written', () => {
+    const id = 'dsZGjcbWa0MX2hkqdH6jkSsUFFq5OLfz';
+
+    expect(userSearchWhere(parseUserSearch(id)).OR).toContainEqual({ id });
   });
 
   it('compares a telegram id as a bigint', () => {

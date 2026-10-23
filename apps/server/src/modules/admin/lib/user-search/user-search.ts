@@ -40,6 +40,6 @@ export const userSearchWhere = (search: UserSearch): Prisma.UserWhereInput =>
     .with({ kind: 'telegramId' }, ({ id }) => ({ OR: [{ telegramAccount: { telegramId: BigInt(id) } }, { email: contains(id) }] }))
     .with({ kind: 'username' }, ({ username }) => ({ telegramAccount: { username: contains(username) } }))
     .with({ kind: 'text' }, ({ text }) => ({
-      OR: [{ email: contains(text) }, { name: contains(text) }, { telegramAccount: { username: contains(text) } }]
+      OR: [{ id: text }, { email: contains(text) }, { name: contains(text) }, { telegramAccount: { username: contains(text) } }]
     }))
     .exhaustive();
