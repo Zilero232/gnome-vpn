@@ -6,7 +6,7 @@ import { ChevronDown, Share2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { TOUCH_DEVICE_QUERY } from '@/shared/constants';
-import { useHydrated } from '@/shared/lib';
+import { canShare, shareOrFallback, useHydrated } from '@/shared/lib';
 import { Button } from '@/ui-kit';
 
 import type { ShareMenuProps } from './ShareMenu.types';
@@ -24,19 +24,9 @@ export const ShareMenu = ({ url }: ShareMenuProps) => {
   const copy = useCopyLink();
 
   const text = t('shareText');
-  const canShareNatively = isHydrated && isTouchDevice && typeof navigator.share === 'function';
+  const canShareNatively = isHydrated && isTouchDevice && canShare();
 
-  const onNativeShare = async () => {
-    try {
-      await navigator.share({ url, text });
-    } catch (error) {
-      if (error instanceof DOMException && error.name === 'AbortError') {
-        return;
-      }
-
-      await copy(url);
-    }
-  };
+  const onNativeShare = () => shareOrFallback({ data: { url, text }, fallback: () => copy(url) });
 
   if (canShareNatively) {
     return (

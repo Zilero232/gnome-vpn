@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 
 import type { RecordUptimeInput } from '../status.types';
 
+import { addUtcDays, utcDay } from '../../../common/lib';
 import { PrismaService } from '../../../core';
 import { UPTIME_NODE_SELECT, UPTIME_RETENTION_DAYS } from '../config';
-import { addUtcDays, passedCheck, utcDay } from '../lib';
+import { passedCheck } from '../lib';
 
 @Injectable()
 export class NodeUptimeService {

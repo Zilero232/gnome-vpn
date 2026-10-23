@@ -3,10 +3,12 @@ import type {
   AdminAnalyticsRange,
   AdminCampaign,
   AdminCampaignPage,
+  AdminCampaignQuery,
   AdminCreateCampaign,
   AdminCsvFile,
   AdminExtendResult,
   AdminGiftPage,
+  AdminGiftQuery,
   AdminMessageResult,
   AdminNode,
   AdminNodeList,
@@ -17,9 +19,9 @@ import type {
   AdminPaymentQuery,
   AdminSession,
   AdminUserCard,
+  AdminUserExport,
   AdminUserPage,
-  AdminUserQuery,
-  AdminUserSearch
+  AdminUserQuery
 } from '@gnomevpn/schemas';
 
 import type { ExtendAdminUserInput, MessageAdminUserInput, RemoveAdminDeviceInput, SetAdminNodeAvailabilityInput } from './admin.types';
@@ -52,7 +54,7 @@ export const getAdminUsers = async (params: AdminUserQuery): Promise<AdminUserPa
   return data;
 };
 
-export const exportAdminUsers = async (params: AdminUserSearch): Promise<AdminCsvFile> => {
+export const exportAdminUsers = async (params: AdminUserExport): Promise<AdminCsvFile> => {
   const { data } = await api.get('/admin/users/export', { params });
 
   return data;
@@ -110,8 +112,8 @@ export const refundAdminPayment = async (id: string): Promise<AdminPayment> => {
   return data;
 };
 
-export const getAdminCampaigns = async (page: number): Promise<AdminCampaignPage> => {
-  const { data } = await api.get('/admin/promo-codes', { params: { page } });
+export const getAdminCampaigns = async (params: AdminCampaignQuery): Promise<AdminCampaignPage> => {
+  const { data } = await api.get('/admin/promo-codes', { params });
 
   return data;
 };
@@ -126,8 +128,8 @@ export const stopAdminCampaign = async (code: string): Promise<void> => {
   await api.post(`/admin/promo-codes/${encodeURIComponent(code)}/stop`);
 };
 
-export const getAdminGifts = async (page: number): Promise<AdminGiftPage> => {
-  const { data } = await api.get('/admin/gifts', { params: { page } });
+export const getAdminGifts = async (params: AdminGiftQuery): Promise<AdminGiftPage> => {
+  const { data } = await api.get('/admin/gifts', { params });
 
   return data;
 };

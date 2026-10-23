@@ -20,7 +20,7 @@ before every `return`/`throw`/`continue`/`break`; around every block (`if`, `for
 stay grouped on purpose. Never two blank lines in a row.
 
 ```ts
-const url = new URL(`hy2://${config.server}`);
+const url = new URL(`hysteria2://${config.server}`);
 
 url.username = config.auth;
 url.pathname = '/';

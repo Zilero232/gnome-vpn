@@ -47,6 +47,10 @@
   flex: 1;
 }
 
+.actions .plans {
+  height: 46px;
+}
+
 .pay {
   @include below(sm) {
     width: 100%;

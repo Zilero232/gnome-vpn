@@ -1,16 +1,16 @@
 import type { AdminPayment, AdminUser } from '@gnomevpn/schemas';
+import type { Options } from 'csv-stringify/sync';
 
 import type { CsvColumn } from '../lib';
 
 export const ADMIN_CSV = {
-  bom: '\uFEFF',
-  delimiter: ',',
-  lineBreak: '\r\n',
-  quote: '"',
-  formulaGuard: "'",
-  formulaStart: /^[=+\-@\t\r]/u,
-  needsQuotes: /[",\r\n]/u
-} as const;
+  bom: true,
+  header: true,
+  record_delimiter: 'windows',
+  quote_record_delimiter: true,
+  escape_formulas: true,
+  cast: { boolean: String }
+} as const satisfies Options;
 
 export const ADMIN_EXPORT_FILE = {
   users: 'gnomevpn-users',

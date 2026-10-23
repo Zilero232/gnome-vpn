@@ -45,7 +45,7 @@ export const CampaignForm = () => {
           <CampaignLimits />
 
           <div>
-            <SubmitButton className={s.submit} isPending={create.isPending} size='md'>
+            <SubmitButton className={s.submit} isPending={create.isPending} size='field'>
               {t('submit')}
             </SubmitButton>
           </div>

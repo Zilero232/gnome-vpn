@@ -114,11 +114,15 @@ resolves every available node's `host` — an IP literal is used as is, a name
 through a `node:dns` `Resolver` with a 2-second timeout and one try, A and AAAA
 both — and keeps the list in the cache manager for five minutes
 — or for 30 seconds when some node did not resolve, so a passing DNS failure
-is retried soon rather than hiding that node from the check for five minutes.
+is retried soon rather than hiding that node from the check for five minutes
+(`cache.wrap` with a TTL computed from the lookup, which also lets concurrent
+misses share one lookup).
 An IPv4 address that arrives mapped into IPv6 (`::ffff:203.0.113.10`, in
 either notation) is unmapped before the comparison. The answer is a boolean and a country code. Both sides are put in
-canonical form before comparing (`canonicalIp`), so an IPv6 address written
-with different case or zero compression still matches. A host that does not
+canonical form before comparing (`canonicalIp` in `common/lib`: `node:net`
+`isIP` decides what is an address, `ipaddr.js` writes it — IPv6 in RFC 5952
+form), so an IPv6 address written with different case or zero compression still
+matches. The YooKassa webhook guard reads its caller through the same function. A host that does not
 resolve is logged by node id only. The posted address is not stored.
 
 **It is an oracle for one address at a time**: anyone can ask whether a given

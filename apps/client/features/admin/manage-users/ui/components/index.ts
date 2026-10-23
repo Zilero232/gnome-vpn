@@ -8,6 +8,7 @@ export { PromoSection } from './PromoSection';
 export { ReferralSection } from './ReferralSection';
 export { SubscriptionSection } from './SubscriptionSection';
 export { TelegramMessage } from './TelegramMessage';
+export { UserFilters } from './UserFilters';
 export { UserHeader } from './UserHeader';
 export { UserSearch } from './UserSearch';
 export { UsersTable } from './UsersTable';

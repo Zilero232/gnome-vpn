@@ -1,6 +1,10 @@
 export { countryFlag } from './country-flag';
 export { describeError } from './describe-error';
 export { errorCodeOf } from './error-code';
+export { fillTokens } from './fill-tokens';
+export type { FillTokensInput, TokenFill } from './fill-tokens';
+export { canonicalIp, isIpAddress } from './ip-address';
+
 export { IDENTIFIED_NODE_SELECT, NODE_ACCESS_SELECT, xrayClientForNode } from './node-credentials';
 export type { IdentifiedNode, NodeAccess } from './node-credentials';
 
@@ -23,3 +27,6 @@ export type { PluralForms } from './pluralize';
 export { generateShortCode } from './short-code';
 
 export { timingSafeEqual } from './timing-safe-equal';
+
+export { addUtcDays, dayKey, dayKeys, utcDay, windowStart } from './utc-day';
+export type { AddUtcDaysInput, DayWindowInput, WindowStartInput } from './utc-day';

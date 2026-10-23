@@ -18,7 +18,9 @@ methods those are (`payment_methods`), maps the ones we have a name for
 enabling SBP in the dashboard shows up on the pricing page and under the pay
 button (`PaymentMethodsNote`, from the anonymous `GET /billing/payment-methods`)
 within the hour, with no release. If YooKassa does not answer, the list is
-cards only and is asked again after five minutes rather than an hour. The fixed
+cards only and is asked again after five minutes rather than an hour: the
+cache holds what YooKassa answered (`cache.wrap`, its TTL picked from that
+answer), and an empty answer is read as cards only. The fixed
 texts (pricing, FAQ) therefore never promise a method: they say "by card or any
 other method the payment page offers".
 
@@ -36,13 +38,16 @@ Webhooks are the only thing that activates a subscription; the browser returning
 **`POST /billing/webhook` is not throttled; it is gated by source address.** It
 carries `@SkipThrottle()`, so the global per-IP limit never applies to it;
 `WebhookIpGuard` (`isAllowedWebhookIp`) refuses any caller outside
-`WEBHOOK_ALLOWED_CIDRS`, YooKassa's address ranges, instead.
+`WEBHOOK_ALLOWED_CIDRS`, YooKassa's address ranges, instead. The address is put
+in canonical form first (`canonicalIp`), so an IPv4 caller seen as
+`::ffff:185.71.76.1` is checked as `185.71.76.1`.
 
 **Re-enabling access happens outside the claiming transaction, so it must be recoverable.** `settlePayment` claims the payment row and grants the subscription atomically, then calls `setEnabledAll` — a separate write that can fail, or never run at all if the process dies right after the commit. That used to leave a paying user with every peer `disabled` and nothing in the system able to turn them back on: `expired-access` only ever revoked. It now sweeps both ways — its restore half re-enables `disabled` config peers whose owner has a live period (`activeSince`) — so the post-commit call is an optimisation and the job is the guarantee. Do not make `setEnabledAll` the only path back.
 
 **Checkout returns the reader to where they started.** `YOOKASSA_RETURN_URL` is
 the account page of the default locale (`/account`); the site sends its
-`locale` with `POST /billing/checkout` and `/billing/extra-devices`, and
+`locale` with `POST /billing/checkout`, `/billing/gift` and
+`/billing/extra-devices`, and
 `localizedReturnUrl` prefixes the path for any other locale (`/en/account`),
 matching next-intl's `as-needed` prefixing. A caller that is not the site — the
 bot — passes its own `returnUrl` (`CreateCheckoutServiceInput`,
@@ -252,8 +257,8 @@ a monthly reader from moving to a year until the month ran out — the moment
 they were most likely to go elsewhere instead. Now the new term starts where
 the running one ends (`nextPeriodEnd`), so nothing paid for is lost, and
 `activate` writes the payment's plan, so the next automatic charge bills the
-plan last bought. The error code stays in `@gnomevpn/schemas` because the
-client's error messages still name it, but nothing throws it.
+plan last bought. The error code is gone from `@gnomevpn/schemas` and from
+the client's error messages.
 
 **The status carries the last payment.** `lastPayment` (`status`, `kind`,
 `isAutoCharge`, `createdAt`, or `null`) is the newest payment row of the

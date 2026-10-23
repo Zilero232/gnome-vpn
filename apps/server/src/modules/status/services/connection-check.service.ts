@@ -4,14 +4,15 @@ import type { Cache } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Resolver } from 'node:dns/promises';
-import { isEmpty, isNonNullish, isNullish } from 'remeda';
+import { isEmpty, isNullish } from 'remeda';
 
 import type { NodeAddress } from '../lib';
-import type { AddressNodeRow } from '../status.types';
+import type { AddressNodeRow, NodeLookup } from '../status.types';
 
+import { isIpAddress } from '../../../common/lib';
 import { PrismaService } from '../../../core';
 import { ADDRESS_NODE_SELECT, CONNECTION_CHECK } from '../config';
-import { countryForIp, isIpAddress } from '../lib';
+import { countryForIp } from '../lib';
 
 @Injectable()
 export class ConnectionCheckService {
@@ -31,24 +32,19 @@ export class ConnectionCheckService {
   }
 
   private async addresses(): Promise<NodeAddress[]> {
-    const cached = await this.cache.get<NodeAddress[]>(CONNECTION_CHECK.addressCacheKey);
-
-    if (isNonNullish(cached)) {
-      return cached;
-    }
-
-    const nodes = await this.prisma.node.findMany({ where: { isAvailable: true }, select: ADDRESS_NODE_SELECT });
-    const resolved = await Promise.all(nodes.map(async (node) => ({ node, addresses: await this.resolve(node) })));
-    const isComplete = resolved.every(({ addresses }) => !isEmpty(addresses));
-    const addresses = resolved.flatMap(({ node, addresses: own }) => own.map((address) => ({ address, countryCode: node.countryCode })));
-
-    await this.cache.set(
+    const lookups = await this.cache.wrap(
       CONNECTION_CHECK.addressCacheKey,
-      addresses,
-      isComplete ? CONNECTION_CHECK.addressCacheTtlMs : CONNECTION_CHECK.failedLookupTtlMs
+      async () => this.lookup(),
+      (nodes) => (nodes.every(({ addresses }) => !isEmpty(addresses)) ? CONNECTION_CHECK.addressCacheTtlMs : CONNECTION_CHECK.failedLookupTtlMs)
     );
 
-    return addresses;
+    return lookups.flatMap(({ countryCode, addresses }) => addresses.map((address) => ({ address, countryCode })));
+  }
+
+  private async lookup(): Promise<NodeLookup[]> {
+    const nodes = await this.prisma.node.findMany({ where: { isAvailable: true }, select: ADDRESS_NODE_SELECT });
+
+    return Promise.all(nodes.map(async (node) => ({ countryCode: node.countryCode, addresses: await this.resolve(node) })));
   }
 
   private async resolve({ id, host }: AddressNodeRow): Promise<string[]> {

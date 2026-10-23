@@ -8,9 +8,4 @@ export type PaymentStatusGroup = {
   _sum: { amount: Prisma.Decimal | null };
 };
 
-export type AmountOfInput = {
-  groups: PaymentStatusGroup[];
-  status: PaymentStatus;
-};
-
 export type PaymentTotals = AdminPaymentPage['totals'];

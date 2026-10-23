@@ -1,38 +1,30 @@
+import { execFileSync } from 'node:child_process';
 import { describe, expect, it } from 'vitest';
 
 import { all, arg, dirOf, dockerExec, dockerShell, line, orElse, quiet, silent } from '../shell';
 
+const SHELL_VALUES = [
+  '/opt/gnome vpn/docker-compose.yml',
+  "it's",
+  "it's!",
+  'say "hi"',
+  '$HOME',
+  '$(rm -rf /)',
+  '`whoami`',
+  'node; rm -rf /',
+  String.raw`a\nb`,
+  'two\nlines',
+  '~/.ssh',
+  '*.json',
+  'http://127.0.0.1:2053/panel/',
+  '/CN=gnome-vpn.com'
+];
+
+const shellEcho = (quoted: string): string => execFileSync('sh', ['-c', `printf '%s' ${quoted}`], { encoding: 'utf8' });
+
 describe('arg', () => {
   it('leaves a plain token unquoted', () => {
     expect(arg('gnomevpn')).toBe('gnomevpn');
-  });
-
-  it('quotes a value containing spaces', () => {
-    expect(arg('my node')).toBe("'my node'");
-  });
-
-  it('neutralises a command substitution', () => {
-    expect(arg('$(rm -rf /)')).toBe("'$(rm -rf /)'");
-  });
-
-  it('neutralises a command separator', () => {
-    expect(arg('node; rm -rf /')).toBe("'node; rm -rf /'");
-  });
-
-  it('closes, escapes and reopens the quote around an embedded single quote', () => {
-    expect(arg("it's")).toBe(String.raw`'it'\''s'`);
-  });
-
-  it('quotes a backtick so the shell cannot expand it', () => {
-    expect(arg('`whoami`')).toBe("'`whoami`'");
-  });
-
-  it('keeps an exclamation mark literal beside a quote, which a double-quoted sh string does not', () => {
-    expect(arg("it's!")).toBe(String.raw`'it'\''s!'`);
-  });
-
-  it('keeps a backslash literal', () => {
-    expect(arg(String.raw`a\nb`)).toBe(String.raw`'a\nb'`);
   });
 
   it('stringifies a number', () => {
@@ -41,6 +33,16 @@ describe('arg', () => {
 
   it('quotes an empty string rather than dropping it', () => {
     expect(arg('')).toBe("''");
+  });
+
+  it('quotes a value containing spaces', () => {
+    expect(arg('my node')).toBe("'my node'");
+  });
+
+  it('hands the shell back exactly the value it was given, whatever it holds', () => {
+    for (const value of SHELL_VALUES) {
+      expect(shellEcho(arg(value))).toBe(value);
+    }
   });
 });
 
@@ -87,14 +89,15 @@ describe('quiet', () => {
 });
 
 describe('dockerExec', () => {
-  it('builds an exec command from the argv parts', () => {
-    expect(dockerExec({ container: '3x-ui', argv: ['ls', '-a'] })).toBe('docker exec 3x-ui ls -a');
+  it('passes every argument through to the command as it was given', () => {
+    const command = dockerExec({ container: '3x-ui', argv: ['x-ui', '-password', "it's; reboot"] });
+
+    expect(command.startsWith('docker exec 3x-ui x-ui -password ')).toBe(true);
+    expect(shellEcho(command.slice('docker exec 3x-ui x-ui -password '.length))).toBe("it's; reboot");
   });
 
-  it('quotes every argument, so a caller passes raw values', () => {
-    expect(dockerExec({ container: '3x-ui', argv: ['x-ui', '-password', "it's; reboot"] })).toBe(
-      String.raw`docker exec 3x-ui x-ui -password 'it'\''s; reboot'`
-    );
+  it('builds an exec command from the argv parts', () => {
+    expect(dockerExec({ container: '3x-ui', argv: ['ls', '-a'] })).toBe('docker exec 3x-ui ls -a');
   });
 
   it('stringifies a numeric argument', () => {

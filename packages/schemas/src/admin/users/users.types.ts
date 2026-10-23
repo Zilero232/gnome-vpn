@@ -9,6 +9,8 @@ import type {
   adminReferralSchema,
   adminTelegramSchema,
   adminUserCardSchema,
+  adminUserExportSchema,
+  adminUserFilterSchema,
   adminUserPageSchema,
   adminUserQuerySchema,
   adminUserSchema,
@@ -18,6 +20,10 @@ import type {
 export type AdminUserSearch = z.input<typeof adminUserSearchSchema>;
 
 export type AdminUserQuery = z.input<typeof adminUserQuerySchema>;
+
+export type AdminUserFilter = z.infer<typeof adminUserFilterSchema>;
+
+export type AdminUserExport = z.input<typeof adminUserExportSchema>;
 
 export type AdminTelegram = z.infer<typeof adminTelegramSchema>;
 

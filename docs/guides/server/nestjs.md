@@ -23,7 +23,7 @@ apps/server/src/modules/billing/
 
 A module is `x.module.ts` + `x.controller.ts` + `services/`, plus `dto/`, `guards/`, `lib/`, `config/` as needed. Controllers stay thin: validate, delegate, return. Business logic lives in `services/`.
 
-**Business logic lives in `services/<domain>.service.ts`, one service per domain of work** — never a single fat `x.service.ts` at the module root. `billing/services/` holds `checkout`, `webhook`, `auto-renew`, `card` and a shared `billing-shared` for what several of them need; a single-domain module (`peers`, `platforms`) still gets a `services/` folder with one service inside, for a predictable shape. There is **no facade**: the controller and any cross-module consumer inject the specific domain service they use, and the module `exports` only those that other modules legitimately call. Services collaborate by injecting one another (e.g. `subscription-feed` injects `subscription-peers`, `webhook` injects `card`); shared helpers used by 2+ domains go into a `*-shared` service, not duplicated.
+**Business logic lives in `services/<domain>.service.ts`, one service per domain of work** — never a single fat `x.service.ts` at the module root. `billing/services/` holds `checkout`, `webhook`, `auto-renew`, `card`, `payment-methods` and a shared `billing-shared` for what several of them need; a single-domain module (`peers`, `platforms`) still gets a `services/` folder with one service inside, for a predictable shape. There is **no facade**: the controller and any cross-module consumer inject the specific domain service they use, and the module `exports` only those that other modules legitimately call. Services collaborate by injecting one another (e.g. `subscription-feed` injects `subscription-peers`, `webhook` injects `card`); shared helpers used by 2+ domains go into a `*-shared` service, not duplicated.
 
 **Nothing but the class lives in a service or controller file.** Constants, lookup tables and pure functions go elsewhere, so the file reads as behaviour rather than a mix of data and logic:
 
@@ -48,7 +48,7 @@ import { SubscriptionGuard } from '../subscription'; // yes
 import { SubscriptionGuard } from '../subscription/guards/subscription.guard'; // no
 ```
 
-Inside a module, relative paths are fine. The barrel exports only what other modules legitimately need — a controller or a DTO has no business being imported elsewhere. The one deliberate exception is the notify module's two services, `TelegramNotifyService` and `TelegramAlertService`, which billing, the scheduler and admin import by file — see [telegram-bot.md](../../architecture/telegram-bot.md).
+Inside a module, relative paths are fine. The barrel exports only what other modules legitimately need — a controller or a DTO has no business being imported elsewhere. The one deliberate exception is the notify module's two services, `TelegramNotifyService` and `TelegramAlertService`, which billing, the scheduler, the subscription feed and admin import by file — see [telegram-bot.md](../../architecture/telegram-bot.md).
 
 The better-auth instance lives in `lib/auth/`, not in `modules/auth/`: it is configuration for an external library, and `modules/auth/` only wires it into Nest beside the account endpoints.
 
@@ -70,7 +70,7 @@ Node panel API tokens are the exception. The `node` table stores the _name_ of a
 const key = process.env[ref];
 ```
 
-So credentials stay out of the database. `bun run provision:nodes` writes those lines itself, into **`.env.nodes`** — a separate gitignored file holding `XRAY_KEY_<CC>` and `XRAY_PANEL_<CC>` per node. The server loads it alongside `.env`, which keeps the hand-written file hand-written and the generated secrets out of it.
+So credentials stay out of the database. `bun run provision:nodes` writes those lines itself, into **`.env.nodes`** — a separate gitignored file holding `XRAY_KEY_<CC>`, `XRAY_PANEL_<CC>` and `XRAY_PATH_<CC>` per node. The server loads it alongside `.env`, which keeps the hand-written file hand-written and the generated secrets out of it.
 
 ## Errors
 

@@ -5,7 +5,8 @@ import * as rootParams from 'next/root-params';
 import { BLOG_SLUGS, isBlogSlug } from '@/entities/app/blog';
 import { blogPostRoute } from '@/shared/constants';
 import { LOCALES, resolveLocale } from '@/shared/i18n';
-import { articleJsonLd, createPageMetadata, JsonLd, PageJsonLd } from '@/shared/seo';
+import { articleJsonLd, JsonLd, PageJsonLd } from '@/shared/seo';
+import { translatedMetadata } from '@/shared/seo/translated-metadata';
 import { BlogPostPage } from '@/views/blog-post';
 
 import type { BlogPostParams } from './page.types';
@@ -21,16 +22,12 @@ export const generateMetadata = async ({ params }: BlogPostParams) => {
     return {};
   }
 
-  const locale = resolveLocale(await rootParams.locale());
-  const t = await getTranslations({ locale, namespace: `blog.posts.${slug}` });
-
-  return createPageMetadata({
-    title: t('title'),
-    description: t('excerpt'),
+  return translatedMetadata({
+    namespace: `blog.posts.${slug}`,
     path: blogPostRoute(slug),
-    locale,
-    index: true,
-    follow: true
+    titleKey: 'title',
+    descriptionKey: 'excerpt',
+    isIndexed: true
   });
 };
 

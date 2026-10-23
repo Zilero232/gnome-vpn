@@ -171,8 +171,12 @@ until the files actually change, and then about half a megabyte.
 
 **How a file is cut.** `trimGeoList` reads the protobuf without decoding it:
 `GeoSiteList` and `GeoIPList` are `repeated entry = 1`, and an entry's
-`country_code` is its field 1. A top-level record whose code is wanted is copied
-byte for byte; everything else is dropped, and nothing is re-encoded. Upstream
+`country_code` is its field 1. It walks the records with `BinaryReader` from
+`@bufbuild/protobuf/wire` — tags, lengths and skips, no schema. A top-level
+record whose code is wanted is copied byte for byte; everything else is
+dropped, and nothing is re-encoded. A file cut short or malformed throws
+(`premature EOF`, an illegal tag), so a truncated download fails the build
+instead of shipping half an entry. Upstream
 stores codes upper-case while profiles name tags in lower case and Xray finds
 them regardless, so the match ignores case too. The wanted tags come from `routingGeoTags()`, derived from the
 profile's own rule lists, so a tag added to a rule is in the next build without

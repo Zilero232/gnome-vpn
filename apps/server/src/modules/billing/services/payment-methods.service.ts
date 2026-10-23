@@ -3,7 +3,7 @@ import type { Cache } from 'cache-manager';
 
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { isEmpty, isNonNullish } from 'remeda';
+import { isEmpty } from 'remeda';
 
 import { describeError } from '../../../common/lib';
 import { YooKassaClient } from '../../../lib';
@@ -20,22 +20,13 @@ export class PaymentMethodsService {
   ) {}
 
   async list(): Promise<PaymentMethods> {
-    const cached = await this.cache.get<PaymentMethods>(PAYMENT_METHODS_CACHE.key);
-
-    if (isNonNullish(cached)) {
-      return cached;
-    }
-
-    const offered = await this.fetch();
-    const methods = isEmpty(offered) ? [...PAYMENT_METHODS_CACHE.fallback] : offered;
-
-    await this.cache.set(
+    const offered = await this.cache.wrap(
       PAYMENT_METHODS_CACHE.key,
-      { methods },
-      isEmpty(offered) ? PAYMENT_METHODS_CACHE.fallbackTtlMs : PAYMENT_METHODS_CACHE.ttlMs
+      async () => this.fetch(),
+      (methods) => (isEmpty(methods) ? PAYMENT_METHODS_CACHE.fallbackTtlMs : PAYMENT_METHODS_CACHE.ttlMs)
     );
 
-    return { methods };
+    return { methods: isEmpty(offered) ? [...PAYMENT_METHODS_CACHE.fallback] : offered };
   }
 
   private async fetch(): Promise<PaymentMethod[]> {

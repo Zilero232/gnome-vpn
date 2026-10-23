@@ -3,8 +3,9 @@ import type { AdminOverview } from '@gnomevpn/schemas';
 import { ADMIN_OVERVIEW, adminOverviewSchema } from '@gnomevpn/schemas';
 import { Injectable } from '@nestjs/common';
 
+import { windowStart } from '../../../common/lib';
 import { PrismaService } from '../../../core';
-import { bucketStart, foldShares, nodeTally } from '../lib';
+import { foldShares, nodeTally } from '../lib';
 import { AdminSeriesService } from './admin-series.service';
 import { AdminStatsService } from './admin-stats.service';
 
@@ -19,7 +20,7 @@ export class AdminOverviewService {
   async overview(now: Date): Promise<AdminOverview> {
     const [snapshot, trend, platforms, apps] = await Promise.all([
       this.stats.collect(now),
-      this.series.days({ start: bucketStart({ now, days: ADMIN_OVERVIEW.trendDays }), days: ADMIN_OVERVIEW.trendDays }),
+      this.series.days({ start: windowStart({ now, days: ADMIN_OVERVIEW.trendDays }), days: ADMIN_OVERVIEW.trendDays }),
       this.prisma.device.groupBy({ by: ['platform'], _count: { _all: true } }),
       this.prisma.device.groupBy({ by: ['app'], _count: { _all: true } })
     ]);

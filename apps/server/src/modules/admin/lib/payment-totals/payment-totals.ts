@@ -1,11 +1,11 @@
 import { sumBy } from 'remeda';
 
-import type { AmountOfInput, PaymentStatusGroup, PaymentTotals } from './payment-totals.types';
+import type { PaymentStatusGroup, PaymentTotals } from './payment-totals.types';
 
-const amountOf = ({ groups, status }: AmountOfInput): number => groups.find((group) => group.status === status)?._sum.amount?.toNumber() ?? 0;
+import { groupTotal } from '../group-total';
 
 export const paymentTotals = (groups: PaymentStatusGroup[]): PaymentTotals => ({
   count: sumBy(groups, (group) => group._count._all),
-  paid: amountOf({ groups, status: 'succeeded' }),
-  refunded: amountOf({ groups, status: 'refunded' })
+  paid: groupTotal({ groups, by: 'status', value: 'succeeded' }).amount,
+  refunded: groupTotal({ groups, by: 'status', value: 'refunded' }).amount
 });

@@ -18,6 +18,8 @@ renders the server list and the subscription state. Code:
 The two routing switches sit beside them, on `GET` and `PATCH
 /subscription-link/routing`, and the trimmed geo files INCY's routing downloads
 are served anonymously under `/routing/geo/` — see [routing.md](routing.md).
+The WireGuard config routes under `/wireguard` live in the same module — see
+[devices.md](devices.md#a-wireguard-config-is-a-device-too).
 
 **The token is the credential.** INCY cannot log in, so the URL is all the
 authentication there is: 32 random bytes, `base64url`, one row per user. That is
@@ -97,9 +99,11 @@ client looked to `reconcile-peers` like a peer that had vanished from its node.
 ```text
 lib/
 ├── announcement/      # the announce banner
+├── blocked-notice/    # which refused devices the owner was already told about in the window
 ├── client-fetch/      # whether the fetch is a VPN client, not a browser or a link preview
 ├── client-links/      # the third-party clients and their import links
 ├── client-platform/   # what the User-Agent says the caller is
+├── feed-tracker/      # the throttle key: the token, or the IP when there is none
 ├── geo-files/         # the geo file routes: which name is which file, and its public URL
 ├── geo-list/          # cutting a geosite/geoip .dat down to the tags the profile names
 ├── incy-headers/      # the response headers, with header-value/ and userinfo/

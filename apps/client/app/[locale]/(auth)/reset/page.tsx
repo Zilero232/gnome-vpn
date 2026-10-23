@@ -1,23 +1,11 @@
-import { getTranslations } from 'next-intl/server';
-import * as rootParams from 'next/root-params';
 import { Suspense } from 'react';
 
 import { ROUTES } from '@/shared/constants';
-import { resolveLocale } from '@/shared/i18n';
-import { createPageMetadata } from '@/shared/seo';
+import { translatedMetadata } from '@/shared/seo/translated-metadata';
 import { ResetPasswordPage } from '@/views/reset-password';
 
-export const generateMetadata = async () => {
-  const locale = resolveLocale(await rootParams.locale());
-  const t = await getTranslations({ locale, namespace: 'auth' });
-
-  return createPageMetadata({
-    title: t('meta.resetTitle'),
-    description: t('meta.resetDescription'),
-    path: ROUTES.resetPassword,
-    locale
-  });
-};
+export const generateMetadata = () =>
+  translatedMetadata({ namespace: 'auth', path: ROUTES.resetPassword, titleKey: 'meta.resetTitle', descriptionKey: 'meta.resetDescription' });
 
 const Page = () => (
   <Suspense>

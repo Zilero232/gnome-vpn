@@ -1,6 +1,6 @@
 export { ACCOUNT_TAB } from './account-tab';
 export { ADMIN_PARAMS, ADMIN_TAB } from './admin';
-export { TOUCH_DEVICE_QUERY } from './media-query';
+export { FINE_POINTER_QUERY, TOUCH_DEVICE_QUERY } from './media-query';
 export { QUERY_KEYS } from './query-keys';
 export { AUTH_MODE, QUERY_PARAMS } from './query-params';
 export { REFERRAL_COOKIE } from './referral-cookie';

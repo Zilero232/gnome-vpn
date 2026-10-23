@@ -16,6 +16,6 @@ features/billing/checkout/
   config/           ← constants, configuration
 ```
 
-Slices are grouped by business domain (`account`, `app`, `auth`, `billing`, `site`, `vpn`) — a layer on top
+Slices are grouped by business domain (`account`, `admin`, `app`, `auth`, `billing`, `site`, `vpn`) — a layer on top
 of canonical FSD, see [`docs/architecture/fsd.md`](../../architecture/fsd.md) §2. Always import down to the slice level:
 `@/features/billing/checkout`, not `@/features/billing`.

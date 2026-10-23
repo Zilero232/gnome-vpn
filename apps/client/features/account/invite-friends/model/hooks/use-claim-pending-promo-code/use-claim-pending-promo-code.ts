@@ -2,7 +2,7 @@
 
 import { formatGiftCode, promoCodeOrigin } from '@gnomevpn/schemas';
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef } from 'react';
+import { useEffect, useEffectEvent } from 'react';
 import { toast } from 'sonner';
 
 import { useErrorMessage } from '@/entities/app/locale';
@@ -10,7 +10,7 @@ import { useCurrentUser } from '@/entities/auth/user';
 import { apiErrorCode } from '@/shared/api';
 import { clearPendingPromoCode, readPendingPromoCode, storePendingPromoCode } from '@/shared/lib';
 
-import type { ClaimInput, OfferCleanup } from './use-claim-pending-promo-code.types';
+import type { ClaimInput } from './use-claim-pending-promo-code.types';
 
 import { isFinalRefusal } from '../../../lib';
 import { useRedeemPromoCode } from '../use-redeem-promo-code';
@@ -23,7 +23,6 @@ export const useClaimPendingPromoCode = () => {
   const redeemedToast = useRedeemedToast();
   const { user } = useCurrentUser();
   const { mutateAsync } = useRedeemPromoCode();
-  const offerRef = useRef<() => OfferCleanup>(() => undefined);
 
   const isSignedIn = user !== null;
 
@@ -47,7 +46,7 @@ export const useClaimPendingPromoCode = () => {
     });
   };
 
-  offerRef.current = () => {
+  const offer = useEffectEvent(() => {
     const code = readPendingPromoCode();
 
     if (!code) {
@@ -71,13 +70,13 @@ export const useClaimPendingPromoCode = () => {
     return () => {
       toast.dismiss(GIFT_PROMPT.toastId);
     };
-  };
+  });
 
   useEffect(() => {
     if (!isSignedIn) {
       return undefined;
     }
 
-    return offerRef.current();
+    return offer();
   }, [isSignedIn]);
 };

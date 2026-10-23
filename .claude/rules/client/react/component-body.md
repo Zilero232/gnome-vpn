@@ -31,12 +31,13 @@ return ( ... );
 React already forbids a conditional hook; this keeps them visually grouped too,
 so a hook added later cannot drift below a branch by accident.
 
-Two shapes legitimately sit between hooks and stay where they are:
+One shape legitimately sits between hooks and stays where it is:
 
-- **A ref sync** — `onEventRef.current = onEvent;` between the `useRef` that
-  holds it and the `useEffect` that reads it. It has to run on every render,
-  before the effect, which is the whole point of the pattern.
 - **A value a later hook consumes** — when the expression is only an argument,
   inline it into the hook call. When inlining it would be unreadable, leave the
   `const` where it is: the rule orders declarations, it does not ask you to
   hide a dependency.
+
+An effect that needs the latest callback reads it through `useEffectEvent`,
+which is a hook like any other and sits in the hook block — never through a ref
+assigned during render.

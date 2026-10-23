@@ -19,8 +19,8 @@ features/billing/checkout/model/
   (no model/index.ts — the barrel sits on the subfolders)
 ```
 
-No slice ships a `context/` or a `types.ts` today; the tree shows where they go
-when one does.
+`entities/admin/navigation` is the one slice with a `context/` today, and none
+ships a `types.ts`; the tree shows where they go when one does.
 
 Files are kebab-case. The functions inside them are camelCase.
 
@@ -44,7 +44,7 @@ is forbidden — see below).
 
 ```ts
 // ✓ OK — ui/components/AutoRenewControl/AutoRenewControl.tsx
-import { useBindCard, useUnbindCard } from '../../../model/hooks';
+import { useBindCard, useCancelAutoRenew, useResumeAutoRenew } from '../../../model/hooks';
 // the slice index.ts
 export { useBindCard } from './model/hooks';
 
@@ -105,11 +105,18 @@ shared/api/
   http/               ← the axios instance: baseURL, bearer token, ApiError
   auth/               ← the better-auth client, session start/reset
   account/            ← deleteAccount
-  billing/            ← checkout, auto-renew, bound cards, extra devices
+  admin/              ← the web admin panel
+  billing/            ← checkout, auto-renew, bound cards, extra devices, gifts
   devices/            ← the device registry: list and remove
+  promo-codes/        ← redemption, the pending discount, gifts
+  public-ip/          ← the visitor's address, from ipify
+  referrals/          ← the invite code and its rewards
+  routing/            ← the routing settings
+  status/             ← the /status page and the connection check
   subscription/       ← status and trial
   subscription-link/  ← the INCY link and its rotation
   telegram/           ← linking and Telegram sign-in
+  wireguard/          ← per-device WireGuard configs
   query-client.ts
   index.ts
 ```

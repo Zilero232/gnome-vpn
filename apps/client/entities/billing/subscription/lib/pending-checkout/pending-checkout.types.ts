@@ -1,9 +1,9 @@
 import type { SubscriptionStatus } from '@gnomevpn/schemas';
+import type { z } from 'zod';
 
-export type PendingCheckout = {
-  startedAt: number;
-  fingerprint: string;
-};
+import type { pendingCheckoutSchema } from './pending-checkout.schemas';
+
+export type PendingCheckout = z.infer<typeof pendingCheckoutSchema>;
 
 export type PendingOutcome = 'cancelled' | 'none' | 'pending' | 'settled';
 

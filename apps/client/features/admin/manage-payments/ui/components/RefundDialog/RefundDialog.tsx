@@ -11,14 +11,16 @@ export const RefundDialog = ({ payment, isOpen, isPending, onOpenChange, onConfi
   const t = useTranslations('admin.payments.refund');
   const format = useAdminFormat();
 
+  const amount = format.money(payment?.amount ?? 0);
+
   return (
     <ConfirmDialog
       cancelLabel={t('cancel')}
-      confirmLabel={t('confirm')}
+      confirmLabel={t('confirm', { amount })}
       description={t('body', { who: payment?.user?.email ?? t('deletedUser') })}
       isOpen={isOpen}
       isPending={isPending}
-      title={t('title', { amount: format.money(payment?.amount ?? 0) })}
+      title={t('title', { amount })}
       tone='danger'
       onConfirm={onConfirm}
       onOpenChange={onOpenChange}

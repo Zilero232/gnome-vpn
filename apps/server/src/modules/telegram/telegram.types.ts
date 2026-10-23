@@ -5,7 +5,7 @@ import type { Message, User } from 'grammy/types';
 import type { PrismaExecutor } from '../../core';
 import type { PeerRef } from '../peers';
 import type { CreateCampaignInput } from '../promo-codes';
-import type { AUTO_RENEW_CHOICE, BOT_LOCALES, NOTICES, WIREGUARD_KINDS } from './config';
+import type { AUTO_RENEW_CHOICE, BOT_LOCALES, BOT_THROTTLE, NOTICES, WIREGUARD_KINDS } from './config';
 import type { TextFill } from './lib/fill-text';
 import type { ButtonKey } from './lib/keyboard';
 import type { AlertPurchase, LoadResource, RefundAlertReason } from './lib/owner-alert-text';
@@ -322,6 +322,17 @@ export type BroadcastSendInput = {
 };
 
 export type BroadcastDelivery = 'blocked' | 'delivered' | 'failed' | 'missing';
+
+export type BotThrottle = keyof typeof BOT_THROTTLE.limits;
+
+export type AllowInput = {
+  throttle: BotThrottle;
+  key: string;
+};
+
+export type OnceInput = AllowInput & {
+  run: () => void;
+};
 
 export type NodeProbeInput = {
   nodeId: string;

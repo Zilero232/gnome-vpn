@@ -15,8 +15,8 @@ Part of the [style guide](../README.md).
   can check every case:
 
 ```ts
-// views/auth/ui/AuthPage.types.ts
-export type AuthMode = 'forgot' | 'signin' | 'signup';
+// shared/lib/webgl/webgl.types.ts
+export type WebglTier = 'full' | 'lite' | 'off';
 ```
 
 ### 8.1 Field order in Props and destructuring

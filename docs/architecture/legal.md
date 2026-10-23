@@ -137,9 +137,10 @@ sits wherever one of those happens:
 
 - the sign-up form: «Создавая аккаунт, вы принимаете условия оферты и политику
   конфиденциальности», both linked;
-- under every button that leads to YooKassa: `OfferNote` in the plan picker
-  (and so in the renewal panel), under extra places and under the gift
-  purchase — "by paying you accept";
+- wherever a button leads to YooKassa: `OfferNote` at the foot of the
+  Subscription tab, beside the payment-methods note and so under the plan
+  picker, the renewal panel and the gift purchase, and again under extra
+  places — "by paying you accept";
   under «Привязать карту» and «Включить автопродление» the `autoRenew` variant,
   which names automatic charges;
 - the bot's payment messages (`checkoutIntro`, `devicesIntro`) end with a link

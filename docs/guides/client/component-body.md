@@ -43,21 +43,7 @@ branch, which React forbids outright. Keeping them in one block makes that
 impossible to do by accident, and it means the file reads in dependency order:
 nothing is used before the line that produced it.
 
-**Two exceptions, both deliberate.**
-
-A **ref sync** stays between its `useRef` and the `useEffect` that reads it:
-
-```tsx
-// features/auth/telegram-sign-in/model/hooks/use-telegram-login/use-telegram-login.ts
-const signInRef = useRef(signIn.mutate);
-
-signInRef.current = signIn.mutate;   // must run every render, before the effect
-
-useEffect(() => { ... }, [botUsername, router]);
-```
-
-Moving that assignment below the effect breaks it — the effect would read a
-stale callback. It is not a derived value, it is part of the ref pattern.
+**One exception, and it is deliberate.**
 
 A **value a later hook consumes** should be inlined into the hook call:
 
@@ -74,3 +60,9 @@ Where inlining would genuinely hurt readability — a multi-line filter, a
 `useMemo` argument built from several steps — leave the `const` above the hook.
 The rule orders declarations; it does not ask you to bury a dependency to
 satisfy a layout.
+
+A ref written during render — `signInRef.current = signIn.mutate` between the
+`useRef` and the effect that read it — used to be a second exception. It is
+gone: an effect reads the latest callback through `useEffectEvent`, which is a
+hook and sits in the hook block like any other
+([React conventions](react.md#92-hook--effect-dependencies)).

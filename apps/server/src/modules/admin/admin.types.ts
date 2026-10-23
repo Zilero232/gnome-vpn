@@ -1,4 +1,11 @@
-import type { AdminAnalyticsRange, AdminCreateCampaign } from '@gnomevpn/schemas';
+import type {
+  AdminAnalyticsRange,
+  AdminCampaignKind,
+  AdminCampaignState,
+  AdminCreateCampaign,
+  AdminGiftState,
+  AdminUserFilter
+} from '@gnomevpn/schemas';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import type { Request } from 'express';
 
@@ -57,15 +64,17 @@ export type AnalyticsInput = {
   now: Date;
 };
 
-export type UserListInput = {
-  page: number;
+export type UserWhereInput = {
   query: string;
-};
-
-export type UserExportInput = {
-  query: string;
+  filter: AdminUserFilter;
   now: Date;
 };
+
+export type UserListInput = UserWhereInput & {
+  page: number;
+};
+
+export type UserExportInput = UserWhereInput;
 
 export type UserLookupInput = {
   userId: string;
@@ -113,6 +122,15 @@ export type RefundActionInput = {
 export type PageAtInput = {
   page: number;
   now: Date;
+};
+
+export type CampaignPageInput = PageAtInput & {
+  state?: AdminCampaignState;
+  kind?: AdminCampaignKind;
+};
+
+export type GiftPageInput = PageAtInput & {
+  state?: AdminGiftState;
 };
 
 export type CreateCampaignActionInput = {

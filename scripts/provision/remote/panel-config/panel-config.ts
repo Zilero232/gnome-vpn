@@ -1,5 +1,5 @@
 import { arg, dockerExec, line } from '@gnomevpn/scripts/shell';
-import pWaitFor, { TimeoutError } from 'p-wait-for';
+import pWaitFor from 'p-wait-for';
 
 import type {
   ConfigurePanelInput,
@@ -32,17 +32,10 @@ const waitForPanelListening = async ({ ssh, panelPath, timeoutMs }: WaitForPanel
 
   const isUp = async (): Promise<boolean> => (await ssh.exec(probe)).stdout.trim() === PANEL_BOOT.readyStatus;
 
-  try {
-    await pWaitFor(isUp, { timeout: timeoutMs, interval: PANEL_BOOT.intervalMs });
-
-    return true;
-  } catch (error) {
-    if (error instanceof TimeoutError) {
-      return false;
-    }
-
-    throw error;
-  }
+  return pWaitFor(async () => (await isUp()) && pWaitFor.resolveWith(true), {
+    timeout: { milliseconds: timeoutMs, fallback: () => false },
+    interval: PANEL_BOOT.intervalMs
+  });
 };
 
 const runPanelCli = async ({ ssh, args }: RunPanelCliInput): Promise<string> => {

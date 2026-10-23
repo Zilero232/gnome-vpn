@@ -1,5 +1,7 @@
 export { Accordion } from './Accordion';
 export type { AccordionItem, AccordionProps } from './Accordion';
+export { ActionBanner } from './ActionBanner';
+export type { ActionBannerProps } from './ActionBanner';
 export { AppSplash } from './AppSplash';
 export {
   CHART_AXIS,

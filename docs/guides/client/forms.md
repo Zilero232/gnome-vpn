@@ -29,7 +29,9 @@ const {
   every render.
 - A server-side error goes to `onError: toastError` (`useToastError` from
   `@/entities/app/locale`), which maps the `ApiError` code to a localised toast.
-  No form maps one back onto a field with `setError` today.
+  Sign-in and sign-up go through `useAuthFormError` instead, which hands an error
+  that belongs to a field to `setError` and toasts the rest; the promo-code form
+  puts a refused code on its own field the same way.
 - Validation messages are i18n keys (`validation.emailInvalid`), resolved by
   `useFieldError` from `@/entities/app/locale` — the schema never carries
   user-visible prose.

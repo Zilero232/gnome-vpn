@@ -7,6 +7,13 @@ export const ADMIN_USER = {
   cardInvited: 50
 } as const;
 
+export const ADMIN_USER_FILTERS = {
+  autoRenew: ['on', 'off'],
+  telegram: ['linked', 'unlinked'],
+  email: ['verified', 'unverified', 'none'],
+  defaultPeriod: 'all'
+} as const;
+
 export const ADMIN_MESSAGE_OUTCOMES = ['sent', 'notLinked', 'blocked', 'botOff', 'failed'] as const;
 
 export const ADMIN_REDEMPTION_KINDS = ['discount', 'days', 'gift'] as const;

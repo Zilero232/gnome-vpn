@@ -22,7 +22,7 @@ Part of the [style guide](../README.md).
 8. **Side-effect imports** — `import './x'`.
 
 ```ts
-// features/billing/checkout/ui/PlanPicker.tsx
+// features/billing/checkout/ui/PlanPicker.tsx (abridged)
 // 1. external types
 import type { PlanId } from '@gnomevpn/schemas';
 
@@ -73,14 +73,24 @@ ESLint does not check FSD boundaries — those are caught at review.
 
 ```ts
 // features/billing/checkout/index.ts
-export { useBindCard, useBuyExtraDevices, useCancelAutoRenew, useCheckout, useResumeAutoRenew, useUnbindCard } from './model/hooks';
-export { AutoRenewControl, CheckoutButton, ExtraDevicesControl } from './ui/components';
+export { planFromSearch } from './lib';
+export {
+  useBindCard,
+  useBuyExtraDevices,
+  useCancelAutoRenew,
+  useCheckout,
+  usePendingCheckout,
+  usePendingDiscount,
+  useResumeAutoRenew,
+  useUnbindCard
+} from './model/hooks';
+export { AutoRenewControl, CheckoutButton, ExtraDevicesControl, PendingCheckoutBanner, RenewPanel } from './ui/components';
 export { PlanPicker } from './ui/PlanPicker';
 
 export type { PlanPickerProps } from './ui/PlanPicker.types';
 ```
 
-Only what is needed from outside. Internal subcomponents are not exported — `features/vpn/connect-incy` exports `IncyCard` alone, never `LinkQrDialog` or `LinkSteps`.
+Only what is needed from outside. Internal subcomponents are not exported — `features/vpn/connect-incy` exports `IncyCard` and `RotateLink`, never `LinkQrDialog` or `LinkSteps`.
 
 **A component folder:**
 

@@ -1,6 +1,7 @@
 import type { Prisma } from '../../../../../generated';
 import type { StatusNodeRow } from '../../../status';
 import type { CAMPAIGN_ROW_SELECT, GIFT_ROW_SELECT, PAYMENT_ROW_SELECT, USER_ROW_SELECT } from '../../config';
+import type { GroupTotal } from '../group-total';
 
 export type PaymentRow = Prisma.PaymentGetPayload<{ select: typeof PAYMENT_ROW_SELECT }>;
 
@@ -10,11 +11,6 @@ export type GiftRow = Prisma.PromoCodeGetPayload<{ select: typeof GIFT_ROW_SELEC
 
 export type CampaignRow = Prisma.PromoCodeGetPayload<{ select: typeof CAMPAIGN_ROW_SELECT }>;
 
-export type CampaignSales = {
-  payments: number;
-  revenue: number;
-};
-
 export type GiftViewInput = {
   row: GiftRow;
   now: Date;
@@ -22,7 +18,7 @@ export type GiftViewInput = {
 
 export type CampaignViewInput = {
   row: CampaignRow;
-  sales: CampaignSales | undefined;
+  sales: GroupTotal | undefined;
   now: Date;
 };
 

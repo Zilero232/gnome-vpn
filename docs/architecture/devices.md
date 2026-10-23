@@ -62,7 +62,7 @@ link-preview agent and a browser asking for a page (`Mozilla/…` with
 `Accept: text/html`); such a fetch gets the headers and no servers, registers
 nothing and does not touch `lastSeenAt`. A hardware id always counts as a
 client, and so does an app that borrows a browser user agent without asking for
-HTML. `20261018120000_referrals_and_device_cleanup` removed the slots those fetches
+HTML. `20261018120000_referrals_wireguard_and_device_cleanup` removed the slots those fetches
 had already taken and revoked their keys; reconcile releases them on the nodes.
 
 ## A WireGuard config is a device too

@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { isNullish } from 'remeda';
 
 import { useRouter } from '@/shared/i18n/navigation';
 import { postAuthHref } from '@/shared/lib';
 
-import type { TelegramLoginState } from './use-telegram-login.types';
+import type { TelegramLoginState, TelegramWidgetUser } from './use-telegram-login.types';
 
 import { useTelegramWidget } from '../use-telegram-widget';
 import { useWidgetSignIn } from '../use-widget-sign-in';
@@ -18,10 +18,11 @@ export const useTelegramLogin = (): TelegramLoginState => {
   const { data: widget } = useTelegramWidget();
   const signIn = useWidgetSignIn();
   const slotRef = useRef<HTMLDivElement>(null);
-  const signInRef = useRef(signIn.mutate);
   const [isUnreachable, setIsUnreachable] = useState(false);
 
-  signInRef.current = signIn.mutate;
+  const onAuth = useEffectEvent((user: TelegramWidgetUser) => {
+    signIn.mutate(payloadOf(user), { onSuccess: () => router.replace(postAuthHref(window.location.search)) });
+  });
 
   const botUsername = widget?.botUsername;
 
@@ -32,9 +33,7 @@ export const useTelegramLogin = (): TelegramLoginState => {
       return;
     }
 
-    window[TELEGRAM_LOGIN.callbackName] = (user) => {
-      signInRef.current(payloadOf(user), { onSuccess: () => router.replace(postAuthHref(window.location.search)) });
-    };
+    window[TELEGRAM_LOGIN.callbackName] = (user) => onAuth(user);
 
     slot.append(widgetScript({ botUsername, onError: () => setIsUnreachable(true) }));
 
@@ -42,7 +41,7 @@ export const useTelegramLogin = (): TelegramLoginState => {
       slot.replaceChildren();
       delete window[TELEGRAM_LOGIN.callbackName];
     };
-  }, [botUsername, router]);
+  }, [botUsername]);
 
   return { slotRef, isUnreachable, isPending: signIn.isPending, isError: signIn.isError };
 };

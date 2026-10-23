@@ -13,7 +13,7 @@ import { PrismaService } from '../../../core';
 import { TrialService } from '../../subscription';
 import { TELEGRAM_BOT } from '../bot';
 import { BOT_TEXT, NOTICES } from '../config';
-import { dayCount, failedDelivery, fillText, formatDate, html, mainKeyboard, menuButtons, resolveLocale } from '../lib';
+import { dayCount, deliveryOutcome, fillText, formatDate, html, mainKeyboard, menuButtons, resolveLocale } from '../lib';
 import { NoticeEmailService } from './notice-email.service';
 
 @Injectable()
@@ -67,7 +67,7 @@ export class TelegramNotifyService {
     } catch (error) {
       this.logger.warn(`could not message ${userId} in telegram: ${describeError(error)}`);
 
-      return failedDelivery(error);
+      return deliveryOutcome(error).kind === 'blocked' ? 'blocked' : 'failed';
     }
   }
 

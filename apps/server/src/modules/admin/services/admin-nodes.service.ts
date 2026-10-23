@@ -5,8 +5,9 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import type { SetAvailabilityInput } from '../admin.types';
 
+import { utcDay } from '../../../common/lib';
 import { PrismaService } from '../../../core';
-import { historyStart, UPTIME_ROW_SELECT, utcDay } from '../../status';
+import { historyStart, UPTIME_ROW_SELECT } from '../../status';
 import { ADMIN_NODE_SELECT, NODE_ORDER } from '../config';
 import { nodeView } from '../lib';
 

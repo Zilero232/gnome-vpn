@@ -21,19 +21,20 @@ import { describeError } from '../../../common/lib';
 import { AppConfigService } from '../../../config';
 import { localizedPath } from '../../../lib/email';
 import { BOT_TEXT, CHECKOUT, EDIT } from '../config';
-import { adminChatOf, botUrl, confirmKeyboard, createThrottle, identityOf, isAdminChat, isConfirmed, mainKeyboard, resolveLocale } from '../lib';
+import { adminChatOf, botUrl, confirmKeyboard, identityOf, isAdminChat, isConfirmed, mainKeyboard, resolveLocale } from '../lib';
 import { TelegramLinkService } from './telegram-link.service';
 import { TelegramNotifyService } from './telegram-notify.service';
+import { TelegramThrottleService } from './telegram-throttle.service';
 
 @Injectable()
 export class TelegramSharedService {
   private readonly logger = new Logger(TelegramSharedService.name);
-  private readonly checkoutThrottle = createThrottle(CHECKOUT.throttleMs);
 
   constructor(
     private readonly link: TelegramLinkService,
     private readonly notify: TelegramNotifyService,
-    private readonly config: AppConfigService
+    private readonly config: AppConfigService,
+    private readonly throttle: TelegramThrottleService
   ) {}
 
   returnUrl(): string | undefined {
@@ -117,8 +118,8 @@ export class TelegramSharedService {
     await ctx.reply(this.textFor(ctx).notLinked, { reply_markup: { remove_keyboard: true } });
   }
 
-  claimCheckout(ctx: BotContext): boolean {
-    return isNullish(ctx.from) || this.checkoutThrottle({ key: String(ctx.from.id) });
+  async claimCheckout(ctx: BotContext): Promise<boolean> {
+    return isNullish(ctx.from) || this.throttle.allow({ throttle: 'checkout', key: String(ctx.from.id) });
   }
 
   async answered({ ctx, prefix, act }: AnsweredInput): Promise<void> {

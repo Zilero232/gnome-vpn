@@ -1,40 +1,39 @@
 'use client';
 
-import type { AdminUserSearch } from '@gnomevpn/schemas';
-
-import { adminUserSearchSchema } from '@gnomevpn/schemas';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { ADMIN_USER } from '@gnomevpn/schemas';
 import { Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useId } from 'react';
-import { useForm } from 'react-hook-form';
 
-import { FormField, Input, SubmitButton } from '@/ui-kit';
+import { FormField, Input, Spinner } from '@/ui-kit';
 
 import type { UserSearchProps } from './UserSearch.types';
 
 import s from './UserSearch.module.scss';
 
-const DEFAULT_VALUES: AdminUserSearch = { query: '' };
-
-export const UserSearch = ({ isSearching, onSearch }: UserSearchProps) => {
+export const UserSearch = ({ value, isSearching, onChange }: UserSearchProps) => {
   const t = useTranslations('admin.users.search');
   const id = useId();
 
-  const { handleSubmit, register } = useForm<AdminUserSearch>({ resolver: zodResolver(adminUserSearchSchema), defaultValues: DEFAULT_VALUES });
-
-  const onSubmit = handleSubmit(({ query }) => onSearch(query ?? ''));
-
   return (
-    <form noValidate className={s.root} role='search' onSubmit={onSubmit}>
-      <FormField className={s.field} hint={t('hint')} htmlFor={id} label={t('label')}>
-        <Input autoComplete='off' id={id} inputMode='search' placeholder={t('placeholder')} spellCheck={false} type='search' {...register('query')} />
-      </FormField>
+    <FormField hint={t('hint')} htmlFor={id} label={t('label')}>
+      <div className={s.control} role='search'>
+        {isSearching ? <Spinner className={s.icon} /> : <Search aria-hidden className={s.icon} size={18} />}
 
-      <SubmitButton className={s.submit} isPending={isSearching} size='md'>
-        <Search aria-hidden size={16} />
-        {t('submit')}
-      </SubmitButton>
-    </form>
+        <Input
+          autoComplete='off'
+          className={s.input}
+          enterKeyHint='search'
+          id={id}
+          inputMode='search'
+          maxLength={ADMIN_USER.searchMaxLength}
+          placeholder={t('placeholder')}
+          spellCheck={false}
+          type='search'
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      </div>
+    </FormField>
   );
 };

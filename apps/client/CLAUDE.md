@@ -48,9 +48,11 @@ in [docs/guides/client/i18n.md](../../docs/guides/client/i18n.md).
 
 ## SEO is a server concern now
 
-Every public page exports `generateMetadata`, reads its locale from root params
-and builds its metadata through `createPageMetadata`, which fills in the
-canonical URL and the `hreflang` alternates for both locales.
+Every page exports `generateMetadata` as one call to `translatedMetadata`
+(`@/shared/seo/translated-metadata`), which reads its locale from root params,
+its title and description from a message namespace and builds the metadata
+through `createPageMetadata` — that fills in the canonical URL and the `hreflang`
+alternates for both locales.
 
 `sitemap.ts` derives from `indexedRoutes()` in `shared/constants/routes/` — add a
 public page to `INDEXED_ROUTES` and it follows; the full list of places a new
@@ -79,7 +81,7 @@ different words.
 ## Server-only code
 
 - `instrumentation.ts` runs once at boot. Its Node half,
-  `instrumentation.node.ts`, imports `env` from `@/shared/config`, which validates
+  `instrumentation.node.ts`, imports `env` from `@/shared/config/client-env`, which validates
   the `NEXT_PUBLIC_*` values — a bad value fails the container rather than the
   first request that renders a page. `onRequestError` reports render failures
   through the server logger.

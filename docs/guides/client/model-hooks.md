@@ -9,6 +9,9 @@ Symmetrical to `ui/`: **a hook with types of its own gets its own folder**, a fl
 ```
 features/account/link-telegram/model/hooks/
   index.ts                            ← segment barrel
+  use-code-expiry/
+    use-code-expiry.ts
+    index.ts
   use-issue-code/
     use-issue-code.ts
     index.ts

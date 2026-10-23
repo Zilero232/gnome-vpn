@@ -83,15 +83,15 @@ export const PromoCodeForm = () => {
           {t('claimHint', { days: REFERRAL_POLICY.claimWindowDays })}
         </Text>
 
-        <div className={s.row}>
-          <FormField className={s.field} error={codeError} htmlFor={inputId} label={t('claimLabel')}>
+        <FormField error={codeError} htmlFor={inputId} label={t('claimLabel')}>
+          <div className={s.row}>
             <Input autoCapitalize='characters' autoComplete='off' className={s.input} id={inputId} spellCheck={false} {...register('code')} />
-          </FormField>
 
-          <SubmitButton className={s.submit} disabled={!isDirty} isPending={isPending} size='md'>
-            {t('claimSubmit')}
-          </SubmitButton>
-        </div>
+            <SubmitButton className={s.submit} disabled={!isDirty} isPending={isPending} size='field'>
+              {t('claimSubmit')}
+            </SubmitButton>
+          </div>
+        </FormField>
       </form>
     </section>
   );

@@ -117,7 +117,7 @@ export class TelegramSubscriptionService {
   }
 
   async startCheckout(ctx: BotContext): Promise<void> {
-    if (!this.shared.claimCheckout(ctx)) {
+    if (!(await this.shared.claimCheckout(ctx))) {
       await this.shared.acknowledge({ ctx, text: this.shared.textFor(ctx).checkoutWait });
 
       return;

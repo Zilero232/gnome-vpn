@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
 import { useAuthFormError, useFieldError, usePasswordLabels } from '@/entities/app/locale';
-import { ROUTES } from '@/shared/constants';
+import { FINE_POINTER_QUERY, ROUTES } from '@/shared/constants';
 import { Link } from '@/shared/i18n/navigation';
 import { FormField, Input, PasswordInput, SubmitButton, Text } from '@/ui-kit';
 
@@ -41,7 +41,7 @@ export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
   const onAuthError = useAuthFormError({ onFieldError: ({ field, message }) => setError(field, { message }, { shouldFocus: true }) });
 
   useEffect(() => {
-    if (window.matchMedia('(pointer: fine)').matches) {
+    if (window.matchMedia(FINE_POINTER_QUERY).matches) {
       setFocus('email');
     }
   }, [setFocus]);

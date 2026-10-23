@@ -2,10 +2,10 @@ import type { NodeStatus } from '@gnomevpn/schemas';
 
 import type { NodeStatusInput } from './node-status.types';
 
+import { utcDay } from '../../../../common/lib';
 import { nodeProtocols } from '../node-protocols';
 import { nodeState } from '../node-state';
 import { uptimeHistory } from '../uptime-history';
-import { utcDay } from '../utc-day';
 
 export const nodeStatus = ({ node, now }: NodeStatusInput): NodeStatus => ({
   countryCode: node.countryCode,

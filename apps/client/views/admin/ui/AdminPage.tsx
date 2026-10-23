@@ -3,6 +3,7 @@
 import { LayoutDashboard, Receipt, Server, TicketPercent, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { notFound } from 'next/navigation';
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
 import type { PageTab } from '@/ui-kit';
 
@@ -42,26 +43,28 @@ export const AdminPage = () => {
   ];
 
   return (
-    <AdminNavigationContext value={navigation}>
-      <main className={s.root}>
-        <header className={s.header}>
-          <div className={s.identity}>
-            <Text as='h1' className={s.title}>
-              {t('title')}
-            </Text>
+    <NuqsAdapter>
+      <AdminNavigationContext value={navigation}>
+        <main className={s.root}>
+          <header className={s.header}>
+            <div className={s.identity}>
+              <Text as='h1' className={s.title}>
+                {t('title')}
+              </Text>
 
-            <Text as='p' className={s.email}>
-              {access.email}
-            </Text>
-          </div>
+              <Text as='p' className={s.email}>
+                {access.email}
+              </Text>
+            </div>
 
-          <Link className={s.back} href={ROUTES.account}>
-            {t('toAccount')}
-          </Link>
-        </header>
+            <Link className={s.back} href={ROUTES.account}>
+              {t('toAccount')}
+            </Link>
+          </header>
 
-        <PageTabs items={tabs} label={t('tabs.label')} layout='bar' panelClassName={s.card} />
-      </main>
-    </AdminNavigationContext>
+          <PageTabs items={tabs} label={t('tabs.label')} layout='bar' panelClassName={s.card} />
+        </main>
+      </AdminNavigationContext>
+    </NuqsAdapter>
   );
 };

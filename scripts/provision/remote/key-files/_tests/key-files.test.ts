@@ -1,3 +1,7 @@
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { seedKeyFilesScript } from '../key-files.helpers';
@@ -26,8 +30,15 @@ describe('seedKeyFilesScript', () => {
   });
 
   it('quotes a value, so a key is written as data and never run', () => {
-    const script = seedKeyFilesScript({ dir, seed: [{ path: seed[0].path, value: '$(reboot)' }] });
+    const scratch = mkdtempSync(join(tmpdir(), 'key-files-'));
+    const value = "$(reboot) `id` it's!";
 
-    expect(script).toContain(`'$(reboot)' > ${seed[0].path}`);
+    try {
+      const script = seedKeyFilesScript({ dir: scratch, seed: [{ path: join(scratch, 'reality.key'), value }] });
+
+      expect(execFileSync('sh', ['-c', script], { encoding: 'utf8' })).toBe(`${value}\n`);
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
   });
 });

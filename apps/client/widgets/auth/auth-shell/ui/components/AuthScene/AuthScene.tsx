@@ -1,10 +1,11 @@
 'use client';
 
+import { useMediaQuery, useWindowEvent } from '@siberiacancode/reactuse';
 import { clsx } from 'clsx';
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'motion/react';
-import { useEffect } from 'react';
 
 import { GNOME_COLORS as C } from '@/shared/config';
+import { FINE_POINTER_QUERY } from '@/shared/constants';
 import { SPRING } from '@/shared/lib';
 import { GnomeArt, GroundArt, HillsArt, SCENE_VIEWBOX, SkyArt } from '@/ui-kit';
 
@@ -17,6 +18,7 @@ import s from './AuthScene.module.scss';
 
 export const AuthScene = ({ pose, isDoorOpen, isEntering, className }: AuthSceneProps) => {
   const isReduced = useReducedMotion();
+  const isFinePointer = useMediaQuery(FINE_POINTER_QUERY);
 
   const pointer = useMotionValue(0);
   const smooth = useSpring(pointer, SPRING.soft);
@@ -24,17 +26,10 @@ export const AuthScene = ({ pose, isDoorOpen, isEntering, className }: AuthScene
   const middle = useTransform(smooth, (value) => value * -AUTH_SCENE_DEPTH.middle);
   const front = useTransform(smooth, (value) => value * -AUTH_SCENE_DEPTH.front);
 
-  useEffect(() => {
-    if (isReduced || !window.matchMedia('(pointer: fine)').matches) {
-      return;
-    }
-
-    const onMove = (event: PointerEvent) => pointer.set(event.clientX / window.innerWidth - 0.5);
-
-    window.addEventListener('pointermove', onMove, { passive: true });
-
-    return () => window.removeEventListener('pointermove', onMove);
-  }, [isReduced, pointer]);
+  useWindowEvent('pointermove', (event) => pointer.set(event.clientX / window.innerWidth - 0.5), {
+    passive: true,
+    enabled: !isReduced && isFinePointer
+  });
 
   return (
     <div aria-hidden className={clsx(s.root, className)} data-entering={isEntering} data-open={isDoorOpen || isEntering}>

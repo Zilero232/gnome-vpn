@@ -1,22 +1,21 @@
 'use client';
 
-import type { KeyboardEvent } from 'react';
-
-import { getHash, useDidUpdate, useHash } from '@siberiacancode/reactuse';
+import { getHash, useDidUpdate, useHash, useMediaQuery } from '@siberiacancode/reactuse';
 import { useEffect, useId, useRef, useState } from 'react';
-import { isNullish } from 'remeda';
-import { match } from 'ts-pattern';
 
-import type { PageTab } from './PageTabs.types';
+import type { UsePageTabsInput } from './PageTabs.types';
 
-import { TAB_KEYS } from './PageTabs.constants';
+import { PAGE_TABS } from './PageTabs.constants';
 
-export const usePageTabs = (items: PageTab[]) => {
-  const baseId = useId();
-  const navRef = useRef<HTMLDivElement>(null);
-  const tabsRef = useRef<(HTMLButtonElement | null)[]>([]);
+export const usePageTabs = ({ items, layout }: UsePageTabsInput) => {
+  const isWide = useMediaQuery(PAGE_TABS.railQuery);
 
   const [active, setActive] = useState(items[0]?.value ?? '');
+
+  const navRef = useRef<HTMLDivElement>(null);
+  const tabsRef = useRef<(HTMLElement | null)[]>([]);
+
+  const pillId = useId();
 
   const tabForHash = (hash: string) => items.find((item) => item.value === hash || item.aliases?.includes(hash))?.value;
 
@@ -60,40 +59,12 @@ export const usePageTabs = (items: PageTab[]) => {
     nav.scrollTo({ left: nav.scrollLeft + offset - (nav.clientWidth - tab.offsetWidth) / 2, behavior: 'smooth' });
   }, [current?.value]);
 
-  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    const nextIndex = match(event.key)
-      .when(
-        (key) => TAB_KEYS.previous.has(key),
-        () => activeIndex - 1
-      )
-      .when(
-        (key) => TAB_KEYS.next.has(key),
-        () => activeIndex + 1
-      )
-      .with('Home', () => 0)
-      .with('End', () => items.length - 1)
-      .otherwise(() => null);
-
-    if (isNullish(nextIndex)) {
-      return;
-    }
-
-    event.preventDefault();
-
-    const index = (nextIndex + items.length) % items.length;
-
-    select(items[index].value);
-    tabsRef.current[index]?.focus();
-  };
-
   return {
     current,
     navRef,
     tabsRef,
-    tabId: (value: string) => `${baseId}-tab-${value}`,
-    panelId: (value: string) => `${baseId}-panel-${value}`,
-    pillId: `${baseId}-pill`,
-    select,
-    onKeyDown
+    pillId,
+    isVertical: layout === 'rail' && isWide,
+    select
   };
 };

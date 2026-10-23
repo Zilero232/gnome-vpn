@@ -1,7 +1,7 @@
 import { useTranslations } from 'next-intl';
 import { match } from 'ts-pattern';
 
-import { Text } from '@/ui-kit';
+import { AuthAside } from '@/widgets/auth/auth-shell';
 
 import type { AuthReasonsProps } from './AuthReasons.types';
 
@@ -14,10 +14,7 @@ export const AuthReasons = ({ mode }: AuthReasonsProps) => {
 
   return match(mode)
     .with('signup', () => (
-      <div className={s.root}>
-        <Text as='p' className={s.title}>
-          {t('signupTitle')}
-        </Text>
+      <AuthAside title={t('signupTitle')}>
         <ul className={s.list}>
           {SIGN_UP_REASONS.map((reason) => (
             <li key={reason} className={s.item}>
@@ -25,27 +22,9 @@ export const AuthReasons = ({ mode }: AuthReasonsProps) => {
             </li>
           ))}
         </ul>
-      </div>
+      </AuthAside>
     ))
-    .with('signin', () => (
-      <div className={s.root}>
-        <Text as='p' className={s.title}>
-          {t('signinTitle')}
-        </Text>
-        <Text as='p' className={s.body}>
-          {t('signinBody')}
-        </Text>
-      </div>
-    ))
-    .with('forgot', () => (
-      <div className={s.root}>
-        <Text as='p' className={s.title}>
-          {t('forgotTitle')}
-        </Text>
-        <Text as='p' className={s.body}>
-          {t('forgotBody')}
-        </Text>
-      </div>
-    ))
+    .with('signin', () => <AuthAside body={t('signinBody')} title={t('signinTitle')} />)
+    .with('forgot', () => <AuthAside body={t('forgotBody')} title={t('forgotTitle')} />)
     .exhaustive();
 };

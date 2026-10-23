@@ -39,7 +39,8 @@ now:
 - **skips** the requests that would build that history: `/sub/*` (the feed),
   `/routing/geo/*` (the geo files every refresh fetches) and
   `/auth/reset-password/*` (a reset token in the path) — `log_skip` on a path
-  matcher, which needs Caddy 2.8 or later (the image is `caddy:2-alpine`);
+  matcher, which needs Caddy 2.8 or later (the image is pinned to
+  `caddy:2.11-alpine`);
 - **masks** the client address in the rest through a `format filter` wrapping
   `console`: `request>remote_ip` and `request>client_ip` go through `ip_mask`
   with `/16` for IPv4 and `/32` for IPv6;

@@ -1,67 +1,31 @@
-import { match } from 'ts-pattern';
+import { BinaryReader, WireType } from '@bufbuild/protobuf/wire';
 
-import type { ProtoCursor, ProtoRecord, ProtoSpan, Varint } from './geo-list.types';
+import { GEO_LIST } from './geo-list.constants';
 
-import { FIXED_BYTES, GEO_LIST, VARINT, WIRE_KEY, WIRE_TYPE } from './geo-list.constants';
+const entryCode = (entry: Uint8Array): string | undefined => {
+  const reader = new BinaryReader(entry);
 
-export const readVarint = ({ data, offset, end }: ProtoCursor): Varint => {
-  const last = Math.min(end, offset + VARINT.maxBytes);
-  let value = 0;
-  let scale = 1;
+  while (reader.pos < reader.len) {
+    const [field, wireType] = reader.tag();
 
-  for (let cursor = offset; cursor < last; cursor += 1) {
-    const byte = data[cursor];
-
-    value += (byte & VARINT.payloadMask) * scale;
-
-    if ((byte & VARINT.continueBit) === 0) {
-      return { value, next: cursor + 1 };
+    if (field === GEO_LIST.codeField && wireType === WireType.LengthDelimited) {
+      return reader.string();
     }
 
-    scale *= VARINT.base;
+    reader.skip(wireType, field);
   }
 
-  throw new Error(`truncated varint at byte ${offset}`);
+  return undefined;
 };
 
-export const nextRecord = ({ data, offset, end }: ProtoCursor): ProtoRecord => {
-  const key = readVarint({ data, offset, end });
-  const field = Math.floor(key.value / WIRE_KEY.typeModulus);
-  const wireType = key.value % WIRE_KEY.typeModulus;
+export const nextEntryCode = (reader: BinaryReader): string | undefined => {
+  const [field, wireType] = reader.tag();
 
-  const [valueStart, valueEnd] = match(wireType)
-    .with(WIRE_TYPE.varint, () => [key.next, readVarint({ data, offset: key.next, end }).next])
-    .with(WIRE_TYPE.lengthDelimited, () => {
-      const length = readVarint({ data, offset: key.next, end });
+  if (field !== GEO_LIST.entryField || wireType !== WireType.LengthDelimited) {
+    reader.skip(wireType, field);
 
-      return [length.next, length.next + length.value];
-    })
-    .with(WIRE_TYPE.fixed64, WIRE_TYPE.fixed32, (fixed) => [key.next, key.next + FIXED_BYTES[fixed]])
-    .otherwise(() => {
-      throw new Error(`unsupported wire type ${wireType} at byte ${offset}`);
-    });
-
-  if (valueEnd > end) {
-    throw new Error(`field ${field} at byte ${offset} runs past its message`);
+    return undefined;
   }
 
-  return { field, wireType, start: offset, valueStart, valueEnd, end: valueEnd };
-};
-
-export const isEntry = (record: ProtoRecord): boolean => record.field === GEO_LIST.entryField && record.wireType === WIRE_TYPE.lengthDelimited;
-
-export const entryCode = ({ data, start, end }: ProtoSpan): string | null => {
-  let offset = start;
-
-  while (offset < end) {
-    const record = nextRecord({ data, offset, end });
-
-    if (record.field === GEO_LIST.codeField && record.wireType === WIRE_TYPE.lengthDelimited) {
-      return new TextDecoder().decode(data.subarray(record.valueStart, record.valueEnd));
-    }
-
-    offset = record.end;
-  }
-
-  return null;
+  return entryCode(reader.bytes())?.toUpperCase();
 };

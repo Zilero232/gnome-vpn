@@ -1,6 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
+import { parseEnv } from 'node:util';
 
-import type { EnvKeyInput, FindValueInput, PruneEnvKeysInput, UpsertEnvGroupInput } from './env-file.types';
+import type { EnvKeyInput, PruneEnvKeysInput, UpsertEnvGroupInput } from './env-file.types';
 
 const read = async (filePath: string): Promise<string> => {
   try {
@@ -14,16 +15,7 @@ const read = async (filePath: string): Promise<string> => {
   }
 };
 
-const findValue = ({ raw, key }: FindValueInput): string | null => {
-  const line = raw
-    .split('\n')
-    .map((entry) => entry.trimEnd())
-    .find((entry) => entry.startsWith(`${key}=`));
-
-  return line?.slice(key.length + 1) || null;
-};
-
-export const readEnvValue = async ({ filePath, key }: EnvKeyInput): Promise<string | null> => findValue({ raw: await read(filePath), key });
+export const readEnvValue = async ({ filePath, key }: EnvKeyInput): Promise<string | null> => parseEnv(await read(filePath))[key] || null;
 
 export const upsertEnvGroup = async ({ filePath, entries }: UpsertEnvGroupInput) => {
   const raw = await read(filePath);

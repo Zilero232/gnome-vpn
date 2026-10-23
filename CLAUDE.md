@@ -13,17 +13,19 @@ Respond to the user in Russian. Code, comments, docs and commits are in English.
 
 ## Layout
 
-| Path                | What                                                                                                                                                                                                  |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/client`       | Next.js 16 / React 19 site, server-rendered, FSD (see [docs/architecture/fsd.md](docs/architecture/fsd.md)), SCSS modules, next-intl — [CLAUDE.md](apps/client/CLAUDE.md)                             |
-| `apps/server`       | NestJS 11 on Bun + Prisma 7 + Postgres, auth via better-auth: the subscription feed, billing (YooKassa), the scheduler, the Telegram bot, the 3x-ui panel client — [CLAUDE.md](apps/server/CLAUDE.md) |
-| `packages/schemas`  | `@gnomevpn/schemas`: Zod contracts shared by the client and the server, plans, error codes, the client registry                                                                                       |
-| `packages/logger`   | `@gnomevpn/logger`: the one pino config — levels, redaction, pretty vs json ([docs/architecture/logging.md](docs/architecture/logging.md))                                                            |
-| `packages/scripts`  | `@gnomevpn/scripts`: the shared script layer — `reporter`, `ssh`, `shell`                                                                                                                             |
-| `scripts/provision` | VPN node setup over SSH, run locally by a person ([docs/architecture/provisioning.md](docs/architecture/provisioning.md)); `nodes.json` and `.env.nodes` sit at the repo root, gitignored             |
-| `infra/caddy`       | Caddyfile: TLS and reverse proxy, bind-mounted on the VPS                                                                                                                                             |
-| `.github/workflows` | `deploy.yml`, the only workflow                                                                                                                                                                       |
-| `e2e/`              | Playwright over the public routes                                                                                                                                                                     |
+| Path                                     | What                                                                                                                                                                                                  |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/client`                            | Next.js 16 / React 19 site, server-rendered, FSD (see [docs/architecture/fsd.md](docs/architecture/fsd.md)), SCSS modules, next-intl — [CLAUDE.md](apps/client/CLAUDE.md)                             |
+| `apps/server`                            | NestJS 11 on Bun + Prisma 7 + Postgres, auth via better-auth: the subscription feed, billing (YooKassa), the scheduler, the Telegram bot, the 3x-ui panel client — [CLAUDE.md](apps/server/CLAUDE.md) |
+| `packages/schemas`                       | `@gnomevpn/schemas`: Zod contracts shared by the client and the server, plans, error codes, the client registry                                                                                       |
+| `packages/logger`                        | `@gnomevpn/logger`: the one pino config — levels, redaction, pretty vs json ([docs/architecture/logging.md](docs/architecture/logging.md))                                                            |
+| `packages/scripts`                       | `@gnomevpn/scripts`: the shared script layer — `reporter`, `ssh`, `shell`                                                                                                                             |
+| `scripts/provision`                      | VPN node setup over SSH, run locally by a person ([docs/architecture/provisioning.md](docs/architecture/provisioning.md)); `nodes.json` and `.env.nodes` sit at the repo root, gitignored             |
+| `scripts/secrets`, `scripts/brand-icons` | `bun run secrets` fills in the empty secrets in `.env`; `bun run brand:icons` renders the PNG icons from the SVG brand mark                                                                           |
+| `infra/caddy`                            | Caddyfile: TLS and reverse proxy, bind-mounted on the VPS                                                                                                                                             |
+| `infra/xray`                             | the 3x-ui compose file that provisioning ships to every node                                                                                                                                          |
+| `.github/workflows`                      | `deploy.yml`, the only workflow                                                                                                                                                                       |
+| `e2e/`                                   | Playwright over the public routes                                                                                                                                                                     |
 
 ## Commands
 
@@ -57,7 +59,7 @@ The full style guide is [docs/guides/](docs/guides/README.md) (split into `clien
 - **Constants that are read together group into one `as const` object**, and a `config/` folder splits by concern rather than growing one `<module>.config.ts` ([constants and config](docs/guides/shared/constants-and-config.md)).
 - **Let the code breathe.** Blank line after the setup block, before every `return`/`throw`/`continue`/`break`, around every block and multiline call; `bun lint:fix` applies it ([blank lines](docs/guides/shared/blank-lines.md)).
 - **Import order** is external types → external values → internal `@/` types → internal values → relative types → relative values → styles, blank line between groups; `perfectionist/sort-imports` enforces it ([imports and barrels](docs/guides/shared/imports-and-barrels.md)).
-- **Reuse over reinvention.** Before writing a helper, check `@siberiacancode/reactuse`, `remeda`, `ts-pattern`, `date-fns`, `motion`, `p-retry`, `@base-ui/react`, `@gnomevpn/logger` — only libraries already declared in a `package.json` count ([dependencies](docs/guides/shared/dependencies.md)).
+- **Reuse over reinvention.** Before writing a helper, check `@siberiacancode/reactuse`, `remeda`, `ts-pattern`, `date-fns`, `motion`, `p-retry`, `@base-ui/react`, `nuqs`, `@gnomevpn/logger` — only libraries already declared in a `package.json` count ([dependencies](docs/guides/shared/dependencies.md)).
 - **Dependency versions.** A version used by more than one workspace lives only in the root `workspaces.catalog`; a package that must move in lockstep with a catalogued one is catalogued too ([dependencies](docs/guides/shared/dependencies.md)).
 - **Tests** cover pure logic only, in `_tests/` folders beside the source; Playwright covers public routes ([tests](docs/guides/shared/testing.md)).
 - **i18n.** Everything user-visible goes through next-intl, in both `en` and `ru` ([i18n](docs/guides/client/i18n.md)).

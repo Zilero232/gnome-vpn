@@ -5,8 +5,9 @@ import { Injectable } from '@nestjs/common';
 import type { DaysInput, PaymentDayRow } from '../admin.types';
 import type { DayRow } from '../lib';
 
+import { dayKeys } from '../../../common/lib';
 import { PrismaService } from '../../../core';
-import { buildDays, dayKeys } from '../lib';
+import { buildDays } from '../lib';
 
 @Injectable()
 export class AdminSeriesService {

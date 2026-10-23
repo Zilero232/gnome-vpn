@@ -21,7 +21,7 @@ Group order:
 3. **Data** — TanStack Query/Mutation hooks.
 4. **State** — `useState`, `useReducer`.
 5. **Ref** — `useRef`.
-6. **Memo / callbacks** — `useMemo`, `useCallback`, `useTransition`, `useId`.
+6. **Memo / callbacks** — `useMemo`, `useCallback`, `useEffectEvent`, `useTransition`, `useId`.
 7. **Effects** — `useEffect`, `useLayoutEffect`.
 8. **Derived consts** — `const x = params.get(...)`, values unpacked out of hooks.
 
@@ -43,10 +43,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     .otherwise(() => null);
 
   useEffect(() => {
-    if (target) {
-      router.replace(target);
+    if (!target) {
+      return;
     }
-  }, [target, router]);
+
+    // ...
+  }, [target, router, pathname]);
 
   return children;
 };
@@ -64,9 +66,9 @@ the data-dependency rule below wins over the group order.
 
 ### 9.2 Hook / effect dependencies
 
-A `useEffect` `deps` array holds only what **should genuinely retrigger** the effect, plus the stable refs `react-hooks/exhaustive-deps` asks for. `router` from the i18n navigation and `t` from `next-intl` never change between renders, so listing them costs nothing and keeps the linter honest. A suppression is the exception and carries its reason after `--` — `ui-kit/molecules/Segmented` has the one there is, because its effect measures live layout.
+A `useEffect` `deps` array holds only what **should genuinely retrigger** the effect, plus the stable refs `react-hooks/exhaustive-deps` asks for. `router` from the i18n navigation and `t` from `next-intl` never change between renders, so listing them costs nothing and keeps the linter honest. A suppression is the exception and carries its reason after `--` — there are two: `ui-kit/molecules/Segmented`, because its effect measures live layout, and `ui-kit/organisms/PageTabs`, whose `tabsKey` stands for an `items` array that is new on every render.
 
-What must stay out is an object that changes identity every render, above all a whole mutation result. When an effect needs to call a mutation, keep `mutate` in a ref that is synced on every render and call it through the ref:
+What must stay out is an object that changes identity every render, above all a whole mutation result. When an effect needs to call a mutation, or anything else that reads the latest props and state without being a reason to rerun, wrap that call in React's `useEffectEvent` and call the Effect Event from inside the effect. It always sees the current render's values and never belongs in the deps; `react-hooks` knows both rules and reports an Effect Event that is listed or called outside an effect:
 
 ```tsx
 // ✗ BAD — the mutation object changes ref on every render, so the effect refires
@@ -75,15 +77,17 @@ useEffect(() => {
 }, [code, signIn]);
 
 // ✓ OK — features/auth/telegram-sign-in/model/hooks/use-redeem-login
-const redeemRef = useRef(signIn.mutate);
-
-redeemRef.current = signIn.mutate;
+const redeem = useEffectEvent((nextCode: string) => {
+  signIn.mutate(nextCode, { onSuccess: () => router.replace(ROUTES.account) });
+});
 
 useEffect(() => {
   // ...
-  redeemRef.current(code, { onSuccess: () => router.replace(ROUTES.account) });
-}, [code, router]);
+  redeem(code);
+}, [code]);
 ```
+
+This replaced a ref written during render (`redeemRef.current = signIn.mutate`), which did the same job by hand. A listener on `window` or `document` needs neither: `useWindowEvent`, `useDocumentEvent` and `useEventListener` from reactuse already call the latest handler, and a run-once read on mount is `useMount`.
 
 **Anti-pattern: `useEffect` + `mutate` to load data.** A mutation object in deps means a new ref every render, which means refetch loops. Declarative loading goes through `useQuery` with a key (`queryKey: QUERY_KEYS.<name>(id)`) — react-query refetches on a key change by itself, and neither `useEffect` nor `reset()` is needed.
 

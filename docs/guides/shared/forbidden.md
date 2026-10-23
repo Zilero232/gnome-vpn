@@ -18,4 +18,4 @@ Part of the [style guide](../README.md).
 - Comments. The code is expected to read on its own; the reasoning belongs in
   `docs/` or the commit message.
 - A user-visible string that does not go through i18n — and it goes into both
-  `en.json` and `ru.json`, never one of them.
+  `locales/en/` and `locales/ru/`, never one of them.

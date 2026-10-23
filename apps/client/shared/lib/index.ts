@@ -1,5 +1,7 @@
 export { authRedirectHref, postAuthHref, safeNextPath } from './auth-redirect';
 export { writeClipboard } from './clipboard';
+export { downloadFile } from './download-file';
+export type { DownloadFileInput } from './download-file';
 export { isBrowser, isServer } from './env';
 export { useHydrated } from './hydrated';
 export { logger } from './logger';
@@ -7,5 +9,7 @@ export type { LogFields, LogFn, Logger } from './logger';
 export { EASE_OUT, IN_VIEW, REVEAL, SPRING, STAGGER } from './motion';
 export { redirectToConfirmation } from './payment-redirect';
 export { clearPendingPromoCode, readPendingPromoCode, storePendingPromoCode, syncPendingPromoCode } from './pending-promo-code';
+export { canShare, shareOrFallback } from './share';
+export type { ShareOrFallbackInput } from './share';
 export { useWebglStage, webglTier } from './webgl';
 export type { UseWebglStageInput, WebglEnvironment, WebglTier } from './webgl';

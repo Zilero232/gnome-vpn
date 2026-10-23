@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { UptimeRow } from '../uptime-history.types';
 
-import { addUtcDays, dayKey, utcDay } from '../../utc-day';
+import { addUtcDays, dayKey, utcDay } from '../../../../../common/lib';
 import { historyStart, uptimeHistory } from '../uptime-history';
 
 const TODAY = utcDay(new Date('2026-10-23T15:00:00Z'));

@@ -61,9 +61,11 @@ images and pushes them to ghcr.io, copies `docker-compose.yml` and the
 ## 1. Domain and DNS
 
 `example.com` stands in for the real domain everywhere in this file. The real
-one is written down in exactly two places, both outside the docs:
-`infra/caddy/Caddyfile`, where Caddy needs it to issue certificates, and the
-`.env` on the VPS.
+one is written down in three places outside the docs:
+`infra/caddy/Caddyfile`, where Caddy needs it to issue certificates, `SITE` in
+`apps/client/shared/config/site.ts`, which the canonical URLs, `robots.txt`,
+the structured data and the support address are built from, and the `.env` on
+the VPS.
 
 Changing the canonical host means every subscription URL already handed out
 points at the old one, so every subscriber has to add the new link once.

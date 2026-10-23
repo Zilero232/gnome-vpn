@@ -8,3 +8,8 @@ export type AddressNodeRow = {
   host: string;
   countryCode: string;
 };
+
+export type NodeLookup = {
+  countryCode: string;
+  addresses: string[];
+};

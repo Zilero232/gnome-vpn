@@ -26,7 +26,7 @@ The values were chosen against WCAG AA on the cream paper, not by eye:
 | Pair | Ratio |
 | --- | --- |
 | text `#16201c` on paper `#f4efe4` | 14.6:1 |
-| muted `#56625b` on paper / on `--color-bg-deep` `#ede6d7` | 5.6:1 / 5.1:1 |
+| muted `#48534d` on paper / on `--color-bg-deep` `#ede6d7` | 7.0:1 / 6.5:1 |
 | accent `#146b47` on paper | 5.7:1 |
 | white on the accent button | 6.5:1 |
 | danger `#b4232f` / warning `#8a5300` on paper | 5.7:1 / 5.5:1 |
@@ -180,7 +180,7 @@ enhancement over a poster that is already on the page:
   a phone that never scrolls never pays for it); the globe loads when its
   section comes within 200px of the viewport.
 - **When to run.** `frameloop` is `'never'` while the canvas is off-screen or
-  the tab is hidden (an IntersectionObserver plus `visibilitychange`) —
+  the tab is hidden (motion's `useInView` plus `usePageInView`) —
   measured: zero `requestAnimationFrame` calls in two seconds with both scenes
   scrolled away, 120 with the hero on screen.
 - **Adapting.** DPR is capped at 2 on both tiers and MSAA is always on;
@@ -265,9 +265,10 @@ Before this work the same pages scored 70/77 with LCP 3.4/3.3 s and TBT
   `clientMessages(locale)` (`shared/i18n/client-messages`) filters the bundle by
   `CLIENT_MESSAGES`: whole namespaces for the shell, the account and auth;
   named keys for `faq` (the search UI, not the 15 KB of answers, which the
-  server renders), `landing` (the picker, the phone, the city names) and
+  server renders), `landing` (the picker, the phone, the city names),
   `status` (the node list and the check card; the intro and the related links
-  stay on the server); `meta`
+  stay on the server) and `terms` (only `notes`, the offer lines beside the pay
+  buttons); `meta`
   nowhere; `blog`, `privacy`, `about`, `pricing`, `servers` and `notFound` not
   at all — they are rendered by server components only. 75 K characters → 36 K
   in every page's payload. A test scans every `'use client'` file and fails if
@@ -416,8 +417,8 @@ forgot-password mode, which has no control, shows its heading.
 shorter than the two characters the name rule needs — and the person can change
 it in Profile. There is no «repeat password»: the field has an eye toggle and a
 strength hint (`passwordStrength`). Under the button the form says that
-creating an account means agreeing to the privacy policy, with a link; there is
-no terms page to link.
+creating an account means accepting the terms of service and the privacy
+policy, with a link to each.
 
 Sign-in and sign-up keep `?mode=` in the URL, animate the height between forms
 and put Telegram first when the bot is configured. Server errors that belong to
@@ -512,8 +513,9 @@ visible.
 
 The structured data is one graph in `shared/seo/json-ld`: `Organization`,
 `WebSite` and `SoftwareApplication` ship on every page, `Product` only on
-pricing, `Service` on the landing, `FAQPage` on the FAQ, `HowTo` on `/setup` and
-`Article` on each blog post. `siteJsonLd`'s test asserts the graph's exact node
+pricing, `Service` on the landing, `FAQPage` on the FAQ, `HowTo` on `/setup`,
+`Article` on each blog post, and a two-item `BreadcrumbList` (`PageJsonLd`) on
+the inner pages. `siteJsonLd`'s test asserts the graph's exact node
 list, so adding a node means updating it there too — deliberately, because a
 silently growing graph is how duplicate entities reach a crawler.
 
@@ -527,6 +529,15 @@ deliberate: an explicit `openGraph.images` overrides the generated
 `opengraph-image` route, which is how every page ended up sharing one static
 card; and the root `title.template` would otherwise append `· GnomeVPN` to a
 title that already contains it.
+
+**A route's `generateMetadata` is one line.** `translatedMetadata` reads the
+locale from root params, the title and description from a message namespace
+(`meta.title`/`meta.description` unless the route names other keys) and hands
+them to `createPageMetadata`; `isIndexed` sets both `index` and `follow`. It
+lives in its own slice, `@/shared/seo/translated-metadata`, outside the
+`shared/seo` barrel: `next/root-params` only exists once Next's compiler has
+replaced it, and the sitemap — whose test imports the barrel under Vitest —
+must not pull it in.
 
 ## Partial prefetching and the smooth scroll flag
 
@@ -579,8 +590,8 @@ requires; before this the page was the motion's `opacity: 0` and then a
 full-screen splash.
 
 **Signing out is quiet.** On a phone «Выйти» was the second most prominent
-control on the page. It now lives at the end of the Profile tab, with a plain
-text link in the header on desktop only; the email under the title is 14px
+control on the page. Below `2xl` it now sits at the very end of the page, under
+the support card, with a plain text link in the header on desktop only; the email under the title is 14px
 muted text.
 
 **A fresh account leads with the free day.** When the trial is available, the
@@ -642,7 +653,8 @@ the reader's devices on a network blip read as "your devices are gone".
 
 ## Account tabs follow the URL hash
 
-`AccountTabs` selects the tab named by `location.hash` and writes the hash back
+The account's tab row is `PageTabs` (`ui-kit`, logic in `usePageTabs`): it
+selects the tab named by `location.hash` and writes the hash back
 with `history.replaceState` when a tab is picked, so `/account#connect` opens
 that tab and a reload keeps it. A tab can answer to aliases as well: Connect
 answers to `#wireguard`, which also selects «По конфигу», and to `#app`,
@@ -655,10 +667,16 @@ alone would miss them. The hash is never read during render, which keeps the
 server and the first client render identical. Every tab name, the aliases
 included, lives in `ACCOUNT_TAB` (`shared/constants`).
 
+The tablist itself is Base UI's `Tabs`, controlled through `value` and
+`onValueChange`, with `activateOnFocus` on the list: arrows, Home and End move
+the selection, wrapping at the ends. The arrows follow the orientation — left and
+right on the bar, up and down on the rail once it stands as a column (`2xl`
+and up, read with `useMediaQuery`).
+
 On a phone the tab row is wider than the screen and scrolls sideways, with the
 edges faded to show there is more. Whenever the active tab changes, by a click
-or by the hash, its button is scrolled into view (`block` and `inline` set to
-`nearest`), so a tab opened from a link is never hidden off the edge.
+or by the hash, the row scrolls smoothly to centre its button
+(`nav.scrollTo`), so a tab opened from a link is never hidden off the edge.
 
 ## Deep links survive signing in
 

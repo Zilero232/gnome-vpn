@@ -8,7 +8,7 @@ import type { UsersTableProps } from './UsersTable.types';
 
 import { useUserColumns } from './use-user-columns';
 
-export const UsersTable = ({ users, isFaded }: UsersTableProps) => {
+export const UsersTable = ({ users, isFaded, isFiltered }: UsersTableProps) => {
   const t = useTranslations('admin.users');
   const columns = useUserColumns();
 
@@ -16,7 +16,7 @@ export const UsersTable = ({ users, isFaded }: UsersTableProps) => {
     <DataTable
       empty={
         <Text size='sm' tone='muted'>
-          {t('empty')}
+          {isFiltered ? t('filters.empty') : t('empty')}
         </Text>
       }
       caption={t('caption')}

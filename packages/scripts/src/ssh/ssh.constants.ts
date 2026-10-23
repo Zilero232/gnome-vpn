@@ -5,9 +5,4 @@ export const SSH_CONNECT = {
   authFailureLevel: 'client-authentication'
 } as const;
 
-export const SSH_UPLOAD = {
-  tempPrefix: 'gnomevpn-ssh-put-',
-  payloadName: 'payload'
-} as const;
-
 export const SIGNALLED_EXIT_CODE = 128;

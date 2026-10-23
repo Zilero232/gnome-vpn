@@ -41,14 +41,14 @@ A layer never imports from itself across slices. Two features that need the same
 
 ```text
 features/
-├── account/    # delete-account, link-telegram, manage-devices
+├── account/    # delete-account, invite-friends, link-telegram, manage-devices
 ├── admin/      # overview, manage-users, manage-payments, manage-promo-codes, manage-nodes
 ├── app/        # cross-domain application concerns
 │   └── switch-locale/
 ├── auth/       # sign-in, sign-up, sign-out, telegram-sign-in, change-email,
 │               # change-password, forgot-password, reset-password, update-name,
 │               # verify-email
-├── billing/    # checkout, claim-trial
+├── billing/    # checkout, claim-trial, gift-subscription
 └── vpn/        # connect-incy, routing-settings, wireguard-config, check-connection
 entities/
 ├── admin/      # access, navigation, records
@@ -57,8 +57,10 @@ entities/
 ├── billing/    # payment-notes, subscription
 └── vpn/        # device, node-status
 widgets/
+├── auth/       # auth-shell
 ├── billing/    # pricing-plans
-└── site/       # site-header, site-footer, related-links
+└── site/       # site-shell, site-header, site-footer, page-intro, legal-document,
+                # related-links
 ```
 
 `views/` does not group by domain — route screens sit directly in it: `views/landing`, `views/account`, `views/faq`, `views/setup`, `views/about`, `views/pricing`, `views/privacy`, `views/terms`, `views/servers`, `views/status`, `views/admin`, `views/blog`, `views/blog-post`, `views/auth`, `views/reset-password`, `views/telegram-sign-in`, `views/error`, `views/not-found`.
@@ -102,13 +104,13 @@ A folder is one concern, not one function: each gets its own `index.ts`, `<name>
 
 ```text
 ui-kit/
-├── atoms/       # Badge, BrandMark, Button, CountryFlag, IconSwap, Input, Label,
-│                # PasswordInput, QrCard, Select, Sparkline, Spinner, Stack, StatusIcon,
-│                # Switch, Text, Textarea
-├── molecules/   # Accordion, AppSplash, ChartFrame, ChoiceGroup, ConfirmDialog, Dialog,
-│                # ErrorBlock, FactList, FormField, LinkCard, LoadingBlock, Pagination,
-│                # SectionHead, Segmented, SelectableCard, StatTile, StepList,
-│                # SubmitButton, Tabs, TiltCard
+├── atoms/       # Badge, BrandMark, Button, CountryFlag, GnomeBadge, IconSwap, Input,
+│                # Label, PasswordInput, QrCard, Reveal, SceneArt, ScenePoster, Select,
+│                # Sparkline, Spinner, Stack, StatusIcon, Switch, Text, Textarea
+├── molecules/   # Accordion, ActionBanner, AppSplash, ChartAxis, ChartFrame, ChartTooltip,
+│                # ChoiceGroup, ConfirmDialog, Dialog, ErrorBlock, FactList, FormField, LinkCard,
+│                # LoadingBlock, Pagination, Panel, SectionHead, Segmented, SelectableCard,
+│                # StatTile, StepList, SubmitButton, Tabs, TiltCard
 ├── organisms/   # AppToaster, BarList, ColumnChart, DataTable, LineChart, PageTabs,
 │                # StatusScreen
 └── index.ts     # the one barrel the rest of the app imports
@@ -127,9 +129,10 @@ From outside — only `@/ui-kit`. Inside it, imports between segments are relati
 ```text
 app/
 ├── [locale]/              # every page lives under the locale segment
-│   ├── (marketing)/       # landing, pricing, setup, servers, status, faq, blog, about, privacy
+│   ├── (marketing)/       # landing, pricing, setup, servers, status, faq, blog, about, privacy, terms
 │   ├── (auth)/            # auth, reset, telegram
 │   ├── (account)/         # account, admin
+│   ├── [...rest]/         # any unmatched path → the localized 404
 │   ├── layout.tsx         # the root layout — html, providers, fonts
 │   ├── opengraph-image.tsx
 │   ├── error.tsx
@@ -163,7 +166,7 @@ Route groups `(marketing)`, `(auth)`, `(account)` do not appear in the URL — t
 | a constant, helper or type with no domain | `shared/`                                                |
 | a visual primitive                        | `ui-kit/<segment>/<Component>`                           |
 
-An example from live code: `views/setup` assembles `SetupPage` out of `entities/app/incy` (`usePlatforms`), `ui-kit` primitives (`LinkCard`, `StepList`, `Tabs`, `Text`), its own `config/` and its own `ui/components/WireguardApps` and `OtherClients`. It reaches nothing sideways.
+An example from live code: `views/setup` assembles `SetupPage` out of `widgets/site/page-intro` (`PageIntro`), `entities/app/incy` (`usePlatforms`, `CLIENT_ICONS`), `ui-kit` primitives (`Accordion`, `LinkCard`, `Segmented`, `StepList`, `Text`), its own `config/` and `lib/`, and its own `ui/components` — `SetupWays`, `SetupBrowser`, `IncySection`, `WireguardSection`, `WireguardApps`, `OtherClients`. It reaches nothing sideways.
 
 ## 8. Tests
 
