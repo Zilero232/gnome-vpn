@@ -9,11 +9,10 @@ import { isEmpty, isNullish } from 'remeda';
 import { isIpAddress } from '@/common/lib';
 import { PrismaService } from '@/core';
 
-import type { NodeAddress } from '../lib';
-import type { AddressNodeRow, NodeLookup } from '../status.types';
+import type { AddressNodeRow, NodeAddress, NodeLookup } from '../status.types';
 
 import { ADDRESS_NODE_SELECT, CONNECTION_CHECK } from '../config';
-import { countryForIp } from '../lib';
+import { countryForIp } from './connection-check.helpers';
 
 @Injectable()
 export class ConnectionCheckService {
