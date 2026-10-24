@@ -1,4 +1,2 @@
-export { ChangeEmail } from './ChangeEmail';
+export { ActionEmail } from './ActionEmail';
 export { NoticeEmail } from './NoticeEmail';
-export { ResetPassword } from './ResetPassword';
-export { VerifyEmail } from './VerifyEmail';

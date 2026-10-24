@@ -1,12 +1,10 @@
-import { isString } from 'remeda';
+import { isIncludedIn, isString } from 'remeda';
 
 import type { EmailLocale, LocaleCandidate, LocalizedPathInput } from './email-locale.types';
 
 import { EMAIL_LOCALE } from './email-locale.constants';
 
-const KNOWN: readonly string[] = EMAIL_LOCALE.all;
-
-export const isEmailLocale = (value: unknown): value is EmailLocale => isString(value) && KNOWN.includes(value);
+export const isEmailLocale = (value: unknown): value is EmailLocale => isString(value) && isIncludedIn(value, EMAIL_LOCALE.all);
 
 export const pickEmailLocale = (candidates: readonly LocaleCandidate[]): EmailLocale => candidates.find(isEmailLocale) ?? EMAIL_LOCALE.fallback;
 
