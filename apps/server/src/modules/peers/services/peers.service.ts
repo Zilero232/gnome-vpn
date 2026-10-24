@@ -18,9 +18,11 @@ import type {
   IssuePeerInput,
   PeerRef,
   SetPeerEnabledInput
-} from '../peers.service.types';
+} from '../peers.types';
 
-import { generateWireguardKeys, peerClientName } from '../lib';
+import { PEER_NAME_SELECT } from '../config';
+import { peerClientName } from '../lib/peer-row';
+import { generateWireguardKeys } from '../lib/x25519-keys';
 
 @Injectable()
 export class PeersService {
@@ -117,7 +119,7 @@ export class PeersService {
   async pushEnabled(userId: string): Promise<void> {
     const peers = await this.prisma.peer.findMany({
       where: { userId, kind: 'config', revokedAt: null, state: 'active' },
-      select: { userId: true, kind: true, name: true, nodeId: true, protocol: true }
+      select: PEER_NAME_SELECT
     });
 
     await this.forEachNode({

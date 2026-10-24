@@ -1,7 +1,7 @@
 import { TUNNEL_PROTOCOL } from '@gnomevpn/schemas';
 import { describe, expect, it } from 'vitest';
 
-import { nodeProtocols } from '../node-protocols';
+import { feedProtocols, nodeProtocols } from '../tunnel-config';
 
 const BARE = { realityPublicKey: null, realityShortId: null, wgPublicKey: null };
 
@@ -23,5 +23,18 @@ describe('nodeProtocols', () => {
     const full = nodeProtocols({ realityPublicKey: 'pub', realityShortId: 'ab', wgPublicKey: 'wg' });
 
     expect(full).toEqual(Object.values(TUNNEL_PROTOCOL));
+  });
+});
+
+describe('feedProtocols', () => {
+  it('is what the node offers, less WireGuard, which the feed never serves', () => {
+    const full = { realityPublicKey: 'pub', realityShortId: 'ab', wgPublicKey: 'wg' };
+
+    expect(feedProtocols(full)).toEqual(nodeProtocols(full).filter((protocol) => protocol !== TUNNEL_PROTOCOL.wireguard));
+  });
+
+  it('serves VLESS beside Hysteria2 only once the node holds both Reality keys', () => {
+    expect(feedProtocols(BARE)).toEqual([TUNNEL_PROTOCOL.hysteria2]);
+    expect(feedProtocols({ ...BARE, realityPublicKey: 'pub', realityShortId: 'ab' })).toEqual([TUNNEL_PROTOCOL.hysteria2, TUNNEL_PROTOCOL.vless]);
   });
 });

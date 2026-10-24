@@ -1,15 +1,29 @@
-import type { TunnelConfig } from '@gnomevpn/schemas';
+import type { TunnelConfig, TunnelProtocol } from '@gnomevpn/schemas';
 
 import { TUNNEL_PROTOCOL } from '@gnomevpn/schemas';
+import { isNonNullish } from 'remeda';
 import { match } from 'ts-pattern';
 
 import { AppServiceUnavailableException } from '@/common/exceptions';
 import { hostRoute } from '@/lib/xray';
 import { REALITY, TUNNEL, WIREGUARD } from '@/modules/peers/config';
 
-import type { BuildConfigInput } from './build-config.types';
+import type { BuildConfigInput, ProtocolNode, RealityNode, ResolvedRealityNode, ResolvedWireguardNode, WireguardNode } from './tunnel-config.types';
 
-import { hasReality, hasWireguard } from './build-config.helpers';
+export const hasReality = <T extends RealityNode>(node: T): node is ResolvedRealityNode<T> =>
+  isNonNullish(node.realityPublicKey) && isNonNullish(node.realityShortId);
+
+export const hasWireguard = <T extends WireguardNode>(node: T): node is ResolvedWireguardNode<T> => isNonNullish(node.wgPublicKey);
+
+export const feedProtocols = (node: RealityNode): TunnelProtocol[] => [
+  TUNNEL_PROTOCOL.hysteria2,
+  ...(hasReality(node) ? [TUNNEL_PROTOCOL.vless] : [])
+];
+
+export const nodeProtocols = (node: ProtocolNode): TunnelProtocol[] => [
+  ...feedProtocols(node),
+  ...(hasWireguard(node) ? [TUNNEL_PROTOCOL.wireguard] : [])
+];
 
 const buildHysteria2Config = ({ node, auth }: BuildConfigInput): TunnelConfig => ({
   protocol: TUNNEL_PROTOCOL.hysteria2,

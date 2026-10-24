@@ -73,7 +73,8 @@ itself, which was verified against v3.10.2 before the restart was removed
 The peers are issued with `limitIp` from `deviceIpLimit` — 1 for an app that
 sends no hardware id, 2 otherwise ([devices.md](devices.md#a-device-is-what-fetches-the-subscription)).
 
-`protocolsFor` decides what a node advertises. Hysteria2 always; VLESS only when
+`feedProtocols` (`peers/lib/tunnel-config`) decides what a node advertises in the
+feed. Hysteria2 always; VLESS only when
 the node carries `realityPublicKey` and `realityShortId`, which provisioning
 writes. A node provisioned before Reality existed keeps serving Hysteria2 alone
 rather than advertising a server the client can never reach.
@@ -190,7 +191,7 @@ without a period should see.
 summed over every node. The feed no longer asks the nodes: every fetch used to
 list every inbound on every node just for these two numbers. `NodeHealthJob`
 reads each healthy node's `clientStats` (`/panel/api/inbounds/list`) once a
-minute into `NodeTrafficService`, an in-memory map of node → client → bytes, and
+minute into `NodeTrafficService` (`modules/peers`), an in-memory map of node → client → bytes, and
 `SubscriptionPeersService.traffic` sums the user's peers from it. The numbers
 are therefore up to a minute old; a node that stops answering keeps its last
 counters; a node no longer available is dropped from the map; and right after a

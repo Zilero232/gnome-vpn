@@ -3,9 +3,9 @@ import { describe, expect, it } from 'vitest';
 
 import { REALITY, TUNNEL, WIREGUARD } from '@/modules/peers/config';
 
-import type { TunnelNode } from '../build-config.types';
+import type { TunnelNode } from '../tunnel-config.types';
 
-import { buildTunnelConfig } from '../build-config';
+import { buildTunnelConfig } from '../tunnel-config';
 
 const node: TunnelNode = {
   host: '203.0.113.10',

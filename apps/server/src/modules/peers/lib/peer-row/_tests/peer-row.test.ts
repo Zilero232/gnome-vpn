@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { PEER_PROTOCOL_SUFFIX } from '@/modules/peers/config';
 
-import { peerClientName } from '../peer-name';
+import { peerClientName } from '../peer-row';
 
 describe('peerClientName', () => {
   it('prefixes a session peer with the session prefix', () => {

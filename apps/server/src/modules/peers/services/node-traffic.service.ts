@@ -5,7 +5,7 @@ import type { NodeTraffic } from '@/lib/xray';
 
 import { NO_TRAFFIC } from '@/lib/xray';
 
-import type { RecordNodeTrafficInput, TrafficClient } from '../subscription-link.service.types';
+import type { RecordNodeTrafficInput, TrafficClient } from '../peers.types';
 
 @Injectable()
 export class NodeTrafficService {

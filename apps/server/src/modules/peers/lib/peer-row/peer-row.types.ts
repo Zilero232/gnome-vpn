@@ -1,6 +1,6 @@
 import type { TunnelProtocol } from '@gnomevpn/schemas';
 
-import type { PeerKind } from '@/generated';
+import type { PeerKind, PeerState } from '@/generated';
 
 export type PeerNameInput = {
   userId: string;
@@ -8,4 +8,9 @@ export type PeerNameInput = {
   name?: string | null;
   nodeId?: string;
   protocol?: TunnelProtocol | null;
+};
+
+export type PeerRevocation = {
+  revokedAt: Date;
+  state: PeerState;
 };

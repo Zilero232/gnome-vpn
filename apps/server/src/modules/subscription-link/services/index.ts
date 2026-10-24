@@ -1,6 +1,5 @@
 export { FeedNoticeService } from './feed-notice.service';
 export { GeoFilesService } from './geo-files.service';
-export { NodeTrafficService } from './node-traffic.service';
 export { RoutingSettingsService } from './routing-settings.service';
 export { SubscriptionAccessService } from './subscription-access.service';
 export { SubscriptionFeedService } from './subscription-feed.service';

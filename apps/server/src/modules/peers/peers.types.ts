@@ -1,15 +1,11 @@
-import type { PeerKind, Prisma, TunnelProtocol } from '@/generated';
-import type { NodeAccess, XrayClient } from '@/lib/xray';
+import type { TunnelProtocol } from '@gnomevpn/schemas';
 
-export type PeerRef = {
-  id: string;
-  nodeId: string;
-  userId: string;
-  kind: PeerKind;
-  name: string | null;
-  protocol: TunnelProtocol;
-  nodeCredential: string;
-};
+import type { PeerKind, Prisma } from '@/generated';
+import type { NodeAccess, NodeTraffic, XrayClient } from '@/lib/xray';
+
+import type { PEER_REF_SELECT } from './config';
+
+export type PeerRef = Prisma.PeerGetPayload<{ select: typeof PEER_REF_SELECT }>;
 
 export type IssuePeerInput = {
   node: NodeAccess;
@@ -55,4 +51,14 @@ export type SetPeerEnabledInput = {
 export type ForEachNodeInput<TPeer> = {
   peers: TPeer[];
   run: (input: { client: XrayClient; peers: TPeer[] }) => Promise<void>;
+};
+
+export type RecordNodeTrafficInput = {
+  nodeId: string;
+  traffic: Map<string, NodeTraffic>;
+};
+
+export type TrafficClient = {
+  nodeId: string;
+  email: string;
 };
