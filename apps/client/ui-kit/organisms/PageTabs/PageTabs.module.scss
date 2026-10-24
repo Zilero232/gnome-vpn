@@ -7,6 +7,12 @@
   gap: var(--gap-md);
 }
 
+.navWrap {
+  position: relative;
+  min-width: 0;
+  isolation: isolate;
+}
+
 .nav {
   display: flex;
   min-width: 0;
@@ -15,8 +21,8 @@
   border-radius: var(--radius-md);
   background-color: var(--color-bg-deep);
   gap: 4px;
-  mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
   overflow-x: auto;
+  overscroll-behavior-x: contain;
 
   @include hide-scrollbar;
 }
@@ -54,6 +60,41 @@
   inset: 0;
 }
 
+.more {
+  position: absolute;
+  z-index: 2;
+  top: 1px;
+  bottom: 1px;
+  display: flex;
+  width: 52px;
+  align-items: center;
+  color: var(--color-text-muted);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-base) ease;
+
+  &[data-side='start'] {
+    left: 1px;
+    justify-content: flex-start;
+    padding-left: 6px;
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+    background: linear-gradient(to right, var(--color-bg-deep) 40%, transparent);
+  }
+
+  &[data-side='end'] {
+    right: 1px;
+    justify-content: flex-end;
+    padding-right: 6px;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    background: linear-gradient(to left, var(--color-bg-deep) 40%, transparent);
+  }
+}
+
+.navWrap[data-more-start='true'] .more[data-side='start'],
+.navWrap[data-more-end='true'] .more[data-side='end'] {
+  opacity: 1;
+}
+
 .label {
   position: relative;
   z-index: 1;
@@ -74,16 +115,22 @@
     gap: var(--gap-lg);
     grid-template-columns: minmax(0, 210px) minmax(0, 1fr);
 
-    .nav {
+    .navWrap {
       position: sticky;
       top: calc(var(--safe-area-top) + 16px);
+    }
+
+    .nav {
       flex-direction: column;
       padding: 0;
       border-color: transparent;
       background-color: transparent;
       gap: 4px;
-      mask-image: none;
       overflow-x: visible;
+    }
+
+    .more {
+      display: none;
     }
 
     .tab {

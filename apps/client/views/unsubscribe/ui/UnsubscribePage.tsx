@@ -14,7 +14,7 @@ export const UnsubscribePage = () => {
   const t = useTranslations('unsubscribe');
   const { state, isRetrying, retry } = useUnsubscribe();
 
-  const profileHref = `${ROUTES.account}#${ACCOUNT_TAB.profile}`;
+  const settingsHref = `${ROUTES.account}#${ACCOUNT_TAB.settings}`;
 
   return match(state)
     .with('pending', () => (
@@ -24,14 +24,14 @@ export const UnsubscribePage = () => {
     ))
     .with('unsubscribed', () => (
       <StatusScreen isInline body={t('unsubscribed.body')} code={t('unsubscribed.code')} title={t('unsubscribed.title')}>
-        <Link className={buttonVariants({ variant: 'ghost' })} href={profileHref}>
+        <Link className={buttonVariants({ variant: 'ghost' })} href={settingsHref}>
           {t('unsubscribed.account')}
         </Link>
       </StatusScreen>
     ))
     .with('invalid', () => (
       <StatusScreen isInline body={t('invalid.body')} code={t('invalid.code')} title={t('invalid.title')} tone='danger'>
-        <Link className={buttonVariants({ variant: 'ghost' })} href={profileHref}>
+        <Link className={buttonVariants({ variant: 'ghost' })} href={settingsHref}>
           {t('invalid.account')}
         </Link>
       </StatusScreen>

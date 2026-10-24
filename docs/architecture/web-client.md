@@ -422,7 +422,7 @@ forgot-password mode, which has no control, shows its heading.
 `{ email, password }`; better-auth still needs a `name`, so `useSignUp` sends
 `nameFromEmail(email)` — the local part, or the whole address when that is
 shorter than the two characters the name rule needs — and the person can change
-it in Profile. There is no «repeat password»: the field has an eye toggle and a
+it in Settings. There is no «repeat password»: the field has an eye toggle and a
 strength hint (`passwordStrength`). Above the button an unticked checkbox
 gives the separate consent to personal data processing (`/consent`) and is
 required to submit; under the button the form says that creating an account
@@ -597,13 +597,24 @@ config targets, without the download links.
 
 ## The account tabs, in the order people need them
 
-Subscription, Connect, Devices, Invite, Profile, Telegram. The status and the
+Subscription, Connect, Devices, Invite, Settings, Telegram. The status and the
 payment come first because that is what a returning visitor checks; Connect
 next, since it is what someone who just paid opens; the settings-like tabs
 last. Devices only appears with access, and Telegram only when the server
 names a bot (`useTelegramWidget`) — a tab for a bot that is off was a dead end.
 `#telegram` stays safe without it: a hash no tab answers to falls back to the
 first tab.
+
+**Inside a tab, what you act on comes before what you read.** Subscription:
+the status, the thank-you invite prompt after a purchase, auto-renewal and
+renewal, then the gift panel, then the promo code form (a code is entered
+rarely, a gift is the next thing a happy payer does), the payment notes, and
+the one-time marketing question last. Invite: the share block, your own
+stats, then the rewards table and the rules, which only explain. Settings:
+«Личные данные», «Рассылка», «Вход в аккаунт» (email and password, side by
+side from `2xl`), account deletion last; each section is a `SectionHead`
+behind a divider. The tab was «Профиль» until it held more than the name;
+`#profile` stays an alias so old links still land on it.
 
 **While the session resolves the page is a skeleton, not a blank.**
 `AccountShell` lays `AccountSkeleton` over the children — the title, the tab
@@ -776,7 +787,7 @@ The token is read with `useSearchParams` under a `<Suspense>`, the way
 fetch during a server render, so the prerender never spends the token; the
 browser calls `GET /consents/unsubscribe` once after hydration. The page has
 four states: a spinner; «Вы отписались от предложений» with a link to the
-account's Profile tab to turn offers back on; «Ссылка недействительна» for an
+account's Settings tab to turn offers back on; «Ссылка недействительна» for an
 `invalid` answer or a missing or over-long token (no request is made then);
 and a retry when the server could not be reached, which is not the link's
 fault and so is not reported as an invalid link.

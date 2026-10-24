@@ -41,7 +41,6 @@
     "fullPrice": "Without the discount: {price} ₽"
   },
   "profile": {
-    "title": "Profile",
     "nameLabel": "Name",
     "saveName": "Save",
     "nameUpdated": "Name updated",
@@ -56,7 +55,6 @@
     "passwordHint": "At least 8 characters. Other devices will be signed out.",
     "changePassword": "Change password",
     "passwordChanged": "Password changed",
-    "security": "Security",
     "noEmail": "No email yet",
     "addEmailTitle": "Add an email",
     "addEmailHint": "Right now Telegram is the only way into this account. Add an email, then set a password below — that gives you a second way in.",
@@ -64,9 +62,14 @@
     "emailAdded": "If the address is free, the email is on its way. Nothing arrived? It may already belong to an account.",
     "setPassword": "Send me a link",
     "setPasswordHint": "No password yet — this account was created through Telegram. We will email you a link to set one.",
-    "setPasswordNeedsEmail": "Add an email above first — there is nowhere to send the link.",
-    "passwordLinkSent": "The link is on its way to your inbox",
-    "notifications": "Mailing list"
+    "setPasswordNeedsEmail": "Add an email first — without one there is nowhere to send the link.",
+    "passwordLinkSent": "The link is on its way to your inbox"
+  },
+  "settings": {
+    "personal": "Personal details",
+    "mailing": "Mailing list",
+    "signIn": "Sign-in",
+    "signInHint": "The email and password you sign in to the site with."
   },
   "tabs": {
     "subscription": "Subscription",
@@ -74,7 +77,8 @@
     "telegram": "Telegram",
     "label": "Account sections",
     "invite": "Invite",
-    "connect": "Connect"
+    "connect": "Connect",
+    "settings": "Settings"
   },
   "meta": {
     "title": "Account",
@@ -142,7 +146,7 @@
     "hint": "Now and then, by email and in the Telegram bot. Reminders about payments and your subscription ending arrive either way.",
     "unavailable": "Could not load this setting. Check your connection and try again.",
     "promptTitle": "Send you personal discounts?",
-    "promptBody": "By email and in the bot — only when there is something worth offering. You can change your mind in the profile.",
+    "promptBody": "By email and in the bot — only when there is something worth offering. You can change your mind in the account settings.",
     "yes": "Yes",
     "no": "No"
   }

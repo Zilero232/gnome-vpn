@@ -1,6 +1,6 @@
 'use client';
 
-import { CreditCard, Gift, MonitorSmartphone, Plug, Send, UserRound } from 'lucide-react';
+import { CreditCard, Gift, MonitorSmartphone, Plug, Send, Settings } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 
@@ -16,7 +16,7 @@ import { ACCOUNT_TAB } from '@/shared/constants';
 import { PageTabs } from '@/ui-kit';
 
 import { BLOCK_MOTION, HEADER_MOTION, PAGE_MOTION } from './AccountPage.motion';
-import { AccountIdentity, AdminLink, ConnectCard, DevicesCard, ProfileCard, SubscriptionCard, SupportCard, TelegramCard } from './components';
+import { AccountIdentity, AdminLink, ConnectCard, DevicesCard, SettingsCard, SubscriptionCard, SupportCard, TelegramCard } from './components';
 
 import s from './AccountPage.module.scss';
 
@@ -48,7 +48,7 @@ export const AccountPage = () => {
     },
     ...(hasAccess || isUnavailable ? [devicesTab] : []),
     { value: ACCOUNT_TAB.invite, label: t('tabs.invite'), icon: Gift, render: () => <InvitePanel /> },
-    { value: ACCOUNT_TAB.profile, label: t('profile.title'), icon: UserRound, render: () => <ProfileCard /> },
+    { value: ACCOUNT_TAB.settings, label: t('tabs.settings'), icon: Settings, aliases: [ACCOUNT_TAB.profile], render: () => <SettingsCard /> },
     ...(widget?.botUsername ? [telegramTab] : [])
   ];
 

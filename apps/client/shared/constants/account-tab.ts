@@ -3,8 +3,9 @@ export const ACCOUNT_TAB = {
   connect: 'connect',
   devices: 'devices',
   invite: 'invite',
-  profile: 'profile',
+  settings: 'settings',
   telegram: 'telegram',
   wireguard: 'wireguard',
-  app: 'app'
+  app: 'app',
+  profile: 'profile'
 } as const;

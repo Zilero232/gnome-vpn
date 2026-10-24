@@ -18,6 +18,11 @@ export type PageTabsProps = {
   panelClassName?: string;
 };
 
+export type PageTabsEdges = {
+  start: boolean;
+  end: boolean;
+};
+
 export type UsePageTabsInput = {
   items: PageTab[];
   layout: PageTabsLayout;

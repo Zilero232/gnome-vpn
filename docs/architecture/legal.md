@@ -343,7 +343,7 @@ carries «🔕 Не присылать предложения», which does the 
   stored `userId` is the signed-in account; with no stored entry — an account
   from before the checkbox, another browser, a Telegram account — nothing is
   posted, because the client has no evidence that this person agreed.
-- **Profile tab**: «Рассылка» holds the switch «Присылать скидки и акции»
+- **Settings tab**: «Рассылка» holds the switch «Присылать скидки и акции»
   with the line that payment and expiry reminders arrive either way. The
   section is not called «Уведомления»: that read as an off switch for every
   message, while the switch covers promotional messages only. It reads
