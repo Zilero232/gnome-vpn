@@ -41,6 +41,7 @@ bun run test:e2e           # Playwright over the public routes
 bun --filter @gnomevpn/client build   # the only check that catches SSR breakage
 bun run provision:nodes    # set up VPN nodes over SSH (nodes.json, .env.nodes)
 bun run secrets            # fill in the empty secrets in .env
+bun run commit             # commit-jazzer: a Conventional Commit with emoji, asked step by step
 ```
 
 **`bun run test`, never `bun test`.** Bare `bun test` is Bun's own runner: it collects the same files and fails them all on `vi.setSystemTime is not a function`.
@@ -64,6 +65,6 @@ The full style guide is [docs/guides/](docs/guides/README.md) (split into `clien
 - **Tests** cover pure logic only, in `_tests/` folders beside the source; Playwright covers public routes ([tests](docs/guides/shared/testing.md)).
 - **i18n.** Everything user-visible goes through next-intl, in both `en` and `ru` ([i18n](docs/guides/client/i18n.md)).
 - **Verify before claiming anything works** — `bun run verify`, `bun run test`, and the client build for anything that could break prerendering ([checklist](docs/guides/shared/checklist.md)).
-- **Git.** Never run git operations unless the user asks.
+- **Git.** Never run git operations unless the user asks. Commits go through [commit-jazzer](https://github.com/Zilero232/commit-jazzer) (`jazzer.config.ts`): `bun run commit`, or plain `git commit`, whose `prepare-commit-msg` hook asks the same questions; without a terminal pass the answers as flags — `bunx jazzer -t fix -s server -m "…" -b "…" -y`. commitlint checks the result.
 
 New design decisions go in the topical file under `docs/architecture/`, and the index in [docs/README.md](docs/README.md) gets a line for any new file.

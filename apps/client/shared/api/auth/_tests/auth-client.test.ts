@@ -1,8 +1,9 @@
+import { STORAGE_EVENT } from '@siberiacancode/reactuse';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { STORAGE_KEYS } from '@/shared/constants';
 
-import { saveAuthToken } from '../auth-client';
+import { clearToken, saveAuthToken } from '../auth-client';
 
 describe('saveAuthToken', () => {
   beforeEach(() => {
@@ -31,5 +32,23 @@ describe('saveAuthToken', () => {
 
     expect(saveAuthToken(null)).toBe(false);
     expect(window.localStorage.getItem(STORAGE_KEYS.authToken)).toBe('kept');
+  });
+
+  it('announces a new token and a cleared one, so a session check already on screen sees it without a reload', () => {
+    const values: (string | null)[] = [];
+
+    const listener = (event: Event) => {
+      if (event instanceof StorageEvent) {
+        values.push(event.newValue);
+      }
+    };
+
+    window.addEventListener(STORAGE_EVENT, listener);
+    saveAuthToken('announced');
+    saveAuthToken('announced');
+    clearToken();
+    window.removeEventListener(STORAGE_EVENT, listener);
+
+    expect(values).toEqual(['announced', null]);
   });
 });
