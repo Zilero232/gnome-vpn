@@ -87,6 +87,11 @@ mushrooms — is `ui-kit/atoms/SceneArt`, plain `<g>` groups called as functions
 so one set of art draws the home poster (`ScenePoster`), the auth scene and the
 OG card (satori accepts only intrinsic elements inside `<svg>`).
 
+Below `2xl` the auth scene is a small arched portrait (104 px, 88 px below `sm`)
+beside the page's title and reasons, above the form card. It used to be a
+150 px strip of the full-width scene across the top of the card, which showed
+the middle of the picture only — the hat and the lantern were cut off.
+
 ### One header everywhere
 
 `SiteHeader` renders on the marketing, account and auth route groups alike —

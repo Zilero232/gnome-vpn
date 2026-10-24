@@ -14,45 +14,34 @@
 
   @include below(2xl) {
     max-width: 440px;
+    align-items: center;
     margin-top: 0;
-    gap: 0;
+    gap: 20px 18px;
     grid-template:
-      'art' auto
-      'card' auto / minmax(0, 1fr);
+      'art aside' auto
+      'card card' auto / 104px minmax(0, 1fr);
+  }
+
+  @include below(sm) {
+    gap: 16px 14px;
+    grid-template-columns: 88px minmax(0, 1fr);
   }
 }
 
 .art {
   max-width: 420px;
   grid-area: art;
-
-  @include below(2xl) {
-    position: relative;
-    overflow: hidden;
-    max-width: none;
-    height: 150px;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    border-bottom: none;
-    background-color: var(--color-night);
-  }
 }
 
 .scene {
   @include below(2xl) {
-    border-radius: 0;
-    box-shadow: none;
-    transform: translateY(-38%);
+    border-radius: 60px 60px 16px 16px;
   }
 }
 
 .aside {
   color: var(--color-text);
   grid-area: aside;
-
-  @include below(2xl) {
-    display: none;
-  }
 }
 
 .card {
@@ -69,8 +58,6 @@
   grid-area: card;
 
   @include below(2xl) {
-    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-    border-top: none;
     margin-top: 0;
   }
 

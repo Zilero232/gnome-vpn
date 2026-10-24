@@ -9,9 +9,7 @@
   list-style: none;
 
   @include below(2xl) {
-    flex-flow: row wrap;
-    justify-content: center;
-    gap: 4px 14px;
+    gap: 4px;
   }
 }
 
@@ -34,6 +32,6 @@
   }
 
   @include below(2xl) {
-    font-size: 13px;
+    font-size: 14px;
   }
 }
