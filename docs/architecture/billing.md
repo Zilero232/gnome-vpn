@@ -274,7 +274,7 @@ from the row, and every decision reads it: checkout, `activate`, extra devices,
 `period`, so the account page and the bot branch on the same word instead of
 re-deriving "active and not a trial" each in their own way.
 A purchase during the trial takes the chosen plan and starts when the trial
-ends (`nextPeriodEnd` builds on the active end), so the hours left are not
+ends (`extendPeriod` builds on the active end), so the hours left are not
 lost. There is no "cancel the trial" action: it costs nothing and charges
 nothing, so cancelling would only take hours away.
 
@@ -291,7 +291,7 @@ after that stamp. The same covers extra devices bought on a paid period.
 refuse a different plan inside a paid period (`PLAN_CHANGE_LOCKED`), which kept
 a monthly reader from moving to a year until the month ran out — the moment
 they were most likely to go elsewhere instead. Now the new term starts where
-the running one ends (`nextPeriodEnd`), so nothing paid for is lost, and
+the running one ends (`extendPeriod`), so nothing paid for is lost, and
 `activate` writes the payment's plan, so the next automatic charge bills the
 plan last bought. The error code is gone from `@gnomevpn/schemas` and from
 the client's error messages.

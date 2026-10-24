@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 
 import { renewalIdempotenceKey } from '../renewal-idempotence-key';
@@ -34,5 +35,18 @@ describe('renewalIdempotenceKey', () => {
 
   it('gives a changed price a fresh key', () => {
     expect(renewalIdempotenceKey(BASE)).not.toBe(renewalIdempotenceKey({ ...BASE, amountRub: 249 }));
+  });
+});
+
+describe('renewalIdempotenceKey, byte for byte', () => {
+  it('stays the key already sent to YooKassa, so a retried charge is never charged twice', () => {
+    expect(renewalIdempotenceKey(BASE)).toBe('NwM_H-CC57f0JKsXtLwgBnSp6f9AcuQeU1QhhW2DtDQ');
+    expect(renewalIdempotenceKey({ ...BASE, amountRub: 1490.5 })).toBe('G03iDt6YPSibhqB3XMv8LIAHwrZr9GvrJGlL12smh38');
+  });
+
+  it('hashes the user, the ISO period end, the card and the amount with two decimals, in that order', () => {
+    const seed = ['user-1', '2026-01-15T12:00:00.000Z', BASE.paymentMethodId, '199.00'].join('|');
+
+    expect(renewalIdempotenceKey(BASE)).toBe(createHash('sha256').update(seed).digest('base64url'));
   });
 });

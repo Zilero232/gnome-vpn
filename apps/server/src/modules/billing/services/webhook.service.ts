@@ -4,11 +4,12 @@ import { findPlan, formatGiftCode, giftDays } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
 import { isNonNullish, isNullish } from 'remeda';
 
-import { describeError, errorCodeOf, hasLapsedBeyondGrace, paymentPlan } from '@/common/lib';
+import { describeError, errorCodeOf, paymentPlan } from '@/common/lib';
 import { PrismaService } from '@/core';
 import { YooKassaClient } from '@/lib/yookassa';
 import { GiftCodeService, PromoDiscountService } from '@/modules/promo-codes';
 import { ReferralRewardService } from '@/modules/referrals';
+import { SubscriptionPeriodService } from '@/modules/subscription';
 import { SubscriptionAccessService } from '@/modules/subscription-link';
 import { TelegramAlertService } from '@/modules/telegram/services/telegram-alert.service';
 import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
@@ -16,6 +17,7 @@ import { TelegramNotifyService } from '@/modules/telegram/services/telegram-noti
 import type {
   AnnounceReferralInput,
   CanceledPayment,
+  PaymentPurchase,
   RefundOutcome,
   RefundReason,
   RefundUnusableInput,
@@ -26,7 +28,10 @@ import type {
   UnusablePayment
 } from '../billing.types';
 
-import { CARD_LOST_REASONS, REFUND, REFUND_DESCRIPTION, WEBHOOK_EVENT } from '../config';
+import { CARD_LOST_REASONS, WEBHOOK_EVENT } from '../config';
+import { isPartialRefund, refundIdempotenceKey, refundReason } from '../webhook/refund.helpers';
+import { purchaseOf, settleCheck } from '../webhook/settlement.helpers';
+import { REFUND } from '../webhook/webhook.constants';
 import { BillingSharedService } from './billing-shared.service';
 import { CardService } from './card.service';
 
@@ -44,7 +49,8 @@ export class WebhookService {
     private readonly referralReward: ReferralRewardService,
     private readonly alerts: TelegramAlertService,
     private readonly discounts: PromoDiscountService,
-    private readonly gifts: GiftCodeService
+    private readonly gifts: GiftCodeService,
+    private readonly periods: SubscriptionPeriodService
   ) {}
 
   async handleWebhook(event: WebhookEvent): Promise<void> {
@@ -99,30 +105,31 @@ export class WebhookService {
     }
 
     const payment = await this.yookassa.getPayment(paymentId);
+    const check = settleCheck(payment);
 
-    if (payment.status === 'canceled') {
+    if (check === 'canceled') {
       await this.cancel({ ...row, paymentId, reason: payment.cancellationReason });
 
       return 'canceled';
     }
 
-    if (payment.status !== 'succeeded') {
+    if (check === 'waiting') {
       this.logger.debug(`payment ${paymentId} is still ${payment.status}`);
 
       return 'waiting';
     }
 
-    if (payment.refundedRub > 0) {
+    if (check === 'refunded') {
       await this.prisma.payment.updateMany({ where: { id: row.id, status: 'pending' }, data: { status: 'refunded' } });
       this.logger.log(`payment ${paymentId} was refunded before it settled, nothing is granted`);
 
       return 'refunded';
     }
 
-    const refundReason = await this.unusableReason(row);
+    const reason = await this.unusableReason(row);
 
-    if (refundReason) {
-      return this.refundUnusable({ id: row.id, userId: row.userId, paymentId, amount: row.amount, reason: refundReason, purchase: row });
+    if (reason) {
+      return this.refundUnusable({ id: row.id, userId: row.userId, paymentId, amount: row.amount, reason, purchase: row });
     }
 
     const userId = row.userId;
@@ -147,7 +154,7 @@ export class WebhookService {
         }
 
         if (row.kind === 'extraDevices') {
-          await this.shared.grantExtraDevices({ userId, quantity: row.extraDevices, db: tx });
+          await this.periods.addExtraDevices({ userId, quantity: row.extraDevices, db: tx });
 
           return { referral: null, giftCode: null };
         }
@@ -235,7 +242,7 @@ export class WebhookService {
 
     const payment = await this.yookassa.getPayment(refund.paymentId);
 
-    if (payment.refundedRub < row.amount.toNumber()) {
+    if (isPartialRefund({ refundedRub: payment.refundedRub, amount: row.amount })) {
       this.logger.warn(
         `payment ${refund.paymentId} was refunded in part (${payment.refundedRub} of ${row.amount.toFixed(2)}): the period is left as it is, review it by hand`
       );
@@ -279,38 +286,31 @@ export class WebhookService {
     }
 
     if (row.kind === 'extraDevices') {
-      await this.shared.revokeExtraDevices({ userId: row.userId, quantity: row.extraDevices, db });
+      await this.periods.removeExtraDevices({ userId: row.userId, quantity: row.extraDevices, db });
 
       return { userId: row.userId, kind: row.kind, referral: null };
     }
 
-    await this.shared.revokePeriod({ userId: row.userId, months: findPlan(paymentPlan(row)).months, db });
+    await this.periods.rewind({ userId: row.userId, months: findPlan(paymentPlan(row)).months, stopsRenewal: true, db });
 
     const referral = await this.referralReward.revoke({ paymentId: row.id, db });
 
     return { userId: row.userId, kind: row.kind, referral };
   }
 
-  private async unusableReason({ userId, kind }: UnusablePayment): Promise<RefundReason | null> {
-    if (isNullish(userId)) {
-      return 'orphan';
-    }
+  private async unusableReason(row: UnusablePayment & PaymentPurchase): Promise<RefundReason | null> {
+    const purchase = purchaseOf(row);
+    const currentPeriodEnd = purchase.kind === 'extraDevices' && isNonNullish(row.userId) ? await this.periods.periodEnd(row.userId) : null;
 
-    if (kind !== 'extraDevices') {
-      return null;
-    }
-
-    const subscription = await this.prisma.subscription.findUnique({ where: { userId }, select: { currentPeriodEnd: true } });
-
-    return hasLapsedBeyondGrace({ currentPeriodEnd: subscription?.currentPeriodEnd, at: new Date() }) ? 'lapsed' : null;
+    return refundReason({ userId: row.userId, purchase, currentPeriodEnd, now: new Date() });
   }
 
   private async refundUnusable({ id, userId, paymentId, amount, reason, purchase }: RefundUnusableInput): Promise<SettleResult> {
     const refund = await this.yookassa.createRefund({
       paymentId,
       amountRub: amount.toNumber(),
-      description: REFUND_DESCRIPTION[reason],
-      idempotenceKey: `${REFUND.idempotencePrefix}${id}`
+      description: REFUND.description[reason],
+      idempotenceKey: refundIdempotenceKey(id)
     });
 
     if (refund.status === 'canceled') {

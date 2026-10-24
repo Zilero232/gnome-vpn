@@ -1,16 +1,14 @@
-export type PeriodInput = {
-  currentPeriodEnd: Date | null | undefined;
-  months: number;
-};
-
 export type ExtendPeriodInput = {
   currentPeriodEnd: Date | null | undefined;
-  days: number;
+  months?: number;
+  days?: number;
+  now?: Date;
 };
 
-export type SubscriptionPeriod = {
+export type RewindPeriodInput = {
   currentPeriodEnd: Date | null;
-  extraDevices: number;
+  months?: number;
+  days?: number;
 };
 
 export type LapseInput = {
@@ -18,8 +16,28 @@ export type LapseInput = {
   at: Date;
 };
 
-export type RewindPeriodInput = {
+export type AccessExtensionInput = {
+  currentPeriodEnd: Date | null | undefined;
+  days: number;
+  now: Date;
+};
+
+export type AccessExtension = {
+  currentPeriodEnd: Date;
+  resetsExtras: boolean;
+};
+
+export type ExtraDevicesGrantInput = {
+  current: number;
+  quantity: number;
+};
+
+export type ExtraDevicesGrant = {
+  granted: number;
+  dropped: number;
+};
+
+export type SubscriptionPeriod = {
   currentPeriodEnd: Date | null;
-  months?: number;
-  days?: number;
+  extraDevices: number;
 };
