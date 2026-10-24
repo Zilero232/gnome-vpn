@@ -1,6 +1,5 @@
 export { basePrisma } from './base-prisma';
 export { isPrismaRequestError, isUniqueViolation } from './prisma-errors';
-export type { PrismaRequestError } from './prisma-errors';
 export { withUniqueRetry } from './prisma-retry';
 export { PRISMA_ERROR } from './prisma.constants';
 export { PrismaModule } from './prisma.module';

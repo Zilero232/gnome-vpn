@@ -138,6 +138,7 @@ describe('activationData', () => {
 
   it('keeps renewal off when there is no method to charge', () => {
     expect(activationData({ subscription: null, plan: PLAN, method: null, orderedAt: NOW, isRecurringEnabled: true }).cancelAtPeriodEnd).toBe(true);
+
     expect(
       activationData({ subscription: paidRow({ savedCardId: null }), plan: PLAN, method: null, orderedAt: NOW, isRecurringEnabled: true })
         .cancelAtPeriodEnd
@@ -146,6 +147,7 @@ describe('activationData', () => {
 
   it('never turns renewal on while the shop cannot charge recurrently', () => {
     expect(activationData({ subscription: null, plan: PLAN, method: CARD, orderedAt: NOW, isRecurringEnabled: false }).cancelAtPeriodEnd).toBe(true);
+
     expect(activationData({ subscription: paidRow(), plan: PLAN, method: CARD, orderedAt: NOW, isRecurringEnabled: false }).cancelAtPeriodEnd).toBe(
       true
     );
@@ -158,6 +160,7 @@ describe('activationData', () => {
     expect(
       activationData({ subscription: lapsedRow, plan: PLAN, method: null, orderedAt: subHours(end, 1), isRecurringEnabled: true })
     ).not.toHaveProperty('extraDevices');
+
     expect(
       activationData({
         subscription: lapsedRow,
@@ -167,6 +170,7 @@ describe('activationData', () => {
         isRecurringEnabled: true
       })
     ).not.toHaveProperty('extraDevices');
+
     expect(
       activationData({ subscription: lapsedRow, plan: PLAN, method: null, orderedAt: addHours(end, PERIOD_GRACE.hours), isRecurringEnabled: true })
         .extraDevices

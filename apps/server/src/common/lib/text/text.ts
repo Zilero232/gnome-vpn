@@ -2,16 +2,16 @@ import { entries } from 'remeda';
 
 import type { FillTokensInput, PluralizeInput } from './text.types';
 
-import { COUNTRY_CODE, DEFAULT_PLURAL_LOCALE, LATIN_A, REGIONAL_INDICATOR_A } from './text.constants';
+import { COUNTRY_FLAG, DEFAULT_PLURAL_LOCALE } from './text.constants';
 
 export const countryFlag = (countryCode: string): string => {
   const code = countryCode.trim().toUpperCase();
 
-  if (!COUNTRY_CODE.test(code)) {
+  if (!COUNTRY_FLAG.countryCode.test(code)) {
     return '';
   }
 
-  return String.fromCodePoint(...[...code].map((letter) => REGIONAL_INDICATOR_A + letter.charCodeAt(0) - LATIN_A));
+  return String.fromCodePoint(...[...code].map((letter) => COUNTRY_FLAG.regionalIndicatorA + letter.charCodeAt(0) - COUNTRY_FLAG.latinA));
 };
 
 export const pluralize = ({ count, forms, locale = DEFAULT_PLURAL_LOCALE }: PluralizeInput): string =>

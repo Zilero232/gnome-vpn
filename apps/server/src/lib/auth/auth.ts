@@ -12,10 +12,8 @@ import { allowedOrigins } from '@/config/cors';
 import { basePrisma } from '@/core';
 
 import { ChangeEmail, EMAIL_TEXT, ResetPassword, sendEmail, VerifyEmail } from '../email';
-import { withClientCallback } from './auth-callback-url';
 import { AUTH_PATHS, SESSION } from './auth.constants';
-import { claimedEmail } from './claimed-email';
-import { returnedUserId } from './request-locale';
+import { claimedEmail, returnedUserId, withClientCallback } from './auth.helpers';
 import { emailLocaleFor, rememberLocale } from './user-locale';
 
 const logger = new Logger('Auth');

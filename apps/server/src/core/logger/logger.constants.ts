@@ -1,6 +1,9 @@
-export const SERVICE_NAME = 'gnomevpn-server';
+import type { CreateLoggerInput } from '@gnomevpn/logger';
 
-export const PRETTY_FORMAT = {
-  ignore: 'context',
-  messageFormat: '[{context}] {msg}'
-};
+export const APP_LOGGER = {
+  service: 'gnomevpn-server',
+  pretty: {
+    ignore: 'context',
+    messageFormat: '[{context}] {msg}'
+  }
+} as const satisfies CreateLoggerInput;

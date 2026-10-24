@@ -3,6 +3,8 @@ import { Pool } from 'pg';
 
 import { env } from '@/config';
 
+import { PG_POOL } from './prisma.constants';
+
 const logger = new Logger('PgPool');
 
 const globalForPools = globalThis as unknown as { pgPools?: Pool[] };
@@ -16,16 +18,7 @@ if (env.app.isDevelopment) {
 }
 
 export const createPool = (connectionString: string): Pool => {
-  const pool = new Pool({
-    connectionString,
-    max: 10,
-    idleTimeoutMillis: 30_000,
-    connectionTimeoutMillis: 10_000,
-    maxLifetimeSeconds: 300,
-    keepAlive: true,
-    keepAliveInitialDelayMillis: 5_000,
-    allowExitOnIdle: false
-  });
+  const pool = new Pool({ connectionString, ...PG_POOL });
 
   pool.on('error', (error) => {
     logger.warn(`idle connection dropped: ${error.message}`);

@@ -19,6 +19,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       log: env.app.isDevelopment ? ['error', 'warn'] : ['error']
     });
   }
+
   async onModuleInit() {
     await this.$connect();
   }

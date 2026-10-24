@@ -221,6 +221,7 @@ describe('accessExtension', () => {
     expect(accessExtension({ currentPeriodEnd: subDays(ACCESS_NOW, 40), days: DAYS, now: ACCESS_NOW }).currentPeriodEnd).toEqual(
       addDays(ACCESS_NOW, DAYS)
     );
+
     expect(accessExtension({ currentPeriodEnd: null, days: DAYS, now: ACCESS_NOW }).currentPeriodEnd).toEqual(addDays(ACCESS_NOW, DAYS));
   });
 
