@@ -17,7 +17,7 @@ const flush = () => new Promise((resolve) => setImmediate(resolve));
 const freshSerializeByKey = async () => {
   vi.resetModules();
 
-  const module = await import('../serialize');
+  const module = await import('../key-lock');
 
   return module.serializeByKey;
 };
@@ -169,7 +169,7 @@ describe('serializeByKey', () => {
   it('forgets a key once its last task has settled', async () => {
     vi.resetModules();
 
-    const { pendingChains, serializeByKey } = await import('../serialize');
+    const { pendingChains, serializeByKey } = await import('../key-lock');
 
     const first = serializeByKey({ key: 'node-a', task: () => Promise.resolve('a') });
     const second = serializeByKey({ key: 'node-b', task: () => Promise.reject(new Error('down')) });

@@ -1,11 +1,11 @@
-import type { PanelInbound } from '../../../../apps/server/src/lib/xray';
+import type { InboundSpec, PanelInbound } from '../../../../apps/server/src/lib/xray';
 
 export type PanelCredentials = {
   baseUrl: string;
   token: string;
 };
 
-export type DesiredInbound = Record<string, unknown>;
+export type DesiredInbound = InboundSpec;
 
 export type DesiredInbounds = {
   hysteria: DesiredInbound;

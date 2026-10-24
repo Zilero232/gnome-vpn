@@ -8,7 +8,7 @@ import { isNullish } from 'remeda';
 import { AppBadRequestException, AppNotFoundException, AppServiceUnavailableException } from '@/common/exceptions';
 import { activeDeviceLimit, SUBSCRIPTION_PERIOD_SELECT } from '@/common/lib';
 import { PrismaService } from '@/core';
-import { WIREGUARD_INBOUND } from '@/lib/xray';
+import { INBOUND } from '@/lib/xray';
 import { DEVICE_KEY, DEVICE_ORDER, DevicesService } from '@/modules/devices';
 import { buildTunnelConfig, hasWireguard } from '@/modules/peers';
 
@@ -160,7 +160,7 @@ export class WireguardConfigService {
         serverPublicKey: config.wireguard.publicKey,
         host: config.server,
         port: config.port,
-        keepAlive: WIREGUARD_INBOUND.keepAlive
+        keepAlive: INBOUND.wireguard.keepAlive
       })
     };
   }

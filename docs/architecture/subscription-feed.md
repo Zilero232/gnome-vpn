@@ -79,11 +79,12 @@ writes. A node provisioned before Reality existed keeps serving Hysteria2 alone
 rather than advertising a server the client can never reach.
 
 **A Reality client is a UUID, not a password**, and needs `flow` alongside the
-rest of the mandatory field set — `PanelClient.addVlessClient` writes all of it
-for the same reason `addClient` does.
+rest of the mandatory field set — the VLESS `ProtocolClients` in `XrayClient`
+adds `flow` (`INBOUND.vless.flow`), and `PanelClient.addClient` spreads
+`CLIENT_DEFAULTS` over every client for the same reason.
 
-**`ensureVlessInbound` refuses to rewrite an inbound whose clients it cannot
-read**, exactly like `updateInbound`. A re-provision that overwrote the client
+**`XrayInbounds.ensure` refuses to rewrite an inbound whose clients it cannot
+read**, exactly like `XrayInbounds.update`. A re-provision that overwrote the client
 list from the template would wipe every subscriber on that node.
 
 `SubscriptionPeersService` owns the peer rows; `SubscriptionFeedService` owns
@@ -217,7 +218,7 @@ node that has never reported counts as down rather than as new.
 
 **A down node keeps the servers it already issued and issues no new ones.** A
 fetch from a new device used to call the panel of every node in the list, and a
-dead one held the whole response for `REQUEST_TIMEOUT_MS` per call — long
+dead one held the whole response for `PANEL.requestTimeoutMs` per call — long
 enough for an app's first import to time out — and the traffic headers asked
 every node on every fetch the same way. A stale node is now skipped for issuing
 (`ensureNode({ canIssue })`), and traffic comes from the cache above; the URIs a device already holds

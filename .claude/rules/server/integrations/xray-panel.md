@@ -28,5 +28,5 @@ keeps a QUIC session it already has until it reconnects.
 written as `{email, auth}` is stored by the panel and dropped from the running
 core, so every connection fails auth. `PanelClient` spreads `CLIENT_DEFAULTS`
 over every client it adds. A VLESS client also carries a `flow` field
-(`VLESS_FLOW`, currently `''`). The client email carries the protocol, because
+(`INBOUND.vless.flow`, currently `''`). The client email carries the protocol, because
 the database is unique on it.

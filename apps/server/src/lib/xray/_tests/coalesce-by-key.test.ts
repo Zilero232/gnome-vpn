@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { coalesceByKey } from '../coalesce';
+import { coalesceByKey } from '../key-lock';
 
 const deferred = () => {
   let resolve!: () => void;

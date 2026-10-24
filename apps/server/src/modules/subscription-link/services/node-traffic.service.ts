@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { sumBy } from 'remeda';
 
 import type { NodeTraffic } from '@/lib/xray';
 
-import { NO_TRAFFIC, sumTraffic } from '@/lib/xray';
+import { NO_TRAFFIC } from '@/lib/xray';
 
 import type { RecordNodeTrafficInput, TrafficClient } from '../subscription-link.service.types';
 
@@ -23,6 +24,8 @@ export class NodeTrafficService {
   }
 
   sum(clients: TrafficClient[]): NodeTraffic {
-    return sumTraffic(clients.map(({ nodeId, email }) => this.byNode.get(nodeId)?.get(email) ?? NO_TRAFFIC));
+    const parts = clients.map(({ nodeId, email }) => this.byNode.get(nodeId)?.get(email) ?? NO_TRAFFIC);
+
+    return { up: sumBy(parts, (part) => part.up), down: sumBy(parts, (part) => part.down) };
   }
 }

@@ -50,7 +50,7 @@ export class PeersService {
       .returnType<() => Promise<IssuedCredential>>()
       .with(TUNNEL_PROTOCOL.vless, () => () => client.createVlessClient({ email, limitIp }))
       .with(TUNNEL_PROTOCOL.wireguard, () => () => client.createWireguardClient({ email, limitIp, ...generateWireguardKeys() }))
-      .otherwise(() => () => client.createClient({ email, limitIp }));
+      .otherwise(() => () => client.createHysteriaClient({ email, limitIp }));
 
     try {
       const created = await create();

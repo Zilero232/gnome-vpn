@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { PanelInbound } from '../../../../../apps/server/src/lib/xray/panel-client';
+import type { PanelInbound } from '../../../../../apps/server/src/lib/xray';
 
 import { inboundMatches } from '../xray-panel.helpers';
 

@@ -37,30 +37,30 @@ const fakePrisma = (update = vi.fn()) => ({ peer: { update } }) as unknown as Pr
 
 describe('restoreMissing', () => {
   it('does nothing when the node already holds every peer', async () => {
-    const createClient = vi.fn();
+    const createHysteriaClient = vi.fn();
     const present = peer();
 
     const restored = await restoreMissing({
       prisma: fakePrisma(),
       logger: silentLogger(),
-      xray: { createClient } as unknown as XrayClient,
+      xray: { createHysteriaClient } as unknown as XrayClient,
       node: NODE,
       peers: [present],
       nodeClients: new Map([[peerClientName(present), true]])
     });
 
     expect(restored).toBe(0);
-    expect(createClient).not.toHaveBeenCalled();
+    expect(createHysteriaClient).not.toHaveBeenCalled();
   });
 
   it('reissues a missing peer with the credential already in the database', async () => {
-    const createClient = vi.fn();
+    const createHysteriaClient = vi.fn();
     const missing = peer();
 
     const restored = await restoreMissing({
       prisma: fakePrisma(),
       logger: silentLogger(),
-      xray: { createClient } as unknown as XrayClient,
+      xray: { createHysteriaClient } as unknown as XrayClient,
       node: NODE,
       peers: [missing],
       nodeClients: new Map()
@@ -68,7 +68,7 @@ describe('restoreMissing', () => {
 
     expect(restored).toBe(1);
 
-    expect(createClient).toHaveBeenCalledWith({
+    expect(createHysteriaClient).toHaveBeenCalledWith({
       email: peerClientName(missing),
       auth: missing.nodeCredential,
       limitIp: DEFAULT_DEVICE_LIMIT
@@ -152,7 +152,7 @@ describe('restoreMissing', () => {
   });
 
   it('restores the device limit the owner paid for, not the default one', async () => {
-    const createClient = vi.fn();
+    const createHysteriaClient = vi.fn();
     const extraDevices = 3;
 
     const missing = peer({
@@ -162,17 +162,17 @@ describe('restoreMissing', () => {
     await restoreMissing({
       prisma: fakePrisma(),
       logger: silentLogger(),
-      xray: { createClient } as unknown as XrayClient,
+      xray: { createHysteriaClient } as unknown as XrayClient,
       node: NODE,
       peers: [missing],
       nodeClients: new Map()
     });
 
-    expect(createClient).toHaveBeenCalledWith(expect.objectContaining({ limitIp: DEFAULT_DEVICE_LIMIT + extraDevices }));
+    expect(createHysteriaClient).toHaveBeenCalledWith(expect.objectContaining({ limitIp: DEFAULT_DEVICE_LIMIT + extraDevices }));
   });
 
   it('falls back to the default limit once the period the extras were bought for has lapsed', async () => {
-    const createClient = vi.fn();
+    const createHysteriaClient = vi.fn();
 
     const missing = peer({
       user: { subscription: { currentPeriodEnd: new Date(Date.now() - DAY_MS), extraDevices: 3 } }
@@ -181,13 +181,13 @@ describe('restoreMissing', () => {
     await restoreMissing({
       prisma: fakePrisma(),
       logger: silentLogger(),
-      xray: { createClient } as unknown as XrayClient,
+      xray: { createHysteriaClient } as unknown as XrayClient,
       node: NODE,
       peers: [missing],
       nodeClients: new Map()
     });
 
-    expect(createClient).toHaveBeenCalledWith(expect.objectContaining({ limitIp: DEFAULT_DEVICE_LIMIT }));
+    expect(createHysteriaClient).toHaveBeenCalledWith(expect.objectContaining({ limitIp: DEFAULT_DEVICE_LIMIT }));
   });
 
   it('records what it restored, so a second pass finds nothing to do', async () => {
@@ -197,7 +197,7 @@ describe('restoreMissing', () => {
     await restoreMissing({
       prisma: fakePrisma(),
       logger: silentLogger(),
-      xray: { createClient: vi.fn() } as unknown as XrayClient,
+      xray: { createHysteriaClient: vi.fn() } as unknown as XrayClient,
       node: NODE,
       peers: [missing],
       nodeClients
@@ -207,12 +207,12 @@ describe('restoreMissing', () => {
   });
 
   it('reports no change when every reissue fails', async () => {
-    const createClient = vi.fn().mockRejectedValue(new Error('panel refused'));
+    const createHysteriaClient = vi.fn().mockRejectedValue(new Error('panel refused'));
 
     const restored = await restoreMissing({
       prisma: fakePrisma(),
       logger: silentLogger(),
-      xray: { createClient } as unknown as XrayClient,
+      xray: { createHysteriaClient } as unknown as XrayClient,
       node: NODE,
       peers: [peer()],
       nodeClients: new Map()
