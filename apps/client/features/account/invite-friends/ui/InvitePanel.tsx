@@ -50,9 +50,9 @@ export const InvitePanel = () => {
         </p>
       )}
 
-      <InviteRewards />
-
       {overview.invited > 0 && <InviteStats overview={overview} />}
+
+      <InviteRewards />
 
       <Text as='p' className={s.rules} size='xs' tone='muted'>
         <Info aria-hidden className={s.rulesIcon} size={14} />

@@ -181,7 +181,7 @@ jobs:
     environment: production
 
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 45
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -224,11 +224,13 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           password: ${{ secrets.DEPLOY_SSH_PASSWORD }}
           envs: DEPLOY_PATH
+          # The default 10m ran out while a fresh 250 MB image layer was still downloading.
+          command_timeout: 30m
           script: |
             set -euo pipefail
             cd "$DEPLOY_PATH"
             touch .env.nodes
-            docker compose pull web server
+            docker compose pull --quiet web server
 
             docker compose run --rm --no-deps server bunx prisma migrate resolve --applied 20260723000000_baseline || true
             docker compose run --rm --no-deps server bunx prisma migrate deploy

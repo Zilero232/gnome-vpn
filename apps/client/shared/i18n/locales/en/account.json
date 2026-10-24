@@ -66,7 +66,7 @@
     "setPasswordHint": "No password yet — this account was created through Telegram. We will email you a link to set one.",
     "setPasswordNeedsEmail": "Add an email above first — there is nowhere to send the link.",
     "passwordLinkSent": "The link is on its way to your inbox",
-    "notifications": "Notifications"
+    "notifications": "Mailing list"
   },
   "tabs": {
     "subscription": "Subscription",
@@ -138,8 +138,8 @@
   "subscribeNow": "Subscribe right away",
   "adminLink": "Admin",
   "marketing": {
-    "label": "Personal discounts and offers",
-    "hint": "Emails and bot messages with discounts. Service notices about your subscription always arrive.",
+    "label": "Send me discounts and offers",
+    "hint": "Now and then, by email and in the Telegram bot. Reminders about payments and your subscription ending arrive either way.",
     "unavailable": "Could not load this setting. Check your connection and try again.",
     "promptTitle": "Send you personal discounts?",
     "promptBody": "By email and in the bot — only when there is something worth offering. You can change your mind in the profile.",

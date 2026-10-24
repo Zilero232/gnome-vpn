@@ -58,13 +58,11 @@ export const SubscriptionCard = ({ subscription, isLoading, isError, onRetry }: 
 
       {content}
 
-      {subscription?.status === 'active' && <MarketingConsentPrompt />}
-
       {subscription && (
         <>
-          <PromoCodeForm />
-
           <GiftPanel />
+
+          <PromoCodeForm />
 
           <div className={s.notes}>
             <PaymentMethodsNote />
@@ -73,6 +71,8 @@ export const SubscriptionCard = ({ subscription, isLoading, isError, onRetry }: 
           </div>
         </>
       )}
+
+      {subscription?.status === 'active' && <MarketingConsentPrompt />}
     </>
   );
 };
