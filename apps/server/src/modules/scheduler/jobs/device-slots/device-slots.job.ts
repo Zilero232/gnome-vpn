@@ -3,7 +3,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { isEmpty } from 'remeda';
 
 import { describeError } from '@/common/lib';
-import { DEVICE_TITLE, DevicesService } from '@/modules/devices';
+import { DEVICE_TITLE, DeviceLimitService } from '@/modules/devices';
 import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
 
 @Injectable()
@@ -11,14 +11,14 @@ export class DeviceSlotsJob {
   private readonly logger = new Logger(DeviceSlotsJob.name);
 
   constructor(
-    private readonly devices: DevicesService,
+    private readonly deviceLimit: DeviceLimitService,
     private readonly notify: TelegramNotifyService
   ) {}
 
   @Cron(CronExpression.EVERY_10_MINUTES)
   async run(): Promise<void> {
     try {
-      const revocations = await this.devices.revokeOverLimit();
+      const revocations = await this.deviceLimit.revokeOverLimit();
 
       if (isEmpty(revocations)) {
         return;

@@ -1,16 +1,10 @@
-export { PEER_PREFIX, PEER_REF_SELECT, WIREGUARD } from './config';
-export {
-  buildTunnelConfig,
-  generateRealityKeys,
-  generateRealityShortId,
-  generateWireguardKeys,
-  hasReality,
-  hasWireguard,
-  peerClientName,
-  wireguardPublicKey
-} from './lib';
-export type { PeerNameInput, TunnelNode } from './lib';
+export { PEER_NAME_SELECT, PEER_PREFIX, PEER_REF_SELECT, WIREGUARD } from './config';
+export { peerClientName, peerRevocation } from './lib/peer-row';
+export type { PeerNameInput } from './lib/peer-row';
+export { buildTunnelConfig, feedProtocols, hasWireguard, nodeProtocols } from './lib/tunnel-config';
+export type { ProtocolNode, TunnelNode } from './lib/tunnel-config';
+export { wireguardPublicKey } from './lib/x25519-keys';
 export { PeersModule } from './peers.module';
-
-export type { CreatedPeer, PeerRef } from './peers.service.types';
-export { PeersService } from './services';
+export type { CreatedPeer, PeerRef } from './peers.types';
+export { NodeTrafficService } from './services/node-traffic.service';
+export { PeersService } from './services/peers.service';

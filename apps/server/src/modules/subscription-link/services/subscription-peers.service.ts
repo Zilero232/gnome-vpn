@@ -1,6 +1,3 @@
-import type { TunnelProtocol } from '@gnomevpn/schemas';
-
-import { TUNNEL_PROTOCOL } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
 import { isEmpty, isNonNullish } from 'remeda';
 
@@ -9,12 +6,11 @@ import type { NodeTraffic } from '@/lib/xray';
 import { describeError } from '@/common/lib';
 import { PrismaService } from '@/core';
 import { DEVICE_PEER, devicePeerName } from '@/modules/devices';
-import { hasReality, peerClientName, PeersService } from '@/modules/peers';
+import { feedProtocols, NodeTrafficService, PEER_NAME_SELECT, peerClientName, PeersService } from '@/modules/peers';
 
 import type { EnsureNodeInput, FeedPeer, IssueFeedPeerInput, PersistPeerInput, SubscriptionNode } from '../subscription-link.service.types';
 
 import { NODE_FEED_SELECT } from '../config';
-import { NodeTrafficService } from './node-traffic.service';
 
 @Injectable()
 export class SubscriptionPeersService {
@@ -34,17 +30,13 @@ export class SubscriptionPeersService {
     });
   }
 
-  protocolsFor(node: SubscriptionNode): TunnelProtocol[] {
-    return [TUNNEL_PROTOCOL.hysteria2, ...(hasReality(node) ? [TUNNEL_PROTOCOL.vless] : [])];
-  }
-
   async ensureNode({
     userId,
     deviceId,
     node,
     canIssue,
     limitIp = DEVICE_PEER.ipsPerClient,
-    protocols = this.protocolsFor(node)
+    protocols = feedProtocols(node)
   }: EnsureNodeInput): Promise<FeedPeer[]> {
     const name = devicePeerName(deviceId);
 
@@ -67,7 +59,7 @@ export class SubscriptionPeersService {
   async traffic(userId: string): Promise<NodeTraffic> {
     const peers = await this.prisma.peer.findMany({
       where: { userId, kind: 'config', revokedAt: null },
-      select: { userId: true, kind: true, name: true, nodeId: true, protocol: true }
+      select: PEER_NAME_SELECT
     });
 
     return this.nodeTraffic.sum(peers.map((peer) => ({ nodeId: peer.nodeId, email: peerClientName(peer) })));

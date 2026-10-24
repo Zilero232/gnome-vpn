@@ -4,6 +4,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { BillingModule } from '../billing';
 import { ConsentsModule } from '../consents';
 import { DevicesModule } from '../devices';
+import { PeersModule } from '../peers';
 import { PromoCodesModule } from '../promo-codes';
 import { StatusModule } from '../status';
 import { SubscriptionLinkModule } from '../subscription-link';
@@ -29,6 +30,7 @@ import {
     BillingModule,
     ConsentsModule,
     DevicesModule,
+    PeersModule,
     PromoCodesModule,
     SubscriptionLinkModule,
     TelegramNotifyModule,

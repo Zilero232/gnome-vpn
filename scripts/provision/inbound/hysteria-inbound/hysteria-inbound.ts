@@ -1,9 +1,10 @@
+import type { InboundSpec } from '../../../../apps/server/src/lib/xray';
 import type { BuildInboundInput } from './hysteria-inbound.types';
 
 import { MASQUERADE_HOST, NODE_FILES, PORTS } from '../../config';
 import { HYSTERIA_INBOUND } from './hysteria-inbound.constants';
 
-export const buildHysteriaInbound = ({ auth, sni }: BuildInboundInput): Record<string, unknown> => ({
+export const buildHysteriaInbound = ({ auth, sni }: BuildInboundInput): InboundSpec => ({
   tag: HYSTERIA_INBOUND.tag,
   listen: null,
   port: PORTS.hysteria,

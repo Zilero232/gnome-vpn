@@ -27,20 +27,27 @@ issues every missing peer on a node and is done: the panel pushes each new
 client into the running core itself (below), so no other session on the node is
 touched.
 
-`XrayClient` itself is a **facade over separate concerns**, each its own folder:
+`lib/xray` splits by who calls it and by protocol:
 
 ```text
 lib/xray/
-├── panel-client/      # the 3x-ui HTTP API, and nothing above it
-├── inbounds/          # find/create an inbound, shape its payload — used by every protocol
-├── protocol-clients/  # list/create/delete clients of one inbound, for Hysteria2 and VLESS
-├── hysteria/          # Hysteria2 clients: create, delete, enable
-├── vless/             # VLESS + Reality clients, in their own inbound
-├── wireguard/         # WireGuard clients: keys, addresses, re-enable by delete and add
-├── serialize/         # serializeByKey: one write at a time per node
-├── coalesce/          # coalesceByKey: one inbound restart per node at a time, plus one follow-up
-└── xray.ts            # the facade the rest of the server calls
+├── xray.ts              # XrayClient — what the server does to a node's clients: issue, delete, enable, read state and health
+├── xray-inbounds.ts     # XrayInbounds — what provisioning does to a node: create, update or ensure an inbound, restart the core
+├── panel-client.ts      # the 3x-ui HTTP API, every answer parsed with zod, and nothing above it
+├── protocol-clients.ts  # Hysteria2 and VLESS clients of one inbound: list and create, one instance per protocol
+├── wireguard-clients.ts # WireGuard clients: keys, addresses, re-enable by delete and add
+├── key-lock.ts          # serializeByKey (one write at a time per node) and coalesceByKey (one core restart at a time)
+├── node-access.ts       # xrayClientForNode and the node selects it needs
+├── xray.schemas.ts      # what the panel answers, as zod schemas
+└── xray.{types,constants,helpers}.ts
 ```
+
+Hysteria2 and VLESS differ only in the inbound they live in, the field that
+holds the credential (`auth` or `id`) and the fields a new client carries, so
+they are two `ProtocolClients` instances configured side by side in the
+`XrayClient` constructor rather than two pass-through classes. `XrayInbounds` is
+the provisioning half: the server never creates an inbound or restarts a core,
+so `XrayClient` has no method that could.
 
 The name is historical and misleads: `XrayClient` talks to the **3x-ui panel**,
 not to Xray-core. The panel runs the core; Hysteria2 is an inbound inside it,
@@ -52,7 +59,8 @@ protocol (WireGuard's re-enable by delete and add, below) were easy to miss with
 the paths interleaved. Splitting by protocol makes each rule visible where it
 applies.
 
-Both protocols are ordinary panel clients, so one `deleteClient` removes either.
+Every protocol's clients are ordinary panel clients, deleted by email, so one
+`XrayClient.deleteClient` removes any of them.
 A peer has exactly one client name, `peerClientName`. It used to answer a second,
 "pre-protocol" name too — a leftover of WireGuard, whose clients predated the
 `-wg` suffix. For VLESS that second name is the Hysteria2 client of the same
@@ -63,8 +71,13 @@ refused the duplicate email — so there is nothing the fallback could find.
 
 **Every write path parses settings strictly.** `readSettings` and `readClients`
 return `null` on malformed JSON, and the caller refuses rather than rewriting:
-`rewriteInbound` will not update an inbound whose clients it cannot read, and
-`ProtocolClients` will not add to one whose settings it cannot parse. A tolerant
+`XrayInbounds` will not rewrite an inbound whose clients it cannot read, and
+`ProtocolClients` and `WireguardClients` will not read one whose settings they
+cannot parse. Both parse with zod: the inbound settings as a loose object, so a
+rewrite carries every client field the panel stored back untouched, and each
+client against its protocol's schema. `PanelClient` parses every answer the same
+way and throws `NODE_UNAVAILABLE` on a shape it does not expect, rather than
+casting it. A tolerant
 parse is what once erased a node's clients: it produced an empty settings object,
 which was then written back over the real one.
 
@@ -144,7 +157,7 @@ immediately.
 
 ## WireGuard clients
 
-`lib/xray/wireguard` holds them, beside `hysteria/` and `vless/`. A WireGuard
+`lib/xray/wireguard-clients.ts` holds them. A WireGuard
 peer is an ordinary panel client of the `GnomeVPN WireGuard` inbound — email,
 `privateKey`, `publicKey`, `allowedIPs`, `keepAlive` — added through the same
 `/panel/api/clients/add`, and since 3x-ui v3.4.2 the panel turns those clients
@@ -195,7 +208,7 @@ The server therefore restarts nothing for a client: not after issuing peers in
 the feed, not in `pushEnabled`, not after reconcile released, retired,
 restored, synced or collected clients — each of those used to drop every tunnel
 on the node, several times a day. Reconcile logs what it changed per node
-instead (`reconciled node …: released 1, restored 2`). `XrayClient.restartCore`
+instead (`reconciled node …: released 1, restored 2`). `XrayInbounds.restartCore`
 is left for provisioning, after it creates or changes a Hysteria2 or VLESS
 **inbound**; it is coalesced per node (`coalesceByKey`) and logs its reason.
 

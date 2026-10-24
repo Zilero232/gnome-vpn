@@ -7,7 +7,7 @@ import { AppConfigService } from '@/config';
 import { PrismaService } from '@/core';
 import { NO_TRAFFIC } from '@/lib/xray';
 import { DEVICE_HEADER, deviceIdentity, deviceIpLimit, DevicesService, headerOf, isKeylessIncy } from '@/modules/devices';
-import { buildTunnelConfig } from '@/modules/peers';
+import { buildTunnelConfig, feedProtocols } from '@/modules/peers';
 
 import type { BuildFeedInput, ServerUrisInput, SubscriptionBody, TouchLinkInput } from '../subscription-link.service.types';
 
@@ -77,7 +77,7 @@ export class SubscriptionFeedService {
       ? await this.serverUris({ userId: link.userId, deviceId, nodes, tls: tlsMode(userAgent), issuable, limitIp: deviceIpLimit(identity.key) })
       : [];
 
-    const expected = live.flatMap((node) => this.subscriptionPeers.protocolsFor(node)).length;
+    const expected = live.flatMap((node) => feedProtocols(node)).length;
 
     if (isNonNullish(deviceId) && uris.length < expected) {
       this.logger.warn(`feed for ${link.userId} served ${uris.length} of ${expected} servers to device ${deviceId}`);
@@ -128,7 +128,7 @@ export class SubscriptionFeedService {
 
     return zip(nodes, issued)
       .flatMap(([node, peers]) =>
-        this.subscriptionPeers.protocolsFor(node).map((protocol) => {
+        feedProtocols(node).map((protocol) => {
           const peer = peers.find((candidate) => candidate.protocol === protocol);
 
           if (!peer) {

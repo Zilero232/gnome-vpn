@@ -1,9 +1,10 @@
+import type { InboundSpec } from '../../../../apps/server/src/lib/xray';
 import type { BuildRealityInboundInput } from './reality-inbound.types';
 
 import { PORTS, REALITY_DONOR } from '../../config';
 import { REALITY_INBOUND } from './reality-inbound.constants';
 
-export const buildRealityInbound = ({ privateKey, shortId }: BuildRealityInboundInput): Record<string, unknown> => ({
+export const buildRealityInbound = ({ privateKey, shortId }: BuildRealityInboundInput): InboundSpec => ({
   tag: REALITY_INBOUND.tag,
   listen: null,
   port: PORTS.reality,

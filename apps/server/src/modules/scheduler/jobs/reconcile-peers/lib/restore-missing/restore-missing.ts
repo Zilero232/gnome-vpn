@@ -38,7 +38,7 @@ export const restoreMissing = async ({ prisma, logger, xray, node, peers, nodeCl
             await prisma.peer.update({ where: { id: peer.id }, data: { tunnelAddress: created.address } });
           }
         })
-        .otherwise(() => xray.createClient({ email, auth: peer.nodeCredential, limitIp }));
+        .otherwise(() => xray.createHysteriaClient({ email, auth: peer.nodeCredential, limitIp }));
 
       nodeClients.set(email, true);
       restored += 1;

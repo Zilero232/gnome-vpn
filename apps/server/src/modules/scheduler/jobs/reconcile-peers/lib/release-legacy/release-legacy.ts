@@ -3,8 +3,8 @@ import { isEmpty, isNullish, unique } from 'remeda';
 
 import type { ReconcilePeer } from '@/modules/scheduler/jobs/reconcile-peers/reconcile-peers.job.types';
 
-import { LEGACY_PEER } from '@/modules/devices';
 import { peerClientName } from '@/modules/peers';
+import { LEGACY_PEER } from '@/modules/scheduler/jobs/reconcile-peers/reconcile-peers.job.constants';
 
 import type { ReleaseLegacyInput } from './release-legacy.types';
 
