@@ -1,11 +1,11 @@
 import type { PromoRedemption } from '@gnomevpn/schemas';
 
-import { isPlaceholderEmail, normalisePromoCode, promoCodeOrigin } from '@gnomevpn/schemas';
+import { normalisePromoCode, promoCodeOrigin } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
 import { isNullish } from 'remeda';
 
 import { AppBadRequestException, AppNotFoundException, AppServiceUnavailableException } from '@/common/exceptions';
-import { describeError } from '@/common/lib';
+import { describeError, hasConfirmedEmail } from '@/common/lib';
 import { isUniqueViolation, PrismaService } from '@/core';
 import { ReferralService } from '@/modules/referrals';
 import { SubscriptionPeriodService, TrialGrantService } from '@/modules/subscription';
@@ -54,7 +54,7 @@ export class PromoRedemptionService {
   private async requireVerifiedEmail(userId: string): Promise<void> {
     const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { email: true, emailVerified: true } });
 
-    if (isNullish(user) || (!user.emailVerified && !isPlaceholderEmail(user.email))) {
+    if (isNullish(user) || !hasConfirmedEmail(user)) {
       throw new AppBadRequestException('PROMO_EMAIL_UNVERIFIED', PROMO_REDEEM.unverifiedEmail);
     }
   }
