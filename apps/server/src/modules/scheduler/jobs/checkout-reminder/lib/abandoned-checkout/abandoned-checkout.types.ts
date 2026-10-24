@@ -1,5 +1,5 @@
 import type { PaymentKind } from '@/generated';
-import type { NoticeKey } from '@/modules/telegram/telegram.types';
+import type { NoticeKey } from '@/modules/telegram/notify';
 
 export type CheckoutRow = {
   id: string;

@@ -8,7 +8,7 @@ import { xrayClientForNode } from '@/lib/xray';
 import { NodeTrafficService } from '@/modules/peers';
 import { ALERT } from '@/modules/scheduler/config';
 import { NodeUptimeService } from '@/modules/status';
-import { TelegramAlertService } from '@/modules/telegram/services/telegram-alert.service';
+import { TelegramAlertService } from '@/modules/telegram/notify';
 
 import type { NoteLoadInput, ProbedNode, ProbeNodeRow, RecordNodeInput } from './node-health.job.types';
 

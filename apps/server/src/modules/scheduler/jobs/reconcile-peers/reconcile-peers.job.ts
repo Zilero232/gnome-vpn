@@ -6,8 +6,7 @@ import { describeError } from '@/common/lib';
 import { PrismaService } from '@/core';
 import { IDENTIFIED_NODE_SELECT, xrayClientForNode } from '@/lib/xray';
 import { ALERT, SCHEDULE } from '@/modules/scheduler/config';
-import { TelegramAlertService } from '@/modules/telegram/services/telegram-alert.service';
-import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
+import { TelegramAlertService, TelegramNotifyService } from '@/modules/telegram/notify';
 
 import type { NoteFailureInput, ReconcileNodeInput } from './reconcile-peers.job.types';
 

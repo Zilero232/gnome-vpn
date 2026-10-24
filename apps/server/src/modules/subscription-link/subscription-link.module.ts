@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 
+import { TelegramNotifyModule } from '@/modules/telegram/notify';
+
 import { DevicesModule } from '../devices';
 import { PeersModule } from '../peers';
 import { SubscriptionModule } from '../subscription';
-import { TelegramNotifyModule } from '../telegram/telegram-notify.module';
 import { GeoFilesController } from './geo-files.controller';
 import { RoutingSettingsController } from './routing-settings.controller';
 import {

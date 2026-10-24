@@ -1,1 +1,0 @@
-export { callbackPattern } from './callback';

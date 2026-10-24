@@ -10,7 +10,7 @@ import { PrismaService, withUniqueRetry } from '@/core';
 import { AutoRenewService } from '@/modules/billing';
 import { DevicesService } from '@/modules/devices';
 import { SubscriptionAccessService, SubscriptionLinkService } from '@/modules/subscription-link';
-import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
+import { TelegramNotifyService } from '@/modules/telegram/notify';
 
 import type { AdminActionInput, ExtendActionInput, ExtendWithinInput, MessageActionInput, RemoveDeviceActionInput } from '../admin.types';
 

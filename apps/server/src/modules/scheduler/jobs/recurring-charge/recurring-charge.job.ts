@@ -11,8 +11,7 @@ import { YooKassaClient } from '@/lib/yookassa';
 import { CardService, CheckoutService, describeRenewal, renewalIdempotenceKey, WebhookService } from '@/modules/billing';
 import { PENDING, WINDOW } from '@/modules/scheduler/config';
 import { periodKind } from '@/modules/subscription';
-import { TelegramAlertService } from '@/modules/telegram/services/telegram-alert.service';
-import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
+import { TelegramAlertService, TelegramNotifyService } from '@/modules/telegram/notify';
 
 import type { ChargeAttemptInput, DueSubscription } from './recurring-charge.job.types';
 

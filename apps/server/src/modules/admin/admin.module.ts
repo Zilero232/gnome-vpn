@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 
+import { TelegramNotifyModule } from '@/modules/telegram/notify';
+
 import { BillingModule } from '../billing';
 import { DevicesModule } from '../devices';
 import { PromoCodesModule } from '../promo-codes';
 import { SubscriptionLinkModule } from '../subscription-link';
-import { TelegramNotifyModule } from '../telegram/telegram-notify.module';
 import { AdminNodesController } from './admin-nodes.controller';
 import { AdminPaymentsController } from './admin-payments.controller';
 import { AdminPromoCodesController } from './admin-promo-codes.controller';

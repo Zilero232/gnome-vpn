@@ -5,7 +5,7 @@ import { subHours, subMinutes } from 'date-fns';
 import { describeError } from '@/common/lib';
 import { claimNotice, NOTICE_CLAIM, PrismaService } from '@/core';
 import { CHECKOUT_REMINDER, REACHABLE_USER } from '@/modules/scheduler/config';
-import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
+import { TelegramNotifyService } from '@/modules/telegram/notify';
 
 import type { RemindInput } from './checkout-reminder.job.types';
 
