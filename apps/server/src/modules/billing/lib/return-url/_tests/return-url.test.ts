@@ -29,3 +29,18 @@ describe('localizedReturnUrl', () => {
     expect(localizedReturnUrl({ baseUrl: 'https://gnomevpn.example/en/account', locale: 'en' })).toBe('https://gnomevpn.example/en/account');
   });
 });
+
+describe('localizedReturnUrl, byte for byte', () => {
+  it('hands the default locale the configured URL untouched, not re-serialised, so a reused payment still matches it', () => {
+    expect(localizedReturnUrl({ baseUrl: 'https://gnomevpn.example', locale: 'ru' })).toBe('https://gnomevpn.example');
+    expect(localizedReturnUrl({ baseUrl: 'HTTPS://GnomeVPN.example/account', locale: 'ru' })).toBe('HTTPS://GnomeVPN.example/account');
+    expect(localizedReturnUrl({ baseUrl: 'https://gnomevpn.example/account', locale: undefined })).toBe('https://gnomevpn.example/account');
+  });
+
+  it('serialises the URL for any other locale', () => {
+    expect(localizedReturnUrl({ baseUrl: 'https://gnomevpn.example', locale: 'en' })).toBe('https://gnomevpn.example/en');
+    expect(localizedReturnUrl({ baseUrl: 'HTTPS://GnomeVPN.example/account', locale: 'en' })).toBe('https://gnomevpn.example/en/account');
+    expect(localizedReturnUrl({ baseUrl: 'https://gnomevpn.example/en', locale: 'en' })).toBe('https://gnomevpn.example/en');
+    expect(localizedReturnUrl({ baseUrl: 'https://gnomevpn.example/en/', locale: 'en' })).toBe('https://gnomevpn.example/en/');
+  });
+});
