@@ -27,6 +27,16 @@ full, the entry links to it. Part of the [documentation index](../README.md).
   password, email or name twice, making a second WireGuard config, entering a
   second promo code. Every `reset` passes `{ keepFieldsRef: true }` now
   ([forms](../guides/client/forms.md)).
+- **Signing in from the bot landed on the sign-in page.** `/telegram` traded the
+  code, stored the token and went to `/account`, where `AuthProvider` sent the
+  reader straight to `/auth`; a reload then showed the account. `useHasSession`
+  read `localStorage` during render, and the React Compiler memoised that read on
+  the session and hydration flags, neither of which a stored token changes. The
+  token is read through reactuse's `useLocalStorage` now, `saveAuthToken` and
+  `clearToken` announce every change with `dispatchStorageEvent`, and both
+  Telegram sign-ins wait for `useSession`'s `refetch` before they move on, so the
+  account opens with the user already loaded. A value from browser storage is
+  state, never a call in the render body.
 - **`next/root-params` needs the root layout inside the dynamic segment.** With an
   outer `app/layout.tsx` present, `next typegen` reports "No root params detected"
   and every `rootParams.locale()` import fails to resolve. The locale layout must

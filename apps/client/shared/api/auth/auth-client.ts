@@ -1,3 +1,4 @@
+import { dispatchStorageEvent } from '@siberiacancode/reactuse';
 import { createAuthClient } from 'better-auth/react';
 
 import { env } from '@/shared/config';
@@ -18,12 +19,15 @@ export const getAuthToken = () => {
   return window.localStorage.getItem(STORAGE_KEY) ?? '';
 };
 
+const announceToken = (token: string | null) => dispatchStorageEvent({ key: STORAGE_KEY, newValue: token, storageArea: window.localStorage });
+
 export const saveAuthToken = (token: string | null): boolean => {
   if (isServer() || !token || window.localStorage.getItem(STORAGE_KEY) === token) {
     return false;
   }
 
   window.localStorage.setItem(STORAGE_KEY, token);
+  announceToken(token);
 
   return true;
 };
@@ -34,6 +38,7 @@ export const clearToken = () => {
   }
 
   window.localStorage.removeItem(STORAGE_KEY);
+  announceToken(null);
 };
 
 export const authClient = createAuthClient({
