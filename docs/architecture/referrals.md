@@ -49,7 +49,7 @@ A friend is attributed when all of these hold, checked by
   under it), and the two accounts are not inviting each other.
 
 The eligibility check, the mutual check and the insert run in one serializable
-transaction (`withSerializableRetry`), so a payment settling or a reverse invite
+transaction (`prisma.serializable`), so a payment settling or a reverse invite
 landing between the check and the insert cannot slip a referral past them; the
 unique violation still maps to `REFERRAL_UNAVAILABLE`.
 

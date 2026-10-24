@@ -74,6 +74,7 @@ export class YooKassaClient {
       init: { method: 'GET' },
       schema: paymentResponseSchema
     });
+
     const method = payload.payment_method;
 
     return {

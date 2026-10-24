@@ -5,8 +5,7 @@ import { match } from 'ts-pattern';
 
 import { describeError } from '@/common/lib';
 import { SubscriptionPeriodService } from '@/modules/subscription';
-import { TelegramAlertService } from '@/modules/telegram/notify';
-import { TelegramNotifyService } from '@/modules/telegram/notify';
+import { TelegramAlertService, TelegramNotifyService } from '@/modules/telegram/notify';
 
 import type { AnnounceInput, AnnounceReferralInput, ChargeFailedInput, SettledNoticeInput } from './notice.types';
 

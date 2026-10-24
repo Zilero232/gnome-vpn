@@ -484,13 +484,15 @@ actually charged and adds `checkoutDiscount` with the code and the full price
 (`checkoutIntro`, [promo-codes.md](promo-codes.md#the-discount-lifecycle)). A
 paid gift is announced with `giftPurchased`, which carries the code.
 
-**Every consumer imports the files directly, never `telegram` or
-`telegram/services`** — `telegram-notify.service` and `telegram-alert.service`. Either barrel re-exports a service that injects
-`CheckoutService`, so reaching billing through one loads billing while billing
-is still initialising: `Cannot access 'CheckoutService' before initialization`,
-at boot, with nothing failing to typecheck first. This is the one place in the
-server that goes around a module barrel deliberately, and moving either import
-back to the barrel brings the crash back — it was tried.
+**Every consumer imports `@/modules/telegram/notify`, never `@/modules/telegram`.**
+The notify services live in their own folder with their own barrel, which
+exports the notify module, `TelegramNotifyService`, `TelegramAlertService` and
+the notice types — nothing that injects `CheckoutService`. The module barrel
+does re-export such services, so reaching billing through it loads billing while
+billing is still initialising: `Cannot access 'CheckoutService' before
+initialization`, at boot, with nothing failing to typecheck first. Consumers used
+to import the two service files directly to avoid it; the submodule barrel gives
+them a boundary without the cycle.
 
 A chat that is not linked simply gets nothing, and anything that fails — the
 chat lookup included, which sits inside the same `try` — is logged rather than
@@ -832,7 +834,7 @@ renewal (YooKassa's reason, and whether the card was dropped).
 decides synchronously, then composes and sends detached, and any failure —
 including the database lookup for a name — is logged and dropped. A YooKassa
 webhook or a cron job never waits for Telegram and never fails because of it.
-It lives in `TelegramNotifyModule` and is imported by file, like
+It lives in `TelegramNotifyModule` and is imported from `@/modules/telegram/notify`, like
 `TelegramNotifyService` ([above](#telegram-is-a-second-door-to-the-same-account)).
 
 **A node is down when it has been silent for a while, not when one probe

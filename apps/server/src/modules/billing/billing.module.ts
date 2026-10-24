@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 
 import { YooKassaClient } from '@/lib/yookassa';
+import { TelegramNotifyModule } from '@/modules/telegram/notify';
 
 import { PromoCodesModule } from '../promo-codes';
 import { ReferralsModule } from '../referrals';
 import { SubscriptionModule } from '../subscription';
 import { SubscriptionLinkModule } from '../subscription-link';
-import { TelegramNotifyModule } from '@/modules/telegram/notify';
 import { AutoRenewController } from './auto-renew/auto-renew.controller';
 import { AutoRenewService } from './auto-renew/auto-renew.service';
 import { CheckoutController } from './checkout/checkout.controller';

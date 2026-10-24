@@ -51,7 +51,7 @@ src/
 - **One service per domain of work** in `services/<domain>.service.ts`, never a fat `x.service.ts`; no facade — a consumer injects the specific service it uses. Controllers validate, delegate, return.
 - **Nothing but the class in a service or controller file.** Constants go to `config/`, pure functions to `lib/<concern>/`, types to `x.types.ts`.
 - **`@/` is `src/`**, `@/generated` the Prisma client; leave a folder by more than one level with `@/`, never `../../`.
-- **Import another module through its barrel**, never into its files. The one deliberate exception is the Telegram notify and alert imports from billing, the scheduler, the subscription feed and admin — see [telegram-bot.md](../../docs/architecture/telegram-bot.md).
+- **Import another module through its barrel**, never into its files. The Telegram notify and alert services come from `@/modules/telegram/notify`, the notify submodule's barrel, never from `@/modules/telegram` (that one re-exports services that inject `CheckoutService` and would load billing mid-initialisation).
 - **DTOs wrap a schema from `@gnomevpn/schemas`** (`createZodDto(platformSchema)`), so the client validates against the same one.
 - **Errors** are the app exceptions from `common/exceptions` with a code from `@gnomevpn/schemas`; the code is a contract, the message is free text.
 - **`config/env/` throws on boot** on a missing variable; code reads the groups — `config.get('yookassa').shopId`, `env.database.url`. Node panel API tokens are the exception: the `node` table stores the env var's _name_ (`apiTokenEnvVar`), and the values live in `.env.nodes`, written by `bun run provision:nodes`.

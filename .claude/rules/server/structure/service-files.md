@@ -17,6 +17,7 @@ paths:
 | Types                              | `x.types.ts` next to the file that owns them                        |
 
 Import from a module's barrel across boundaries, never reach into its files.
-Inside a module, relative paths are fine. The one deliberate exception is the
-notify module's two services, `TelegramNotifyService` and `TelegramAlertService`,
-imported by file from billing, the scheduler, the subscription feed and admin.
+Inside a module, relative paths are fine. Billing, the scheduler, the
+subscription feed and admin reach the Telegram notify and alert services through
+`@/modules/telegram/notify` — the notify submodule's own barrel, which exports
+nothing that injects `CheckoutService` — never through `@/modules/telegram`.

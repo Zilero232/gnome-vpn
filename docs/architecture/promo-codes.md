@@ -87,7 +87,7 @@ the email is confirmed.
 ## Redeeming a campaign or gift code
 
 `PromoRedemptionService.redeem` runs in one serializable transaction
-(`withSerializableRetry`), so two redemptions racing for the last use of a
+(`prisma.serializable`), so two redemptions racing for the last use of a
 limited code cannot both pass the count. The refusals, in this order
 (`redemptionRefusal`):
 
