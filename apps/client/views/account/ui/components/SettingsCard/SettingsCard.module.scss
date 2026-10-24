@@ -7,32 +7,22 @@
   grid-template-columns: 1fr;
 }
 
-.pair {
-  display: grid;
-  gap: var(--gap-lg);
-  grid-template-columns: 1fr;
-}
-
 .section {
   display: flex;
   min-width: 0;
   flex-direction: column;
-  gap: var(--gap-sm);
+  gap: var(--gap-md);
+
+  & + & {
+    padding-top: var(--gap-lg);
+    border-top: 1px solid var(--color-border);
+  }
 }
 
-.divider {
-  width: 100%;
-  border: none;
-  border-top: 1px solid var(--color-border);
-  margin: 0;
-}
-
-.subtitle {
-  margin: 0;
-  color: var(--color-text);
-  font-family: var(--font-display);
-  font-size: var(--step-lg);
-  font-weight: 600;
+.pair {
+  display: grid;
+  gap: var(--gap-lg);
+  grid-template-columns: 1fr;
 }
 
 @include from(2xl) {
@@ -41,7 +31,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .pair .section + .section {
+  .pair > * + * {
     padding-left: var(--gap-lg);
     border-left: 1px solid var(--color-border);
   }

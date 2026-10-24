@@ -2,6 +2,7 @@
 
 import { Tabs } from '@base-ui/react/tabs';
 import { clsx } from 'clsx';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
 
 import type { PageTabsProps } from './PageTabs.types';
@@ -12,7 +13,7 @@ import { usePageTabs } from './use-page-tabs';
 import s from './PageTabs.module.scss';
 
 export const PageTabs = ({ items, label, layout = 'rail', panelClassName }: PageTabsProps) => {
-  const { current, navRef, tabsRef, pillId, isVertical, select } = usePageTabs({ items, layout });
+  const { current, navRef, tabsRef, pillId, edges, isVertical, select } = usePageTabs({ items, layout });
 
   return (
     <Tabs.Root
@@ -22,25 +23,35 @@ export const PageTabs = ({ items, label, layout = 'rail', panelClassName }: Page
       value={current?.value ?? null}
       onValueChange={select}
     >
-      <Tabs.List activateOnFocus ref={navRef} aria-label={label} className={s.nav} tabIndex={-1}>
-        {items.map(({ value, label: tabLabel, icon: Icon }, index) => (
-          <Tabs.Tab
-            key={value}
-            ref={(node) => {
-              tabsRef.current[index] = node;
-            }}
-            className={s.tab}
-            value={value}
-          >
-            {value === current?.value && <motion.span aria-hidden className={s.pill} layoutId={pillId} transition={PILL_MOTION} />}
+      <div className={s.navWrap} data-more-end={edges.end} data-more-start={edges.start}>
+        <Tabs.List activateOnFocus ref={navRef} aria-label={label} className={s.nav} tabIndex={-1}>
+          {items.map(({ value, label: tabLabel, icon: Icon }, index) => (
+            <Tabs.Tab
+              key={value}
+              ref={(node) => {
+                tabsRef.current[index] = node;
+              }}
+              className={s.tab}
+              value={value}
+            >
+              {value === current?.value && <motion.span aria-hidden className={s.pill} layoutId={pillId} transition={PILL_MOTION} />}
 
-            <span className={s.label}>
-              <Icon aria-hidden size={16} />
-              {tabLabel}
-            </span>
-          </Tabs.Tab>
-        ))}
-      </Tabs.List>
+              <span className={s.label}>
+                <Icon aria-hidden size={16} />
+                {tabLabel}
+              </span>
+            </Tabs.Tab>
+          ))}
+        </Tabs.List>
+
+        <span aria-hidden className={s.more} data-side='start'>
+          <ChevronLeft size={16} />
+        </span>
+
+        <span aria-hidden className={s.more} data-side='end'>
+          <ChevronRight size={16} />
+        </span>
+      </div>
 
       {current && (
         <Tabs.Panel

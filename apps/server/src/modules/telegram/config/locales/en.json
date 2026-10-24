@@ -228,7 +228,7 @@
     "unlinkAsk": "🔌 <b>Unlink this chat?</b>\n\nThe subscription and access stay; you can still sign in to your account with your email.",
     "unlinkCancelled": "The chat stays linked 👌",
     "unlinkNo": "Cancel",
-    "unlinkNoEmail": "🔌 <b>This chat cannot be unlinked yet</b>\n\nThis account was created in Telegram and has no other way in. Unlink it now and the subscription stays, but nothing can open it.\n\nOpen your account with “🌐 Website” first, add an email on the “Profile” tab and set a password with “Send me a link” — then unlinking is safe.",
+    "unlinkNoEmail": "🔌 <b>This chat cannot be unlinked yet</b>\n\nThis account was created in Telegram and has no other way in. Unlink it now and the subscription stays, but nothing can open it.\n\nOpen your account with “🌐 Website” first, add an email on the “Settings” tab and set a password with “Send me a link” — then unlinking is safe.",
     "unlinkYes": "Yes, unlink",
     "unlinked": "This chat is unlinked. The subscription and access are untouched — come back any time.",
     "websiteIntro": "🌐 <b>Sign in on the site</b>\n\nThe link works once and lives for 10 minutes — do not forward it to anyone.",

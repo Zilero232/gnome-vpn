@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
+import { html } from '../../html';
 import { SEND_DEFAULTS } from '../send-defaults.constants';
-import { isFormatted, repairFor, withDefaults, withWidth } from '../send-defaults.helpers';
+import { cellsOf, isFormatted, repairFor, withDefaults, withWidth } from '../send-defaults.helpers';
 
 const sent = { chat_id: 1, text: '<b>Paid</b> &amp; done', parse_mode: 'HTML', message_effect_id: '1', reply_markup: { a: 1 } };
 
@@ -16,11 +17,30 @@ describe('withDefaults', () => {
 });
 
 describe('withWidth', () => {
-  it("ends a reader's message with a blank line of the same width, so every bubble and its buttons are one width", () => {
-    const widened = withWidth({ chat_id: 42, text: '💳 <b>Подписка</b>' });
+  const { cells, fill } = SEND_DEFAULTS.width;
 
-    expect(widened.text).toBe(`💳 <b>Подписка</b>\n${SEND_DEFAULTS.widthLine}`);
-    expect(withWidth({ chat_id: '42', text: 'x' }).text).toBe(`x\n${SEND_DEFAULTS.widthLine}`);
+  const lastLine = (text: string) => html.strip(text).split('\n').at(-1) ?? '';
+
+  it("widens a reader's message on its last line, so every bubble is one width without an extra line at the bottom", () => {
+    const text = '💳 <b>Подписка</b>\nВторая строка';
+    const widened = withWidth({ chat_id: 42, text }).text as string;
+
+    expect(widened.split('\n')).toHaveLength(text.split('\n').length);
+    expect(widened.startsWith(`${text} `)).toBe(true);
+    expect(cellsOf(lastLine(widened))).toBe(cells);
+  });
+
+  it('leaves a message that is already as wide as the target', () => {
+    const wide = { chat_id: 42, text: 'я'.repeat(cells) };
+
+    expect(withWidth(wide)).toEqual(wide);
+  });
+
+  it('keeps the fill inside a closing quote, where a new line would otherwise start', () => {
+    const widened = withWidth({ chat_id: 42, text: 'Итог\n<blockquote>цитата</blockquote>' }).text as string;
+
+    expect(widened.endsWith(`${fill}</blockquote>`)).toBe(true);
+    expect(widened.split('\n')).toHaveLength(2);
   });
 
   it('adds it once, even to a text that already went through', () => {
@@ -34,9 +54,14 @@ describe('withWidth', () => {
     expect(withWidth({ chat_id: 42, caption: 'file' })).toEqual({ chat_id: 42, caption: 'file' });
   });
 
-  it('is invisible: the line holds nothing but blank braille cells, which Telegram does not trim', () => {
-    expect([...SEND_DEFAULTS.widthLine].every((char) => char === '\u2800')).toBe(true);
-    expect(SEND_DEFAULTS.widthLine.trim()).toBe(SEND_DEFAULTS.widthLine);
+  it('counts an emoji as two cells and ignores markup', () => {
+    expect(cellsOf('💳 a')).toBe(4);
+    expect(cellsOf(html.strip('<b>ab</b> &amp;'))).toBe(4);
+  });
+
+  it('is invisible: the fill is a blank braille cell, which Telegram does not trim', () => {
+    expect(fill).toBe('\u2800');
+    expect(fill.trim()).toBe(fill);
   });
 });
 

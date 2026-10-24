@@ -13,13 +13,13 @@
   "invalid": {
     "code": "Link",
     "title": "This link is not valid",
-    "body": "It may have been copied only in part. You can also unsubscribe in your account, under Profile.",
-    "account": "Open the profile"
+    "body": "It may have been copied only in part. You can also unsubscribe in your account, under Settings.",
+    "account": "Open settings"
   },
   "failed": {
     "code": "Error",
     "title": "Could not unsubscribe you",
-    "body": "The server did not answer. Try again a little later, or unsubscribe in your account under Profile.",
+    "body": "The server did not answer. Try again a little later, or unsubscribe in your account under Settings.",
     "retry": "Try again"
   }
 }

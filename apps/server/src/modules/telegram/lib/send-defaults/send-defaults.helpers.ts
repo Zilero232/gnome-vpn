@@ -1,4 +1,4 @@
-import { isNumber, isString, omit } from 'remeda';
+import { isNumber, isString, omit, sumBy } from 'remeda';
 
 import type { ApiFailure, ApiPayload, Repair } from './send-defaults.types';
 
@@ -23,16 +23,32 @@ const REPAIRS = [
 
 export const isFormatted = (method: string): boolean => FORMATTED_METHODS.includes(method);
 
+const WIDTH = SEND_DEFAULTS.width;
+
+const GRAPHEMES = new Intl.Segmenter('ru', { granularity: 'grapheme' });
+
 const isPrivateChat = (chatId: unknown): boolean => (isNumber(chatId) || isString(chatId)) && Number(chatId) > 0;
+
+export const cellsOf = (line: string): number =>
+  sumBy([...GRAPHEMES.segment(line)], ({ segment }) => (WIDTH.emoji.test(segment) ? WIDTH.emojiCells : 1));
 
 export const withWidth = (payload: ApiPayload): ApiPayload => {
   const { text, chat_id: chatId } = payload;
 
-  if (!isString(text) || !isPrivateChat(chatId) || text.endsWith(SEND_DEFAULTS.widthLine)) {
+  if (!isString(text) || !isPrivateChat(chatId) || WIDTH.filled.test(text)) {
     return payload;
   }
 
-  return { ...payload, text: `${text}${NEW_LINE}${SEND_DEFAULTS.widthLine}` };
+  const closing = text.match(WIDTH.closingBlocks)?.[0] ?? '';
+  const body = text.slice(0, text.length - closing.length).replace(WIDTH.trailingSpace, '');
+  const lines = html.strip(body).split(NEW_LINE);
+  const missing = WIDTH.cells - Math.max(...lines.map(cellsOf));
+
+  if (missing <= 1) {
+    return payload;
+  }
+
+  return { ...payload, text: `${body} ${WIDTH.fill.repeat(WIDTH.cells - cellsOf(lines.at(-1) ?? '') - 1)}${closing}` };
 };
 
 export const withDefaults = (payload: ApiPayload): ApiPayload =>

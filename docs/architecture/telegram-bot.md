@@ -216,13 +216,18 @@ every full stop and bracket in the copy a hazard.
 longest line and an inline keyboard to its bubble, so a short message ("💳
 Подписка" and a date) came out narrow with its buttons squeezed into a column,
 next to a long one at full width. `withWidth`, part of the same transformer,
-ends the text of every `sendMessage` and `editMessageText` to a private chat
-with one line of blank braille cells (`SEND_DEFAULTS.widthLine`, U+2800, which
-is not whitespace and so is not trimmed): every bubble is at least that wide —
-the full width on a phone — and so is every keyboard. It is added once (an edit
-of a text that already ends with it adds nothing), never to a group such as the
-admin chat, and never to a caption. Copy that has to be widened by hand is
-therefore never needed.
+widens the text of every `sendMessage` and `editMessageText` to a private chat
+to `SEND_DEFAULTS.width.cells` (32) on its **last line**: a space and blank
+braille cells (U+2800, which is not whitespace and so is not trimmed) are
+appended until that line is as wide as the target, so every bubble — the full
+width on a phone — and every keyboard are one width. It once added a separate
+line of those cells instead, which left every message with an empty-looking
+line at the bottom. Width is counted on the text without tags, an emoji as two
+cells (`cellsOf`); a message whose widest line already reaches the target is
+left alone; a text ending in a quote or a code block gets the fill inside the
+closing tag, where a new line would otherwise start. It is added once (a text
+that already ends with the fill is skipped), never to a group such as the admin
+chat, and never to a caption.
 
 The fallback, if IPv6 egress goes too, is long polling, which needs no inbound
 path at all.
