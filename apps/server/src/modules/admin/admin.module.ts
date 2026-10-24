@@ -8,6 +8,7 @@ import { TelegramNotifyModule } from '../telegram/telegram-notify.module';
 import { AdminNodesController } from './nodes/admin-nodes.controller';
 import { AdminNodesService } from './nodes/admin-nodes.service';
 import { AdminAnalyticsService } from './overview/admin-analytics.service';
+import { AdminGrowthService } from './overview/admin-growth.service';
 import { AdminOverviewController } from './overview/admin-overview.controller';
 import { AdminOverviewService } from './overview/admin-overview.service';
 import { AdminSeriesService } from './overview/admin-series.service';
@@ -34,6 +35,7 @@ import { AdminUsersService } from './users/admin-users.service';
     AdminStatsService,
     AdminSeriesService,
     AdminAnalyticsService,
+    AdminGrowthService,
     AdminUsersService,
     AdminUserActionsService,
     AdminPaymentsService,
