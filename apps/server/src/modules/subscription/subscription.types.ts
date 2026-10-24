@@ -1,6 +1,6 @@
 import type { PeriodKind } from '@gnomevpn/schemas';
 
-import type { PrismaExecutor } from '../../core';
+import type { PrismaExecutor } from '@/core';
 
 export type TrialState = {
   period: PeriodKind;
@@ -33,5 +33,29 @@ export type RecordTrialGrantInput = {
 export type TransferTrialInput = {
   fromUserId: string;
   toUserId: string;
+  db: PrismaExecutor;
+};
+
+export type PeriodDaysInput = {
+  userId: string;
+  days: number;
+  db: PrismaExecutor;
+};
+
+export type ExtendAccessInput = PeriodDaysInput & {
+  now: Date;
+};
+
+export type RewindInput = {
+  userId: string;
+  months?: number;
+  days?: number;
+  stopsRenewal?: boolean;
+  db: PrismaExecutor;
+};
+
+export type ExtraDevicesChangeInput = {
+  userId: string;
+  quantity: number;
   db: PrismaExecutor;
 };

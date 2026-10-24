@@ -1,6 +1,6 @@
 import type { Gift, PlanId } from '@gnomevpn/schemas';
 
-import type { PaymentKind } from '../../../../../generated';
+import type { PaymentKind } from '@/generated';
 
 export type GiftPayment = {
   id: string;

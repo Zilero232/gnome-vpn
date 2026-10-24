@@ -5,10 +5,10 @@ export const SESSION = {
   updateAge: secondsInDay
 } as const;
 
-export const EMAIL_FIELD_BY_PATH: Readonly<Record<string, string>> = {
+export const EMAIL_FIELD_BY_PATH = {
   '/sign-up/email': 'email',
   '/change-email': 'newEmail'
-};
+} as const;
 
 export const AUTH_LOCALE = {
   header: 'x-locale',

@@ -2,22 +2,21 @@ import { isPlaceholderEmail } from '@gnomevpn/schemas';
 import { render } from '@react-email/render';
 import nodemailer from 'nodemailer';
 
+import { AppServiceUnavailableException } from '@/common/exceptions';
+import { describeError } from '@/common/lib';
+import { env } from '@/config';
+
 import type { SendEmailParams } from './email.types';
 
-import { AppServiceUnavailableException } from '../../common/exceptions';
-import { describeError } from '../../common/lib';
-import { validateEnv } from '../../config/env.schema';
 import { SMTP_TIMEOUTS } from './email.constants';
 
-const env = validateEnv(process.env);
-
-const isConfigured = Boolean(env.SMTP_HOST && env.SMTP_USER && env.EMAIL_FROM);
+const isConfigured = Boolean(env.email.smtp.host && env.email.smtp.user && env.email.from);
 
 const transporter = nodemailer.createTransport({
-  host: env.SMTP_HOST,
-  port: env.SMTP_PORT,
-  secure: env.SMTP_SECURE,
-  auth: { user: env.SMTP_USER, pass: env.SMTP_PASSWORD },
+  host: env.email.smtp.host,
+  port: env.email.smtp.port,
+  secure: env.email.smtp.secure,
+  auth: { user: env.email.smtp.user, pass: env.email.smtp.password },
   ...SMTP_TIMEOUTS
 });
 
@@ -30,13 +29,13 @@ export const sendEmail = async ({ to, subject, react, unsubscribeUrl }: SendEmai
     throw new AppServiceUnavailableException('EMAIL_UNAVAILABLE', 'Email is not configured: set SMTP_HOST, SMTP_USER and EMAIL_FROM');
   }
 
-  const recipient = env.NODE_ENV !== 'production' && env.DEV_EMAIL_OVERRIDE ? env.DEV_EMAIL_OVERRIDE : to;
+  const recipient = !env.app.isProduction && env.email.devOverride ? env.email.devOverride : to;
 
   const [html, text] = await Promise.all([render(react), render(react, { plainText: true })]);
 
   try {
     await transporter.sendMail({
-      from: env.EMAIL_FROM,
+      from: env.email.from,
       to: recipient,
       subject,
       html,

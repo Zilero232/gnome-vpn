@@ -1,11 +1,12 @@
 import { isNullish, sortBy, uniqueBy } from 'remeda';
 import { match } from 'ts-pattern';
 
-import type { PaymentKind } from '../../../../../../../generated';
-import type { NoticeKey } from '../../../../../telegram/telegram.types';
-import type { AbandonedCheckout, CheckoutRow } from './abandoned-checkout.types';
+import type { PaymentKind } from '@/generated';
+import type { NoticeKey } from '@/modules/telegram/notify';
 
-import { CHECKOUT_REMINDER } from '../../../../config';
+import { CHECKOUT_REMINDER } from '@/modules/scheduler/config';
+
+import type { AbandonedCheckout, CheckoutRow } from './abandoned-checkout.types';
 
 export const checkoutNotice = (kind: PaymentKind): NoticeKey | null =>
   match(kind)

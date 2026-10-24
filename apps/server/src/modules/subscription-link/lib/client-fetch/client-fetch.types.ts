@@ -1,4 +1,4 @@
-import type { DeviceHeaders } from '../../../devices';
+import type { DeviceHeaders } from '@/modules/devices';
 
 export type ClientFetchInput = {
   headers: DeviceHeaders;

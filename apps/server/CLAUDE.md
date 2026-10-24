@@ -11,7 +11,7 @@ src/
 ├── modules/         # one folder per domain
 │   ├── admin/       # the web admin panel behind ADMIN_EMAILS, and the /stats collection — config/ decorators/ dto/ guards/ lib/ services/
 │   ├── auth/        # better-auth wiring, the account (deletion) — config/ services/
-│   ├── billing/     # YooKassa checkout and webhooks — config/ dto/ guards/ lib/ services/
+│   ├── billing/     # YooKassa checkout and webhooks — checkout/ webhook/ auto-renew/ shared/ (feature folders)
 │   ├── consents/    # personal-data and marketing consents, the unsubscribe link — config/ dto/ lib/ services/
 │   ├── devices/     # the device registry and the account's device limit — config/ dto/ lib/ services/
 │   ├── health/      # /health — also probes the database
@@ -24,10 +24,10 @@ src/
 │   ├── subscription/# plan status, the trial and the access guard — config/ dto/ guards/ lib/ services/
 │   ├── subscription-link/  # the INCY feed and its token — config/ dto/ lib/ services/
 │   └── telegram/    # the bot — a second door to the same account — bot/ config/ dto/ lib/ services/
-├── lib/             # external integrations: auth, email, xray, yookassa
-├── core/            # Prisma (service, base client, pg pool), logger, serializable and unique-constraint retries, the notice-log claim
+├── lib/             # external integrations, each its own boundary: @/lib/auth, @/lib/email, @/lib/xray, @/lib/yookassa
+├── core/            # Prisma (service with serializable(), base client, pg pool, error codes and retries), logger, the notice-log claim
 ├── common/          # exceptions, filters, decorators, shared lib (node credentials, period…)
-└── config/          # env schema (Zod), config service, CORS
+└── config/          # env/ (one zod file per group: app, database, auth, yookassa, email, telegram), config service, CORS
 ```
 
 ## Where to read more
@@ -50,10 +50,11 @@ src/
 
 - **One service per domain of work** in `services/<domain>.service.ts`, never a fat `x.service.ts`; no facade — a consumer injects the specific service it uses. Controllers validate, delegate, return.
 - **Nothing but the class in a service or controller file.** Constants go to `config/`, pure functions to `lib/<concern>/`, types to `x.types.ts`.
-- **Import another module through its barrel**, never into its files. The one deliberate exception is the Telegram notify and alert imports from billing, the scheduler, the subscription feed and admin — see [telegram-bot.md](../../docs/architecture/telegram-bot.md).
+- **`@/` is `src/`**, `@/generated` the Prisma client; leave a folder by more than one level with `@/`, never `../../`.
+- **Import another module through its barrel**, never into its files. The Telegram notify and alert services come from `@/modules/telegram/notify`, the notify submodule's barrel, never from `@/modules/telegram` (that one re-exports services that inject `CheckoutService` and would load billing mid-initialisation).
 - **DTOs wrap a schema from `@gnomevpn/schemas`** (`createZodDto(platformSchema)`), so the client validates against the same one.
 - **Errors** are the app exceptions from `common/exceptions` with a code from `@gnomevpn/schemas`; the code is a contract, the message is free text.
-- **`config/env.schema.ts` throws on boot** on a missing variable. Node panel API tokens are the exception: the `node` table stores the env var's _name_ (`apiTokenEnvVar`), and the values live in `.env.nodes`, written by `bun run provision:nodes`.
+- **`config/env/` throws on boot** on a missing variable; code reads the groups — `config.get('yookassa').shopId`, `env.database.url`. Node panel API tokens are the exception: the `node` table stores the env var's _name_ (`apiTokenEnvVar`), and the values live in `.env.nodes`, written by `bun run provision:nodes`.
 - **Every outbound `fetch` carries `AbortSignal.timeout(MS)`.**
 - **`XrayClient` talks to the 3x-ui panel, not to Xray-core**: client adds, deletes and disables apply live in the running core, so never call `restartCore()` after a client change — only provisioning restarts, after an inbound changed; WireGuard clients must never be re-enabled through `bulkEnable`.
 - **A revocation needs a restore in the same sweep**, and every write path parses settings strictly.

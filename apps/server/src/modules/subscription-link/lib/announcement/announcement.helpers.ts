@@ -1,9 +1,10 @@
 import { differenceInCalendarDays, differenceInMinutes } from 'date-fns';
 import { isNonNullish, isNullish, unique } from 'remeda';
 
+import { pluralize } from '@/common/lib';
+
 import type { AnnouncementNode, HwidHint, HwidHintInput, NodeMomentInput } from './announcement.types';
 
-import { pluralize } from '../../../../common/lib';
 import { ANNOUNCE, HWID_HINT } from './announcement.constants';
 
 const listFormat = new Intl.ListFormat(ANNOUNCE.locale, { style: 'long', type: 'conjunction' });

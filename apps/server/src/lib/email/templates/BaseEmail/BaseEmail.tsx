@@ -1,8 +1,9 @@
 import { Body, Button, Container, Head, Heading, Hr, Html, Link, Preview, Section, Text } from 'react-email';
 
+import { EMAIL_TEXT } from '@/lib/email/email-text';
+
 import type { BaseEmailProps } from './BaseEmail.types';
 
-import { EMAIL_TEXT } from '../../email-text';
 import { emailStyles } from '../email-styles';
 
 export const BaseEmail = ({ locale, preview, heading, action, footer, unsubscribe, children }: BaseEmailProps) => (

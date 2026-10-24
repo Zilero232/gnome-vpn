@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AuthModule as BetterAuthModule } from '@thallesp/nestjs-better-auth';
 
-import { auth } from '../../lib';
+import { auth } from '@/lib/auth';
+
 import { PeersModule } from '../peers';
 import { SubscriptionModule } from '../subscription';
 import { AccountController } from './account.controller';

@@ -2,12 +2,13 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { subHours, subMinutes } from 'date-fns';
 
+import { describeError } from '@/common/lib';
+import { claimNotice, NOTICE_CLAIM, PrismaService } from '@/core';
+import { CHECKOUT_REMINDER, REACHABLE_USER } from '@/modules/scheduler/config';
+import { TelegramNotifyService } from '@/modules/telegram/notify';
+
 import type { RemindInput } from './checkout-reminder.job.types';
 
-import { describeError } from '../../../../common/lib';
-import { claimNotice, NOTICE_CLAIM, PrismaService, withSerializableRetry } from '../../../../core';
-import { TelegramNotifyService } from '../../../telegram/services/telegram-notify.service';
-import { CHECKOUT_REMINDER, REACHABLE_USER } from '../../config';
 import { abandonedCheckouts } from './lib';
 
 @Injectable()
@@ -59,26 +60,21 @@ export class CheckoutReminderJob {
   private async remind({ checkout, now }: RemindInput): Promise<boolean> {
     const { id, userId, createdAt, notice } = checkout;
 
-    const isClaimed = await withSerializableRetry(() =>
-      this.prisma.$transaction(
-        async (tx) => {
-          const [later, recent, unpaid] = await Promise.all([
-            tx.payment.count({ where: { userId, id: { not: id }, createdAt: { gte: createdAt }, status: { not: 'canceled' } } }),
-            tx.noticeLog.count({
-              where: { userId, notice: NOTICE_CLAIM.checkoutReminder, sentAt: { gt: subHours(now, CHECKOUT_REMINDER.userGapHours) } }
-            }),
-            tx.payment.count({ where: { id, status: { in: [...CHECKOUT_REMINDER.statuses] } } })
-          ]);
+    const isClaimed = await this.prisma.serializable(async (tx) => {
+      const [later, recent, unpaid] = await Promise.all([
+        tx.payment.count({ where: { userId, id: { not: id }, createdAt: { gte: createdAt }, status: { not: 'canceled' } } }),
+        tx.noticeLog.count({
+          where: { userId, notice: NOTICE_CLAIM.checkoutReminder, sentAt: { gt: subHours(now, CHECKOUT_REMINDER.userGapHours) } }
+        }),
+        tx.payment.count({ where: { id, status: { in: [...CHECKOUT_REMINDER.statuses] } } })
+      ]);
 
-          if (later > 0 || recent > 0 || unpaid === 0) {
-            return false;
-          }
+      if (later > 0 || recent > 0 || unpaid === 0) {
+        return false;
+      }
 
-          return claimNotice({ db: tx, userId, notice: NOTICE_CLAIM.checkoutReminder, ref: id, sentAt: now });
-        },
-        { isolationLevel: 'Serializable' }
-      )
-    );
+      return claimNotice({ db: tx, userId, notice: NOTICE_CLAIM.checkoutReminder, ref: id, sentAt: now });
+    });
 
     if (isClaimed) {
       await this.notify.tell({ userId, notice });

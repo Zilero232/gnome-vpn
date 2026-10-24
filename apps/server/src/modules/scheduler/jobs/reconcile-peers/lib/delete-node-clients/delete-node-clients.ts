@@ -1,10 +1,11 @@
 import { zip } from 'remeda';
 
-import type { ReconcilePeer } from '../../reconcile-peers.job.types';
-import type { DeleteNodeClientsInput, PeersGoneInput } from './delete-node-clients.types';
+import type { ReconcilePeer } from '@/modules/scheduler/jobs/reconcile-peers/reconcile-peers.job.types';
 
-import { describeError } from '../../../../../../common/lib';
-import { peerClientName } from '../../../../../peers';
+import { describeError } from '@/common/lib';
+import { peerClientName } from '@/modules/peers';
+
+import type { DeleteNodeClientsInput, PeersGoneInput } from './delete-node-clients.types';
 
 export const deleteNodeClients = async ({ xray, logger, peers, nodeClients }: DeleteNodeClientsInput): Promise<string[]> => {
   const onNode = peers.map((peer) => peerClientName(peer)).filter((email) => nodeClients.has(email));

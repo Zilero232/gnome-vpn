@@ -6,12 +6,13 @@ import { isAfter, subDays } from 'date-fns';
 import pRetry from 'p-retry';
 import { isNonNullish, isNullish } from 'remeda';
 
+import { AppBadRequestException, AppNotFoundException, AppServiceUnavailableException } from '@/common/exceptions';
+import { generateShortCode } from '@/common/lib';
+import { AppConfigService } from '@/config';
+import { isUniqueViolation, PrismaService } from '@/core';
+
 import type { AdoptInput, AttributeInput, AttributeResult, EligibilityInput, MutualInput } from '../referrals.types';
 
-import { AppBadRequestException, AppNotFoundException, AppServiceUnavailableException } from '../../../common/exceptions';
-import { generateShortCode } from '../../../common/lib';
-import { AppConfigService } from '../../../config';
-import { isPrismaRequestError, PrismaService, UNIQUE_VIOLATION, withSerializableRetry } from '../../../core';
 import { REFERRAL_CODE_ISSUE } from '../config';
 import { telegramReferralLink, webReferralLink } from '../lib';
 
@@ -36,8 +37,8 @@ export class ReferralService {
 
     return {
       code,
-      link: webReferralLink({ clientUrl: this.config.get('CLIENT_URL'), code }),
-      telegramLink: telegramReferralLink({ botUsername: this.config.get('TELEGRAM_BOT_USERNAME'), code }),
+      link: webReferralLink({ clientUrl: this.config.get('app').clientUrl, code }),
+      telegramLink: telegramReferralLink({ botUsername: this.config.get('telegram').botUsername, code }),
       invited,
       rewarded,
       daysEarned: earned._sum.referrerDays ?? 0,
@@ -61,24 +62,19 @@ export class ReferralService {
     }
 
     try {
-      await withSerializableRetry(() =>
-        this.prisma.$transaction(
-          async (tx) => {
-            if (!(await this.isEligible({ userId, db: tx }))) {
-              throw new AppBadRequestException('REFERRAL_UNAVAILABLE', 'Only a new account that has not paid yet can take an invite');
-            }
+      await this.prisma.serializable(async (tx) => {
+        if (!(await this.isEligible({ userId, db: tx }))) {
+          throw new AppBadRequestException('REFERRAL_UNAVAILABLE', 'Only a new account that has not paid yet can take an invite');
+        }
 
-            if (await this.isMutual({ inviterId: owner.userId, friendId: userId, db: tx })) {
-              throw new AppBadRequestException('REFERRAL_SELF', 'Two accounts cannot invite each other');
-            }
+        if (await this.isMutual({ inviterId: owner.userId, friendId: userId, db: tx })) {
+          throw new AppBadRequestException('REFERRAL_SELF', 'Two accounts cannot invite each other');
+        }
 
-            await tx.referral.create({ data: { referrerId: owner.userId, referredId: userId } });
-          },
-          { isolationLevel: 'Serializable' }
-        )
-      );
+        await tx.referral.create({ data: { referrerId: owner.userId, referredId: userId } });
+      });
     } catch (error) {
-      if (isPrismaRequestError(error) && error.code === UNIQUE_VIOLATION) {
+      if (isUniqueViolation(error)) {
         throw new AppBadRequestException('REFERRAL_UNAVAILABLE', 'This account already took an invite');
       }
 
@@ -148,11 +144,11 @@ export class ReferralService {
         {
           retries: REFERRAL_CODE_ISSUE.retries,
           minTimeout: REFERRAL_CODE_ISSUE.minTimeoutMs,
-          shouldRetry: ({ error }) => isPrismaRequestError(error) && error.code === UNIQUE_VIOLATION
+          shouldRetry: ({ error }) => isUniqueViolation(error)
         }
       );
     } catch (error) {
-      if (isPrismaRequestError(error) && error.code === UNIQUE_VIOLATION) {
+      if (isUniqueViolation(error)) {
         throw new AppServiceUnavailableException('INTERNAL_ERROR', 'An invite code could not be issued');
       }
 

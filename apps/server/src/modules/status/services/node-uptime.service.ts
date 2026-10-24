@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 
+import { addUtcDays, utcDay } from '@/common/lib';
+import { PrismaService } from '@/core';
+
 import type { RecordUptimeInput } from '../status.types';
 
-import { addUtcDays, utcDay } from '../../../common/lib';
-import { PrismaService } from '../../../core';
-import { UPTIME_NODE_SELECT, UPTIME_RETENTION_DAYS } from '../config';
-import { passedCheck } from '../lib';
+import { STATUS_PAGE, UPTIME_NODE_SELECT } from '../config';
+import { passedCheck } from '../lib/node-status';
 
 @Injectable()
 export class NodeUptimeService {
@@ -27,7 +28,7 @@ export class NodeUptimeService {
         });
       }),
       this.prisma.node.updateMany({ where: { id: { in: nodeIds } }, data: { lastCheckedAt: checkedAt } }),
-      this.prisma.nodeUptime.deleteMany({ where: { day: { lt: addUtcDays({ day, days: -UPTIME_RETENTION_DAYS }) } } })
+      this.prisma.nodeUptime.deleteMany({ where: { day: { lt: addUtcDays({ day, days: -STATUS_PAGE.uptimeRetentionDays }) } } })
     ]);
   }
 }

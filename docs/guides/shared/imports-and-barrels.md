@@ -6,7 +6,7 @@ Part of the [style guide](../README.md).
 
 ### Aliases
 
-`@/` → the `apps/client/` root. Used for everything except relatives inside the same folder.
+`@/` → the `apps/client/` root in the client and `apps/server/src/` in the server (where `@/generated` is the Prisma client). Used for everything except relatives inside the same folder or one level up.
 
 ### Group order
 

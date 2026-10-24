@@ -1,4 +1,5 @@
-import type { AutomaticCode } from '../../../promo-codes';
+import type { AutomaticCode } from '@/modules/promo-codes';
+
 import type { WinBackDue, WinBackRow } from './lib';
 
 export type WinBackCandidate = WinBackRow & {

@@ -4,9 +4,10 @@ import { MARKETING_CONSENT_VERSION } from '@gnomevpn/schemas';
 import { Injectable } from '@nestjs/common';
 import { isEmpty } from 'remeda';
 
+import { PrismaService } from '@/core';
+
 import type { RecordPersonalDataInput, SetMarketingInput } from '../consents.types';
 
-import { PrismaService } from '../../../core';
 import { CONSENT_ORDER } from '../config';
 import { consentState } from '../lib';
 

@@ -1,4 +1,4 @@
-import type { DeviceIdentity } from './lib';
+import type { DeviceIdentity } from './lib/device-identity';
 
 export type AdmitDeviceInput = {
   userId: string;

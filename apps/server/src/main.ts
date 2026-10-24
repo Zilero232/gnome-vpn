@@ -1,3 +1,6 @@
+import 'reflect-metadata';
+
+// eslint-disable-next-line perfectionist/sort-imports -- reflect-metadata must be evaluated before any module that declares or reads decorator metadata
 import type { NestExpressApplication } from '@nestjs/platform-express';
 
 import { NestFactory } from '@nestjs/core';
@@ -6,13 +9,8 @@ import helmet from 'helmet';
 import { ZodValidationPipe } from 'nestjs-zod';
 
 import { AppModule } from './app.module';
-import { allowedOrigins } from './config/cors';
-import { validateEnv } from './config/env.schema';
+import { allowedOrigins, env } from './config';
 import { appLogger } from './core';
-
-import 'reflect-metadata';
-
-const env = validateEnv(process.env);
 
 const app = await NestFactory.create<NestExpressApplication>(AppModule, { bodyParser: false, logger: appLogger });
 
@@ -31,4 +29,4 @@ app.use(json());
 app.useGlobalPipes(new ZodValidationPipe());
 app.enableShutdownHooks();
 
-await app.listen(env.PORT);
+await app.listen(env.app.port);

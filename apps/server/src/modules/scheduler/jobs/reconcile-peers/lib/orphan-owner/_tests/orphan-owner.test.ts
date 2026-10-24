@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { PEER_PREFIX, peerClientName } from '../../../../../../peers';
+import { PEER_PREFIX, peerClientName } from '@/modules/peers';
+
 import { ownerIdOf } from '../orphan-owner';
 
 const USER_ID = 'nZTp8U6AtElvrC60yGPq6GBfwLL9kxbX';

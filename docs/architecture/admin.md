@@ -14,7 +14,7 @@ the [documentation index](../README.md).
 
 An admin is a signed-in account whose email is in `ADMIN_EMAILS` **and**
 confirmed. `ADMIN_EMAILS` is an optional server variable, a comma-separated
-list, matched case-insensitively; `env.schema.ts` trims, lowercases and dedupes
+list, matched case-insensitively; `config/env/auth.env.ts` trims, lowercases and dedupes
 it and refuses to boot on an entry that is not an email. Empty — the default —
 means nobody: every `/admin` route answers 404. Setting it is in
 [deploy.md](../ops/deploy.md).

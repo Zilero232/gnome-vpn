@@ -3,11 +3,12 @@ import type { UnsubscribeResult } from '@gnomevpn/schemas';
 import { Injectable } from '@nestjs/common';
 import { isNullish } from 'remeda';
 
+import { AppConfigService } from '@/config';
+import { PrismaService } from '@/core';
+import { localizedPath } from '@/lib/email';
+
 import type { UnsubscribeLinkInput } from '../consents.types';
 
-import { AppConfigService } from '../../../config';
-import { PrismaService } from '../../../core';
-import { localizedPath } from '../../../lib/email';
 import { UNSUBSCRIBE } from '../config';
 import { readUnsubscribe, signUnsubscribe } from '../lib';
 import { ConsentService } from './consent.service';
@@ -21,7 +22,7 @@ export class UnsubscribeService {
   ) {}
 
   link({ userId, locale }: UnsubscribeLinkInput): string {
-    const url = new URL(localizedPath({ path: UNSUBSCRIBE.path, locale }), this.config.get('CLIENT_URL'));
+    const url = new URL(localizedPath({ path: UNSUBSCRIBE.path, locale }), this.config.get('app').clientUrl);
 
     url.searchParams.set(UNSUBSCRIBE.tokenParam, signUnsubscribe({ userId, secret: this.secret() }));
 
@@ -45,6 +46,6 @@ export class UnsubscribeService {
   }
 
   private secret(): string {
-    return this.config.get('BETTER_AUTH_SECRET');
+    return this.config.get('auth').secret;
   }
 }

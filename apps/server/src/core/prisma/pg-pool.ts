@@ -1,15 +1,15 @@
 import { Logger } from '@nestjs/common';
 import { Pool } from 'pg';
 
-import { validateEnv } from '../../config/env.schema';
+import { env } from '@/config';
 
-const env = validateEnv(process.env);
+import { PG_POOL } from './prisma.constants';
 
 const logger = new Logger('PgPool');
 
 const globalForPools = globalThis as unknown as { pgPools?: Pool[] };
 
-if (env.NODE_ENV === 'development') {
+if (env.app.isDevelopment) {
   for (const stale of globalForPools.pgPools ?? []) {
     void stale.end().catch(() => {});
   }
@@ -18,22 +18,13 @@ if (env.NODE_ENV === 'development') {
 }
 
 export const createPool = (connectionString: string): Pool => {
-  const pool = new Pool({
-    connectionString,
-    max: 10,
-    idleTimeoutMillis: 30_000,
-    connectionTimeoutMillis: 10_000,
-    maxLifetimeSeconds: 300,
-    keepAlive: true,
-    keepAliveInitialDelayMillis: 5_000,
-    allowExitOnIdle: false
-  });
+  const pool = new Pool({ connectionString, ...PG_POOL });
 
   pool.on('error', (error) => {
     logger.warn(`idle connection dropped: ${error.message}`);
   });
 
-  if (env.NODE_ENV === 'development') {
+  if (env.app.isDevelopment) {
     globalForPools.pgPools?.push(pool);
   }
 

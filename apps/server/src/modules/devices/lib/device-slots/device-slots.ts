@@ -1,9 +1,9 @@
 import { resolveLimits } from '@gnomevpn/schemas';
 import { sortBy } from 'remeda';
 
-import type { GraceDeviceLimitInput, SlotHoldersInput } from './device-slots.types';
+import { activeDeviceLimit, hasLapsedBeyondGrace } from '@/common/lib';
 
-import { activeDeviceLimit, hasLapsedBeyondGrace } from '../../../../common/lib';
+import type { GraceDeviceLimitInput, SlotHoldersInput } from './device-slots.types';
 
 export const slotHolders = ({ devices, limit }: SlotHoldersInput): Set<string> => {
   const ordered = sortBy(devices, [(device) => device.createdAt.getTime(), 'asc'], [(device) => device.id, 'asc']);

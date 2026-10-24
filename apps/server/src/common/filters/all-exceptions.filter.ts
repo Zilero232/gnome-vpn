@@ -2,11 +2,11 @@ import type { ArgumentsHost, ExceptionFilter } from '@nestjs/common';
 import type { Response } from 'express';
 
 import { Catch, HttpException, HttpStatus, Logger } from '@nestjs/common';
-import { isNonNullish, isObjectType } from 'remeda';
+import { isObjectType } from 'remeda';
 
-import { isPrismaRequestError } from '../../core';
-import { PRISMA_ERROR } from './all-exceptions.constants';
-import { codeForStatus } from './all-exceptions.helpers';
+import { isPrismaRequestError } from '@/core';
+
+import { PRISMA_ERROR_RESPONSE, STATUS_TO_CODE } from './all-exceptions.constants';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -17,16 +17,16 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     if (exception instanceof HttpException) {
       const res = exception.getResponse();
-      const hasCode = isObjectType(res) && isNonNullish(res) && 'code' in res;
+      const hasCode = isObjectType(res) && 'code' in res;
       const status = exception.getStatus();
 
-      response.status(status).json(hasCode ? res : { error: exception.message, code: codeForStatus(status) });
+      response.status(status).json(hasCode ? res : { error: exception.message, code: STATUS_TO_CODE[status] ?? 'INTERNAL_ERROR' });
 
       return;
     }
 
     if (isPrismaRequestError(exception)) {
-      const mapped = PRISMA_ERROR[exception.code];
+      const mapped = PRISMA_ERROR_RESPONSE[exception.code];
 
       if (mapped) {
         response.status(mapped.status).json({ error: mapped.code, code: mapped.code });

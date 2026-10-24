@@ -21,7 +21,7 @@ Intervals that have no `CronExpression` constant live in `SCHEDULE`
 | `reconcile-peers` (`run`)     | `SCHEDULE.reconcileCron`, every 5 minutes | deletes revoked clients, syncs peer rows with the panels, restores lost ones      |
 | `reconcile-peers` (`collect`) | `SCHEDULE.collectOrphansCron`, weekly     | the same pass plus orphan collection, idle shared `incy` peers and feed WireGuard |
 | `expired-access`              | every 5 minutes                           | revokes lapsed access and restores access left disabled on a live period          |
-| `recurring-charge`            | every hour                                | charges the saved card once in the last `WINDOW.renewHours` of a period           |
+| `recurring-charge`            | every hour                                | charges the saved card once in the last `AUTO_RENEW.windowHours` of a period           |
 | `pending-payments`            | every 10 minutes                          | settles payments still `pending` after `PENDING.settleAfterMinutes`               |
 | `device-slots`                | every 10 minutes                          | revokes the keys of devices over their account's limit ([devices.md](devices.md)) |
 | `period-reminder`             | every hour                                | warns once per period before it ends                                              |

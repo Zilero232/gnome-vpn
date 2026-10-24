@@ -1,4 +1,4 @@
-import type { Prisma } from '../../../../../generated';
+import type { Prisma } from '@/generated';
 
 export type OwnersOfInput = {
   state?: Prisma.PeerWhereInput['state'];

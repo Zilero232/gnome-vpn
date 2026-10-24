@@ -17,5 +17,5 @@ nothing catches it earlier.
 ## A job announces only what it changed
 
 `expired-access` announces only the peers it actually turned off; a decline is
-announced by `WebhookService.cancel`, which claims the row once. A sweep that
+announced by `SettlementService.cancel`, which claims the row once. A sweep that
 re-announces an unchanged state tells the reader the same thing every run.

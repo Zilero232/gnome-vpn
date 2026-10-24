@@ -3,3 +3,9 @@ export const YOOKASSA_API = {
   currency: 'RUB',
   timeoutMs: 15_000
 } as const;
+
+export const YOOKASSA_STATUS = {
+  payment: ['pending', 'waiting_for_capture', 'succeeded', 'canceled'],
+  refund: ['pending', 'succeeded', 'canceled'],
+  paymentMethod: ['pending', 'active', 'inactive']
+} as const;

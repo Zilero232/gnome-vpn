@@ -7,6 +7,33 @@ in `apps/server/src/modules/scheduler/` (the full job list is in
 subscriptions — what a promo code does to a checkout and to a settlement — are
 in [promo-codes.md](promo-codes.md). Part of the [documentation index](../README.md).
 
+## Where things live
+
+`modules/billing/` is split by the door a payment comes through, plus the core
+every door shares. A feature folder holds its controller, services, helpers
+(`*.helpers.ts`), constants, types and `_tests/`; it reaches a sibling only
+through `shared/`, and Nest wiring stays in `billing.module.ts`.
+
+| Folder        | Routes and jobs                                                     | What it holds                                                                                                                                                              |
+| ------------- | ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `checkout/`   | `POST /billing/checkout`, `/gift`, `/extra-devices`, `GET /payment-methods` | `CheckoutService` (one private `openPayment`, `claimedExtraDevices`, payment reuse), `PaymentMethodsService`, `localizedReturnUrl`, `offeredMethods`                     |
+| `webhook/`    | `POST /billing/webhook`                                             | `WebhookIpGuard` and `isAllowedWebhookIp`, `WebhookService` — a `ts-pattern` dispatch on the event name                                                                     |
+| `auto-renew/` | `POST /billing/cancel`, `/resume`, `/bind-card`, `/unbind-card`; `recurring-charge` | `AutoRenewService` (`dueSubscriptions`, `chargeDue`, `wasAttempted`, `isPaidByHand`, `dropUnusableCard`), `renewalIdempotenceKey`, `AUTO_RENEW`                          |
+| `shared/`     | —                                                                   | `SettlementService` (`settlePayment`, `cancel`), `SubscriptionGrantService` (`grant`, `revoke`, `activate`), `RefundService`, `CardService`, `PaymentNoticeService`, `PendingPaymentService`; the pure decisions in `settlement.helpers.ts` and `refund.helpers.ts`; `PAYMENT_SETTLE_SELECT` and the row types derived from it |
+
+`shared/` is the payment core rather than a drawer of leftovers: the webhook,
+the hourly charge and the `pending-payments` sweep all settle through
+`SettlementService`, and both the webhook and the charge drop a card and tell
+the reader through the same `CardService` and `PaymentNoticeService`. A payment
+row is read with `PAYMENT_SETTLE_SELECT` and parsed once into a `Purchase`
+(`purchaseOf`) — `extraDevices` with a quantity, or `gift` / `subscription` with
+a plan — and every branch on it is an exhaustive `match`.
+
+What a payment changes on the subscription row (a term, extra places, banked
+days, a rewind) goes through `SubscriptionPeriodService` in
+`modules/subscription`, the one read-modify-write of the period that billing,
+gifts, referrals and promo codes share.
+
 ## Prices, flags and webhooks
 
 **The site names the payment methods the shop actually accepts.** Checkout sends
@@ -133,7 +160,7 @@ left `pending` for a person.
 
 ## Automatic renewal
 
-`recurring-charge` charges the saved card in the last `WINDOW.renewHours` of a
+`recurring-charge` charges the saved card in the last `AUTO_RENEW.windowHours` of a
 period — never during a trial — and makes **one attempt per period**: an
 auto-charge row created inside the renewal window, pending or canceled, means
 the period was already tried, and the reader renews by hand. "Tried" means
@@ -144,12 +171,12 @@ who binds a new card after a decline gets one more attempt with it.
 
 The job returns at once when `YOOKASSA_RECURRING` is off, and it skips a reader
 who has a manual subscription payment pending from the last
-`PENDING.manualHoldMinutes`: someone who is paying by hand on the YooKassa page
+`AUTO_RENEW.manualHoldMinutes`: someone who is paying by hand on the YooKassa page
 right now must not be charged by the job in the same hour as well. A declined card is
 canceled synchronously, and retrying with the same idempotence key only replays
 that cancellation from YooKassa — so the old hourly retry re-announced the same
 failure every hour until the key expired. Everything after the charge goes
-through `WebhookService.settlePayment`, which is the only place a payment
+through `SettlementService.settlePayment`, which is the only place a payment
 changes state.
 
 **The idempotence key is a hash of the whole charge** (`renewalIdempotenceKey`) —
@@ -162,19 +189,19 @@ inside YooKassa's 64-character limit, which the old key missed by one.
 back `pending` and settle by webhook seconds later — sometimes before the row
 recording it exists, and the webhook for an unknown payment is dropped with a 200. The card is charged, the period is not extended, and the attempt blocks a
 retry. `pending-payments` runs every 10 minutes and calls
-`WebhookService.settlePayment` for each payment row still `pending` after
+`SettlementService.settlePayment` for each payment row still `pending` after
 `PENDING.settleAfterMinutes`, looking back `PENDING.lookbackDays`; settling is
 idempotent, so a webhook that did arrive costs nothing. The
 `20261006120000_lookup_indexes` migration adds the `payment(status, created_at)`
 index this sweep filters on — the per-user index cannot serve it.
 
-**A cancellation is claimed once and answered once — in `WebhookService.cancel`,
+**A cancellation is claimed once and answered once — in `SettlementService.cancel`,
 not in the job.** `cancel` flips the row `pending` → `canceled` with
 `updateMany`, and only the call that wins the claim speaks: it unbinds the card
 when the reason is one of `CARD_LOST_REASONS` (retrying a revoked permission next
 month only fails again) and tells the reader their charge failed. The job, the
 `pending-payments` sweep and the webhook all reach a cancellation through it, so
-none of them can announce the same decline a second time. `recurring-charge`
+none of them can announce the same decline a second time. `AutoRenewService`
 keeps `dropUnusableCard` only for a charge that **threw**: a thrown error is
 logged rather than announced, because it is not proof the card was declined, and
 the card is dropped only on a definite "no" from `isPaymentMethodUsable`.
@@ -205,7 +232,7 @@ who abandoned a renewal is reminded too: it is still money left on the table.
 
 **It never fights `pending-payments`.** The reminder only reads statuses and
 writes its own log row; settling and cancelling stay with
-`WebhookService.settlePayment`. By the time a checkout is an hour old the sweep
+`SettlementService.settlePayment`. By the time a checkout is an hour old the sweep
 has re-read it from YooKassa at least five times, so a payment that went
 through is `succeeded` and fails the claim; one that settles in the same
 instant loses the serializable race to one side or the other.
@@ -274,7 +301,7 @@ from the row, and every decision reads it: checkout, `activate`, extra devices,
 `period`, so the account page and the bot branch on the same word instead of
 re-deriving "active and not a trial" each in their own way.
 A purchase during the trial takes the chosen plan and starts when the trial
-ends (`nextPeriodEnd` builds on the active end), so the hours left are not
+ends (`extendPeriod` builds on the active end), so the hours left are not
 lost. There is no "cancel the trial" action: it costs nothing and charges
 nothing, so cancelling would only take hours away.
 
@@ -291,7 +318,7 @@ after that stamp. The same covers extra devices bought on a paid period.
 refuse a different plan inside a paid period (`PLAN_CHANGE_LOCKED`), which kept
 a monthly reader from moving to a year until the month ran out — the moment
 they were most likely to go elsewhere instead. Now the new term starts where
-the running one ends (`nextPeriodEnd`), so nothing paid for is lost, and
+the running one ends (`extendPeriod`), so nothing paid for is lost, and
 `activate` writes the payment's plan, so the next automatic charge bills the
 plan last bought. The error code is gone from `@gnomevpn/schemas` and from
 the client's error messages.
@@ -304,7 +331,7 @@ subscription, and would hide a failed renewal behind it), read in parallel with 
 automatic charge failed" without another request.
 
 **Auto-renewal on a fresh period follows the method the payment saved.**
-`createCheckout` sends `save_payment_method: isRecurringEnabled()`, and YooKassa
+`createCheckout` sends `save_payment_method: YOOKASSA_RECURRING`, and YooKassa
 reads `true` as unconditional: there is no "remember card" box to untick — the
 payment page tells the payer that confirming authorises automatic charges, and
 the method (a card, SberPay, T-Pay, SBP, ЮMoney) is saved when the payment
@@ -316,8 +343,8 @@ the saved method is replaced but the stored preference stands, so a reader who
 turned renewal off stays off; an account whose period came only from promo or
 gift days never stored a preference (`cancelAtPeriodEnd` defaults to `false`),
 so a payment there turns it on as well. A payment that saved nothing keeps
-renewal off (`resolveCancelAtPeriodEnd` needs a method). Binding a card in the
-account (`attachPaymentMethod`) and the "Turn on auto-renewal" toggle
+renewal off (`activationData` needs a method). Binding a card in the
+account (`CardService.bindCard`, or `confirmPending` once YooKassa activates it) and the "Turn on auto-renewal" toggle
 (`resumeAutoRenew`, which needs a saved method) turn it on; unbinding turns it
 off. The renewal charges `findPlan(subscription.plan).priceRub` — the plan last
 paid for at today's price, and the monthly plan on a row a trial or a code
@@ -382,7 +409,8 @@ a monthly subscription for the admin's plan filter and revenue-by-plan chart;
 `20261026110000_payment_plan_and_referral_survivors` cleared it on the existing
 rows. Code that needs the plan of a subscription or gift payment reads it
 through `paymentPlan` (`common/lib`), which throws on a null rather than guess
-one, so a malformed row fails its transaction instead of granting a month.
+one — billing calls it once, in `purchaseOf`, when it reads the row — so a
+malformed row fails instead of granting a month.
 
 **Payments outlive the account.** `payment.user_id` is nullable with
 `ON DELETE SET NULL`: the rows are the shop's record of money taken, and a

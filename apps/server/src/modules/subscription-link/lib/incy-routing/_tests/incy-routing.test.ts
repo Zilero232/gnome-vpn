@@ -1,10 +1,11 @@
 import { fromUnixTime, getUnixTime } from 'date-fns';
 import { describe, expect, it, vi } from 'vitest';
 
+import { deviceIdentity } from '@/modules/devices';
+import { geoFileUrl } from '@/modules/subscription-link/lib/geo-files';
+
 import type { RoutingProfile, StoredRouting } from '../incy-routing.types';
 
-import { deviceIdentity } from '../../../../devices';
-import { geoFileUrl } from '../../geo-files';
 import { incyRouting, routingGeoTags, routingProfile } from '../incy-routing';
 import { GEO_TAG_PREFIX, ROUTING_DNS, ROUTING_GEO, ROUTING_LINK, ROUTING_PROFILE, ROUTING_RULES } from '../incy-routing.constants';
 import { nextRoutingStamp } from '../incy-routing.helpers';

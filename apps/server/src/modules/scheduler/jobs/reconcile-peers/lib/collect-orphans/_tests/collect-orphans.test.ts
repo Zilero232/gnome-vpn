@@ -1,10 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { PrismaService } from '../../../../../../../core';
-import type { XrayClient } from '../../../../../../../lib';
-import type { ReconcilePeer } from '../../../reconcile-peers.job.types';
+import type { PrismaService } from '@/core';
+import type { XrayClient } from '@/lib/xray';
+import type { ReconcilePeer } from '@/modules/scheduler/jobs/reconcile-peers/reconcile-peers.job.types';
 
-import { peerClientName } from '../../../../../../peers';
+import { peerClientName } from '@/modules/peers';
+
 import { collectOrphans } from '../collect-orphans';
 
 const OWNER = 'nZTp8U6AtElvrC60yGPq6GBfwLL9kxbX';

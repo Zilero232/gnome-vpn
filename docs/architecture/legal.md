@@ -38,12 +38,12 @@ same pull request and `TERMS_UPDATED` moves:
 | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | trial length, device limit, max extra places, gift days               | `TRIAL_DAYS`, `DEFAULT_DEVICE_LIMIT`, `MAX_EXTRA_DEVICES`, `giftDays(plan)` — interpolated through `TERMS_VALUES`     |
 | prices                                                                | not in the text at all: «цена на странице «Тарифы» в момент оплаты»                                                   |
-| charge in the last 24 hours, one attempt per payment method           | `WINDOW.renewHours`, `wasAttempted` in `recurring-charge` ([billing.md](billing.md))                                  |
+| charge in the last 24 hours, one attempt per payment method           | `AUTO_RENEW.windowHours`, `wasAttempted` in `AutoRenewService` ([billing.md](billing.md))                                  |
 | renewal amount: the last plan bought at today's price, else monthly   | `findPlan(subscription.plan).priceRub` in `recurring-charge`; `activate` writes the plan, a code or trial row `DEFAULT_PLAN_ID` |
 | no discount on a renewal, extra places or a gift                      | `recurring-charge` and `buyExtraDevices`/`buyGift` price without `PromoDiscountService.quote`                         |
 | reminder "usually three days before", email and bot                   | `WINDOW.remindHours`, `renewSoon` in `period-reminder`, `NoticeEmailService`                                          |
-| paying outside a paid period saves the method and turns renewal on    | `save_payment_method: isRecurringEnabled()` in `CheckoutService`; `activate`'s `isConsentGiven` ([billing.md](billing.md#automatic-renewal)) |
-| paying inside one keeps the choice; card binding and the toggle turn it on | `resolveCancelAtPeriodEnd`, `attachPaymentMethod`, `AutoRenewService.resumeAutoRenew`; unbinding: `unbindCard`  |
+| paying outside a paid period saves the method and turns renewal on    | `save_payment_method: YOOKASSA_RECURRING` in `CheckoutService`; `activationData`'s `isConsentGiven` ([billing.md](billing.md#automatic-renewal)) |
+| paying inside one keeps the choice; card binding and the toggle turn it on | `activationData`, `CardService.bindCard`, `AutoRenewService.resumeAutoRenew`; unbinding: `unbindCard`  |
 | only the card mask is kept                                            | `describeCard` (type and last 4) into `savedCardTitle`                                                                |
 | an unusable card is unbound                                           | `CARD_LOST_REASONS`, `dropUnusableCard`                                                                               |
 | refund rewinds the period, takes referral days back                   | `handleRefund`, `ReferralRewardService.revoke` ([billing.md](billing.md#refunds))                                     |
@@ -52,7 +52,7 @@ same pull request and `TERMS_UPDATED` moves:
 | a campaign code: one discount or days, one pending discount, once per identity, email confirmed | `PromoRedemptionService`, `PromoDiscountService` ([promo-codes.md](promo-codes.md#the-discount-lifecycle)) |
 | a gift: single use, no expiry, survives the buyer, not a renewal      | `GIFT.maxUses`, `buyer_id` set null, `save_payment_method: false` in `buyGift`                                        |
 | extra places end 6 hours after a lapse                                | `activate` resets `extraDevices` past `PERIOD_GRACE`; `graceDeviceLimit` in the device-slot sweep                     |
-| a shrinking limit cuts the newest devices, deletes WireGuard configs  | `DevicesService.revokeOverLimit` (`device-slots` job), `slotHolders`                                                 |
+| a shrinking limit cuts the newest devices, deletes WireGuard configs  | `DeviceLimitService.revokeOverLimit` (`device-slots` job), `slotHolders`                                                 |
 | a WireGuard config goes with its node or the node's new settings      | `buildNodeSync` in `scripts/provision/node/node-sync`                                                                 |
 | trial once per email and Telegram identity, never after any access    | `trial_grant` ([billing.md](billing.md#the-trial)); `trialState.isTrialAvailable` needs no `currentPeriodEnd`        |
 | no deletion while a payment is pending                                | `ACCOUNT_PAYMENT_PENDING`                                                                                             |

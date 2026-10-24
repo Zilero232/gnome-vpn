@@ -1,15 +1,18 @@
 import { autoRetry } from '@grammyjs/auto-retry';
 import { Bot } from 'grammy';
 
-import { AppConfigService } from '../../../config';
+import { AppConfigService } from '@/config';
+
 import { BOT_API } from '../config';
-import { retryNetworkErrors, sendDefaults } from '../lib';
-import { TELEGRAM_BOT } from './telegram-bot.constants';
+import { retryNetworkErrors } from './transformers/network-retry';
+import { sendDefaults } from './transformers/send-defaults';
+
+export const TELEGRAM_BOT = Symbol('TELEGRAM_BOT');
 
 export const telegramBotProvider = {
   provide: TELEGRAM_BOT,
   useFactory: (config: AppConfigService): Bot | null => {
-    const token = config.get('TELEGRAM_BOT_TOKEN');
+    const token = config.get('telegram').botToken;
 
     if (!token) {
       return null;
@@ -19,7 +22,9 @@ export const telegramBotProvider = {
 
     bot.api.config.use(retryNetworkErrors);
 
-    bot.api.config.use(autoRetry({ maxRetryAttempts: BOT_API.callRetries, maxDelaySeconds: BOT_API.maxDelaySeconds, rethrowHttpErrors: true }));
+    bot.api.config.use(
+      autoRetry({ maxRetryAttempts: BOT_API.calls.retries, maxDelaySeconds: BOT_API.calls.maxDelaySeconds, rethrowHttpErrors: true })
+    );
 
     bot.api.config.use(sendDefaults);
 

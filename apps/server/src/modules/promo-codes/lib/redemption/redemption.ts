@@ -1,7 +1,8 @@
 import { isAfter } from 'date-fns';
 import { isEmpty, isNonNullish, isNullish } from 'remeda';
 
-import type { Prisma } from '../../../../../generated';
+import type { Prisma } from '@/generated';
+
 import type {
   AccountRedemptionsInput,
   PromoEffect,

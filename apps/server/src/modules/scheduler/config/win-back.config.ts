@@ -1,6 +1,6 @@
 import { values } from 'remeda';
 
-import { NOTICE_CLAIM } from '../../../core';
+import { NOTICE_CLAIM } from '@/core';
 
 export const WIN_BACK = {
   percent: 20,

@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 
-import { PeersService } from './services';
+import { NodeTrafficService } from './services/node-traffic.service';
+import { PeersService } from './services/peers.service';
 
 @Module({
-  providers: [PeersService],
-  exports: [PeersService]
+  providers: [PeersService, NodeTrafficService],
+  exports: [PeersService, NodeTrafficService]
 })
 export class PeersModule {}

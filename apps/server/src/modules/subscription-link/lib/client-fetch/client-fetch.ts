@@ -1,8 +1,9 @@
 import { isNonNullish } from 'remeda';
 
+import { DEVICE_HEADER, headerOf } from '@/modules/devices';
+
 import type { ClientFetchInput } from './client-fetch.types';
 
-import { DEVICE_HEADER, headerOf } from '../../../devices';
 import { NON_CLIENT } from './client-fetch.constants';
 
 export const isClientFetch = ({ headers, hwid }: ClientFetchInput): boolean => {

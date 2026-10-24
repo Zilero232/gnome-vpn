@@ -1,16 +1,13 @@
-import { isNullish } from 'remeda';
+import { isIncludedIn, isNullish } from 'remeda';
+
+import { basePrisma } from '@/core';
 
 import type { EmailLocale } from '../email';
 import type { EmailLocaleForInput, RememberLocaleInput } from './auth.types';
 
-import { basePrisma } from '../../core';
 import { acceptedLocale, pickEmailLocale } from '../email';
 import { AUTH_LOCALE } from './auth.constants';
-import { headerLocale } from './request-locale';
-
-const REMEMBERED: readonly string[] = AUTH_LOCALE.rememberedOn;
-
-const GUESSED: readonly string[] = AUTH_LOCALE.guessedOn;
+import { headerLocale } from './auth.helpers';
 
 export const emailLocaleFor = async ({ userId, headers }: EmailLocaleForInput): Promise<EmailLocale> => {
   const explicit = headerLocale(headers);
@@ -28,11 +25,11 @@ export const emailLocaleFor = async ({ userId, headers }: EmailLocaleForInput): 
 };
 
 export const rememberLocale = async ({ path, headers, userId }: RememberLocaleInput): Promise<void> => {
-  if (isNullish(userId) || !REMEMBERED.includes(path)) {
+  if (isNullish(userId) || !isIncludedIn(path, AUTH_LOCALE.rememberedOn)) {
     return;
   }
 
-  const locale = headerLocale(headers) ?? (GUESSED.includes(path) ? acceptedLocale(headers?.get(AUTH_LOCALE.acceptHeader)) : null);
+  const locale = headerLocale(headers) ?? (isIncludedIn(path, AUTH_LOCALE.guessedOn) ? acceptedLocale(headers?.get(AUTH_LOCALE.acceptHeader)) : null);
 
   if (isNullish(locale)) {
     return;

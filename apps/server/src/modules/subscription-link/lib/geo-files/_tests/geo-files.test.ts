@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { GEO_FILES } from '../../../config';
+import { GEO_FILES } from '@/modules/subscription-link/config';
+
 import { geoFileTarget, geoFileUrl } from '../geo-files';
 import { GEO_KINDS } from '../geo-files.constants';
 

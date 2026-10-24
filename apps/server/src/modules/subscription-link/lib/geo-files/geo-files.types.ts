@@ -1,4 +1,4 @@
-import type { GEO_FILES } from '../../config';
+import type { GEO_FILES } from '@/modules/subscription-link/config';
 
 export type GeoKind = keyof typeof GEO_FILES.names;
 

@@ -2,11 +2,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { subDays } from 'date-fns';
 import { isNonNullish } from 'remeda';
 
-import { AppBadRequestException } from '../../../common/exceptions';
-import { PrismaService } from '../../../core';
-import { PEER_REF_SELECT, PeersService } from '../../peers';
-import { TrialService } from '../../subscription';
-import { ACCOUNT_DELETION } from '../config';
+import { AppBadRequestException } from '@/common/exceptions';
+import { PrismaService } from '@/core';
+import { PEER_REF_SELECT, PeersService } from '@/modules/peers';
+import { TrialService } from '@/modules/subscription';
+
+import { ACCOUNT_DELETION } from '../config/account-deletion.config';
 import { IdentityService } from './identity.service';
 
 @Injectable()

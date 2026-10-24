@@ -1,6 +1,6 @@
 import type { PlanId } from '@gnomevpn/schemas';
 
-import type { PrismaExecutor } from '../../core';
+import type { PrismaExecutor } from '@/core';
 
 export type AttributeInput = {
   userId: string;
@@ -46,12 +46,6 @@ export type ReferrerShareInput = {
   referrerId: string;
   planned: number;
   now: Date;
-  db: PrismaExecutor;
-};
-
-export type ExtendInput = {
-  userId: string;
-  days: number;
   db: PrismaExecutor;
 };
 

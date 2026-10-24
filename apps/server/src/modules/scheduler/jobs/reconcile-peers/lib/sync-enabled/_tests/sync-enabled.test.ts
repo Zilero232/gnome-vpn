@@ -1,9 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { XrayClient } from '../../../../../../../lib';
-import type { ReconcilePeer } from '../../../reconcile-peers.job.types';
+import type { XrayClient } from '@/lib/xray';
+import type { ReconcilePeer } from '@/modules/scheduler/jobs/reconcile-peers/reconcile-peers.job.types';
 
-import { peerClientName } from '../../../../../../peers';
+import { peerClientName } from '@/modules/peers';
+
 import { syncEnabled } from '../sync-enabled';
 
 const peer = (overrides: Partial<ReconcilePeer> = {}): ReconcilePeer => ({

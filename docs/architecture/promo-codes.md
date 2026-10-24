@@ -3,7 +3,7 @@
 One word for the reader, three kinds of code underneath: a friend's code, a
 campaign code the owner creates, and a gift code someone bought. Code:
 `apps/server/src/modules/promo-codes/`, the discount and the gift in
-`modules/billing` (`CheckoutService`, `WebhookService.settlePayment`), the
+`modules/billing` (`CheckoutService`, `SettlementService.settlePayment`), the
 shared format and pricing in `packages/schemas/src/promo-codes`, the client in
 `features/account/invite-friends` (entering a code) and
 `features/billing/gift-subscription` (buying and listing gifts). Referrals keep
@@ -87,7 +87,7 @@ the email is confirmed.
 ## Redeeming a campaign or gift code
 
 `PromoRedemptionService.redeem` runs in one serializable transaction
-(`withSerializableRetry`), so two redemptions racing for the last use of a
+(`prisma.serializable`), so two redemptions racing for the last use of a
 limited code cannot both pass the count. The refusals, in this order
 (`redemptionRefusal`):
 

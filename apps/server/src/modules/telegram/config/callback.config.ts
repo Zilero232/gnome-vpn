@@ -19,10 +19,11 @@ export const CALLBACK_PREFIX = {
   broadcastSend: 'bsend:'
 } as const;
 
-export const CONFIRMED = 'yes';
-
-export const DECLINED = 'no';
-
-export const SUBJECT_SEPARATOR = ':';
-
-export const CLIENT_LIST = 'list';
+export const CALLBACK_VALUE = {
+  separator: ':',
+  answer: { yes: 'yes', no: 'no' },
+  switch: { on: 'on', off: 'off' },
+  clientList: 'list',
+  wireguardKinds: ['phone', 'computer', 'router'],
+  audiences: ['all', 'active', 'inactive']
+} as const;

@@ -4,9 +4,10 @@ import { Throttle } from '@nestjs/throttler';
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 import { ZodResponse } from 'nestjs-zod';
 
-import { CONNECTION_CHECK, STATUS_CACHE_TTL_MS } from './config';
+import { CONNECTION_CHECK, STATUS_PAGE } from './config';
 import { ConnectionCheckDto, ConnectionResultDto, ServerStatusDto } from './dto/status.dto';
-import { ConnectionCheckService, ServerStatusService } from './services';
+import { ConnectionCheckService } from './services/connection-check.service';
+import { ServerStatusService } from './services/server-status.service';
 
 @Controller('status')
 export class StatusController {
@@ -17,7 +18,7 @@ export class StatusController {
 
   @AllowAnonymous()
   @UseInterceptors(CacheInterceptor)
-  @CacheTTL(STATUS_CACHE_TTL_MS)
+  @CacheTTL(STATUS_PAGE.cacheTtlMs)
   @Get()
   @ZodResponse({ type: ServerStatusDto })
   status() {

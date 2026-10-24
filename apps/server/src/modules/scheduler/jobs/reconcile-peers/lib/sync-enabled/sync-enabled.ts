@@ -1,8 +1,8 @@
 import { isEmpty } from 'remeda';
 
-import type { SyncEnabledInput } from './sync-enabled.types';
+import { peerClientName } from '@/modules/peers';
 
-import { peerClientName } from '../../../../../peers';
+import type { SyncEnabledInput } from './sync-enabled.types';
 
 export const syncEnabled = async ({ xray, peers, nodeClients }: SyncEnabledInput): Promise<number> => {
   const toEnable: string[] = [];

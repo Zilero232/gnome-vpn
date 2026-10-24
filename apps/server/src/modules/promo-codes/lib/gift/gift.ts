@@ -1,9 +1,9 @@
 import { giftDays } from '@gnomevpn/schemas';
 import { first, isNonNullish, isNullish } from 'remeda';
 
-import type { GiftDraft, GiftToIssueInput, GiftView, GiftViewInput } from './gift.types';
+import { GIFT } from '@/modules/promo-codes/config';
 
-import { GIFT } from '../../config';
+import type { GiftDraft, GiftToIssueInput, GiftView, GiftViewInput } from './gift.types';
 
 export const giftToIssue = ({ payment, existing }: GiftToIssueInput): GiftDraft | null => {
   if (payment.kind !== 'gift' || isNonNullish(existing)) {

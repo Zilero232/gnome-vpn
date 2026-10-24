@@ -1,9 +1,10 @@
 import { isNonNullish } from 'remeda';
 
+import { serverName } from '@/modules/subscription-link/lib/server-name';
+import { TLS_MODE } from '@/modules/subscription-link/lib/tls-mode';
+
 import type { IncyServerUriInput } from '../incy-uri.types';
 
-import { serverName } from '../../server-name';
-import { TLS_MODE } from '../../tls-mode';
 import { HYSTERIA2_SCHEME, INSECURE } from './hysteria2.constants';
 import { pinnedFingerprint } from './hysteria2.helpers';
 

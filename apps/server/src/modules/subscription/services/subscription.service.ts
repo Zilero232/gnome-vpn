@@ -4,9 +4,10 @@ import { DEFAULT_PLAN_ID, resolveLimits } from '@gnomevpn/schemas';
 import { Injectable } from '@nestjs/common';
 import { isNonNullish, isNullish } from 'remeda';
 
-import { isPeriodActive, resolveStatus } from '../../../common/lib';
-import { AppConfigService } from '../../../config';
-import { PrismaService } from '../../../core';
+import { isPeriodActive, resolveStatus } from '@/common/lib';
+import { AppConfigService } from '@/config';
+import { PrismaService } from '@/core';
+
 import { trialState } from '../lib';
 import { TrialGrantService } from './trial-grant.service';
 
@@ -28,7 +29,7 @@ export class SubscriptionService {
   }
 
   async getStatus(userId: string): Promise<SubscriptionStatus> {
-    const isRecurringAvailable = this.config.get('YOOKASSA_RECURRING');
+    const isRecurringAvailable = this.config.get('yookassa').isRecurringEnabled;
 
     const [row, lastPayment] = await Promise.all([
       this.prisma.subscription.findUnique({

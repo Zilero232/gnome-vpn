@@ -1,8 +1,8 @@
 import { isShortCode, normaliseShortCode, REFERRAL_CODE } from '@gnomevpn/schemas';
 
-import type { TelegramReferralLinkInput, WebReferralLinkInput } from './referral-link.types';
+import { REFERRAL_LINK } from '@/modules/referrals/config';
 
-import { REFERRAL_LINK } from '../../config';
+import type { TelegramReferralLinkInput, WebReferralLinkInput } from './referral-link.types';
 
 export const webReferralLink = ({ clientUrl, code }: WebReferralLinkInput): string => {
   const url = new URL('/', clientUrl);

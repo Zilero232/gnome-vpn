@@ -1,7 +1,12 @@
 import { addDays, isAfter, isBefore, subDays } from 'date-fns';
 import { isNullish, values } from 'remeda';
 
-import type { AutomaticCode } from '../../../../../promo-codes';
+import type { AutomaticCode } from '@/modules/promo-codes';
+
+import { NOTICE_CLAIM } from '@/core';
+import { WIN_BACK } from '@/modules/scheduler/config';
+import { isTrialPeriod } from '@/modules/subscription';
+
 import type {
   AudienceOfInput,
   LiveCodeInput,
@@ -14,10 +19,6 @@ import type {
   WinBackTouch,
   WinBackWindow
 } from './win-back-touch.types';
-
-import { NOTICE_CLAIM } from '../../../../../../core';
-import { isTrialPeriod } from '../../../../../subscription';
-import { WIN_BACK } from '../../../../config';
 
 const TOUCHES = values(WIN_BACK.touchDays);
 

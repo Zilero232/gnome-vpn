@@ -1,5 +1,3 @@
-export { accessExtension } from './access-extension';
-export type { AccessExtension } from './access-extension';
 export { campaignDraft, campaignProblem } from './campaign';
 export type { CampaignDraft, CampaignEffect, CampaignProblem, CreateCampaignInput } from './campaign';
 export { giftToIssue, giftView } from './gift';

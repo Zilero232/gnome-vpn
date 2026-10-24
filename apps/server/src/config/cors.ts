@@ -1,8 +1,6 @@
 import { filter, isEmpty, map, pipe, unique } from 'remeda';
 
-import { validateEnv } from './env.schema';
-
-const env = validateEnv(process.env);
+import { env } from './env';
 
 const originOf = (url: string): string | null => {
   try {
@@ -13,11 +11,11 @@ const originOf = (url: string): string | null => {
 };
 
 const webOrigins = pipe(
-  env.CORS_ORIGINS.split(','),
+  env.app.corsOrigins.split(','),
   map((origin) => origin.trim()),
   filter((origin) => !isEmpty(origin))
 );
 
-const clientOrigin = originOf(env.CLIENT_URL);
+const clientOrigin = originOf(env.app.clientUrl);
 
 export const allowedOrigins = unique([...webOrigins, ...(clientOrigin ? [clientOrigin] : [])]);

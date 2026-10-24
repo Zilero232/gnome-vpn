@@ -2,7 +2,7 @@ import { SshClient } from '@gnomevpn/scripts/ssh';
 
 import type { ProvisionHostInput, ProvisionResult } from './provision-host.types';
 
-import { describeError } from '../../../../apps/server/src/common/lib/describe-error';
+import { describeError } from '../../../../apps/server/src/common/lib/errors';
 import { generateAuth } from '../../../../apps/server/src/lib/xray';
 import { installInbounds } from '../../inbound';
 import { registerNode, rememberNodeSecrets, resolveNodeCredentials } from '../../node';

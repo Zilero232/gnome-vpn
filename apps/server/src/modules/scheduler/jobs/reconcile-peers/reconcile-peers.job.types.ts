@@ -1,5 +1,6 @@
-import type { PeerKind, PeerState, TunnelProtocol } from '../../../../../generated';
-import type { IdentifiedNode, SubscriptionPeriod } from '../../../../common/lib';
+import type { SubscriptionPeriod } from '@/common/lib';
+import type { PeerKind, PeerState, TunnelProtocol } from '@/generated';
+import type { IdentifiedNode } from '@/lib/xray';
 
 export type ReconcileNode = IdentifiedNode;
 

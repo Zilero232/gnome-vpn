@@ -1,4 +1,4 @@
-import type { PeerNameInput } from '../../../../../peers';
+import type { PeerNameInput } from '@/modules/peers';
 
 export type ActivityPeer = PeerNameInput & {
   deviceId: string | null;

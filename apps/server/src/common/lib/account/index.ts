@@ -1,0 +1,1 @@
+export { hasConfirmedEmail } from './account';

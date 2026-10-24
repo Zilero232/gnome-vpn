@@ -1,17 +1,17 @@
-import { INCY_USER_AGENT, MAX_AGENT_LENGTH } from './client-platform.constants';
+import { incyAgent } from '@/modules/devices';
+
+import { MAX_AGENT_LENGTH } from './client-platform.constants';
 
 export const clientPlatform = (userAgent: string | null): string | null => {
   if (!userAgent) {
     return null;
   }
 
-  const parsed = INCY_USER_AGENT.exec(userAgent.trim());
+  const incy = incyAgent(userAgent.trim());
 
-  if (!parsed) {
+  if (!incy) {
     return userAgent.slice(0, MAX_AGENT_LENGTH);
   }
 
-  const [, version, platform] = parsed;
-
-  return `INCY ${platform} ${version}`;
+  return `INCY ${incy.platform} ${incy.version}`;
 };

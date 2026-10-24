@@ -1,15 +1,16 @@
 import type { SubscriptionStatus } from '@gnomevpn/schemas';
 
-import { DEFAULT_PLAN_ID, isPlaceholderEmail, TRIAL_DAYS } from '@gnomevpn/schemas';
+import { DEFAULT_PLAN_ID, TRIAL_DAYS } from '@gnomevpn/schemas';
 import { Injectable } from '@nestjs/common';
 import { addDays } from 'date-fns';
 import { isNonNullish, isNullish } from 'remeda';
 
+import { AppBadRequestException } from '@/common/exceptions';
+import { hasConfirmedEmail, isPeriodActive } from '@/common/lib';
+import { isUniqueViolation, PrismaService } from '@/core';
+
 import type { TransferTrialInput, TrialEligibility, TrialGrantLookupInput, TrialStanding } from '../subscription.types';
 
-import { AppBadRequestException } from '../../../common/exceptions';
-import { isPeriodActive } from '../../../common/lib';
-import { isPrismaRequestError, PrismaService, UNIQUE_VIOLATION } from '../../../core';
 import { trialState } from '../lib';
 import { SubscriptionService } from './subscription.service';
 import { TrialGrantService } from './trial-grant.service';
@@ -36,7 +37,7 @@ export class TrialService {
 
     const hasAccess = isPeriodActive(user?.subscription?.currentPeriodEnd);
 
-    if (!user || (!user.emailVerified && !isPlaceholderEmail(user.email))) {
+    if (!user || !hasConfirmedEmail(user)) {
       return { eligibility: 'emailUnverified', hasAccess };
     }
 
@@ -119,7 +120,7 @@ export class TrialService {
         await this.grants.record({ userId, db: tx, isStrict: true });
       });
     } catch (error) {
-      if (isPrismaRequestError(error) && error.code === UNIQUE_VIOLATION) {
+      if (isUniqueViolation(error)) {
         return;
       }
 

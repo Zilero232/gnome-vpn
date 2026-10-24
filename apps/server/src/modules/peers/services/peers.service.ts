@@ -3,6 +3,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { groupBy, isEmpty } from 'remeda';
 import { match } from 'ts-pattern';
 
+import { AppServiceUnavailableException } from '@/common/exceptions';
+import { describeError } from '@/common/lib';
+import { PrismaService } from '@/core';
+import { IDENTIFIED_NODE_SELECT, xrayClientForNode } from '@/lib/xray';
+
 import type {
   CreatedPeer,
   DeleteClientInput,
@@ -13,12 +18,11 @@ import type {
   IssuePeerInput,
   PeerRef,
   SetPeerEnabledInput
-} from '../peers.service.types';
+} from '../peers.types';
 
-import { AppServiceUnavailableException } from '../../../common/exceptions';
-import { describeError, IDENTIFIED_NODE_SELECT, xrayClientForNode } from '../../../common/lib';
-import { PrismaService } from '../../../core';
-import { generateWireguardKeys, peerClientName } from '../lib';
+import { PEER_NAME_SELECT } from '../config';
+import { peerClientName } from '../lib/peer-row';
+import { generateWireguardKeys } from '../lib/x25519-keys';
 
 @Injectable()
 export class PeersService {
@@ -48,7 +52,7 @@ export class PeersService {
       .returnType<() => Promise<IssuedCredential>>()
       .with(TUNNEL_PROTOCOL.vless, () => () => client.createVlessClient({ email, limitIp }))
       .with(TUNNEL_PROTOCOL.wireguard, () => () => client.createWireguardClient({ email, limitIp, ...generateWireguardKeys() }))
-      .otherwise(() => () => client.createClient({ email, limitIp }));
+      .otherwise(() => () => client.createHysteriaClient({ email, limitIp }));
 
     try {
       const created = await create();
@@ -115,7 +119,7 @@ export class PeersService {
   async pushEnabled(userId: string): Promise<void> {
     const peers = await this.prisma.peer.findMany({
       where: { userId, kind: 'config', revokedAt: null, state: 'active' },
-      select: { userId: true, kind: true, name: true, nodeId: true, protocol: true }
+      select: PEER_NAME_SELECT
     });
 
     await this.forEachNode({

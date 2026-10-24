@@ -53,7 +53,7 @@ project left it in the first place. It is here as a fallback for blocked UDP, no
 as a claim that it survives active probing. If it turns out dead again, the
 Hysteria2 entry is still first in the list.
 
-Which nodes advertise VLESS is decided per node by `protocolsFor` — see
+Which nodes advertise VLESS is decided per node by `feedProtocols` — see
 [subscription-feed.md](subscription-feed.md#issuing-the-peers).
 
 ## WireGuard as a config, not as a feed entry
@@ -65,7 +65,7 @@ after Hysteria2 and VLESS. In practice that meant a third line in INCY that
 often did not connect, picked by people who did not know why it was there, and
 a WireGuard key and address spent on every device that fetched the feed.
 
-So the feed carries Hysteria2 and VLESS only (`protocolsFor`), and WireGuard is
+So the feed carries Hysteria2 and VLESS only (`feedProtocols`), and WireGuard is
 what it is good at: a `.conf` for one device and one country, for a router or
 an app that speaks nothing else, made on the account's Connect tab
 («По конфигу») or with `/wireguard` in the bot. The WireGuard peers that feed

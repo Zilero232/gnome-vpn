@@ -1,12 +1,9 @@
-import { IDENTIFIED_NODE_SELECT } from '../../../../common/lib';
+import { IDENTIFIED_NODE_SELECT } from '@/lib/xray';
+import { PEER_NAME_SELECT } from '@/modules/peers';
 
 export const ACTIVITY_PEER_SELECT = {
   deviceId: true,
-  userId: true,
-  kind: true,
-  name: true,
-  nodeId: true,
-  protocol: true
+  ...PEER_NAME_SELECT
 } as const;
 
 export const PROBE_NODE_SELECT = {

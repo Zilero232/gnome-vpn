@@ -22,6 +22,12 @@ export const DEVICE_FIELD = {
   maxLength: 64,
   appMaxLength: 32,
   hwid: /^[0-9A-Z-]{8,64}$/i,
-  incyAgent: /^INCY\/[^/\s]+\/([^/\s]+)/i,
+  incyAgent: /^INCY\/(?<version>[^/\s]+)\/(?<platform>[^/\s]+)/i,
   agentName: /^([A-Z][\w.-]*)/i
+} as const;
+
+export const DEVICE_TITLE = {
+  separator: ' · ',
+  listSeparator: ', ',
+  unknown: '?'
 } as const;

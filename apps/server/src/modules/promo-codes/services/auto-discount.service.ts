@@ -2,10 +2,11 @@ import { normalisePromoCode } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
 import { isNullish } from 'remeda';
 
+import { isUniqueViolation, PrismaService } from '@/core';
+import { TrialGrantService } from '@/modules/subscription';
+
 import type { AutoDiscountOffer, AutoDiscountOfferInput, AutomaticCode, EnsureAutoCodeInput } from '../promo-codes.types';
 
-import { isPrismaRequestError, PrismaService, UNIQUE_VIOLATION } from '../../../core';
-import { TrialGrantService } from '../../subscription';
 import { AUTO_CODE_SELECT } from '../config';
 import { accountRedemptions } from '../lib';
 import { PromoDiscountService } from './promo-discount.service';
@@ -72,7 +73,7 @@ export class AutoDiscountService {
 
       return { id: created.id, code, percent, expiresAt: created.expiresAt };
     } catch (error) {
-      if (isPrismaRequestError(error) && error.code === UNIQUE_VIOLATION) {
+      if (isUniqueViolation(error)) {
         return this.ensure({ code, percent });
       }
 

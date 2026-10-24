@@ -1,8 +1,8 @@
 import { entries } from 'remeda';
 
-import type { GeoFileTarget, GeoFileUrlInput } from './geo-files.types';
+import { GEO_FILES } from '@/modules/subscription-link/config';
 
-import { GEO_FILES } from '../../config';
+import type { GeoFileTarget, GeoFileUrlInput } from './geo-files.types';
 
 export const geoFileTarget = (name: string): GeoFileTarget | null => {
   const found = entries(GEO_FILES.names).find(([, file]) => name === file || name === `${file}${GEO_FILES.sidecarSuffix}`);

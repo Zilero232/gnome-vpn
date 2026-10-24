@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { campaignProblem } from '../../../promo-codes';
+import { campaignProblem } from '@/modules/promo-codes';
+
 import { WIN_BACK } from '../win-back.config';
 
 describe('WIN_BACK', () => {

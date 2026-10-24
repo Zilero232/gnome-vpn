@@ -1,4 +1,7 @@
+import { LOWEST_MONTHLY_RUB } from '@gnomevpn/schemas';
 import { entries } from 'remeda';
+
+import { fillTokens } from '@/common/lib';
 
 import type { BotButtons, BotCommand, BotLocale, BotMessages, BotPlatforms, BotProfile, BotText } from '../telegram.types';
 
@@ -12,6 +15,17 @@ export const DEFAULT_BOT_LOCALE: BotLocale = 'ru';
 export const FALLBACK_BOT_LOCALE: BotLocale = 'en';
 
 const MESSAGES: Record<BotLocale, BotMessages> = { ru, en };
+
+const withPrice = (text: string): string => fillTokens({ text, fill: { price: String(LOWEST_MONTHLY_RUB) } });
+
+const profileOf = (locale: BotLocale): BotProfile => {
+  const { profile } = MESSAGES[locale];
+
+  return { ...profile, description: withPrice(profile.description), shortDescription: withPrice(profile.shortDescription) };
+};
+
+const commandsOf = (locale: BotLocale): BotCommand[] =>
+  entries(MESSAGES[locale].commands).map(([command, description]) => ({ command, description }));
 
 export const BOT_TEXT: Record<BotLocale, BotText> = {
   ru: MESSAGES.ru.text,
@@ -29,12 +43,9 @@ export const BOT_PLATFORMS: Record<BotLocale, BotPlatforms> = {
 };
 
 export const BOT_PROFILE: Record<BotLocale, BotProfile> = {
-  ru: MESSAGES.ru.profile,
-  en: MESSAGES.en.profile
+  ru: profileOf('ru'),
+  en: profileOf('en')
 };
-
-const commandsOf = (locale: BotLocale): BotCommand[] =>
-  entries(MESSAGES[locale].commands).map(([command, description]) => ({ command, description }));
 
 export const BOT_COMMANDS: Record<BotLocale, BotCommand[]> = {
   ru: commandsOf('ru'),

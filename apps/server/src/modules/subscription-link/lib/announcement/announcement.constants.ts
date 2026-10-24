@@ -1,4 +1,4 @@
-import type { PluralForms } from '../../../../common/lib';
+import type { PluralForms } from '@/common/lib';
 
 export const ANNOUNCE = {
   expiryWarningDays: 3,

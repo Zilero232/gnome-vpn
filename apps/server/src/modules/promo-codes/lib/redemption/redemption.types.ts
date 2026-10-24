@@ -1,6 +1,6 @@
 import type { ApiErrorCode, PromoRedemption } from '@gnomevpn/schemas';
 
-import type { PromoCodeKind } from '../../../../../generated';
+import type { PromoCodeKind } from '@/generated';
 
 export type RedemptionRefusal = Extract<ApiErrorCode, 'PROMO_CODE_ALREADY_USED' | 'PROMO_CODE_EXPIRED' | 'PROMO_CODE_USED_UP'>;
 

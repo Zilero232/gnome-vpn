@@ -1,19 +1,20 @@
 import type { PromoRedemption } from '@gnomevpn/schemas';
 
-import { DEFAULT_PLAN_ID, isPlaceholderEmail, normalisePromoCode, promoCodeOrigin } from '@gnomevpn/schemas';
+import { normalisePromoCode, promoCodeOrigin } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
 import { isNullish } from 'remeda';
 
-import type { Claimed, ClaimInput, ExtendAccessInput, RedeemInput } from '../promo-codes.types';
+import { AppBadRequestException, AppNotFoundException, AppServiceUnavailableException } from '@/common/exceptions';
+import { describeError, hasConfirmedEmail } from '@/common/lib';
+import { isUniqueViolation, PrismaService } from '@/core';
+import { ReferralService } from '@/modules/referrals';
+import { SubscriptionPeriodService, TrialGrantService } from '@/modules/subscription';
+import { SubscriptionAccessService } from '@/modules/subscription-link';
 
-import { AppBadRequestException, AppNotFoundException, AppServiceUnavailableException } from '../../../common/exceptions';
-import { describeError } from '../../../common/lib';
-import { isPrismaRequestError, PrismaService, UNIQUE_VIOLATION, withSerializableRetry } from '../../../core';
-import { ReferralService } from '../../referrals';
-import { TrialGrantService } from '../../subscription';
-import { SubscriptionAccessService } from '../../subscription-link';
+import type { Claimed, ClaimInput, RedeemInput } from '../promo-codes.types';
+
 import { FRIEND_REDEMPTION, PROMO_REDEEM, REDEMPTION_REFUSAL } from '../config';
-import { accessExtension, accountRedemptions, promoEffect, redemptionRefusal, redemptionResult } from '../lib';
+import { accountRedemptions, promoEffect, redemptionRefusal, redemptionResult } from '../lib';
 
 @Injectable()
 export class PromoRedemptionService {
@@ -23,7 +24,8 @@ export class PromoRedemptionService {
     private readonly prisma: PrismaService,
     private readonly referrals: ReferralService,
     private readonly grants: TrialGrantService,
-    private readonly access: SubscriptionAccessService
+    private readonly access: SubscriptionAccessService,
+    private readonly periods: SubscriptionPeriodService
   ) {}
 
   async redeem({ userId, code }: RedeemInput): Promise<PromoRedemption> {
@@ -52,18 +54,16 @@ export class PromoRedemptionService {
   private async requireVerifiedEmail(userId: string): Promise<void> {
     const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { email: true, emailVerified: true } });
 
-    if (isNullish(user) || (!user.emailVerified && !isPlaceholderEmail(user.email))) {
+    if (isNullish(user) || !hasConfirmedEmail(user)) {
       throw new AppBadRequestException('PROMO_EMAIL_UNVERIFIED', PROMO_REDEEM.unverifiedEmail);
     }
   }
 
   private async claimOnce(input: Omit<ClaimInput, 'db'>): Promise<Claimed> {
     try {
-      return await withSerializableRetry(() =>
-        this.prisma.$transaction((tx) => this.claim({ ...input, db: tx }), { isolationLevel: 'Serializable' })
-      );
+      return await this.prisma.serializable((tx) => this.claim({ ...input, db: tx }));
     } catch (error) {
-      if (isPrismaRequestError(error) && error.code === UNIQUE_VIOLATION) {
+      if (isUniqueViolation(error)) {
         throw new AppBadRequestException('PROMO_CODE_ALREADY_USED', REDEMPTION_REFUSAL.PROMO_CODE_ALREADY_USED);
       }
 
@@ -113,22 +113,8 @@ export class PromoRedemptionService {
       return { effect, currentPeriodEnd: null };
     }
 
-    const currentPeriodEnd = await this.extendAccess({ userId, days: effect.days, now, db });
+    const currentPeriodEnd = await this.periods.extendAccess({ userId, days: effect.days, now, db });
 
     return { effect, currentPeriodEnd };
-  }
-
-  private async extendAccess({ userId, days, now, db }: ExtendAccessInput): Promise<Date> {
-    const subscription = await db.subscription.findUnique({ where: { userId }, select: { currentPeriodEnd: true } });
-    const extension = accessExtension({ currentPeriodEnd: subscription?.currentPeriodEnd, days, now });
-    const data = { currentPeriodEnd: extension.currentPeriodEnd, ...(extension.resetsExtras && { extraDevices: 0 }) };
-
-    await db.subscription.upsert({
-      where: { userId },
-      create: { userId, plan: DEFAULT_PLAN_ID, ...data },
-      update: data
-    });
-
-    return extension.currentPeriodEnd;
   }
 }

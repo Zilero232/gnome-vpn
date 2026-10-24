@@ -12,7 +12,7 @@ import type {
   WaitForPanelListeningInput
 } from './panel-config.types';
 
-import { PANEL_USERNAME } from '../../../../apps/server/src/lib/xray';
+import { PANEL } from '../../../../apps/server/src/lib/xray';
 import { log, PORTS } from '../../config';
 import { CONTAINER_NAME } from '../xray-stack';
 import { PANEL_BOOT, PANEL_CLI, SETTINGS_UPLOAD, TOKEN_PROBE } from './panel-config.constants';
@@ -127,7 +127,7 @@ const keepCoreRunning = async ({ ssh, panelPath, token }: KeepCoreRunningInput):
 export const configurePanel = async ({ ssh, password, panelPath, knownToken }: ConfigurePanelInput): Promise<string> => {
   log.step('configuring the panel credentials');
 
-  await runPanelCli({ ssh, args: ['-username', PANEL_USERNAME, '-password', password] });
+  await runPanelCli({ ssh, args: ['-username', PANEL.username, '-password', password] });
 
   const isInPlace = await waitForPanelListening({
     ssh,

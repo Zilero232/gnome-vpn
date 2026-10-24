@@ -1,18 +1,11 @@
 import type { EnsureInboundInput, InboundChange, PanelCredentials, SyncInboundsInput } from './xray-panel.types';
 
-import {
-  INBOUND_REMARK,
-  PanelClient,
-  REQUEST_TIMEOUT_MS,
-  VLESS_INBOUND_REMARK,
-  WIREGUARD_INBOUND,
-  XrayClient
-} from '../../../../apps/server/src/lib/xray';
+import { INBOUND, XrayClient, XrayInbounds } from '../../../../apps/server/src/lib/xray';
 import { PEER_PREFIX } from '../../../../apps/server/src/modules/peers/config';
 import { log } from '../../config';
 import { inboundMatches } from './xray-panel.helpers';
 
-export const isPanelReachable = async (credentials: PanelCredentials): Promise<boolean> => new XrayClient(credentials).isReachable();
+export const isPanelReachable = async (credentials: PanelCredentials): Promise<boolean> => new XrayInbounds(credentials).isReachable();
 
 const ensureInbound = async ({ label, current, desired, create, update }: EnsureInboundInput): Promise<InboundChange> => {
   if (!current) {
@@ -34,8 +27,9 @@ const ensureInbound = async ({ label, current, desired, create, update }: Ensure
   return 'updated';
 };
 
-const dropLegacyWireguardClients = async (xray: XrayClient) => {
-  const legacy = (await xray.wireguardEmails()).filter((email) => email.startsWith(PEER_PREFIX.session));
+const dropLegacyWireguardClients = async (credentials: PanelCredentials) => {
+  const legacy = (await new XrayInbounds(credentials).wireguardEmails()).filter((email) => email.startsWith(PEER_PREFIX.session));
+  const xray = new XrayClient(credentials);
 
   for (const email of legacy) {
     await xray.deleteClient(email);
@@ -47,37 +41,37 @@ const dropLegacyWireguardClients = async (xray: XrayClient) => {
 };
 
 export const syncInbounds = async ({ inbounds, ...credentials }: SyncInboundsInput) => {
-  const xray = new XrayClient(credentials);
-  const existing = await new PanelClient({ ...credentials, timeout: REQUEST_TIMEOUT_MS }).listInbounds();
+  const panel = new XrayInbounds(credentials);
+  const existing = await panel.list();
   const find = (remark: string) => existing.find((inbound) => inbound.remark === remark);
 
   log.step('syncing the inbounds');
 
   const hysteria = await ensureInbound({
     label: 'hysteria2',
-    current: find(INBOUND_REMARK),
+    current: find(INBOUND.hysteria.remark),
     desired: inbounds.hysteria,
-    create: () => xray.createInbound(inbounds.hysteria),
-    update: () => xray.updateInbound(inbounds.hysteria)
+    create: () => panel.create({ inbound: inbounds.hysteria, remark: INBOUND.hysteria.remark }),
+    update: () => panel.update({ inbound: inbounds.hysteria, remark: INBOUND.hysteria.remark })
   });
 
   const vless = await ensureInbound({
     label: 'vless + reality',
-    current: find(VLESS_INBOUND_REMARK),
+    current: find(INBOUND.vless.remark),
     desired: inbounds.vless,
-    create: () => xray.ensureVlessInbound(inbounds.vless),
-    update: () => xray.ensureVlessInbound(inbounds.vless)
+    create: () => panel.ensure({ inbound: inbounds.vless, remark: INBOUND.vless.remark }),
+    update: () => panel.ensure({ inbound: inbounds.vless, remark: INBOUND.vless.remark })
   });
 
   await ensureInbound({
     label: 'wireguard',
-    current: find(WIREGUARD_INBOUND.remark),
+    current: find(INBOUND.wireguard.remark),
     desired: inbounds.wireguard,
-    create: () => xray.ensureWireguardInbound(inbounds.wireguard),
-    update: () => xray.ensureWireguardInbound(inbounds.wireguard)
+    create: () => panel.ensure({ inbound: inbounds.wireguard, remark: INBOUND.wireguard.remark }),
+    update: () => panel.ensure({ inbound: inbounds.wireguard, remark: INBOUND.wireguard.remark })
   });
 
-  await dropLegacyWireguardClients(xray);
+  await dropLegacyWireguardClients(credentials);
 
   if (hysteria === 'unchanged' && vless === 'unchanged') {
     log.done('no hysteria2 or vless inbound changed, the core keeps its sessions');
@@ -85,6 +79,6 @@ export const syncInbounds = async ({ inbounds, ...credentials }: SyncInboundsInp
     return;
   }
 
-  await xray.restartCore('provisioned the hysteria2 and vless inbounds');
+  await panel.restartCore('provisioned the hysteria2 and vless inbounds');
   log.done('the core was restarted once for the inbound changes');
 };

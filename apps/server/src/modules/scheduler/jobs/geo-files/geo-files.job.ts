@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 
-import { GeoFilesService } from '../../../subscription-link';
-import { SCHEDULE } from '../../config';
+import { SCHEDULE } from '@/modules/scheduler/config';
+import { GeoFilesService } from '@/modules/subscription-link';
 
 @Injectable()
 export class GeoFilesJob {
