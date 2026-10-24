@@ -74,7 +74,8 @@
     "provision:nodes": "bun --env-file .env --env-file .env.nodes scripts/provision/index.ts",
     "brand:icons": "bun scripts/brand-icons/index.ts",
     "format:prisma": "bun --filter @gnomevpn/server format:prisma",
-    "secrets": "bun scripts/secrets/index.ts"
+    "secrets": "bun scripts/secrets/index.ts",
+    "commit": "jazzer"
   },
   "dependencies": {
     "@gnomevpn/scripts": "workspace:*",
@@ -99,6 +100,7 @@
     "@vitejs/plugin-react": "^6.1.2",
     "@vitest/coverage-v8": "^5.0.5",
     "babel-plugin-react-compiler": "^1.0.0",
+    "commit-jazzer": "^2.0.1",
     "eslint": "^10.13.0",
     "fkill-cli": "^9.0.0",
     "husky": "^9.1.7",
