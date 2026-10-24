@@ -4,6 +4,7 @@ import {
   BadRequestException,
   ForbiddenException,
   HttpException,
+  HttpStatus,
   NotFoundException,
   ServiceUnavailableException,
   UnauthorizedException
@@ -12,12 +13,6 @@ import {
 import type { AppErrorBody } from './app.exception.types';
 
 const body = ({ code, error }: AppErrorBody) => ({ error, code });
-
-class PaymentRequiredException extends HttpException {
-  constructor(response: AppErrorBody) {
-    super(response, 402);
-  }
-}
 
 export class AppNotFoundException extends NotFoundException {
   constructor(code: ApiErrorCode, error: string) {
@@ -43,9 +38,9 @@ export class AppBadRequestException extends BadRequestException {
   }
 }
 
-export class AppPaymentRequiredException extends PaymentRequiredException {
+export class AppPaymentRequiredException extends HttpException {
   constructor(code: ApiErrorCode, error: string) {
-    super(body({ code, error }));
+    super(body({ code, error }), HttpStatus.PAYMENT_REQUIRED);
   }
 }
 

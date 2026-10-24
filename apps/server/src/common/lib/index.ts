@@ -19,7 +19,7 @@ export {
 export type { ExtendPeriodInput, LapseInput, PeriodInput, RewindPeriodInput, SubscriptionPeriod } from './period';
 
 export { countryFlag, fillTokens, pluralize } from './text';
-export type { FillTokensInput, PluralForms, TokenFill } from './text';
+export type { PluralForms } from './text';
 
 export { addUtcDays, dayKey, dayKeys, utcDay, windowStart } from './utc-day';
-export type { AddUtcDaysInput, DayWindowInput, WindowStartInput } from './utc-day';
+export type { DayWindowInput } from './utc-day';

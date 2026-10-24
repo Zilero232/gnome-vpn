@@ -1,6 +1,6 @@
 import { Controller, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 
-import { CurrentUserId } from '@/common/decorators';
+import { CurrentUserId } from '@/common/decorators/current-user-id.decorator';
 
 import { AccountService } from './services';
 

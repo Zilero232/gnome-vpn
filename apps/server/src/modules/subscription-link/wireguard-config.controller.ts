@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ZodResponse } from 'nestjs-zod';
 
-import { CurrentUserId } from '@/common/decorators';
+import { CurrentUserId } from '@/common/decorators/current-user-id.decorator';
 
 import { SubscriptionGuard } from '../subscription';
 import { CreateWireguardConfigDto, WireguardConfigFileDto, WireguardConfigParamDto, WireguardOverviewDto } from './dto/wireguard.dto';

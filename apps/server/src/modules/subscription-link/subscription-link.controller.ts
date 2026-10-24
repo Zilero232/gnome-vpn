@@ -1,7 +1,7 @@
 import { Controller, Get, Post } from '@nestjs/common';
 import { ZodResponse } from 'nestjs-zod';
 
-import { CurrentUserId } from '@/common/decorators';
+import { CurrentUserId } from '@/common/decorators/current-user-id.decorator';
 
 import { SubscriptionLinkDto } from './dto/subscription-link.dto';
 import { SubscriptionLinkService } from './services';

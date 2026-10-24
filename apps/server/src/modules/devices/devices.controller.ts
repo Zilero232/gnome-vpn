@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, HttpCode, Param } from '@nestjs/common';
 import { ZodResponse } from 'nestjs-zod';
 
-import { CurrentUserId } from '@/common/decorators';
+import { CurrentUserId } from '@/common/decorators/current-user-id.decorator';
 
 import { DeviceIdParamDto, DeviceListDto } from './dto/devices.dto';
 import { DevicesService } from './services';
