@@ -2,8 +2,8 @@ import { NODE_STATE } from '@gnomevpn/schemas';
 import { addSeconds, subMinutes, subSeconds } from 'date-fns';
 import { describe, expect, it } from 'vitest';
 
-import { nodeState, passedCheck } from '../node-state';
-import { NODE_DOWN } from '../node-state.constants';
+import { nodeState, passedCheck } from '../node-status';
+import { NODE_DOWN } from '../node-status.constants';
 
 const NOW = new Date('2026-10-23T12:00:30Z');
 
@@ -22,8 +22,11 @@ describe('nodeState', () => {
     const lastHealthyAt = addSeconds(subMinutes(NOW, 10), 4);
     const checkAfter = (failed: number) => subMinutes(NOW, 10 - failed);
 
-    expect(nodeState({ lastHealthyAt, lastCheckedAt: checkAfter(NODE_DOWN.failedChecks - 1), isOverloaded: false })).toBe(NODE_STATE.degraded);
-    expect(nodeState({ lastHealthyAt, lastCheckedAt: checkAfter(NODE_DOWN.failedChecks), isOverloaded: false })).toBe(NODE_STATE.down);
+    expect(nodeState({ lastHealthyAt, lastCheckedAt: checkAfter(NODE_DOWN.statusPage.failedChecks - 1), isOverloaded: false })).toBe(
+      NODE_STATE.degraded
+    );
+
+    expect(nodeState({ lastHealthyAt, lastCheckedAt: checkAfter(NODE_DOWN.statusPage.failedChecks), isOverloaded: false })).toBe(NODE_STATE.down);
   });
 
   it('keeps the last known state while the checks themselves stop, since an API outage is not the node going down', () => {

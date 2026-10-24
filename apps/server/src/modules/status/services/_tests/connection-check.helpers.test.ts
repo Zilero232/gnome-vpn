@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { countryForIp } from '../ip-address';
+import { countryForIp } from '../connection-check.helpers';
 
 const ADDRESSES = [
   { address: '203.0.113.10', countryCode: 'NL' },

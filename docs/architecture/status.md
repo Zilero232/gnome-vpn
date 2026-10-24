@@ -32,7 +32,7 @@ which strips any key the schema does not name, so a wider `select` added later
 cannot leak through the response. `ZodResponse` alone would not do it: the app
 registers no serializer interceptor, so it only documents the shape.
 
-The response is cached for 30 seconds (`STATUS_CACHE_TTL_MS`, the same
+The response is cached for 30 seconds (`STATUS_PAGE.cacheTtlMs`, the same
 `CacheInterceptor` the platforms route uses). The data moves once a minute, so
 a page refreshed by many readers costs one query per half minute.
 
@@ -45,7 +45,7 @@ a page refreshed by many readers costs one query per half minute.
 - upserts a `node_uptime` row per node for the current **UTC** day, adding one
   to `checked_minutes`, and one to `up_minutes` when the node passed;
 - stamps `node.last_checked_at` with the run's start;
-- deletes rows older than `UPTIME_RETENTION_DAYS` (90). The page shows 30; the
+- deletes rows older than `STATUS_PAGE.uptimeRetentionDays` (90). The page shows 30; the
   rest is there for looking back at an incident. The table holds nodes × 90
   rows, and `day` is indexed, so the prune costs nothing on every run.
 
@@ -67,7 +67,7 @@ up by a whole empty day.
 
 `nodeState` reads three stamps on the node row:
 
-- **down** — never seen healthy, or `NODE_DOWN.failedChecks` (3) recorded checks
+- **down** — never seen healthy, or `NODE_DOWN.statusPage.failedChecks` (3) recorded checks
   in a row have failed since the last healthy one: `lastCheckedAt` is more than
   two check intervals after `lastHealthyAt`. The rule counts checks that
   happened, not minutes on the wall clock, so it never says "down" a few
@@ -75,7 +75,9 @@ up by a whole empty day.
   themselves stop (the API is restarting, the scheduler stalled), every node
   keeps its last known state instead of turning red for everyone; a crashed
   API is not the node's downtime, as the uptime accounting already says. Shorter
-  than the feed's 10-minute `nodeStaleMinutes`, on purpose: the feed must not
+  than the feed's 10-minute `NODE_DOWN.feed.staleMinutes`, on purpose — the two
+  rules sit side by side in `NODE_DOWN` (`status/lib/node-status`) so neither
+  changes without the other in view: the feed must not
   drop a node from INCY over a blip, while a status page that says "working"
   for ten minutes of a full outage is lying.
 - **degraded** — reachable within that window, but either the latest probe
