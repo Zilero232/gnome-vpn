@@ -5,10 +5,11 @@ import { Injectable } from '@nestjs/common';
 import { subMinutes } from 'date-fns';
 import { isNonNullish, isNullish } from 'remeda';
 
-import { generateShortCode, rewindPeriod } from '@/common/lib';
+import { generateShortCode } from '@/common/lib';
 import { AppConfigService } from '@/config';
 import { PrismaService } from '@/core';
 import { webReferralLink } from '@/modules/referrals';
+import { SubscriptionPeriodService } from '@/modules/subscription';
 
 import type { IssueGiftInput, RevokedGift, RevokeGiftInput } from '../promo-codes.types';
 
@@ -19,7 +20,8 @@ import { giftToIssue, giftView } from '../lib';
 export class GiftCodeService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly config: AppConfigService
+    private readonly config: AppConfigService,
+    private readonly periods: SubscriptionPeriodService
   ) {}
 
   async issue({ payment, db }: IssueGiftInput): Promise<string | null> {
@@ -56,18 +58,9 @@ export class GiftCodeService {
       return { redeemerId: null, days: 0 };
     }
 
-    const subscription = await db.subscription.findUnique({ where: { userId: redeemerId }, select: { currentPeriodEnd: true } });
+    const isRewound = await this.periods.rewind({ userId: redeemerId, days: gift.days, db });
 
-    if (isNullish(subscription)) {
-      return { redeemerId, days: 0 };
-    }
-
-    await db.subscription.update({
-      where: { userId: redeemerId },
-      data: { currentPeriodEnd: rewindPeriod({ currentPeriodEnd: subscription.currentPeriodEnd, days: gift.days }) }
-    });
-
-    return { redeemerId, days: gift.days };
+    return { redeemerId, days: isRewound ? gift.days : 0 };
   }
 
   async list(userId: string): Promise<GiftList> {

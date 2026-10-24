@@ -1,29 +1,17 @@
-import { findPlan, MAX_EXTRA_DEVICES } from '@gnomevpn/schemas';
-import { Injectable, Logger } from '@nestjs/common';
-import { addDays } from 'date-fns';
-import { isNullish } from 'remeda';
+import { findPlan } from '@gnomevpn/schemas';
+import { Injectable } from '@nestjs/common';
 
-import { hasLapsedBeyondGrace, nextPeriodEnd, rewindPeriod } from '@/common/lib';
+import { extendPeriod, hasLapsedBeyondGrace } from '@/common/lib';
 import { AppConfigService } from '@/config';
 import { PrismaService } from '@/core';
 import { periodKind } from '@/modules/subscription';
 
-import type {
-  ActivateInput,
-  AttachMethodInput,
-  AutoRenewInput,
-  CheckoutReturnInput,
-  GrantExtraDevicesInput,
-  RevokePeriodInput,
-  SetAutoRenewServiceInput
-} from '../billing.types';
+import type { ActivateInput, AttachMethodInput, AutoRenewInput, CheckoutReturnInput, SetAutoRenewServiceInput } from '../billing.types';
 
 import { localizedReturnUrl } from '../lib';
 
 @Injectable()
 export class BillingSharedService {
-  private readonly logger = new Logger(BillingSharedService.name);
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: AppConfigService
@@ -85,7 +73,7 @@ export class BillingSharedService {
 
     const data = {
       plan: plan.id,
-      currentPeriodEnd: addDays(nextPeriodEnd({ currentPeriodEnd, months: plan.months }), bonusDays),
+      currentPeriodEnd: extendPeriod({ currentPeriodEnd, months: plan.months, days: bonusDays }),
       bonusDays: 0,
       ...(hadLapsedWhenOrdered && { extraDevices: 0 }),
       cancelAtPeriodEnd: this.resolveCancelAtPeriodEnd({
@@ -99,59 +87,6 @@ export class BillingSharedService {
       where: { userId },
       create: { userId, ...data },
       update: data
-    });
-  }
-
-  async grantExtraDevices({ userId, quantity, db = this.prisma }: GrantExtraDevicesInput): Promise<void> {
-    const subscription = await db.subscription.findUnique({
-      where: { userId },
-      select: { extraDevices: true }
-    });
-
-    if (isNullish(subscription)) {
-      this.logger.warn(`paid extra devices for ${userId} without a subscription row`);
-
-      return;
-    }
-
-    const granted = Math.min(subscription.extraDevices + quantity, MAX_EXTRA_DEVICES);
-    const dropped = subscription.extraDevices + quantity - granted;
-
-    if (dropped > 0) {
-      this.logger.error(
-        `extra-devices overflow for ${userId}: paid ${quantity}, granted ${granted - subscription.extraDevices}, ${dropped} dropped over MAX ${MAX_EXTRA_DEVICES} — manual review needed`
-      );
-    }
-
-    await db.subscription.update({
-      where: { userId },
-      data: { extraDevices: granted }
-    });
-  }
-
-  async revokePeriod({ userId, months, db }: RevokePeriodInput): Promise<void> {
-    const subscription = await db.subscription.findUnique({ where: { userId }, select: { currentPeriodEnd: true } });
-
-    if (isNullish(subscription)) {
-      return;
-    }
-
-    await db.subscription.update({
-      where: { userId },
-      data: { currentPeriodEnd: rewindPeriod({ currentPeriodEnd: subscription.currentPeriodEnd, months }), cancelAtPeriodEnd: true }
-    });
-  }
-
-  async revokeExtraDevices({ userId, quantity, db = this.prisma }: GrantExtraDevicesInput): Promise<void> {
-    const subscription = await db.subscription.findUnique({ where: { userId }, select: { extraDevices: true } });
-
-    if (isNullish(subscription)) {
-      return;
-    }
-
-    await db.subscription.update({
-      where: { userId },
-      data: { extraDevices: Math.max(0, subscription.extraDevices - quantity) }
     });
   }
 }

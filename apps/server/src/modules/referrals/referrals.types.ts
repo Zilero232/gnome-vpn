@@ -49,12 +49,6 @@ export type ReferrerShareInput = {
   db: PrismaExecutor;
 };
 
-export type ExtendInput = {
-  userId: string;
-  days: number;
-  db: PrismaExecutor;
-};
-
 export type RevokeInput = {
   paymentId: string;
   db: PrismaExecutor;

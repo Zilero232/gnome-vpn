@@ -9,6 +9,7 @@ import { PrismaService } from '@/core';
 import { YooKassaClient } from '@/lib/yookassa';
 import { GiftCodeService, PromoDiscountService } from '@/modules/promo-codes';
 import { ReferralRewardService } from '@/modules/referrals';
+import { SubscriptionPeriodService } from '@/modules/subscription';
 import { SubscriptionAccessService } from '@/modules/subscription-link';
 import { TelegramAlertService } from '@/modules/telegram/services/telegram-alert.service';
 import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
@@ -44,7 +45,8 @@ export class WebhookService {
     private readonly referralReward: ReferralRewardService,
     private readonly alerts: TelegramAlertService,
     private readonly discounts: PromoDiscountService,
-    private readonly gifts: GiftCodeService
+    private readonly gifts: GiftCodeService,
+    private readonly periods: SubscriptionPeriodService
   ) {}
 
   async handleWebhook(event: WebhookEvent): Promise<void> {
@@ -147,7 +149,7 @@ export class WebhookService {
         }
 
         if (row.kind === 'extraDevices') {
-          await this.shared.grantExtraDevices({ userId, quantity: row.extraDevices, db: tx });
+          await this.periods.addExtraDevices({ userId, quantity: row.extraDevices, db: tx });
 
           return { referral: null, giftCode: null };
         }
@@ -279,12 +281,12 @@ export class WebhookService {
     }
 
     if (row.kind === 'extraDevices') {
-      await this.shared.revokeExtraDevices({ userId: row.userId, quantity: row.extraDevices, db });
+      await this.periods.removeExtraDevices({ userId: row.userId, quantity: row.extraDevices, db });
 
       return { userId: row.userId, kind: row.kind, referral: null };
     }
 
-    await this.shared.revokePeriod({ userId: row.userId, months: findPlan(paymentPlan(row)).months, db });
+    await this.periods.rewind({ userId: row.userId, months: findPlan(paymentPlan(row)).months, stopsRenewal: true, db });
 
     const referral = await this.referralReward.revoke({ paymentId: row.id, db });
 

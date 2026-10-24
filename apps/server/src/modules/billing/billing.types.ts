@@ -41,12 +41,6 @@ export type RecordPaymentInput = {
   discount?: AppliedDiscount | null;
 };
 
-export type GrantExtraDevicesInput = {
-  userId: string;
-  quantity: number;
-  db?: PrismaExecutor;
-};
-
 export type CheckoutReturnInput = {
   returnUrl?: string;
   locale?: CheckoutLocale;
@@ -73,12 +67,6 @@ export type ReusablePaymentInput = {
   userId: string;
   returnUrl: string;
   where: Prisma.PaymentWhereInput;
-};
-
-export type RevokePeriodInput = {
-  userId: string;
-  months: number;
-  db: PrismaExecutor;
 };
 
 export type SetAutoRenewServiceInput = {
