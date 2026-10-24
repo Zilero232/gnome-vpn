@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { deviceIdentity, isKeylessIncy } from '../device-identity';
+import { DEVICE_KEY } from '@/modules/devices/config';
+
+import { deviceIdentity, isKeylessIncy, isWireguardDevice } from '../device-identity';
+import { incyAgent } from '../device-identity.helpers';
 
 const HWID = '270dd26e-160d-4257-b8ac-654800e12f24';
 
@@ -74,5 +77,25 @@ describe('isKeylessIncy', () => {
 
   it('leaves other apps alone, they never send one', () => {
     expect(isKeylessIncy(deviceIdentity({ 'user-agent': 'Hiddify/2.5.7' }))).toBe(false);
+  });
+});
+
+describe('isWireguardDevice', () => {
+  it('recognises the device a WireGuard config made', () => {
+    expect(isWireguardDevice(`${DEVICE_KEY.wireguard}3f2a9c1e`)).toBe(true);
+  });
+
+  it('leaves a device that fetches the feed alone', () => {
+    expect(isWireguardDevice(deviceIdentity({ 'user-agent': 'INCY/2.4.1/Android', 'x-hwid': HWID }).key)).toBe(false);
+  });
+});
+
+describe('incyAgent', () => {
+  it('reads the version and the platform out of an INCY user agent', () => {
+    expect(incyAgent('INCY/2.4.1/Android')).toEqual({ version: '2.4.1', platform: 'Android' });
+  });
+
+  it('answers null for any other client', () => {
+    expect(incyAgent('Hiddify/2.5.7')).toBeNull();
   });
 });

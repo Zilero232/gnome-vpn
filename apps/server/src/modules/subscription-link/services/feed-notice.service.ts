@@ -7,7 +7,7 @@ import { isNullish } from 'remeda';
 
 import { describeError } from '@/common/lib';
 import { claimNotice, NOTICE_CLAIM, NOTICE_REF, PrismaService } from '@/core';
-import { DEVICE_KEY, deviceTitle } from '@/modules/devices';
+import { deviceTitle, isWireguardDevice } from '@/modules/devices';
 import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
 
 import type { DeviceAddedInput, DeviceBlockedInput } from '../subscription-link.service.types';
@@ -27,7 +27,7 @@ export class FeedNoticeService {
   async deviceAdded({ userId, identity, deviceCount, deviceLimit }: DeviceAddedInput): Promise<void> {
     await this.notify.tell({
       userId,
-      notice: identity.key.startsWith(DEVICE_KEY.wireguard) ? 'wireguardAdded' : 'deviceAdded',
+      notice: isWireguardDevice(identity.key) ? 'wireguardAdded' : 'deviceAdded',
       fill: { name: deviceTitle(identity), count: String(deviceCount), limit: String(deviceLimit) },
       invite: await this.firstDeviceInvite(userId)
     });

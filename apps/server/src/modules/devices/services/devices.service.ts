@@ -1,17 +1,17 @@
 import type { DeviceList } from '@gnomevpn/schemas';
 
-import { DEFAULT_DEVICE_LIMIT } from '@gnomevpn/schemas';
 import { Injectable } from '@nestjs/common';
-import { isEmpty, isNonNullish, omit, partition, pickBy } from 'remeda';
+import { isNonNullish, omit, pickBy } from 'remeda';
 
 import { AppNotFoundException } from '@/common/exceptions';
-import { activeDeviceLimit, isPeriodActive, SUBSCRIPTION_PERIOD_SELECT } from '@/common/lib';
+import { activeDeviceLimit, SUBSCRIPTION_PERIOD_SELECT } from '@/common/lib';
 import { isUniqueViolation, PrismaService } from '@/core';
+import { peerRevocation } from '@/modules/peers';
 
-import type { AdmitDeviceInput, AdmittedDevice, RemoveDeviceInput, RevokePeersInput, SurplusRevocation } from '../devices.types';
+import type { AdmitDeviceInput, AdmittedDevice, RemoveDeviceInput } from '../devices.types';
 
 import { DEVICE_KEY, DEVICE_ORDER } from '../config';
-import { deviceTitle, graceDeviceLimit, slotHolders } from '../lib';
+import { slotHolders } from '../lib/device-slots';
 
 @Injectable()
 export class DevicesService {
@@ -27,6 +27,50 @@ export class DevicesService {
 
       throw error;
     }
+  }
+
+  async limitOf(userId: string): Promise<number> {
+    const subscription = await this.prisma.subscription.findUnique({ where: { userId }, select: SUBSCRIPTION_PERIOD_SELECT });
+
+    return activeDeviceLimit(subscription);
+  }
+
+  async list(userId: string): Promise<DeviceList> {
+    const [deviceLimit, devices] = await Promise.all([
+      this.limitOf(userId),
+      this.prisma.device.findMany({ where: { userId }, orderBy: [...DEVICE_ORDER] })
+    ]);
+
+    const holders = slotHolders({ devices, limit: deviceLimit });
+
+    return {
+      deviceLimit,
+      devices: devices.map((device) => ({
+        id: device.id,
+        model: device.model,
+        platform: device.platform,
+        osVersion: device.osVersion,
+        app: device.app,
+        isIdentified: device.key.startsWith(DEVICE_KEY.hwid),
+        isOverLimit: !holders.has(device.id),
+        createdAt: device.createdAt.toISOString(),
+        lastSeenAt: device.lastSeenAt.toISOString()
+      }))
+    };
+  }
+
+  async remove({ userId, deviceId }: RemoveDeviceInput): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      const device = await tx.device.findFirst({ where: { id: deviceId, userId }, select: { id: true } });
+
+      if (!device) {
+        throw new AppNotFoundException('DEVICE_NOT_FOUND', 'No such device on this account');
+      }
+
+      await tx.peer.updateMany({ where: { deviceId, revokedAt: null }, data: peerRevocation(new Date()) });
+
+      await tx.device.delete({ where: { id: deviceId } });
+    });
   }
 
   private claimSlot({ userId, identity, deviceLimit, canRegister = true }: AdmitDeviceInput): Promise<AdmittedDevice> {
@@ -60,122 +104,5 @@ export class DevicesService {
 
       return { deviceId: created.id, isAllowed: true, isNew: true, deviceCount: devices.length + 1 };
     });
-  }
-
-  async list(userId: string): Promise<DeviceList> {
-    const [subscription, devices] = await Promise.all([
-      this.prisma.subscription.findUnique({ where: { userId }, select: SUBSCRIPTION_PERIOD_SELECT }),
-      this.prisma.device.findMany({ where: { userId }, orderBy: [...DEVICE_ORDER] })
-    ]);
-
-    const deviceLimit = activeDeviceLimit(subscription);
-    const holders = slotHolders({ devices, limit: deviceLimit });
-
-    return {
-      deviceLimit,
-      devices: devices.map((device) => ({
-        id: device.id,
-        model: device.model,
-        platform: device.platform,
-        osVersion: device.osVersion,
-        app: device.app,
-        isIdentified: device.key.startsWith(DEVICE_KEY.hwid),
-        isOverLimit: !holders.has(device.id),
-        createdAt: device.createdAt.toISOString(),
-        lastSeenAt: device.lastSeenAt.toISOString()
-      }))
-    };
-  }
-
-  async remove({ userId, deviceId }: RemoveDeviceInput): Promise<void> {
-    await this.prisma.$transaction(async (tx) => {
-      const device = await tx.device.findFirst({ where: { id: deviceId, userId }, select: { id: true } });
-
-      if (!device) {
-        throw new AppNotFoundException('DEVICE_NOT_FOUND', 'No such device on this account');
-      }
-
-      await tx.peer.updateMany({
-        where: { deviceId, revokedAt: null },
-        data: { revokedAt: new Date(), state: 'disabled' }
-      });
-
-      await tx.device.delete({ where: { id: deviceId } });
-    });
-  }
-
-  async revokeOverLimit(): Promise<SurplusRevocation[]> {
-    const crowded = await this.prisma.device.groupBy({
-      by: ['userId'],
-      _count: { _all: true },
-      having: { id: { _count: { gt: DEFAULT_DEVICE_LIMIT } } }
-    });
-
-    const revocations: SurplusRevocation[] = [];
-
-    for (const { userId } of crowded) {
-      const [subscription, devices] = await Promise.all([
-        this.prisma.subscription.findUnique({ where: { userId }, select: SUBSCRIPTION_PERIOD_SELECT }),
-        this.prisma.device.findMany({ where: { userId }, select: { id: true, key: true, createdAt: true, model: true, app: true, platform: true } })
-      ]);
-
-      const now = new Date();
-      const deviceLimit = graceDeviceLimit({ subscription, now });
-      const holders = slotHolders({ devices, limit: deviceLimit });
-      const surplus = devices.filter((device) => !holders.has(device.id));
-      const [tunnels, feeds] = partition(surplus, (device) => device.key.startsWith(DEVICE_KEY.wireguard));
-
-      const revoked = await this.revokePeers({ deviceIds: feeds.map((device) => device.id), now });
-      const removed = await this.removeDevices({ deviceIds: tunnels.map((device) => device.id), now });
-      const touched = new Set([...revoked, ...(removed > 0 ? tunnels.map((device) => device.id) : [])]);
-
-      if (!isEmpty(touched)) {
-        revocations.push({
-          userId,
-          deviceLimit,
-          isActive: isPeriodActive(subscription?.currentPeriodEnd),
-          titles: surplus.filter((device) => touched.has(device.id)).map((device) => deviceTitle(device))
-        });
-      }
-    }
-
-    return revocations;
-  }
-
-  private async revokePeers({ deviceIds, now }: RevokePeersInput): Promise<string[]> {
-    if (isEmpty(deviceIds)) {
-      return [];
-    }
-
-    return this.prisma.$transaction(async (tx) => {
-      const live = await tx.peer.findMany({
-        where: { deviceId: { in: deviceIds }, revokedAt: null },
-        distinct: ['deviceId'],
-        select: { deviceId: true }
-      });
-
-      await tx.peer.updateMany({
-        where: { deviceId: { in: deviceIds }, revokedAt: null },
-        data: { revokedAt: now, state: 'disabled' }
-      });
-
-      return live.map((peer) => peer.deviceId).filter(isNonNullish);
-    });
-  }
-
-  private async removeDevices({ deviceIds, now }: RevokePeersInput): Promise<number> {
-    if (isEmpty(deviceIds)) {
-      return 0;
-    }
-
-    const [, removed] = await this.prisma.$transaction([
-      this.prisma.peer.updateMany({
-        where: { deviceId: { in: deviceIds }, revokedAt: null },
-        data: { revokedAt: now, state: 'disabled' }
-      }),
-      this.prisma.device.deleteMany({ where: { id: { in: deviceIds } } })
-    ]);
-
-    return removed.count;
   }
 }

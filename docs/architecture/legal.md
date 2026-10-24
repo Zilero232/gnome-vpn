@@ -52,7 +52,7 @@ same pull request and `TERMS_UPDATED` moves:
 | a campaign code: one discount or days, one pending discount, once per identity, email confirmed | `PromoRedemptionService`, `PromoDiscountService` ([promo-codes.md](promo-codes.md#the-discount-lifecycle)) |
 | a gift: single use, no expiry, survives the buyer, not a renewal      | `GIFT.maxUses`, `buyer_id` set null, `save_payment_method: false` in `buyGift`                                        |
 | extra places end 6 hours after a lapse                                | `activate` resets `extraDevices` past `PERIOD_GRACE`; `graceDeviceLimit` in the device-slot sweep                     |
-| a shrinking limit cuts the newest devices, deletes WireGuard configs  | `DevicesService.revokeOverLimit` (`device-slots` job), `slotHolders`                                                 |
+| a shrinking limit cuts the newest devices, deletes WireGuard configs  | `DeviceLimitService.revokeOverLimit` (`device-slots` job), `slotHolders`                                                 |
 | a WireGuard config goes with its node or the node's new settings      | `buildNodeSync` in `scripts/provision/node/node-sync`                                                                 |
 | trial once per email and Telegram identity, never after any access    | `trial_grant` ([billing.md](billing.md#the-trial)); `trialState.isTrialAvailable` needs no `currentPeriodEnd`        |
 | no deletion while a payment is pending                                | `ACCOUNT_PAYMENT_PENDING`                                                                                             |

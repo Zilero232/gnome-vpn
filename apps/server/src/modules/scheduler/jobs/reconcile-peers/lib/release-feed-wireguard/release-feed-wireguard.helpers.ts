@@ -3,11 +3,11 @@ import { isNonNullish, isNullish } from 'remeda';
 
 import type { ReconcilePeer } from '@/modules/scheduler/jobs/reconcile-peers/reconcile-peers.job.types';
 
-import { DEVICE_KEY } from '@/modules/devices';
+import { isWireguardDevice } from '@/modules/devices';
 
 export const isFeedWireguardPeer = (peer: ReconcilePeer): boolean =>
   peer.protocol === TUNNEL_PROTOCOL.wireguard &&
   peer.kind === 'config' &&
   isNullish(peer.revokedAt) &&
   isNonNullish(peer.device) &&
-  !peer.device.key.startsWith(DEVICE_KEY.wireguard);
+  !isWireguardDevice(peer.device.key);

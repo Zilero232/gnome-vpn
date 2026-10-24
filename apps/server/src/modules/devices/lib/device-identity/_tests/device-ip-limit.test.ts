@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { DEVICE_PEER } from '@/modules/devices/config';
 
-import { deviceIpLimit } from '../device-ip-limit';
+import { deviceIpLimit } from '../device-identity';
 
 describe('deviceIpLimit', () => {
   it('lets a device with a hardware id use its keys from two networks at once', () => {

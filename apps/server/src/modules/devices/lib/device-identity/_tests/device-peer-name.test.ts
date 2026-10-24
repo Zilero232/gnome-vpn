@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { devicePeerName } from '../device-peer-name';
+import { devicePeerName } from '../device-identity';
 
 describe('devicePeerName', () => {
   it('names the peer after the first twelve hex digits of the device id', () => {

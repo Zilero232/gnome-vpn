@@ -1,6 +1,6 @@
 import { isNullish } from 'remeda';
 
-import { LEGACY_PEER } from '@/modules/devices';
+import { LEGACY_PEER } from '@/modules/scheduler/jobs/reconcile-peers/reconcile-peers.job.constants';
 
 import type { IsLegacyPeerInput } from './release-legacy.types';
 

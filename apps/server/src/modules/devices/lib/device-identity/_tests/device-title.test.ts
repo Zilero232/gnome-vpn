@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { deviceTitle } from '../device-title';
+import { deviceTitle } from '../device-identity';
 
 describe('deviceTitle', () => {
   it('names the model and the app', () => {

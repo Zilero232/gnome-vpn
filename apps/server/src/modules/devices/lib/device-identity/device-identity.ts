@@ -1,8 +1,8 @@
-import { isNullish } from 'remeda';
+import { isNonNullish, isNullish, unique } from 'remeda';
 
-import { DEVICE_HEADER, DEVICE_KEY } from '@/modules/devices/config';
+import { DEVICE_HEADER, DEVICE_KEY, DEVICE_PEER, DEVICE_TITLE } from '@/modules/devices/config';
 
-import type { DeviceHeaders, DeviceIdentity } from './device-identity.types';
+import type { DeviceHeaders, DeviceIdentity, TitledDevice } from './device-identity.types';
 
 import { agentPlatformOf, appOf, cleaned, headerOf, hwidOf } from './device-identity.helpers';
 
@@ -22,3 +22,16 @@ export const deviceIdentity = (headers: DeviceHeaders): DeviceIdentity => {
 };
 
 export const isKeylessIncy = (identity: DeviceIdentity): boolean => isNullish(identity.hwid) && identity.app === DEVICE_KEY.incyApp;
+
+export const isWireguardDevice = (key: string): boolean => key.startsWith(DEVICE_KEY.wireguard);
+
+export const deviceIpLimit = (key: string | null | undefined): number =>
+  key?.startsWith(DEVICE_KEY.app) ? DEVICE_PEER.ipsPerKeylessClient : DEVICE_PEER.ipsPerClient;
+
+export const devicePeerName = (deviceId: string): string => `${DEVICE_PEER.namePrefix}${deviceId.replaceAll('-', '').slice(0, DEVICE_PEER.idLength)}`;
+
+export const deviceTitle = ({ model, app, platform }: TitledDevice): string => {
+  const parts = unique([model ?? platform, app].filter(isNonNullish));
+
+  return parts.length > 0 ? parts.join(DEVICE_TITLE.separator) : DEVICE_TITLE.unknown;
+};
