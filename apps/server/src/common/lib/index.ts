@@ -1,3 +1,4 @@
+export { hasConfirmedEmail } from './account';
 export { generateShortCode, timingSafeEqual } from './crypto';
 export { describeError, errorCodeOf } from './errors';
 export { canonicalIp, isIpAddress } from './ip-address';

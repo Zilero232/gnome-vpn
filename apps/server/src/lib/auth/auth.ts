@@ -11,7 +11,7 @@ import { env } from '@/config';
 import { allowedOrigins } from '@/config/cors';
 import { basePrisma } from '@/core';
 
-import { ChangeEmail, EMAIL_TEXT, ResetPassword, sendEmail, VerifyEmail } from '../email';
+import { ActionEmail, EMAIL_TEXT, sendEmail } from '../email';
 import { AUTH_PATHS, SESSION } from './auth.constants';
 import { claimedEmail, returnedUserId, withClientCallback } from './auth.helpers';
 import { emailLocaleFor, rememberLocale } from './user-locale';
@@ -33,7 +33,7 @@ export const auth = betterAuth({
       await sendEmail({
         to: user.email,
         subject: EMAIL_TEXT[locale].reset.subject,
-        react: createElement(ResetPassword, { url, locale })
+        react: createElement(ActionEmail, { copy: 'reset', url, locale })
       });
     }
   },
@@ -47,7 +47,7 @@ export const auth = betterAuth({
       void sendEmail({
         to: user.email,
         subject: EMAIL_TEXT[locale].verify.subject,
-        react: createElement(VerifyEmail, { locale, url: withClientCallback({ url, locale, path: AUTH_PATHS.account }) })
+        react: createElement(ActionEmail, { copy: 'verify', locale, url: withClientCallback({ url, locale, path: AUTH_PATHS.account }) })
       }).catch((error: unknown) => {
         logger.error(`verification email for ${user.id} failed: ${describeError(error)}`);
       });
@@ -63,10 +63,11 @@ export const auth = betterAuth({
         await sendEmail({
           to: user.email,
           subject: EMAIL_TEXT[locale].change.subject,
-          react: createElement(ChangeEmail, {
-            newEmail,
+          react: createElement(ActionEmail, {
+            copy: 'change',
             locale,
-            url: withClientCallback({ url, locale, path: AUTH_PATHS.account })
+            url: withClientCallback({ url, locale, path: AUTH_PATHS.account }),
+            fill: { email: newEmail }
           })
         });
       }
