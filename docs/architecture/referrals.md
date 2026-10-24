@@ -1,7 +1,7 @@
 # Referrals
 
 Invite a friend, both get days. Code: `apps/server/src/modules/referrals/`, the
-reward inside `WebhookService.settlePayment`, the bot's `/invite` in
+reward inside `SettlementService.settlePayment`, the bot's `/invite` in
 `TelegramReferralService`, the account tab in
 `apps/client/features/account/invite-friends`. A friend's code is one of three
 kinds of promo code; campaign and gift codes, and the one endpoint that takes

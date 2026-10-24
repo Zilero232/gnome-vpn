@@ -1,3 +1,5 @@
+export { AUTO_RENEW } from './auto-renew/auto-renew.constants';
+export { AutoRenewService } from './auto-renew/auto-renew.service';
 export { BillingModule } from './billing.module';
-export { describePlan, describeRenewal, renewalIdempotenceKey } from './lib';
-export { AutoRenewService, CardService, CheckoutService, WebhookService } from './services';
+export { CheckoutService } from './checkout/checkout.service';
+export { SettlementService } from './shared/settlement.service';

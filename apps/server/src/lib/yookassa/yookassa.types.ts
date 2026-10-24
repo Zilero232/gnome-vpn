@@ -1,39 +1,29 @@
-export type YooKassaClientOptions = {
-  shopId: string;
-  secretKey: string;
-};
+import type { z } from 'zod';
 
-export type ShopSettingsResponse = {
-  payment_methods?: string[];
-};
+import type { YOOKASSA_STATUS } from './yookassa.constants';
+import type { paymentMethodResponseSchema, paymentResponseSchema, refundResponseSchema } from './yookassa.schemas';
 
-export type ShopSettings = {
-  paymentMethods: string[];
-};
+export type PaymentStatus = (typeof YOOKASSA_STATUS.payment)[number];
 
-export type CardData = {
-  last4?: string;
-  card_type?: string;
-};
+export type RefundStatus = (typeof YOOKASSA_STATUS.refund)[number];
 
-export type AmountData = {
+export type PaymentMethodStatus = (typeof YOOKASSA_STATUS.paymentMethod)[number];
+
+export type PaymentResponse = z.infer<typeof paymentResponseSchema>;
+
+export type RefundResponse = z.infer<typeof refundResponseSchema>;
+
+export type PaymentMethodResponse = z.infer<typeof paymentMethodResponseSchema>;
+
+export type CardData = NonNullable<PaymentMethodResponse['card']>;
+
+export type YooKassaAmount = {
   value: string;
   currency: string;
 };
 
-export type PaymentResponse = {
-  id: string;
-  status: string;
-  amount?: AmountData;
-  refunded_amount?: AmountData;
-  confirmation?: { confirmation_url?: string; return_url?: string };
-  payment_method?: {
-    id?: string;
-    saved?: boolean;
-    title?: string;
-    card?: CardData;
-  };
-  cancellation_details?: { party?: string; reason?: string };
+export type ShopSettings = {
+  paymentMethods: string[];
 };
 
 export type CreatePaymentInput = {
@@ -53,33 +43,19 @@ export type ChargeRecurringInput = {
 
 export type CreatePaymentResult = {
   id: string;
-  status: string;
+  status: PaymentStatus;
   confirmationUrl: string | null;
 };
 
 export type PaymentInfo = {
   id: string;
-  status: string;
+  status: PaymentStatus;
   paymentMethodId: string | null;
   paymentMethodTitle: string | null;
   cancellationReason: string | null;
   confirmationUrl: string | null;
   returnUrl: string | null;
   refundedRub: number;
-};
-
-export type RefundResponse = {
-  id: string;
-  payment_id: string;
-  status: string;
-  amount: AmountData;
-};
-
-export type RefundInfo = {
-  id: string;
-  paymentId: string;
-  status: string;
-  amountRub: number;
 };
 
 export type CreateRefundInput = {
@@ -89,12 +65,17 @@ export type CreateRefundInput = {
   idempotenceKey: string;
 };
 
+export type RefundInfo = {
+  id: string;
+  paymentId: string;
+  status: RefundStatus;
+  amountRub: number;
+};
+
 export type BindPaymentMethodInput = {
   returnUrl: string;
   idempotenceKey: string;
 };
-
-export type PaymentMethodStatus = 'active' | 'inactive' | 'pending';
 
 export type PaymentMethodInfo = {
   id: string;
@@ -103,22 +84,17 @@ export type PaymentMethodInfo = {
   confirmationUrl: string | null;
 };
 
-export type PaymentMethodResponse = {
-  id: string;
-  status: PaymentMethodStatus;
-  saved?: boolean;
-  title?: string;
-  card?: CardData;
-  confirmation?: { confirmation_url?: string };
-};
-
-export type YooKassaRequestInput = {
+export type YooKassaSendInput = {
   path: string;
   init: RequestInit;
   idempotenceKey?: string;
 };
 
+export type YooKassaRequestInput<T> = YooKassaSendInput & {
+  schema: z.ZodType<T>;
+};
+
 export type DescribeCardInput = {
-  card?: CardData;
-  title?: string;
+  card?: CardData | null;
+  title?: string | null;
 };

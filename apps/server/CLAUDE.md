@@ -11,7 +11,7 @@ src/
 ├── modules/         # one folder per domain
 │   ├── admin/       # the web admin panel behind ADMIN_EMAILS, and the /stats collection — config/ decorators/ dto/ guards/ lib/ services/
 │   ├── auth/        # better-auth wiring, the account (deletion) — config/ services/
-│   ├── billing/     # YooKassa checkout and webhooks — config/ dto/ guards/ lib/ services/
+│   ├── billing/     # YooKassa checkout and webhooks — checkout/ webhook/ auto-renew/ shared/ (feature folders)
 │   ├── consents/    # personal-data and marketing consents, the unsubscribe link — config/ dto/ lib/ services/
 │   ├── devices/     # the device registry and the account's device limit — config/ dto/ lib/ services/
 │   ├── health/      # /health — also probes the database

@@ -1,8 +1,4 @@
-import type { Prisma } from '@/generated';
-
 import { env } from '@/config';
-
-import type { RefundReason } from './refund.types';
 
 const YOOKASSA_CIDRS = [
   '185.71.76.0/27',
@@ -23,22 +19,3 @@ export const WEBHOOK_EVENT = {
   paymentPrefix: 'payment.',
   refundSucceeded: 'refund.succeeded'
 } as const;
-
-export const CARD_LOST_REASONS = ['card_expired', 'invalid_card_number', 'permission_revoked'] as const;
-
-export const REFUND = {
-  idempotencePrefix: 'refund-',
-  description: {
-    lapsed: 'Возврат: подписка GnomeVPN закончилась до оплаты устройств',
-    orphan: 'Возврат: аккаунт GnomeVPN удалён до оплаты',
-    discountUsed: 'Возврат: скидка по промокоду GnomeVPN уже использована другим платежом'
-  } satisfies Record<RefundReason, string>
-} as const;
-
-export const ACTIVATION_SELECT = {
-  currentPeriodEnd: true,
-  cancelAtPeriodEnd: true,
-  savedCardId: true,
-  trialStartedAt: true,
-  bonusDays: true
-} as const satisfies Prisma.SubscriptionSelect;
