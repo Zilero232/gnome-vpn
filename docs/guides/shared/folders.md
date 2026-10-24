@@ -48,3 +48,29 @@ file that nothing outside imports needs no barrel at all, and the server's
 `@/lib/yookassa` or `@/lib/email`, so that reaching `XrayClient` no longer loads
 better-auth.
 
+## A module with several features is split by feature
+
+A server module that serves more than one feature — the bot's account, devices,
+subscription and owner tools; the feed, the link, routing, geo files and
+WireGuard configs — is not one `services/` + `lib/` + `config/` heap. Each
+feature gets a folder holding its controller, services, pure helpers, types,
+config and `_tests/`, so a reader opens `telegram/devices/` and finds every
+devices thing and nothing else:
+
+```text
+modules/telegram/
+├── telegram.module.ts      # Nest wiring stays here
+├── index.ts                # the public barrel, nothing else exported
+├── bot/                    # how updates arrive and are routed
+├── notify/                 # the submodule other modules import
+├── account/ subscription/ devices/ invite/ support/ owner/
+├── shared/                 # what several features use: text, keyboards, callback data
+└── config/                 # only what several features share
+```
+
+A feature reaches a sibling only through the module's `shared/` (or a submodule
+like `notify/`), never into its internals; a constant one feature uses lives in
+that feature as `<feature>.config.ts`. A feature folder has no `index.ts` unless
+code outside the module imports it. A small module — `health`, `platforms` —
+stays flat: the split pays off once a folder mixes concerns, not before.
+
