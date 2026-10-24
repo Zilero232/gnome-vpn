@@ -1,9 +1,10 @@
 import { TUNNEL_PROTOCOL } from '@gnomevpn/schemas';
 import { describe, expect, it } from 'vitest';
 
+import { REALITY, TUNNEL, WIREGUARD } from '@/modules/peers/config';
+
 import type { TunnelNode } from '../build-config.types';
 
-import { REALITY, TUNNEL, WIREGUARD } from '../../../config';
 import { buildTunnelConfig } from '../build-config';
 
 const node: TunnelNode = {

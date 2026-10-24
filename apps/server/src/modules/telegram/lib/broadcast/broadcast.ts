@@ -2,7 +2,10 @@ import { GrammyError, InlineKeyboard } from 'grammy';
 import { isNullish } from 'remeda';
 import { match } from 'ts-pattern';
 
-import type { BotMessage } from '../../telegram.types';
+import type { BotMessage } from '@/modules/telegram/telegram.types';
+
+import { BOT_TEXT, BROADCAST, BROADCAST_AUDIENCES, CALLBACK_PREFIX, CONFIRMED, DECLINED, SUBJECT_SEPARATOR } from '@/modules/telegram/config';
+
 import type {
   AudienceInput,
   BroadcastAnswer,
@@ -14,7 +17,6 @@ import type {
   SendWaitInput
 } from './broadcast.types';
 
-import { BOT_TEXT, BROADCAST, BROADCAST_AUDIENCES, CALLBACK_PREFIX, CONFIRMED, DECLINED, SUBJECT_SEPARATOR } from '../../config';
 import { confirmKeyboard } from '../confirm-copy';
 import { fillLabel, fillText } from '../fill-text';
 import { html } from '../html';

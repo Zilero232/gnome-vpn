@@ -4,10 +4,10 @@ import { discountedPriceRub, findPlan } from '@gnomevpn/schemas';
 import { Injectable } from '@nestjs/common';
 import { isNullish } from 'remeda';
 
-import type { AppliedDiscount, CheckoutQuote, DiscountClaimInput, PendingDiscountInput, QuoteInput } from '../promo-codes.types';
+import { AppBadRequestException } from '@/common/exceptions';
+import { PrismaService } from '@/core';
 
-import { AppBadRequestException } from '../../../common/exceptions';
-import { PrismaService } from '../../../core';
+import type { AppliedDiscount, CheckoutQuote, DiscountClaimInput, PendingDiscountInput, QuoteInput } from '../promo-codes.types';
 
 @Injectable()
 export class PromoDiscountService {

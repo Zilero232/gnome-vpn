@@ -6,10 +6,11 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Bot } from 'grammy';
 import { isNonNullish, isNullish } from 'remeda';
 
+import { describeError } from '@/common/lib';
+import { isReferralStart, referralCodeFromStart } from '@/modules/referrals';
+
 import type { BotAction, BotCallback, BotContext, OwnerAction } from '../telegram.types';
 
-import { describeError } from '../../../common/lib';
-import { isReferralStart, referralCodeFromStart } from '../../referrals';
 import { TELEGRAM_BOT } from '../bot';
 import { CALLBACK_PREFIX, CHAT_ID_COMMAND, GROUP_CHATS, SUPPORT, SUPPORT_MEDIA } from '../config';
 import { buttonFor, callbackPattern } from '../lib';

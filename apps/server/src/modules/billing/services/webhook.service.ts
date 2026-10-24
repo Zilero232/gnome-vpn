@@ -4,6 +4,15 @@ import { findPlan, formatGiftCode, giftDays } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
 import { isNonNullish, isNullish } from 'remeda';
 
+import { describeError, errorCodeOf, hasLapsedBeyondGrace, paymentPlan } from '@/common/lib';
+import { PrismaService } from '@/core';
+import { YooKassaClient } from '@/lib/yookassa';
+import { GiftCodeService, PromoDiscountService } from '@/modules/promo-codes';
+import { ReferralRewardService } from '@/modules/referrals';
+import { SubscriptionAccessService } from '@/modules/subscription-link';
+import { TelegramAlertService } from '@/modules/telegram/services/telegram-alert.service';
+import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
+
 import type {
   AnnounceReferralInput,
   CanceledPayment,
@@ -17,14 +26,6 @@ import type {
   UnusablePayment
 } from '../billing.types';
 
-import { describeError, errorCodeOf, hasLapsedBeyondGrace, paymentPlan } from '../../../common/lib';
-import { PrismaService, withSerializableRetry } from '../../../core';
-import { YooKassaClient } from '../../../lib';
-import { GiftCodeService, PromoDiscountService } from '../../promo-codes';
-import { ReferralRewardService } from '../../referrals';
-import { SubscriptionAccessService } from '../../subscription-link';
-import { TelegramAlertService } from '../../telegram/services/telegram-alert.service';
-import { TelegramNotifyService } from '../../telegram/services/telegram-notify.service';
 import { CARD_LOST_REASONS, REFUND, REFUND_DESCRIPTION, WEBHOOK_EVENT } from '../config';
 import { BillingSharedService } from './billing-shared.service';
 import { CardService } from './card.service';
@@ -133,53 +134,48 @@ export class WebhookService {
     let settled: SettleOutcome | null;
 
     try {
-      settled = await withSerializableRetry(() =>
-        this.prisma.$transaction(
-          async (tx): Promise<SettleOutcome | null> => {
-            const claimed = await tx.payment.updateMany({
-              where: { id: row.id, status: 'pending' },
-              data: { status: 'succeeded' }
-            });
+      settled = await this.prisma.serializable(async (tx): Promise<SettleOutcome | null> => {
+        const claimed = await tx.payment.updateMany({
+          where: { id: row.id, status: 'pending' },
+          data: { status: 'succeeded' }
+        });
 
-            if (claimed.count === 0) {
-              this.logger.debug(`payment ${paymentId} was claimed by a concurrent webhook`);
+        if (claimed.count === 0) {
+          this.logger.debug(`payment ${paymentId} was claimed by a concurrent webhook`);
 
-              return null;
-            }
+          return null;
+        }
 
-            if (row.kind === 'extraDevices') {
-              await this.shared.grantExtraDevices({ userId, quantity: row.extraDevices, db: tx });
+        if (row.kind === 'extraDevices') {
+          await this.shared.grantExtraDevices({ userId, quantity: row.extraDevices, db: tx });
 
-              return { referral: null, giftCode: null };
-            }
+          return { referral: null, giftCode: null };
+        }
 
-            if (row.kind === 'gift') {
-              const giftCode = await this.gifts.issue({ payment: { ...row, userId, plan: paymentPlan(row) }, db: tx });
+        if (row.kind === 'gift') {
+          const giftCode = await this.gifts.issue({ payment: { ...row, userId, plan: paymentPlan(row) }, db: tx });
 
-              return { referral: null, giftCode };
-            }
+          return { referral: null, giftCode };
+        }
 
-            if (row.promoCodeId) {
-              await this.discounts.consume({ userId, promoCodeId: row.promoCodeId, paymentId: row.id, db: tx });
-            }
+        if (row.promoCodeId) {
+          await this.discounts.consume({ userId, promoCodeId: row.promoCodeId, paymentId: row.id, db: tx });
+        }
 
-            const planId = paymentPlan(row);
+        const planId = paymentPlan(row);
 
-            await this.shared.activate({
-              userId,
-              planId,
-              method: payment.paymentMethodId ? { id: payment.paymentMethodId, title: payment.paymentMethodTitle } : null,
-              orderedAt: row.createdAt,
-              db: tx
-            });
+        await this.shared.activate({
+          userId,
+          planId,
+          method: payment.paymentMethodId ? { id: payment.paymentMethodId, title: payment.paymentMethodTitle } : null,
+          orderedAt: row.createdAt,
+          db: tx
+        });
 
-            const referral = await this.referralReward.reward({ userId, planId, paymentId: row.id, db: tx });
+        const referral = await this.referralReward.reward({ userId, planId, paymentId: row.id, db: tx });
 
-            return { referral, giftCode: null };
-          },
-          { isolationLevel: 'Serializable' }
-        )
-      );
+        return { referral, giftCode: null };
+      });
     } catch (error) {
       if (errorCodeOf(error) !== 'PROMO_CODE_ALREADY_USED') {
         throw error;
@@ -249,9 +245,7 @@ export class WebhookService {
       return null;
     }
 
-    const outcome = await withSerializableRetry(() =>
-      this.prisma.$transaction((tx) => this.reverse({ row, db: tx }), { isolationLevel: 'Serializable' })
-    );
+    const outcome = await this.prisma.serializable((tx) => this.reverse({ row, db: tx }));
 
     if (outcome) {
       this.logger.log(`payment ${refund.paymentId} was refunded: ${outcome.kind} taken back from ${outcome.userId}`);

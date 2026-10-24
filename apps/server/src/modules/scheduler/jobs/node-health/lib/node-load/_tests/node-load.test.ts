@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { ALERT } from '../../../../../config';
+import { ALERT } from '@/modules/scheduler/config';
+
 import { isOverloaded } from '../node-load';
 
 const CALM = { isHealthy: true, cpu: ALERT.nodeCpuPercent - 1, memoryRatio: ALERT.nodeMemoryRatio - 0.01, tcpCount: 10 };

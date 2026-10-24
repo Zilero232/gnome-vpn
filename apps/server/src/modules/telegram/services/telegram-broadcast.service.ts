@@ -3,11 +3,12 @@ import { milliseconds } from 'date-fns';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { isNullish } from 'remeda';
 
+import { describeError, isPeriodActive } from '@/common/lib';
+import { PrismaService } from '@/core';
+
 import type { BroadcastAudience, BroadcastTally } from '../lib';
 import type { BotContext, BroadcastDelivery, BroadcastRunInput, BroadcastSendInput } from '../telegram.types';
 
-import { describeError, isPeriodActive } from '../../../common/lib';
-import { PrismaService } from '../../../core';
 import { BOT_TEXT, BROADCAST, CALLBACK_PREFIX } from '../config';
 import {
   audienceKeyboard,

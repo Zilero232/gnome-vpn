@@ -82,7 +82,7 @@ describe('validateEnv', () => {
   });
 
   it('reads the admin list case-insensitively, once per address, skipping empty entries', () => {
-    const admins = ['owner@example.com', 'support@example.com'];
+    const admins = ['owner@example.com', 'support@example.com'] as const;
     const raw = ` ${admins[0].toUpperCase()} ,, ${admins[1]}, ${admins[0]} `;
 
     expect(validateEnv({ ...validEnv, ADMIN_EMAILS: raw }).ADMIN_EMAILS).toEqual(admins);

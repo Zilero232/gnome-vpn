@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
+import { Prisma } from '@/generated';
+
 import type { PaymentStatusGroup } from '../payment-totals.types';
 
-import { Prisma } from '../../../../../../generated';
 import { paymentTotals } from '../payment-totals';
 
 const group = (status: PaymentStatusGroup['status'], count: number, amount: string): PaymentStatusGroup => ({

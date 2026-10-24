@@ -1,8 +1,9 @@
 import { createHmac } from 'node:crypto';
 
+import { timingSafeEqual } from '@/common/lib';
+
 import type { ReadUnsubscribeInput, SignUnsubscribeInput } from './unsubscribe-token.types';
 
-import { timingSafeEqual } from '../../../../common/lib';
 import { UNSUBSCRIBE_TOKEN } from './unsubscribe-token.constants';
 
 const signatureOf = ({ userId, secret }: SignUnsubscribeInput): string =>

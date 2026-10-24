@@ -1,5 +1,5 @@
-import type { BROADCAST_AUDIENCES } from '../../config';
-import type { BotLocale } from '../../telegram.types';
+import type { BROADCAST_AUDIENCES } from '@/modules/telegram/config';
+import type { BotLocale } from '@/modules/telegram/telegram.types';
 
 export type BroadcastAudience = (typeof BROADCAST_AUDIENCES)[number];
 

@@ -2,14 +2,15 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { groupBy, isNonNullish, isNullish } from 'remeda';
 
+import { describeError } from '@/common/lib';
+import { claimNotice, NOTICE_CLAIM, PrismaService } from '@/core';
+import { ConsentService } from '@/modules/consents';
+import { AutoDiscountService } from '@/modules/promo-codes';
+import { REACHABLE_USER, SCHEDULE, WIN_BACK } from '@/modules/scheduler/config';
+import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
+
 import type { WinBackCandidate, WinBackCodes, WinBackTouchInput } from './win-back.job.types';
 
-import { describeError } from '../../../../common/lib';
-import { claimNotice, NOTICE_CLAIM, PrismaService, withSerializableRetry } from '../../../../core';
-import { ConsentService } from '../../../consents';
-import { AutoDiscountService } from '../../../promo-codes';
-import { TelegramNotifyService } from '../../../telegram/services/telegram-notify.service';
-import { REACHABLE_USER, SCHEDULE, WIN_BACK } from '../../config';
 import { liveCode, sentTouches, winBackDue, winBackMessage, winBackWindow } from './lib';
 
 @Injectable()
@@ -93,28 +94,23 @@ export class WinBackJob {
     const { id, userId, currentPeriodEnd } = candidate;
     const ref = currentPeriodEnd.toISOString();
 
-    const offer = await withSerializableRetry(() =>
-      this.prisma.$transaction(
-        async (tx) => {
-          const [current, claims] = await Promise.all([
-            tx.subscription.findUnique({ where: { id }, select: { currentPeriodEnd: true } }),
-            tx.noticeLog.findMany({ where: { userId, ref, notice: { in: WIN_BACK.claims } }, select: { notice: true, ref: true } })
-          ]);
+    const offer = await this.prisma.serializable(async (tx) => {
+      const [current, claims] = await Promise.all([
+        tx.subscription.findUnique({ where: { id }, select: { currentPeriodEnd: true } }),
+        tx.noticeLog.findMany({ where: { userId, ref, notice: { in: WIN_BACK.claims } }, select: { notice: true, ref: true } })
+      ]);
 
-          const isSameLapse = current?.currentPeriodEnd?.getTime() === currentPeriodEnd.getTime();
-          const isUnchanged = sentTouches({ ...candidate, claims }) === sentTouches(candidate);
+      const isSameLapse = current?.currentPeriodEnd?.getTime() === currentPeriodEnd.getTime();
+      const isUnchanged = sentTouches({ ...candidate, claims }) === sentTouches(candidate);
 
-          if (!isSameLapse || !isUnchanged) {
-            return null;
-          }
+      if (!isSameLapse || !isUnchanged) {
+        return null;
+      }
 
-          const isClaimed = await claimNotice({ db: tx, userId, notice: NOTICE_CLAIM.winBackTouch[due.touch], ref });
+      const isClaimed = await claimNotice({ db: tx, userId, notice: NOTICE_CLAIM.winBackTouch[due.touch], ref });
 
-          return isClaimed ? this.autoDiscounts.offer({ userId, code, db: tx }) : null;
-        },
-        { isolationLevel: 'Serializable' }
-      )
-    );
+      return isClaimed ? this.autoDiscounts.offer({ userId, code, db: tx }) : null;
+    });
 
     const message = isNonNullish(offer) ? winBackMessage({ audience: due.audience, offer }) : null;
 

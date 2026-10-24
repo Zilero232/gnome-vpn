@@ -4,10 +4,11 @@ import { ADMIN_ANALYTICS, ADMIN_PERIOD_DAYS, adminAnalyticsSchema, paymentKindSc
 import { Injectable } from '@nestjs/common';
 import { isNonNullish } from 'remeda';
 
+import { windowStart } from '@/common/lib';
+import { NOTICE_CLAIM, PrismaService } from '@/core';
+
 import type { AnalyticsInput, CheckoutReminderRow, ConversionRow } from '../admin.types';
 
-import { windowStart } from '../../../common/lib';
-import { NOTICE_CLAIM, PrismaService } from '../../../core';
 import { GROWTH } from '../config';
 import { groupTotal } from '../lib';
 import { AdminSeriesService } from './admin-series.service';

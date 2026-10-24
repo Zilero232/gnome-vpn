@@ -1,11 +1,12 @@
 import { isNullish } from 'remeda';
 
+import { AppServiceUnavailableException } from '@/common/exceptions';
+
 import type { Inbounds, XrayInbound } from '../inbounds';
 import type { PanelClient } from '../panel-client';
 import type { ProtocolClientsDeps } from '../protocol-clients';
 import type { CreateWireguardClientInput, CreateWireguardClientResult, ReaddInput, WireguardClient } from './wireguard.types';
 
-import { AppServiceUnavailableException } from '../../../common/exceptions';
 import { serializeByKey } from '../serialize';
 import { readSettings } from '../xray.helpers';
 import { WIREGUARD_INBOUND } from './wireguard.constants';

@@ -1,6 +1,7 @@
 import { InlineKeyboard } from 'grammy';
 
-import type { BotMessage } from '../../telegram.types';
+import type { BotMessage } from '@/modules/telegram/telegram.types';
+
 import type { UrlMessageInput } from './url-message.types';
 
 import { isButtonUrl } from '../button-url';

@@ -1,9 +1,10 @@
 import { keys } from 'remeda';
 
+import { fillTokens } from '@/common/lib';
+
 import type { EmailLocale } from '../email-locale';
 import type { EmailMessages, EmailNoticeKey, FillEmailInput } from './email-text.types';
 
-import { fillTokens } from '../../../common/lib';
 import en from '../locales/en.json';
 import ru from '../locales/ru.json';
 

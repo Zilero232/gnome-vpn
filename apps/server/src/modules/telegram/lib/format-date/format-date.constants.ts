@@ -1,6 +1,6 @@
 import { enGB, ru } from 'date-fns/locale';
 
-import type { BotLocale } from '../../telegram.types';
+import type { BotLocale } from '@/modules/telegram/telegram.types';
 
 export const DATE_FORMAT = 'd MMMM yyyy';
 

@@ -1,9 +1,9 @@
 import { x25519 } from '@noble/curves/ed25519.js';
 import { randomBytes } from 'node:crypto';
 
-import type { PublicKeyInput, X25519KeyPair } from './x25519-keys.types';
+import { REALITY } from '@/modules/peers/config';
 
-import { REALITY } from '../../config';
+import type { PublicKeyInput, X25519KeyPair } from './x25519-keys.types';
 
 const publicKeyOf = ({ privateKey, encoding }: PublicKeyInput): string =>
   Buffer.from(x25519.getPublicKey(Buffer.from(privateKey, encoding))).toString(encoding);

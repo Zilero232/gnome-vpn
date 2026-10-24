@@ -1,9 +1,10 @@
 import { isNonNullish, isNullish } from 'remeda';
 
+import { AppServiceUnavailableException } from '@/common/exceptions';
+
 import type { XrayInbound } from '../inbounds';
 import type { IssueProtocolClientInput, IssueProtocolClientResult, ProtocolClient, ProtocolClientsInput } from './protocol-clients.types';
 
-import { AppServiceUnavailableException } from '../../../common/exceptions';
 import { serializeByKey } from '../serialize';
 import { readSettings } from '../xray.helpers';
 

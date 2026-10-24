@@ -1,6 +1,6 @@
 import type { ClientId, ClientPlatform } from '@gnomevpn/schemas';
 
-import type { BotLocale } from '../../telegram.types';
+import type { BotLocale } from '@/modules/telegram/telegram.types';
 
 export type ClientNameInput = {
   id: ClientId;

@@ -1,4 +1,4 @@
-import type { SubscriptionPeriod } from '../../../../common/lib';
+import type { SubscriptionPeriod } from '@/common/lib';
 
 export type SlotDevice = {
   id: string;

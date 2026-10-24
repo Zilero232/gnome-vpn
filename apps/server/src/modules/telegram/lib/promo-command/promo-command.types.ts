@@ -1,4 +1,4 @@
-import type { CreateCampaignInput } from '../../../promo-codes';
+import type { CreateCampaignInput } from '@/modules/promo-codes';
 
 export type PromoCommand =
   { action: 'create'; input: CreateCampaignInput } | { action: 'list' } | { action: 'stop'; code: string } | { action: 'unknown' };

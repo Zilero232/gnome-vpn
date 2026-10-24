@@ -1,10 +1,12 @@
 import { InlineKeyboard } from 'grammy';
 import { match } from 'ts-pattern';
 
-import type { BotMessage } from '../../telegram.types';
+import type { BotMessage } from '@/modules/telegram/telegram.types';
+
+import { AUTO_RENEW_CHOICE, BOT_TEXT, CALLBACK_PREFIX } from '@/modules/telegram/config';
+
 import type { AutoRenewPanelInput } from './auto-renew-panel.types';
 
-import { AUTO_RENEW_CHOICE, BOT_TEXT, CALLBACK_PREFIX } from '../../config';
 import { fillText } from '../fill-text';
 import { formatDate } from '../format-date';
 import { menuButtons, offerKeys } from '../keyboard';

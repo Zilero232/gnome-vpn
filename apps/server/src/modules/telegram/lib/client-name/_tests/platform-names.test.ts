@@ -1,7 +1,8 @@
 import { CLIENT_REGISTRY } from '@gnomevpn/schemas';
 import { describe, expect, it } from 'vitest';
 
-import { BOT_LOCALES, BOT_PLATFORMS } from '../../../config';
+import { BOT_LOCALES, BOT_PLATFORMS } from '@/modules/telegram/config';
+
 import { platformNames } from '../client-name';
 
 describe('platformNames', () => {

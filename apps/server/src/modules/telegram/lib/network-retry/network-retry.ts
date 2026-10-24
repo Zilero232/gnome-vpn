@@ -3,7 +3,7 @@ import type { Transformer } from 'grammy';
 import { HttpError } from 'grammy';
 import pRetry from 'p-retry';
 
-import { BOT_API } from '../../config';
+import { BOT_API } from '@/modules/telegram/config';
 
 export const retryNetworkErrors: Transformer = (prev, method, payload, signal) =>
   pRetry(() => prev(method, payload, signal), {

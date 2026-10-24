@@ -5,8 +5,9 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { isEmpty } from 'remeda';
 
-import { describeError } from '../../../common/lib';
-import { YooKassaClient } from '../../../lib';
+import { describeError } from '@/common/lib';
+import { YooKassaClient } from '@/lib/yookassa';
+
 import { PAYMENT_METHODS_CACHE } from '../config';
 import { offeredMethods } from '../lib';
 

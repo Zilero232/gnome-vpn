@@ -1,9 +1,10 @@
 import { match } from 'ts-pattern';
 
-import type { Prisma } from '../../../../../generated';
-import type { UserSearch } from './user-search.types';
+import type { Prisma } from '@/generated';
 
-import { USER_SEARCH } from '../../config';
+import { USER_SEARCH } from '@/modules/admin/config';
+
+import type { UserSearch } from './user-search.types';
 
 const isTelegramId = (value: string): boolean => USER_SEARCH.digits.test(value) && BigInt(value) <= USER_SEARCH.maxTelegramId;
 

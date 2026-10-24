@@ -2,14 +2,13 @@ import { isPlaceholderEmail } from '@gnomevpn/schemas';
 import { render } from '@react-email/render';
 import nodemailer from 'nodemailer';
 
+import { AppServiceUnavailableException } from '@/common/exceptions';
+import { describeError } from '@/common/lib';
+import { env } from '@/config';
+
 import type { SendEmailParams } from './email.types';
 
-import { AppServiceUnavailableException } from '../../common/exceptions';
-import { describeError } from '../../common/lib';
-import { validateEnv } from '../../config/env.schema';
 import { SMTP_TIMEOUTS } from './email.constants';
-
-const env = validateEnv(process.env);
 
 const isConfigured = Boolean(env.SMTP_HOST && env.SMTP_USER && env.EMAIL_FROM);
 

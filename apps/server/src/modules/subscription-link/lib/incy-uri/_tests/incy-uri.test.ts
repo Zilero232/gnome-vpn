@@ -4,8 +4,9 @@ import { TUNNEL_PROTOCOL } from '@gnomevpn/schemas';
 import { isNullish } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
-import { serverName } from '../../server-name';
-import { TLS_MODE } from '../../tls-mode';
+import { serverName } from '@/modules/subscription-link/lib/server-name';
+import { TLS_MODE } from '@/modules/subscription-link/lib/tls-mode';
+
 import { HYSTERIA2_SCHEME } from '../hysteria2/hysteria2.constants';
 import { incyServerUri } from '../incy-uri';
 import { VLESS_NETWORK } from '../vless/vless.constants';

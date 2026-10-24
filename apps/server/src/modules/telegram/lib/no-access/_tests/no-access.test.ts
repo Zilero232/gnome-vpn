@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { BOT_TEXT } from '../../../config';
+import { BOT_TEXT } from '@/modules/telegram/config';
+
 import { noAccessText } from '../no-access';
 
 const never = { period: 'none', currentPeriodEnd: null, isTrialAvailable: true } as const;

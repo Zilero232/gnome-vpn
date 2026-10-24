@@ -5,11 +5,6 @@ export type DayRow = {
   value: number;
 };
 
-export type AlignSeriesInput = {
-  keys: string[];
-  rows: DayRow[];
-};
-
 export type DaySeries = Record<Exclude<keyof AdminDay, 'date'>, DayRow[]>;
 
 export type BuildDaysInput = {

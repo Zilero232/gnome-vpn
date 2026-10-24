@@ -3,7 +3,8 @@ import type { UserSession } from '@thallesp/nestjs-better-auth';
 
 import { Injectable } from '@nestjs/common';
 
-import { AppPaymentRequiredException, AppUnauthorizedException } from '../../../common/exceptions';
+import { AppPaymentRequiredException, AppUnauthorizedException } from '@/common/exceptions';
+
 import { SubscriptionService } from '../services';
 
 @Injectable()

@@ -5,12 +5,13 @@ import { Injectable, Logger } from '@nestjs/common';
 import { subHours } from 'date-fns';
 import { isNullish } from 'remeda';
 
+import { describeError } from '@/common/lib';
+import { claimNotice, NOTICE_CLAIM, NOTICE_REF, PrismaService } from '@/core';
+import { DEVICE_KEY, deviceTitle } from '@/modules/devices';
+import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
+
 import type { DeviceAddedInput, DeviceBlockedInput } from '../subscription-link.service.types';
 
-import { describeError } from '../../../common/lib';
-import { claimNotice, NOTICE_CLAIM, NOTICE_REF, PrismaService } from '../../../core';
-import { DEVICE_KEY, deviceTitle } from '../../devices';
-import { TelegramNotifyService } from '../../telegram/services/telegram-notify.service';
 import { DEVICE_NOTICE } from '../config';
 import { claimBlockedNotice } from '../lib';
 

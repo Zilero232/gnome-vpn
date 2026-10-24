@@ -1,11 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { isNonNullish, isNullish } from 'remeda';
 
+import { describeError, errorCodeOf } from '@/common/lib';
+import { AppConfigService } from '@/config';
+import { AccountService, IdentityService } from '@/modules/auth';
+
 import type { BotContext, BotLocale, BotMessage, ConsumeInput, GreetInput, WelcomeInput } from '../telegram.types';
 
-import { describeError, errorCodeOf } from '../../../common/lib';
-import { AppConfigService } from '../../../config';
-import { AccountService, IdentityService } from '../../auth';
 import { BOT_TEXT, CALLBACK_PREFIX, DEFAULT_BOT_LOCALE, MESSAGE_EFFECT } from '../config';
 import {
   botBlockChange,

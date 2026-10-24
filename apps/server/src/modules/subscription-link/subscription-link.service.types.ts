@@ -1,7 +1,8 @@
 import type { TunnelProtocol, UpdateRoutingSettingsInput } from '@gnomevpn/schemas';
 
-import type { Prisma } from '../../../generated';
-import type { NodeTraffic } from '../../lib';
+import type { Prisma } from '@/generated';
+import type { NodeTraffic } from '@/lib/xray';
+
 import type { DeviceHeaders, DeviceIdentity } from '../devices';
 import type { GeoKind, TlsMode } from './lib';
 

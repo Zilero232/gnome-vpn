@@ -1,7 +1,8 @@
 import type { CheckoutLocale, CheckoutResult, Plan, PlanId, PromoDiscount } from '@gnomevpn/schemas';
 
-import type { PaymentKind, Prisma } from '../../../generated';
-import type { PrismaExecutor } from '../../core';
+import type { PrismaExecutor } from '@/core';
+import type { PaymentKind, Prisma } from '@/generated';
+
 import type { AppliedDiscount } from '../promo-codes';
 import type { RevokeOutcome, RewardOutcome } from '../referrals';
 

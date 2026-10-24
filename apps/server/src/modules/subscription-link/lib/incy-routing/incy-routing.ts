@@ -1,8 +1,9 @@
 import { isNullish, mapValues } from 'remeda';
 
+import { DEVICE_KEY } from '@/modules/devices';
+
 import type { IncyRouting, IncyRoutingInput, RoutingGeoTags, RoutingProfile, RoutingProfileInput } from './incy-routing.types';
 
-import { DEVICE_KEY } from '../../../devices';
 import { geoFileUrl } from '../geo-files';
 import { GEO_TAG_PREFIX, ROUTING_DNS, ROUTING_GEO, ROUTING_LINK, ROUTING_PROFILE, ROUTING_RULES } from './incy-routing.constants';
 import { encodedProfile, lastUpdated } from './incy-routing.helpers';

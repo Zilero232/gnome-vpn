@@ -3,6 +3,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { addDays } from 'date-fns';
 import { isNullish } from 'remeda';
 
+import { hasLapsedBeyondGrace, nextPeriodEnd, rewindPeriod } from '@/common/lib';
+import { AppConfigService } from '@/config';
+import { PrismaService } from '@/core';
+import { periodKind } from '@/modules/subscription';
+
 import type {
   ActivateInput,
   AttachMethodInput,
@@ -13,10 +18,6 @@ import type {
   SetAutoRenewServiceInput
 } from '../billing.types';
 
-import { hasLapsedBeyondGrace, nextPeriodEnd, rewindPeriod } from '../../../common/lib';
-import { AppConfigService } from '../../../config';
-import { PrismaService } from '../../../core';
-import { periodKind } from '../../subscription';
 import { localizedReturnUrl } from '../lib';
 
 @Injectable()

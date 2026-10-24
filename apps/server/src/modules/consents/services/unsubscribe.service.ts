@@ -3,11 +3,12 @@ import type { UnsubscribeResult } from '@gnomevpn/schemas';
 import { Injectable } from '@nestjs/common';
 import { isNullish } from 'remeda';
 
+import { AppConfigService } from '@/config';
+import { PrismaService } from '@/core';
+import { localizedPath } from '@/lib/email';
+
 import type { UnsubscribeLinkInput } from '../consents.types';
 
-import { AppConfigService } from '../../../config';
-import { PrismaService } from '../../../core';
-import { localizedPath } from '../../../lib/email';
 import { UNSUBSCRIBE } from '../config';
 import { readUnsubscribe, signUnsubscribe } from '../lib';
 import { ConsentService } from './consent.service';

@@ -1,7 +1,7 @@
 import type { PeriodKind } from '@gnomevpn/schemas';
 import type { KeyboardButton } from 'grammy/types';
 
-import type { BotButtons, BotLocale } from '../../telegram.types';
+import type { BotButtons, BotLocale } from '@/modules/telegram/telegram.types';
 
 export type ButtonKey = keyof BotButtons;
 

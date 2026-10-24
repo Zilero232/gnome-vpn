@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import type { RecordAdminActionInput } from '../admin.types';
+import { describeError } from '@/common/lib';
+import { PrismaService } from '@/core';
 
-import { describeError } from '../../../common/lib';
-import { PrismaService } from '../../../core';
+import type { RecordAdminActionInput } from '../admin.types';
 
 @Injectable()
 export class AdminAuditService {

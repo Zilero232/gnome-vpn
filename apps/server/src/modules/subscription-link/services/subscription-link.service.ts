@@ -3,11 +3,12 @@ import type { SubscriptionLink } from '@gnomevpn/schemas';
 import { encryptLink } from '@incy/link-encoder';
 import { Injectable } from '@nestjs/common';
 
+import { AppConfigService } from '@/config';
+import { PrismaService, withUniqueRetry } from '@/core';
+import { DEVICE_KEY } from '@/modules/devices';
+
 import type { PresentLinkInput } from '../subscription-link.service.types';
 
-import { AppConfigService } from '../../../config';
-import { PrismaService, withUniqueRetry } from '../../../core';
-import { DEVICE_KEY } from '../../devices';
 import { FEED } from '../config';
 import { clientLinks, generateSubscriptionToken } from '../lib';
 

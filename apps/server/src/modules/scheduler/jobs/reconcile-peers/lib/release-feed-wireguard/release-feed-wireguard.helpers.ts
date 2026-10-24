@@ -1,9 +1,9 @@
 import { TUNNEL_PROTOCOL } from '@gnomevpn/schemas';
 import { isNonNullish, isNullish } from 'remeda';
 
-import type { ReconcilePeer } from '../../reconcile-peers.job.types';
+import type { ReconcilePeer } from '@/modules/scheduler/jobs/reconcile-peers/reconcile-peers.job.types';
 
-import { DEVICE_KEY } from '../../../../../devices';
+import { DEVICE_KEY } from '@/modules/devices';
 
 export const isFeedWireguardPeer = (peer: ReconcilePeer): boolean =>
   peer.protocol === TUNNEL_PROTOCOL.wireguard &&

@@ -1,9 +1,10 @@
 import { addMilliseconds, addMinutes, subMinutes } from 'date-fns';
 import { describe, expect, it } from 'vitest';
 
+import { OWNER_ALERT } from '@/modules/telegram/config';
+
 import type { NodeAlertState } from '../node-health.types';
 
-import { OWNER_ALERT } from '../../../config';
 import { nodeAlert, nodeStatus } from '../node-health';
 
 const START = new Date('2026-10-23T12:00:00.000Z');

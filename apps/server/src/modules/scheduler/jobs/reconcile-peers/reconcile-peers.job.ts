@@ -1,15 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { isEmpty, isNullish, unique } from 'remeda';
+import { isEmpty, isNullish, unique, zip } from 'remeda';
+
+import { describeError } from '@/common/lib';
+import { PrismaService } from '@/core';
+import { IDENTIFIED_NODE_SELECT, xrayClientForNode } from '@/lib/xray';
+import { LEGACY_PEER } from '@/modules/devices';
+import { ALERT, SCHEDULE } from '@/modules/scheduler/config';
+import { TelegramAlertService } from '@/modules/telegram/services/telegram-alert.service';
+import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
 
 import type { NoteFailureInput, ReconcileNodeInput } from './reconcile-peers.job.types';
 
-import { describeError, IDENTIFIED_NODE_SELECT, xrayClientForNode } from '../../../../common/lib';
-import { PrismaService } from '../../../../core';
-import { LEGACY_PEER } from '../../../devices';
-import { TelegramAlertService } from '../../../telegram/services/telegram-alert.service';
-import { TelegramNotifyService } from '../../../telegram/services/telegram-notify.service';
-import { ALERT, SCHEDULE } from '../../config';
 import {
   changeSummary,
   collectOrphans,
@@ -89,9 +91,7 @@ export class ReconcilePeersJob {
     const results = await Promise.allSettled(nodes.map((node) => this.reconcileNode({ node, withOrphans })));
     const retiredOwners: string[] = [];
 
-    results.forEach((result, index) => {
-      const nodeId = nodes[index].id;
-
+    zip(nodes, results).forEach(([{ id: nodeId }, result]) => {
       if (result.status === 'fulfilled') {
         this.failures.delete(nodeId);
         retiredOwners.push(...result.value);

@@ -1,6 +1,7 @@
 import { match } from 'ts-pattern';
 
-import type { Prisma } from '../../../../../generated';
+import type { Prisma } from '@/generated';
+
 import type { GiftStateWhereInput } from './gift-filter.types';
 
 export const giftStateWhere = ({ state, now }: GiftStateWhereInput): Prisma.PromoCodeWhereInput => {

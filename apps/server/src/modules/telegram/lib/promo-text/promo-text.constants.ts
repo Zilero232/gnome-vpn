@@ -1,6 +1,7 @@
 import { PROMO_CODE, PROMO_DAYS, PROMO_DISCOUNT } from '@gnomevpn/schemas';
 
-import type { CampaignProblem } from '../../../promo-codes';
+import type { CampaignProblem } from '@/modules/promo-codes';
+
 import type { CampaignProblemText } from './promo-text.types';
 
 export const CAMPAIGN_PROBLEM_TEXT: Record<CampaignProblem, CampaignProblemText> = {

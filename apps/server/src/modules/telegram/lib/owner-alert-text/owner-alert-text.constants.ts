@@ -1,4 +1,5 @@
-import type { BotText } from '../../telegram.types';
+import type { BotText } from '@/modules/telegram/telegram.types';
+
 import type { LoadResource, RefundAlertReason } from './owner-alert-text.types';
 
 export const LABEL_SEPARATOR = ' · ';

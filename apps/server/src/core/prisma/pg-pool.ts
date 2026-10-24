@@ -1,9 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { Pool } from 'pg';
 
-import { validateEnv } from '../../config/env.schema';
-
-const env = validateEnv(process.env);
+import { env } from '@/config';
 
 const logger = new Logger('PgPool');
 

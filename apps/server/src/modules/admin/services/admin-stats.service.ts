@@ -2,10 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { subDays, subHours } from 'date-fns';
 import { isNonNullish } from 'remeda';
 
+import { PrismaService } from '@/core';
+import { periodKind } from '@/modules/subscription';
+
 import type { StatsSnapshot } from '../admin.types';
 
-import { PrismaService } from '../../../core';
-import { periodKind } from '../../subscription';
 import { NODE_ORDER, STATS_NODE_SELECT, STATS_WINDOW } from '../config';
 import { subscriptionTally } from '../lib';
 

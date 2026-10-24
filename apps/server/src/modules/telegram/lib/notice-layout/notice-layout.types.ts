@@ -1,4 +1,4 @@
-import type { NoticeSpec } from '../../telegram.types';
+import type { NoticeSpec } from '@/modules/telegram/telegram.types';
 
 export type NoticeLayoutInput = {
   text: string;

@@ -1,8 +1,8 @@
 import { isNullish } from 'remeda';
 
-import type { DeviceActivityInput } from './device-activity.types';
+import { peerClientName } from '@/modules/peers';
 
-import { peerClientName } from '../../../../../peers';
+import type { DeviceActivityInput } from './device-activity.types';
 
 export const deviceActivity = ({ peers, lastOnline }: DeviceActivityInput): Map<string, Date> => {
   const activity = new Map<string, Date>();

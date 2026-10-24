@@ -2,9 +2,9 @@ import type { AdminNodeTally, NodeState } from '@gnomevpn/schemas';
 
 import { PLANS } from '@gnomevpn/schemas';
 
-import type { NodeTallyInput, StatsSubscription, SubscriptionTally, TallyKeyInput } from './stats-tally.types';
+import { nodeStatus } from '@/modules/status';
 
-import { nodeStatus } from '../../../status';
+import type { NodeTallyInput, StatsSubscription, SubscriptionTally, TallyKeyInput } from './stats-tally.types';
 
 export const subscriptionTally = (rows: StatsSubscription[]): SubscriptionTally => {
   const paid = rows.filter((row) => row.period === 'paid');

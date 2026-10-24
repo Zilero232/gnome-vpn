@@ -1,8 +1,9 @@
 import { isNullish } from 'remeda';
 
+import { AppServiceUnavailableException } from '@/common/exceptions';
+
 import type { InboundPayloadInput, RequireInboundInput, XrayInbound, XrayInboundPayload } from './inbounds.types';
 
-import { AppServiceUnavailableException } from '../../../common/exceptions';
 import { INBOUND_REMARK } from './inbounds.constants';
 
 const stringify = (value: unknown) => (isNullish(value) ? '' : JSON.stringify(value));

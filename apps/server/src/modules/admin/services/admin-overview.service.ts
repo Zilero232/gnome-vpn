@@ -3,8 +3,9 @@ import type { AdminOverview } from '@gnomevpn/schemas';
 import { ADMIN_OVERVIEW, adminOverviewSchema } from '@gnomevpn/schemas';
 import { Injectable } from '@nestjs/common';
 
-import { windowStart } from '../../../common/lib';
-import { PrismaService } from '../../../core';
+import { windowStart } from '@/common/lib';
+import { PrismaService } from '@/core';
+
 import { foldShares, nodeTally } from '../lib';
 import { AdminSeriesService } from './admin-series.service';
 import { AdminStatsService } from './admin-stats.service';

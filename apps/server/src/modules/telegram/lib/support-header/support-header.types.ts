@@ -1,7 +1,7 @@
 import type { PeriodKind, PlanId } from '@gnomevpn/schemas';
 import type { User } from 'grammy/types';
 
-import type { BotLocale } from '../../telegram.types';
+import type { BotLocale } from '@/modules/telegram/telegram.types';
 
 export type SupportAccount = {
   email: string;

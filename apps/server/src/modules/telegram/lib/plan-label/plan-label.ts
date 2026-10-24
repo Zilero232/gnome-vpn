@@ -4,10 +4,12 @@ import { findPlan, planDiscountPercent, planMonthlyRub, PLANS } from '@gnomevpn/
 import { InlineKeyboard } from 'grammy';
 import { firstBy, isNullish } from 'remeda';
 
-import type { BotLocale } from '../../telegram.types';
+import type { BotLocale } from '@/modules/telegram/telegram.types';
+
+import { BOT_TEXT, CALLBACK_PREFIX, NEW_LINE } from '@/modules/telegram/config';
+
 import type { CheckoutIntroInput, PlanButtonLabelInput, PlanLabelInput, PlansTextInput } from './plan-label.types';
 
-import { BOT_TEXT, CALLBACK_PREFIX, NEW_LINE } from '../../config';
 import { fillLabel, fillText } from '../fill-text';
 import { html } from '../html';
 

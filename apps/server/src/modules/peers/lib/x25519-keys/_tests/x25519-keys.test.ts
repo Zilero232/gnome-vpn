@@ -1,7 +1,8 @@
 import { x25519 } from '@noble/curves/ed25519.js';
 import { describe, expect, it } from 'vitest';
 
-import { REALITY } from '../../../config';
+import { REALITY } from '@/modules/peers/config';
+
 import { generateRealityKeys, generateRealityShortId, generateWireguardKeys, wireguardPublicKey } from '../x25519-keys';
 
 const KEY = /^[A-Za-z0-9+/]{43}=$/u;

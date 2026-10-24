@@ -1,6 +1,6 @@
 import type { AdminOverview, PeriodKind, PlanId } from '@gnomevpn/schemas';
 
-import type { StatusNodeRow } from '../../../status';
+import type { StatusNodeRow } from '@/modules/status';
 
 export type StatsSubscription = {
   plan: PlanId;

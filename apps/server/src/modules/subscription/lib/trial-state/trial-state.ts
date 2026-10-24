@@ -4,9 +4,9 @@ import { TRIAL_DAYS } from '@gnomevpn/schemas';
 import { addDays } from 'date-fns';
 import { isNonNullish } from 'remeda';
 
-import type { TrialRow, TrialState } from '../../subscription.types';
+import type { TrialRow, TrialState } from '@/modules/subscription/subscription.types';
 
-import { isPeriodActive } from '../../../../common/lib';
+import { isPeriodActive } from '@/common/lib';
 
 export const isTrialPeriod = (row: TrialRow | null): boolean => {
   if (!row?.trialStartedAt || !row.currentPeriodEnd) {

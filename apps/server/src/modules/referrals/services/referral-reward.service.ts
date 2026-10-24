@@ -3,10 +3,11 @@ import { Injectable } from '@nestjs/common';
 import { subDays } from 'date-fns';
 import { isNonNullish, isNullish } from 'remeda';
 
+import { extendPeriod, rewindPeriod } from '@/common/lib';
+import { periodKind } from '@/modules/subscription';
+
 import type { ExtendInput, ReferrerShareInput, RevokeInput, RevokeOutcome, RewardInput, RewardOutcome } from '../referrals.types';
 
-import { extendPeriod, rewindPeriod } from '../../../common/lib';
-import { periodKind } from '../../subscription';
 import { grantedDays } from '../lib';
 
 @Injectable()

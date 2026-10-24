@@ -2,10 +2,11 @@ import { isPlaceholderEmail } from '@gnomevpn/schemas';
 import { isNonNullish, isTruthy } from 'remeda';
 import { match } from 'ts-pattern';
 
+import { paymentPlan } from '@/common/lib';
+import { BOT_TEXT } from '@/modules/telegram/config';
+
 import type { AccountLabelInput, PurchaseLabelInput } from './owner-alert-text.types';
 
-import { paymentPlan } from '../../../../common/lib';
-import { BOT_TEXT } from '../../config';
 import { fillLabel } from '../fill-text';
 import { planLabel } from '../plan-label';
 import { LABEL_SEPARATOR } from './owner-alert-text.constants';

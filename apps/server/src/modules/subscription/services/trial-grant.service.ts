@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 
+import { AppBadRequestException } from '@/common/exceptions';
+import { isUniqueViolation, PrismaService } from '@/core';
+
 import type { RecordTrialGrantInput, TrialGrantLookupInput } from '../subscription.types';
 
-import { AppBadRequestException } from '../../../common/exceptions';
-import { isPrismaRequestError, PrismaService, UNIQUE_VIOLATION } from '../../../core';
 import { trialIdentities } from '../lib';
 
 @Injectable()
@@ -44,7 +45,7 @@ export class TrialGrantService {
         skipDuplicates: !isStrict
       });
     } catch (error) {
-      if (isPrismaRequestError(error) && error.code === UNIQUE_VIOLATION) {
+      if (isUniqueViolation(error)) {
         throw new AppBadRequestException('TRIAL_ALREADY_USED', 'This email or Telegram account has already had its trial');
       }
 

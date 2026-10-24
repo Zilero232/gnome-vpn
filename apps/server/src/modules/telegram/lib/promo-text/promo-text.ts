@@ -1,6 +1,8 @@
 import { isAfter } from 'date-fns';
 import { isEmpty, isNonNullish, isNullish, isTruthy } from 'remeda';
 
+import { BOT_TEXT, NEW_LINE } from '@/modules/telegram/config';
+
 import type {
   CampaignCreatedTextInput,
   CampaignLineInput,
@@ -9,7 +11,6 @@ import type {
   CampaignTextInput
 } from './promo-text.types';
 
-import { BOT_TEXT, NEW_LINE } from '../../config';
 import { dayCount } from '../day-count';
 import { fillText } from '../fill-text';
 import { formatDate } from '../format-date';

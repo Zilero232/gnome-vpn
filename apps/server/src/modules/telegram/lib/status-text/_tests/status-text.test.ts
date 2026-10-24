@@ -2,11 +2,12 @@ import { PLANS } from '@gnomevpn/schemas';
 import { millisecondsInDay } from 'date-fns/constants';
 import { describe, expect, it } from 'vitest';
 
+import { BOT_LOCALES, BOT_TEXT } from '@/modules/telegram/config';
+import { fillText } from '@/modules/telegram/lib/fill-text';
+import { isTelegramHtml } from '@/modules/telegram/lib/html';
+
 import type { StatusTextInput } from '../status-text.types';
 
-import { BOT_LOCALES, BOT_TEXT } from '../../../config';
-import { fillText } from '../../fill-text';
-import { isTelegramHtml } from '../../html';
 import { daysLeft, statusText } from '../status-text';
 
 const active: StatusTextInput = {

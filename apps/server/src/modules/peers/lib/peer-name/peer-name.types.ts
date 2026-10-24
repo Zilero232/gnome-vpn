@@ -1,6 +1,6 @@
 import type { TunnelProtocol } from '@gnomevpn/schemas';
 
-import type { PeerKind } from '../../../../../generated';
+import type { PeerKind } from '@/generated';
 
 export type PeerNameInput = {
   userId: string;

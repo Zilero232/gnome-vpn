@@ -2,9 +2,9 @@ import { isPlaceholderEmail } from '@gnomevpn/schemas';
 import { createHash } from 'node:crypto';
 import { isNonNullish } from 'remeda';
 
-import type { TrialIdentitiesInput } from './trial-identity.types';
+import { TRIAL_IDENTITY } from '@/modules/subscription/config';
 
-import { TRIAL_IDENTITY } from '../../config';
+import type { TrialIdentitiesInput } from './trial-identity.types';
 
 const GMAIL_ALIASES: readonly string[] = TRIAL_IDENTITY.gmailAliases;
 

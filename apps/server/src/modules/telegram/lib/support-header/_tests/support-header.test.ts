@@ -3,11 +3,12 @@ import type { User } from 'grammy/types';
 import { DEFAULT_PLAN_ID, telegramPlaceholderEmail } from '@gnomevpn/schemas';
 import { describe, expect, it } from 'vitest';
 
+import { BOT_TEXT } from '@/modules/telegram/config';
+import { html } from '@/modules/telegram/lib/html';
+import { planLabel } from '@/modules/telegram/lib/plan-label';
+
 import type { SupportAccount } from '../support-header.types';
 
-import { BOT_TEXT } from '../../../config';
-import { html } from '../../html';
-import { planLabel } from '../../plan-label';
 import { supportHeader } from '../support-header';
 
 const sender: User = { id: 123_456_789, is_bot: false, first_name: 'Ivan', last_name: 'Petrov', username: 'ivan', language_code: 'ru' };

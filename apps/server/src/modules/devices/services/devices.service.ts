@@ -4,11 +4,12 @@ import { DEFAULT_DEVICE_LIMIT } from '@gnomevpn/schemas';
 import { Injectable } from '@nestjs/common';
 import { isEmpty, isNonNullish, omit, partition, pickBy } from 'remeda';
 
+import { AppNotFoundException } from '@/common/exceptions';
+import { activeDeviceLimit, isPeriodActive, SUBSCRIPTION_PERIOD_SELECT } from '@/common/lib';
+import { isUniqueViolation, PrismaService } from '@/core';
+
 import type { AdmitDeviceInput, AdmittedDevice, RemoveDeviceInput, RevokePeersInput, SurplusRevocation } from '../devices.types';
 
-import { AppNotFoundException } from '../../../common/exceptions';
-import { activeDeviceLimit, isPeriodActive, SUBSCRIPTION_PERIOD_SELECT } from '../../../common/lib';
-import { isPrismaRequestError, PrismaService, UNIQUE_VIOLATION, withSerializableRetry } from '../../../core';
 import { DEVICE_KEY, DEVICE_ORDER } from '../config';
 import { deviceTitle, graceDeviceLimit, slotHolders } from '../lib';
 
@@ -20,7 +21,7 @@ export class DevicesService {
     try {
       return await this.claimSlot(input);
     } catch (error) {
-      if (isPrismaRequestError(error) && error.code === UNIQUE_VIOLATION) {
+      if (isUniqueViolation(error)) {
         return this.claimSlot(input);
       }
 
@@ -31,39 +32,34 @@ export class DevicesService {
   private claimSlot({ userId, identity, deviceLimit, canRegister = true }: AdmitDeviceInput): Promise<AdmittedDevice> {
     const { key, ...details } = omit(identity, ['hwid']);
 
-    return withSerializableRetry(() =>
-      this.prisma.$transaction(
-        async (tx) => {
-          const devices = await tx.device.findMany({
-            where: { userId },
-            orderBy: [...DEVICE_ORDER],
-            select: { id: true, key: true, createdAt: true }
-          });
+    return this.prisma.serializable(async (tx) => {
+      const devices = await tx.device.findMany({
+        where: { userId },
+        orderBy: [...DEVICE_ORDER],
+        select: { id: true, key: true, createdAt: true }
+      });
 
-          const existing = devices.find((device) => device.key === key);
+      const existing = devices.find((device) => device.key === key);
 
-          if (existing) {
-            await tx.device.update({ where: { id: existing.id }, data: { ...pickBy(details, isNonNullish), lastSeenAt: new Date() } });
+      if (existing) {
+        await tx.device.update({ where: { id: existing.id }, data: { ...pickBy(details, isNonNullish), lastSeenAt: new Date() } });
 
-            return {
-              deviceId: existing.id,
-              isAllowed: slotHolders({ devices, limit: deviceLimit }).has(existing.id),
-              isNew: false,
-              deviceCount: devices.length
-            };
-          }
+        return {
+          deviceId: existing.id,
+          isAllowed: slotHolders({ devices, limit: deviceLimit }).has(existing.id),
+          isNew: false,
+          deviceCount: devices.length
+        };
+      }
 
-          if (!canRegister || devices.length >= deviceLimit) {
-            return { deviceId: null, isAllowed: false, isNew: false, deviceCount: devices.length };
-          }
+      if (!canRegister || devices.length >= deviceLimit) {
+        return { deviceId: null, isAllowed: false, isNew: false, deviceCount: devices.length };
+      }
 
-          const created = await tx.device.create({ data: { userId, key, ...details }, select: { id: true } });
+      const created = await tx.device.create({ data: { userId, key, ...details }, select: { id: true } });
 
-          return { deviceId: created.id, isAllowed: true, isNew: true, deviceCount: devices.length + 1 };
-        },
-        { isolationLevel: 'Serializable' }
-      )
-    );
+      return { deviceId: created.id, isAllowed: true, isNew: true, deviceCount: devices.length + 1 };
+    });
   }
 
   async list(userId: string): Promise<DeviceList> {

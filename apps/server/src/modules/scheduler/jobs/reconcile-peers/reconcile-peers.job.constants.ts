@@ -1,4 +1,4 @@
-import { SUBSCRIPTION_PERIOD_SELECT } from '../../../../common/lib';
+import { SUBSCRIPTION_PERIOD_SELECT } from '@/common/lib';
 
 export const RECONCILE_PEER_SELECT = {
   id: true,

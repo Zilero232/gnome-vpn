@@ -7,7 +7,7 @@ import { join, posix } from 'node:path';
 
 import type { SyncResult, SyncToProductionInput } from './node-sync.types';
 
-import { describeError } from '../../../../apps/server/src/common/lib/describe-error';
+import { describeError } from '../../../../apps/server/src/common/lib/errors';
 import { ENV_NODES, HEREDOC_NONCE_BYTES, PRODUCTION_SSH } from './node-sync.constants';
 import { applyServerEnvCommand, applySqlCommand, buildNodeSync, installEnvFileCommand, isSameEnvFile, readFileCommand } from './node-sync.helpers';
 

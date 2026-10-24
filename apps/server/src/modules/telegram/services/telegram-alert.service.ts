@@ -2,6 +2,10 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Bot } from 'grammy';
 import { isNonNullish, isNullish } from 'remeda';
 
+import { describeError } from '@/common/lib';
+import { AppConfigService } from '@/config';
+import { PrismaService } from '@/core';
+
 import type { AlertAccount, NodeAlertState } from '../lib';
 import type {
   ChargeFailedInput,
@@ -14,9 +18,6 @@ import type {
   RefundCanceledInput
 } from '../telegram.types';
 
-import { describeError } from '../../../common/lib';
-import { AppConfigService } from '../../../config';
-import { PrismaService } from '../../../core';
 import { TELEGRAM_BOT } from '../bot';
 import { DEFAULT_BOT_LOCALE } from '../config';
 import {

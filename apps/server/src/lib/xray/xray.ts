@@ -2,6 +2,8 @@ import { Logger } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { isEmpty, isNullish, partition } from 'remeda';
 
+import { AppServiceUnavailableException } from '@/common/exceptions';
+
 import type { CreateClientResult, SetClientsEnabledInput } from './hysteria';
 import type { CreateVlessClientResult } from './vless';
 import type { CreateWireguardClientInput, CreateWireguardClientResult } from './wireguard';
@@ -15,7 +17,6 @@ import type {
   XrayClientOptions
 } from './xray.types';
 
-import { AppServiceUnavailableException } from '../../common/exceptions';
 import { coalesceByKey } from './coalesce';
 import { HysteriaClients } from './hysteria';
 import { inboundPayload, Inbounds, requireInbound } from './inbounds';

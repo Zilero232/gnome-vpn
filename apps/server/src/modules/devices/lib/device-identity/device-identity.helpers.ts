@@ -1,8 +1,8 @@
 import { isString } from 'remeda';
 
-import type { CleanedInput, DeviceHeaders, HeaderOfInput } from './device-identity.types';
+import { DEVICE_FIELD, DEVICE_HEADER, DEVICE_KEY } from '@/modules/devices/config';
 
-import { DEVICE_FIELD, DEVICE_HEADER, DEVICE_KEY } from '../../config';
+import type { CleanedInput, DeviceHeaders, HeaderOfInput } from './device-identity.types';
 
 export const headerOf = ({ headers, name }: HeaderOfInput): string | null => {
   const value = headers[name];

@@ -4,7 +4,8 @@ import { PLACEHOLDER_EMAIL } from '@gnomevpn/schemas';
 import { isNonNullish } from 'remeda';
 import { match } from 'ts-pattern';
 
-import type { Prisma } from '../../../../../generated';
+import type { Prisma } from '@/generated';
+
 import type { UserFilterWhereInput } from './user-filter.types';
 
 import { periodStart } from '../period-start';

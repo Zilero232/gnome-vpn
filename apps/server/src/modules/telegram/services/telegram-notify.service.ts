@@ -5,6 +5,11 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Bot } from 'grammy';
 import { isNonNullish, isNullish } from 'remeda';
 
+import { describeError } from '@/common/lib';
+import { PrismaService } from '@/core';
+import { ConsentService } from '@/modules/consents';
+import { TrialService } from '@/modules/subscription';
+
 import type { ChatState } from '../lib';
 import type {
   DeliverInput,
@@ -18,10 +23,6 @@ import type {
   SetBlockedInput
 } from '../telegram.types';
 
-import { describeError } from '../../../common/lib';
-import { PrismaService } from '../../../core';
-import { ConsentService } from '../../consents';
-import { TrialService } from '../../subscription';
 import { TELEGRAM_BOT } from '../bot';
 import { BOT_TEXT, NOTICES } from '../config';
 import {

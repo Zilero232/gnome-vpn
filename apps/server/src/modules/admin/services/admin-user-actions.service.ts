@@ -4,16 +4,17 @@ import { adminExtendResultSchema, adminMessageResultSchema, DEFAULT_PLAN_ID, isP
 import { Injectable, Logger } from '@nestjs/common';
 import { isNullish } from 'remeda';
 
+import { AppBadRequestException, AppNotFoundException } from '@/common/exceptions';
+import { describeError } from '@/common/lib';
+import { PrismaService, withUniqueRetry } from '@/core';
+import { AutoRenewService } from '@/modules/billing';
+import { DevicesService } from '@/modules/devices';
+import { accessExtension } from '@/modules/promo-codes';
+import { SubscriptionAccessService, SubscriptionLinkService } from '@/modules/subscription-link';
+import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
+
 import type { AdminActionInput, ExtendActionInput, ExtendWithinInput, MessageActionInput, RemoveDeviceActionInput } from '../admin.types';
 
-import { AppBadRequestException, AppNotFoundException } from '../../../common/exceptions';
-import { describeError } from '../../../common/lib';
-import { PrismaService, withSerializableRetry, withUniqueRetry } from '../../../core';
-import { AutoRenewService } from '../../billing';
-import { DevicesService } from '../../devices';
-import { accessExtension } from '../../promo-codes';
-import { SubscriptionAccessService, SubscriptionLinkService } from '../../subscription-link';
-import { TelegramNotifyService } from '../../telegram/services/telegram-notify.service';
 import { ADMIN_ACTION } from '../config';
 import { AdminAuditService } from './admin-audit.service';
 
@@ -35,9 +36,7 @@ export class AdminUserActionsService {
     await this.emailOf(userId);
 
     const currentPeriodEnd = await withUniqueRetry(() =>
-      withSerializableRetry(() =>
-        this.prisma.$transaction((tx) => this.extendWithin({ userId, days, now: new Date(), db: tx }), { isolationLevel: 'Serializable' })
-      )
+      this.prisma.serializable((tx) => this.extendWithin({ userId, days, now: new Date(), db: tx }))
     );
 
     await this.access.setEnabledAll({ userId, enabled: true }).catch((error: unknown) => {

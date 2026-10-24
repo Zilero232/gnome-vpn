@@ -1,8 +1,9 @@
 import { isEmpty, isNullish } from 'remeda';
 
+import { peerClientName } from '@/modules/peers';
+
 import type { CollectOrphansInput, NamedOnNodeInput } from './collect-orphans.types';
 
-import { peerClientName } from '../../../../../peers';
 import { isServerOwned } from './collect-orphans.helpers';
 
 const namedOnNode = async ({ prisma, nodeId }: NamedOnNodeInput): Promise<Set<string>> => {

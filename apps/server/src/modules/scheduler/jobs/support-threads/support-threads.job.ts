@@ -2,9 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { subDays } from 'date-fns';
 
-import { describeError } from '../../../../common/lib';
-import { PrismaService } from '../../../../core';
-import { RETENTION } from '../../config';
+import { describeError } from '@/common/lib';
+import { PrismaService } from '@/core';
+import { RETENTION } from '@/modules/scheduler/config';
 
 @Injectable()
 export class SupportThreadsJob {

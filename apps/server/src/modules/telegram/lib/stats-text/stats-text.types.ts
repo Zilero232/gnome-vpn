@@ -1,5 +1,6 @@
-import type { StatsSnapshot } from '../../../admin';
-import type { BotLocale } from '../../telegram.types';
+import type { StatsSnapshot } from '@/modules/admin';
+import type { BotLocale } from '@/modules/telegram/telegram.types';
+
 import type { LabelledNode } from '../node-label';
 
 export type StatsNode = LabelledNode & {

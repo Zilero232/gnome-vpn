@@ -6,7 +6,11 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "types": ["bun"],
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@/generated": ["../apps/server/generated"],
+      "@/*": ["../apps/server/src/*"]
+    }
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules"]

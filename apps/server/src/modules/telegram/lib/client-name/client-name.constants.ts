@@ -1,6 +1,6 @@
 import type { ClientId } from '@gnomevpn/schemas';
 
-import type { BotText } from '../../telegram.types';
+import type { BotText } from '@/modules/telegram/telegram.types';
 
 export const CLIENT_LABELS: Record<ClientId, string> = {
   incy: 'INCY',

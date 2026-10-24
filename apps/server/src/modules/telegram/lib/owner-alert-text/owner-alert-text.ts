@@ -1,6 +1,8 @@
 import { isTruthy } from 'remeda';
 import { match } from 'ts-pattern';
 
+import { BOT_TEXT, NEW_LINE, OWNER_ALERT } from '@/modules/telegram/config';
+
 import type {
   ChargeFailedTextInput,
   LoadAlertTextInput,
@@ -10,7 +12,6 @@ import type {
   RefundAlertTextInput
 } from './owner-alert-text.types';
 
-import { BOT_TEXT, NEW_LINE, OWNER_ALERT } from '../../config';
 import { fillText } from '../fill-text';
 import { formatAmount } from '../format-amount';
 import { formatAgo } from '../format-date';

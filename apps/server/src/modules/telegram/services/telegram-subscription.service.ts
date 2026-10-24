@@ -2,13 +2,14 @@ import { Injectable, Logger } from '@nestjs/common';
 import { isNullish } from 'remeda';
 import { match } from 'ts-pattern';
 
+import { describeError, errorCodeOf } from '@/common/lib';
+import { CheckoutService } from '@/modules/billing';
+import { DevicesService } from '@/modules/devices';
+import { SubscriptionService, TrialService } from '@/modules/subscription';
+import { SubscriptionLinkService } from '@/modules/subscription-link';
+
 import type { BotContext } from '../telegram.types';
 
-import { describeError, errorCodeOf } from '../../../common/lib';
-import { CheckoutService } from '../../billing';
-import { DevicesService } from '../../devices';
-import { SubscriptionService, TrialService } from '../../subscription';
-import { SubscriptionLinkService } from '../../subscription-link';
 import { BOT_TEXT, CALLBACK_PREFIX, MESSAGE_EFFECT } from '../config';
 import {
   checkoutIntro,

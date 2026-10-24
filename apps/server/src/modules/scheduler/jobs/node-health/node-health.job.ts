@@ -2,14 +2,16 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { isNonNullish, isNullish } from 'remeda';
 
+import { describeError } from '@/common/lib';
+import { PrismaService } from '@/core';
+import { xrayClientForNode } from '@/lib/xray';
+import { ALERT } from '@/modules/scheduler/config';
+import { NodeUptimeService } from '@/modules/status';
+import { NodeTrafficService } from '@/modules/subscription-link';
+import { TelegramAlertService } from '@/modules/telegram/services/telegram-alert.service';
+
 import type { NoteLoadInput, ProbedNode, ProbeNodeRow, RecordNodeInput } from './node-health.job.types';
 
-import { describeError, xrayClientForNode } from '../../../../common/lib';
-import { PrismaService } from '../../../../core';
-import { NodeUptimeService } from '../../../status';
-import { NodeTrafficService } from '../../../subscription-link';
-import { TelegramAlertService } from '../../../telegram/services/telegram-alert.service';
-import { ALERT } from '../../config';
 import { deviceActivity, isOverloaded } from './lib';
 import { ACTIVITY_PEER_SELECT, PROBE_NODE_SELECT } from './node-health.job.constants';
 

@@ -2,7 +2,7 @@ import type { User } from 'grammy/types';
 
 import { isNullish } from 'remeda';
 
-import type { TelegramIdentity } from '../../telegram.types';
+import type { TelegramIdentity } from '@/modules/telegram/telegram.types';
 
 export const identityOf = (from: User | undefined): TelegramIdentity | null => {
   if (isNullish(from)) {

@@ -1,5 +1,7 @@
 import { Logger } from '@nestjs/common';
 
+import { AppServiceUnavailableException } from '@/common/exceptions';
+
 import type {
   BindPaymentMethodInput,
   ChargeRecurringInput,
@@ -18,7 +20,6 @@ import type {
   YooKassaRequestInput
 } from './yookassa.types';
 
-import { AppServiceUnavailableException } from '../../common/exceptions';
 import { YOOKASSA_API } from './yookassa.constants';
 import { describeCard } from './yookassa.helpers';
 

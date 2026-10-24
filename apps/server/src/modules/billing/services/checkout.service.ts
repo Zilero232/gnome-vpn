@@ -6,6 +6,13 @@ import { subMinutes } from 'date-fns';
 import { randomUUID } from 'node:crypto';
 import { isNullish } from 'remeda';
 
+import { AppBadRequestException } from '@/common/exceptions';
+import { describeError } from '@/common/lib';
+import { PrismaService } from '@/core';
+import { YooKassaClient } from '@/lib/yookassa';
+import { PromoDiscountService } from '@/modules/promo-codes';
+import { periodKind } from '@/modules/subscription';
+
 import type {
   BuyExtraDevicesServiceInput,
   BuyGiftServiceInput,
@@ -15,12 +22,6 @@ import type {
   ReusablePaymentInput
 } from '../billing.types';
 
-import { AppBadRequestException } from '../../../common/exceptions';
-import { describeError } from '../../../common/lib';
-import { PrismaService, withSerializableRetry } from '../../../core';
-import { YooKassaClient } from '../../../lib';
-import { PromoDiscountService } from '../../promo-codes';
-import { periodKind } from '../../subscription';
 import { CHECKOUT_REUSE } from '../config';
 import { describeExtraDevices, describeGift, describePlan } from '../lib';
 import { BillingSharedService } from './billing-shared.service';
@@ -158,38 +159,33 @@ export class CheckoutService {
       throw new AppBadRequestException('PAYMENT_FAILED', 'YooKassa returned no confirmation URL');
     }
 
-    await withSerializableRetry(() =>
-      this.prisma.$transaction(
-        async (tx) => {
-          const [current, pendingNow] = await Promise.all([
-            tx.subscription.findUnique({ where: { userId }, select: { extraDevices: true } }),
-            tx.payment.aggregate({
-              where: { userId, kind: 'extraDevices', status: 'pending' },
-              _sum: { extraDevices: true }
-            })
-          ]);
+    await this.prisma.serializable(async (tx) => {
+      const [current, pendingNow] = await Promise.all([
+        tx.subscription.findUnique({ where: { userId }, select: { extraDevices: true } }),
+        tx.payment.aggregate({
+          where: { userId, kind: 'extraDevices', status: 'pending' },
+          _sum: { extraDevices: true }
+        })
+      ]);
 
-          const claimedNow = (current?.extraDevices ?? 0) + (pendingNow._sum.extraDevices ?? 0);
+      const claimedNow = (current?.extraDevices ?? 0) + (pendingNow._sum.extraDevices ?? 0);
 
-          if (claimedNow + quantity > MAX_EXTRA_DEVICES) {
-            throw new AppBadRequestException('EXTRA_DEVICES_LIMIT', `At most ${MAX_EXTRA_DEVICES} extra devices`);
-          }
+      if (claimedNow + quantity > MAX_EXTRA_DEVICES) {
+        throw new AppBadRequestException('EXTRA_DEVICES_LIMIT', `At most ${MAX_EXTRA_DEVICES} extra devices`);
+      }
 
-          await tx.payment.create({
-            data: {
-              userId,
-              yookassaPaymentId: payment.id,
-              amount: extraDevicesPriceRub(quantity),
-              status: 'pending',
-              isAutoCharge: false,
-              kind: 'extraDevices',
-              extraDevices: quantity
-            }
-          });
-        },
-        { isolationLevel: 'Serializable' }
-      )
-    );
+      await tx.payment.create({
+        data: {
+          userId,
+          yookassaPaymentId: payment.id,
+          amount: extraDevicesPriceRub(quantity),
+          status: 'pending',
+          isAutoCharge: false,
+          kind: 'extraDevices',
+          extraDevices: quantity
+        }
+      });
+    });
 
     return { confirmationUrl: payment.confirmationUrl };
   }

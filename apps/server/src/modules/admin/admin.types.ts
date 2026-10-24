@@ -9,8 +9,9 @@ import type {
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import type { Request } from 'express';
 
-import type { Prisma } from '../../../generated';
-import type { PrismaExecutor } from '../../core';
+import type { PrismaExecutor } from '@/core';
+import type { Prisma } from '@/generated';
+
 import type { ADMIN_ACTION, STATS_NODE_SELECT } from './config';
 import type { PaymentFilter, SubscriptionTally } from './lib';
 

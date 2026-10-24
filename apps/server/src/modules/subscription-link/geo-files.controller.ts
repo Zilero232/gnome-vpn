@@ -4,7 +4,8 @@ import { Controller, Get, Param, Res } from '@nestjs/common';
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 import { isNullish } from 'remeda';
 
-import { AppNotFoundException } from '../../common/exceptions';
+import { AppNotFoundException } from '@/common/exceptions';
+
 import { GEO_FILES } from './config';
 import { geoFileTarget } from './lib';
 import { GeoFilesService } from './services';

@@ -1,9 +1,11 @@
 import { isEmpty, isNullish } from 'remeda';
 
-import type { ReconcilePeer } from '../../reconcile-peers.job.types';
+import type { ReconcilePeer } from '@/modules/scheduler/jobs/reconcile-peers/reconcile-peers.job.types';
+
+import { peerClientName } from '@/modules/peers';
+
 import type { ReleaseFeedWireguardInput } from './release-feed-wireguard.types';
 
-import { peerClientName } from '../../../../../peers';
 import { deleteNodeClients, peersGoneFromNode } from '../delete-node-clients';
 import { isFeedWireguardPeer } from './release-feed-wireguard.helpers';
 

@@ -1,9 +1,10 @@
 import { isPlaceholderEmail } from '@gnomevpn/schemas';
 import { isNullish, isTruthy } from 'remeda';
 
+import { BOT_TEXT, NEW_LINE } from '@/modules/telegram/config';
+
 import type { SupportHeaderInput } from './support-header.types';
 
-import { BOT_TEXT, NEW_LINE } from '../../config';
 import { resolveLocale } from '../bot-locale';
 import { fillText } from '../fill-text';
 import { accessLine } from './support-header.helpers';

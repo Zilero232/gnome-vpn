@@ -2,11 +2,11 @@ import { TUNNEL_PROTOCOL } from '@gnomevpn/schemas';
 import { isEmpty } from 'remeda';
 import { match } from 'ts-pattern';
 
-import type { RestoreMissingInput } from './restore-missing.types';
+import { activeDeviceLimit, describeError } from '@/common/lib';
+import { deviceIpLimit } from '@/modules/devices';
+import { peerClientName, wireguardPublicKey } from '@/modules/peers';
 
-import { activeDeviceLimit, describeError } from '../../../../../../common/lib';
-import { deviceIpLimit } from '../../../../../devices';
-import { peerClientName, wireguardPublicKey } from '../../../../../peers';
+import type { RestoreMissingInput } from './restore-missing.types';
 
 export const restoreMissing = async ({ prisma, logger, xray, node, peers, nodeClients }: RestoreMissingInput): Promise<number> => {
   const missing = peers.filter((peer) => !nodeClients.has(peerClientName(peer)));

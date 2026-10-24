@@ -1,9 +1,8 @@
+import { env } from '@/config';
+
 import type { ClientCallbackInput } from './auth.types';
 
-import { validateEnv } from '../../config/env.schema';
 import { localizedPath } from '../email';
-
-const env = validateEnv(process.env);
 
 export const withClientCallback = ({ url, locale, path = '/' }: ClientCallbackInput): string => {
   try {

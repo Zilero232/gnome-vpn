@@ -2,6 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { GrammyError } from 'grammy';
 import { isNullish } from 'remeda';
 
+import { describeError } from '@/common/lib';
+import { AppConfigService } from '@/config';
+import { localizedPath } from '@/lib/email';
+
 import type {
   AcknowledgeInput,
   AnsweredInput,
@@ -18,9 +22,6 @@ import type {
   WithUserInput
 } from '../telegram.types';
 
-import { describeError } from '../../../common/lib';
-import { AppConfigService } from '../../../config';
-import { localizedPath } from '../../../lib/email';
 import { BOT_TEXT, EDIT, LEGAL_PAGE } from '../config';
 import { adminChatOf, botUrl, confirmKeyboard, identityOf, isAdminChat, isConfirmed, mainKeyboard, resolveLocale } from '../lib';
 import { TelegramLinkService } from './telegram-link.service';

@@ -1,11 +1,12 @@
 import { DEFAULT_PLAN_ID, telegramPlaceholderEmail } from '@gnomevpn/schemas';
 import { describe, expect, it } from 'vitest';
 
+import { BOT_TEXT, OWNER_ALERT } from '@/modules/telegram/config';
+import { html } from '@/modules/telegram/lib/html';
+import { planLabel } from '@/modules/telegram/lib/plan-label';
+
 import type { AlertAccount, AlertPurchase } from '../owner-alert-text.types';
 
-import { BOT_TEXT, OWNER_ALERT } from '../../../config';
-import { html } from '../../html';
-import { planLabel } from '../../plan-label';
 import { chargeFailedText, paymentAlertText, reconcileAlertText, refundAlertText } from '../owner-alert-text';
 
 const TELEGRAM_ID = 123_456_789n;

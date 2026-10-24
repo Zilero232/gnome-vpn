@@ -2,10 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InlineKeyboard } from 'grammy';
 import { isNullish } from 'remeda';
 
+import { SubscriptionService } from '@/modules/subscription';
+import { SubscriptionLinkService } from '@/modules/subscription-link';
+
 import type { BotContext, ShowClientInput } from '../telegram.types';
 
-import { SubscriptionService } from '../../subscription';
-import { SubscriptionLinkService } from '../../subscription-link';
 import { BOT_TEXT, CALLBACK_PREFIX, CLIENT_LIST, NEW_LINE } from '../config';
 import {
   appsKeyboard,

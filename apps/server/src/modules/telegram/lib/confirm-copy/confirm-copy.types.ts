@@ -1,5 +1,5 @@
-import type { CONFIRMED, DECLINED } from '../../config';
-import type { BotText, ConfirmCopy } from '../../telegram.types';
+import type { CONFIRMED, DECLINED } from '@/modules/telegram/config';
+import type { BotText, ConfirmCopy } from '@/modules/telegram/telegram.types';
 
 export type RemoveDeviceCopyInput = {
   copy: BotText;

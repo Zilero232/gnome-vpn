@@ -2,9 +2,10 @@ import { adminGiftSchema, adminNodeSchema, adminPaymentSchema, adminUserSchema, 
 import { addDays, subMinutes } from 'date-fns';
 import { describe, expect, it } from 'vitest';
 
+import { Prisma } from '@/generated';
+
 import type { GiftRow, PaymentRow, UserRow } from '../row-views.types';
 
-import { Prisma } from '../../../../../../generated';
 import { giftView, nodeView, paymentView, userView } from '../row-views';
 
 const NOW = new Date('2026-10-23T12:00:00.000Z');

@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import type { BotMessage } from '../../../telegram.types';
+import type { BotMessage } from '@/modules/telegram/telegram.types';
 
-import { AUTO_RENEW_CHOICE, BOT_TEXT, CALLBACK_PREFIX } from '../../../config';
+import { AUTO_RENEW_CHOICE, BOT_TEXT, CALLBACK_PREFIX } from '@/modules/telegram/config';
+
 import { autoRenewPanel } from '../auto-renew-panel';
 
 const paid = {

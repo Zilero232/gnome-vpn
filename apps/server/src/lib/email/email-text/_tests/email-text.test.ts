@@ -1,7 +1,8 @@
 import { keys } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
-import { EMAIL_LOCALE } from '../../email-locale/email-locale.constants';
+import { EMAIL_LOCALE } from '@/lib/email/email-locale/email-locale.constants';
+
 import { EMAIL_TEXT, fillEmail, isEmailNotice } from '../email-text';
 
 const shapeOf = (value: unknown): unknown => {

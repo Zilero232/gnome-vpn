@@ -1,5 +1,5 @@
-import type { EmailLocale } from '../../email-locale';
-import type { EmailFill, EmailNoticeKey } from '../../email-text';
+import type { EmailLocale } from '@/lib/email/email-locale';
+import type { EmailFill, EmailNoticeKey } from '@/lib/email/email-text';
 
 export type NoticeEmailProps = {
   notice: EmailNoticeKey;

@@ -5,12 +5,13 @@ import { Injectable } from '@nestjs/common';
 import { subMinutes } from 'date-fns';
 import { isNonNullish, isNullish } from 'remeda';
 
+import { generateShortCode, rewindPeriod } from '@/common/lib';
+import { AppConfigService } from '@/config';
+import { PrismaService } from '@/core';
+import { webReferralLink } from '@/modules/referrals';
+
 import type { IssueGiftInput, RevokedGift, RevokeGiftInput } from '../promo-codes.types';
 
-import { generateShortCode, rewindPeriod } from '../../../common/lib';
-import { AppConfigService } from '../../../config';
-import { PrismaService } from '../../../core';
-import { webReferralLink } from '../../referrals';
 import { GIFT } from '../config';
 import { giftToIssue, giftView } from '../lib';
 

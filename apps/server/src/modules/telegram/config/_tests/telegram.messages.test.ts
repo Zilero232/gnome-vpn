@@ -1,9 +1,10 @@
 import { entries, keys, values } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
-import type { BotLocale } from '../../telegram.types';
+import type { BotLocale } from '@/modules/telegram/telegram.types';
 
-import { html, isTelegramHtml } from '../../lib/html';
+import { html, isTelegramHtml } from '@/modules/telegram/lib/html';
+
 import { NOTICES } from '../notice.config';
 import { BOT_BUTTONS, BOT_COMMANDS, BOT_LOCALES, BOT_PROFILE, BOT_TEXT, DEFAULT_BOT_LOCALE } from '../telegram.messages';
 import { COMMAND_MENTION } from './telegram.messages.constants';

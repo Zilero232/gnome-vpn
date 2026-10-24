@@ -2,10 +2,11 @@ import { TRIAL_DAYS } from '@gnomevpn/schemas';
 import { addDays, addHours, subDays, subMinutes } from 'date-fns';
 import { describe, expect, it } from 'vitest';
 
+import { NOTICE_CLAIM } from '@/core';
+import { WIN_BACK } from '@/modules/scheduler/config';
+
 import type { WinBackRow } from '../win-back-touch.types';
 
-import { NOTICE_CLAIM } from '../../../../../../../core';
-import { WIN_BACK } from '../../../../../config';
 import { liveCode, sentTouches, winBackDue, winBackMessage, winBackWindow } from '../win-back-touch';
 
 const END = new Date('2026-10-01T12:00:00.000Z');

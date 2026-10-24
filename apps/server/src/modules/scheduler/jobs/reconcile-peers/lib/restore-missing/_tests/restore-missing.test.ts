@@ -2,11 +2,12 @@ import { DEFAULT_DEVICE_LIMIT } from '@gnomevpn/schemas';
 import { Logger } from '@nestjs/common';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { PrismaService } from '../../../../../../../core';
-import type { XrayClient } from '../../../../../../../lib';
-import type { ReconcileNode, ReconcilePeer } from '../../../reconcile-peers.job.types';
+import type { PrismaService } from '@/core';
+import type { XrayClient } from '@/lib/xray';
+import type { ReconcileNode, ReconcilePeer } from '@/modules/scheduler/jobs/reconcile-peers/reconcile-peers.job.types';
 
-import { peerClientName } from '../../../../../../peers';
+import { peerClientName } from '@/modules/peers';
+
 import { restoreMissing } from '../restore-missing';
 
 const NODE: ReconcileNode = { id: 'node-1', apiUrl: 'http://node', apiTokenEnvVar: 'XRAY_KEY_X' };

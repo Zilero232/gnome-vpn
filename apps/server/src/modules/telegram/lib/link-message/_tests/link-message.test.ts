@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { BOT_LOCALES, BOT_TEXT } from '../../../config';
-import { html, isTelegramHtml } from '../../html';
+import { BOT_LOCALES, BOT_TEXT } from '@/modules/telegram/config';
+import { html, isTelegramHtml } from '@/modules/telegram/lib/html';
+
 import { linkMessage } from '../link-message';
 
 const url = 'https://vpn.example.com/sub/abc?x=1&y=2';

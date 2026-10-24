@@ -2,11 +2,12 @@ import { PLANS } from '@gnomevpn/schemas';
 import { addMinutes, subMinutes } from 'date-fns';
 import { describe, expect, it } from 'vitest';
 
+import { BOT_TEXT, OWNER_ALERT } from '@/modules/telegram/config';
+import { dayCount } from '@/modules/telegram/lib/day-count';
+import { nodeLabel } from '@/modules/telegram/lib/node-label';
+
 import type { BotStats, StatsNode } from '../stats-text.types';
 
-import { BOT_TEXT, OWNER_ALERT } from '../../../config';
-import { dayCount } from '../../day-count';
-import { nodeLabel } from '../../node-label';
 import { statsText } from '../stats-text';
 
 const NOW = new Date('2026-10-23T12:00:00.000Z');
@@ -59,13 +60,18 @@ describe('statsText', () => {
 
   it('marks each node by how it answers', () => {
     const silent = subMinutes(NOW, OWNER_ALERT.nodeDownAfterMinutes);
-    const nodes = [node({}), node({ countryCode: 'NL', country: 'Netherlands', healthyAt: silent }), node({ countryCode: 'FI', isAvailable: false })];
+    const up = node({});
+    const quiet = node({ countryCode: 'NL', country: 'Netherlands', healthyAt: silent });
+    const off = node({ countryCode: 'FI', isAvailable: false });
+    const nodes = [up, quiet, off];
     const lines = statsText({ stats: stats({ nodes }), locale: 'en', now: NOW }).split('\n');
     const lineOf = (each: StatsNode) => lines.find((line) => line.includes(nodeLabel({ node: each, locale: 'en' })));
 
-    expect(lineOf(nodes[0])?.startsWith(BOT_TEXT.en.statsNodeUp.replace('{node}', ''))).toBe(true);
-    expect(lineOf(nodes[1])).toContain('ago');
-    expect(lineOf(nodes[2])?.endsWith(BOT_TEXT.en.statsNodeOff.split('{node}')[1])).toBe(true);
+    const [, offSuffix = ''] = BOT_TEXT.en.statsNodeOff.split('{node}');
+
+    expect(lineOf(up)?.startsWith(BOT_TEXT.en.statsNodeUp.replace('{node}', ''))).toBe(true);
+    expect(lineOf(quiet)).toContain('ago');
+    expect(lineOf(off)?.endsWith(offSuffix)).toBe(true);
   });
 
   it('does not call a node down before the alert would', () => {

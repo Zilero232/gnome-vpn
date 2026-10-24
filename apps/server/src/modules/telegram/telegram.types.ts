@@ -2,7 +2,8 @@ import type { ClientId, DeviceList, PlanId, WireguardConfigFile } from '@gnomevp
 import type { Bot, Context, InlineKeyboard, NextFunction } from 'grammy';
 import type { Message, User } from 'grammy/types';
 
-import type { PrismaExecutor } from '../../core';
+import type { PrismaExecutor } from '@/core';
+
 import type { PeerRef } from '../peers';
 import type { CreateCampaignInput } from '../promo-codes';
 import type { AUTO_RENEW_CHOICE, BOT_LOCALES, BOT_THROTTLE, NOTICES, WIREGUARD_KINDS } from './config';

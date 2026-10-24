@@ -1,7 +1,8 @@
 import { addDays, addHours, subDays, subHours } from 'date-fns';
 import { describe, expect, it } from 'vitest';
 
-import { PERIOD_GRACE } from '../../../../../common/lib';
+import { PERIOD_GRACE } from '@/common/lib';
+
 import { accessExtension } from '../access-extension';
 
 const NOW = new Date('2026-10-23T12:00:00.000Z');

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { DEVICE_PEER } from '../../../config';
+import { DEVICE_PEER } from '@/modules/devices/config';
+
 import { deviceIpLimit } from '../device-ip-limit';
 
 describe('deviceIpLimit', () => {

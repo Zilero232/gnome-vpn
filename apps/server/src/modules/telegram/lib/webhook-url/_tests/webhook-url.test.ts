@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { WEBHOOK } from '../../../config';
+import { WEBHOOK } from '@/modules/telegram/config';
+
 import { webhookUrl } from '../webhook-url';
 
 const served = `/${WEBHOOK.path}`;

@@ -1,8 +1,9 @@
 import { isEmpty } from 'remeda';
 
+import { BOT_TEXT, NEW_LINE } from '@/modules/telegram/config';
+
 import type { DeviceLineInput, DeviceNameInput, DevicesTextInput } from './device-text.types';
 
-import { BOT_TEXT, NEW_LINE } from '../../config';
 import { fillText } from '../fill-text';
 import { formatDate } from '../format-date';
 import { html } from '../html';

@@ -1,4 +1,4 @@
-import { PERIOD_GRACE } from '../../../common/lib';
+import { PERIOD_GRACE } from '@/common/lib';
 
 export const WINDOW = {
   renewHours: 24,

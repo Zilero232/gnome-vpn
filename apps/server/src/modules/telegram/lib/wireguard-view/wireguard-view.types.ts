@@ -1,6 +1,7 @@
 import type { WireguardConfig, WireguardNode, WireguardOverview } from '@gnomevpn/schemas';
 
-import type { BotLocale, BotText } from '../../telegram.types';
+import type { BotLocale, BotText } from '@/modules/telegram/telegram.types';
+
 import type { TextFill } from '../fill-text';
 
 export type WireguardNotice = {

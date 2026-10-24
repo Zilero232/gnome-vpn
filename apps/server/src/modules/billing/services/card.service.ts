@@ -3,11 +3,12 @@ import type { BindCardResult } from '@gnomevpn/schemas';
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 
+import { AppBadRequestException } from '@/common/exceptions';
+import { PrismaService } from '@/core';
+import { YooKassaClient } from '@/lib/yookassa';
+
 import type { BindCardServiceInput } from '../billing.types';
 
-import { AppBadRequestException } from '../../../common/exceptions';
-import { PrismaService } from '../../../core';
-import { YooKassaClient } from '../../../lib';
 import { BillingSharedService } from './billing-shared.service';
 
 @Injectable()

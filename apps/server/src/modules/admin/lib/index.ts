@@ -5,7 +5,7 @@ export { campaignState } from './campaign-state';
 export type { CampaignStateInput } from './campaign-state';
 export { toCsv } from './csv';
 export type { CsvCell, CsvColumn, ToCsvInput } from './csv';
-export { alignSeries, buildDays } from './day-buckets';
+export { buildDays } from './day-buckets';
 export type { DayRow, DaySeries } from './day-buckets';
 export { giftStateWhere } from './gift-filter';
 export { maskGiftCode } from './gift-mask';

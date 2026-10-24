@@ -4,10 +4,11 @@ import { CAMPAIGN_KINDS, isPlaceholderEmail } from '@gnomevpn/schemas';
 import { isAfter } from 'date-fns';
 import { isIncludedIn, isNonNullish } from 'remeda';
 
+import { nodeStatus } from '@/modules/status';
+import { periodKind } from '@/modules/subscription';
+
 import type { CampaignViewInput, GiftViewInput, NodeViewInput, PaymentRow, UserRow } from './row-views.types';
 
-import { nodeStatus } from '../../../status';
-import { periodKind } from '../../../subscription';
 import { campaignState } from '../campaign-state';
 import { maskGiftCode } from '../gift-mask';
 import { isoOrNull } from './row-views.helpers';

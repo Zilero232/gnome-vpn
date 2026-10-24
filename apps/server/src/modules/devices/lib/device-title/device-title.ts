@@ -1,8 +1,8 @@
 import { isNonNullish, unique } from 'remeda';
 
-import type { TitledDevice } from './device-title.types';
+import { DEVICE_TITLE } from '@/modules/devices/config';
 
-import { DEVICE_TITLE } from '../../config';
+import type { TitledDevice } from './device-title.types';
 
 export const deviceTitle = ({ model, app, platform }: TitledDevice): string => {
   const parts = unique([model ?? platform, app].filter(isNonNullish));

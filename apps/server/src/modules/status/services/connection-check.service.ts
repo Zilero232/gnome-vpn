@@ -6,11 +6,12 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Resolver } from 'node:dns/promises';
 import { isEmpty, isNullish } from 'remeda';
 
+import { isIpAddress } from '@/common/lib';
+import { PrismaService } from '@/core';
+
 import type { NodeAddress } from '../lib';
 import type { AddressNodeRow, NodeLookup } from '../status.types';
 
-import { isIpAddress } from '../../../common/lib';
-import { PrismaService } from '../../../core';
 import { ADDRESS_NODE_SELECT, CONNECTION_CHECK } from '../config';
 import { countryForIp } from '../lib';
 

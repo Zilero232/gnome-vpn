@@ -2,9 +2,10 @@ import type { KeyboardButton } from 'grammy/types';
 
 import { describe, expect, it } from 'vitest';
 
+import { BOT_BUTTONS, BOT_LOCALES, LEGACY_BUTTONS } from '@/modules/telegram/config';
+
 import type { ChatState } from '../keyboard.types';
 
-import { BOT_BUTTONS, BOT_LOCALES, LEGACY_BUTTONS } from '../../../config';
 import { mainKeyboard } from '../keyboard';
 import { buttonFor } from '../keyboard.helpers';
 

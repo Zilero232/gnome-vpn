@@ -1,9 +1,10 @@
 import { discountedPriceRub, PLANS } from '@gnomevpn/schemas';
 import { describe, expect, it } from 'vitest';
 
-import { BOT_LOCALES, BOT_TEXT } from '../../../config';
-import { fillLabel } from '../../fill-text';
-import { isTelegramHtml } from '../../html';
+import { BOT_LOCALES, BOT_TEXT } from '@/modules/telegram/config';
+import { fillLabel } from '@/modules/telegram/lib/fill-text';
+import { isTelegramHtml } from '@/modules/telegram/lib/html';
+
 import { checkoutIntro, parsePlanId, planButtonLabel, plansText } from '../plan-label';
 
 const [plan] = PLANS;

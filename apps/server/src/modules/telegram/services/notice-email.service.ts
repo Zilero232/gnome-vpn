@@ -3,13 +3,14 @@ import { Injectable, Logger } from '@nestjs/common';
 import { createElement } from 'react';
 import { isNonNullish, isNullish } from 'remeda';
 
+import { describeError } from '@/common/lib';
+import { AppConfigService } from '@/config';
+import { PrismaService } from '@/core';
+import { EMAIL_TEXT, fillEmail, isEmailNotice, localizedPath, NoticeEmail, pickEmailLocale, sendEmail } from '@/lib/email';
+import { UnsubscribeService } from '@/modules/consents';
+
 import type { NoticeEmailInput, NoticeSpec } from '../telegram.types';
 
-import { describeError } from '../../../common/lib';
-import { AppConfigService } from '../../../config';
-import { PrismaService } from '../../../core';
-import { EMAIL_TEXT, fillEmail, isEmailNotice, localizedPath, NoticeEmail, pickEmailLocale, sendEmail } from '../../../lib/email';
-import { UnsubscribeService } from '../../consents';
 import { NOTICE_EMAIL, NOTICES } from '../config';
 import { formatDate, resolveLocale } from '../lib';
 

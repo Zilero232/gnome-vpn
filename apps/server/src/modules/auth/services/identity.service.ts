@@ -2,9 +2,9 @@ import { isPlaceholderEmail, telegramPlaceholderEmail } from '@gnomevpn/schemas'
 import { Injectable } from '@nestjs/common';
 import { isNonNullish } from 'remeda';
 
-import type { CreateFromTelegramInput } from '../auth.types';
+import { auth } from '@/lib/auth';
 
-import { auth } from '../../../lib';
+import type { CreateFromTelegramInput } from '../auth.types';
 
 @Injectable()
 export class IdentityService {

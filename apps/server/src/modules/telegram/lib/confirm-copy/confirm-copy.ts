@@ -1,9 +1,11 @@
 import { InlineKeyboard } from 'grammy';
 
-import type { BotText, ConfirmCopy } from '../../telegram.types';
+import type { BotText, ConfirmCopy } from '@/modules/telegram/telegram.types';
+
+import { CONFIRMED, DECLINED } from '@/modules/telegram/config';
+
 import type { ConfirmKeyboardInput, RemoveDeviceCopyInput } from './confirm-copy.types';
 
-import { CONFIRMED, DECLINED } from '../../config';
 import { fillText } from '../fill-text';
 import { answerData } from './confirm-copy.helpers';
 

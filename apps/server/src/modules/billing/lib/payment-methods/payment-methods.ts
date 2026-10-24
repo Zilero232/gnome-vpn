@@ -2,7 +2,7 @@ import type { PaymentMethod } from '@gnomevpn/schemas';
 
 import { PAYMENT_METHODS } from '@gnomevpn/schemas';
 
-import { YOOKASSA_METHODS } from '../../config';
+import { YOOKASSA_METHODS } from '@/modules/billing/config';
 
 export const offeredMethods = (yookassaMethods: string[]): PaymentMethod[] => {
   const offered = new Set(yookassaMethods.map((method) => YOOKASSA_METHODS[method]));

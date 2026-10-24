@@ -1,5 +1,5 @@
-import type { CampaignProblem, CampaignSummary, PromoCampaign } from '../../../promo-codes';
-import type { BotLocale, BotText } from '../../telegram.types';
+import type { CampaignProblem, CampaignSummary, PromoCampaign } from '@/modules/promo-codes';
+import type { BotLocale, BotText } from '@/modules/telegram/telegram.types';
 
 export type CampaignTextInput = {
   campaign: PromoCampaign;

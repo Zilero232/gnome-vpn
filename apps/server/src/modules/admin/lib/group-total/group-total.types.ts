@@ -1,4 +1,4 @@
-import type { Prisma } from '../../../../../generated';
+import type { Prisma } from '@/generated';
 
 export type TotalGroup = {
   _count: { _all: number };

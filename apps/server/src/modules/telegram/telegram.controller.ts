@@ -5,8 +5,9 @@ import { SkipThrottle } from '@nestjs/throttler';
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 import { isNullish } from 'remeda';
 
-import { timingSafeEqual } from '../../common/lib';
-import { AppConfigService } from '../../config';
+import { timingSafeEqual } from '@/common/lib';
+import { AppConfigService } from '@/config';
+
 import { WEBHOOK } from './config';
 import { TelegramBotService } from './services';
 

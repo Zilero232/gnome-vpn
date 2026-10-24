@@ -2,9 +2,10 @@ import type { Device, DeviceList } from '@gnomevpn/schemas';
 
 import { describe, expect, it } from 'vitest';
 
-import { BOT_LOCALES, BOT_TEXT, NEW_LINE } from '../../../config';
-import { formatDate } from '../../format-date';
-import { html, isTelegramHtml } from '../../html';
+import { BOT_LOCALES, BOT_TEXT, NEW_LINE } from '@/modules/telegram/config';
+import { formatDate } from '@/modules/telegram/lib/format-date';
+import { html, isTelegramHtml } from '@/modules/telegram/lib/html';
+
 import { deviceLabel, deviceLine, deviceName, devicesText } from '../device-text';
 
 const device = (overrides: Partial<Device> = {}): Device => ({
@@ -68,7 +69,7 @@ describe('deviceLine', () => {
 
   it('leaves out what the app did not report', () => {
     const line = deviceLine({ device: device({ model: null, platform: null, osVersion: null, app: null }), index: 0, locale: 'en' });
-    const [title] = line.split(NEW_LINE);
+    const [title = ''] = line.split(NEW_LINE);
 
     expect(html.strip(title)).toBe(`1. ${BOT_TEXT.en.deviceUnnamed}`);
   });

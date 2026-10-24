@@ -3,9 +3,10 @@ import type { DeviceList } from '@gnomevpn/schemas';
 import { MAX_EXTRA_DEVICES, resolveLimits } from '@gnomevpn/schemas';
 import { describe, expect, it } from 'vitest';
 
-import type { BotMessage } from '../../../telegram.types';
+import type { BotMessage } from '@/modules/telegram/telegram.types';
 
-import { BOT_TEXT, CALLBACK_PREFIX } from '../../../config';
+import { BOT_TEXT, CALLBACK_PREFIX } from '@/modules/telegram/config';
+
 import { devicesView } from '../devices-view';
 
 const list: DeviceList = { devices: [], deviceLimit: 2 };

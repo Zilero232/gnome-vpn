@@ -2,11 +2,12 @@ import type { AdminDay } from '@gnomevpn/schemas';
 
 import { Injectable } from '@nestjs/common';
 
+import { dayKeys } from '@/common/lib';
+import { PrismaService } from '@/core';
+
 import type { DaysInput, PaymentDayRow } from '../admin.types';
 import type { DayRow } from '../lib';
 
-import { dayKeys } from '../../../common/lib';
-import { PrismaService } from '../../../core';
 import { buildDays } from '../lib';
 
 @Injectable()

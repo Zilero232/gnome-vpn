@@ -1,8 +1,6 @@
 import { filter, isEmpty, map, pipe, unique } from 'remeda';
 
-import { validateEnv } from './env.schema';
-
-const env = validateEnv(process.env);
+import { env } from './env';
 
 const originOf = (url: string): string | null => {
   try {

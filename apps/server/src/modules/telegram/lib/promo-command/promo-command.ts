@@ -6,31 +6,31 @@ import type { CampaignOptions, PromoCommand, ReadOptionInput } from './promo-com
 import { PROMO_COMMAND } from './promo-command.constants';
 
 const readOption = ({ token, options }: ReadOptionInput): CampaignOptions | null => {
-  const percent = PROMO_COMMAND.percent.exec(token);
-  const days = PROMO_COMMAND.days.exec(token);
-  const uses = PROMO_COMMAND.uses.exec(token);
-  const until = PROMO_COMMAND.until.exec(token);
+  const percent = PROMO_COMMAND.percent.exec(token)?.[1];
+  const days = PROMO_COMMAND.days.exec(token)?.[1];
+  const uses = PROMO_COMMAND.uses.exec(token)?.[1];
+  const until = PROMO_COMMAND.until.exec(token)?.[1];
 
   if ((percent ?? days) && isNonNullish(options.effect)) {
     return null;
   }
 
   if (percent) {
-    return { ...options, effect: { kind: 'discount', percent: Number(percent[1]) } };
+    return { ...options, effect: { kind: 'discount', percent: Number(percent) } };
   }
 
   if (days) {
-    return { ...options, effect: { kind: 'days', days: Number(days[1]) } };
+    return { ...options, effect: { kind: 'days', days: Number(days) } };
   }
 
   if (uses) {
-    return { ...options, maxUses: Number(uses[1]) };
+    return { ...options, maxUses: Number(uses) };
   }
 
   if (until) {
     return {
       ...options,
-      expiresAt: isMatch(until[1], PROMO_COMMAND.dateFormat) ? new Date(`${until[1]}${PROMO_COMMAND.dayEnd}`) : new Date(Number.NaN)
+      expiresAt: isMatch(until, PROMO_COMMAND.dateFormat) ? new Date(`${until}${PROMO_COMMAND.dayEnd}`) : new Date(Number.NaN)
     };
   }
 
@@ -48,7 +48,9 @@ export const parsePromoCommand = (raw: string): PromoCommand => {
   }
 
   if (first.toLowerCase() === PROMO_COMMAND.stop) {
-    return rest.length === 1 ? { action: 'stop', code: rest[0] } : { action: 'unknown' };
+    const [code, ...extra] = rest;
+
+    return isNonNullish(code) && isEmpty(extra) ? { action: 'stop', code } : { action: 'unknown' };
   }
 
   let options: CampaignOptions | null = { effect: null, maxUses: null, expiresAt: null };

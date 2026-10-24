@@ -1,8 +1,9 @@
 import { isEmpty, sumBy } from 'remeda';
 
+import { BOT_TEXT, NEW_LINE } from '@/modules/telegram/config';
+
 import type { StatsTextInput } from './stats-text.types';
 
-import { BOT_TEXT, NEW_LINE } from '../../config';
 import { dayCount } from '../day-count';
 import { fillLabel, fillText } from '../fill-text';
 import { formatAmount } from '../format-amount';

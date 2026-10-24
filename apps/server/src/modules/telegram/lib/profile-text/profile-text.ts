@@ -1,6 +1,6 @@
 import { LOWEST_MONTHLY_RUB } from '@gnomevpn/schemas';
 
-import type { BotProfile } from '../../telegram.types';
+import type { BotProfile } from '@/modules/telegram/telegram.types';
 
 import { PRICE_TOKEN } from './profile-text.constants';
 

@@ -1,15 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { isEmpty, isNonNullish, isNullish } from 'remeda';
+import { isEmpty, isNonNullish, isNullish, zip } from 'remeda';
+
+import { AppNotFoundException } from '@/common/exceptions';
+import { activeDeviceLimit, describeError, isPeriodActive, SUBSCRIPTION_PERIOD_SELECT } from '@/common/lib';
+import { AppConfigService } from '@/config';
+import { PrismaService } from '@/core';
+import { NO_TRAFFIC } from '@/lib/xray';
+import { DEVICE_HEADER, deviceIdentity, deviceIpLimit, DevicesService, headerOf, isKeylessIncy } from '@/modules/devices';
+import { buildTunnelConfig } from '@/modules/peers';
 
 import type { BuildFeedInput, ServerUrisInput, SubscriptionBody, TouchLinkInput } from '../subscription-link.service.types';
 
-import { AppNotFoundException } from '../../../common/exceptions';
-import { activeDeviceLimit, describeError, isPeriodActive, SUBSCRIPTION_PERIOD_SELECT } from '../../../common/lib';
-import { AppConfigService } from '../../../config';
-import { PrismaService } from '../../../core';
-import { NO_TRAFFIC } from '../../../lib/xray';
-import { DEVICE_HEADER, deviceIdentity, deviceIpLimit, DevicesService, headerOf, isKeylessIncy } from '../../devices';
-import { buildTunnelConfig } from '../../peers';
 import { ROUTING_SELECT } from '../config';
 import { announcement, clientPlatform, hwidHint, incyHeaders, incyRouting, incyServerUri, isClientFetch, liveNodes, tlsMode } from '../lib';
 import { FeedNoticeService } from './feed-notice.service';
@@ -125,10 +126,10 @@ export class SubscriptionFeedService {
       nodes.map((node) => this.subscriptionPeers.ensureNode({ userId, deviceId, node, canIssue: issuable.has(node.id), limitIp }))
     );
 
-    return nodes
-      .flatMap((node, index) =>
+    return zip(nodes, issued)
+      .flatMap(([node, peers]) =>
         this.subscriptionPeers.protocolsFor(node).map((protocol) => {
-          const peer = issued[index].find((candidate) => candidate.protocol === protocol);
+          const peer = peers.find((candidate) => candidate.protocol === protocol);
 
           if (!peer) {
             return null;

@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
+import { CHECKOUT_REMINDER } from '@/modules/scheduler/config';
+
 import type { CheckoutRow } from '../abandoned-checkout.types';
 
-import { CHECKOUT_REMINDER } from '../../../../../config';
 import { abandonedCheckouts, checkoutNotice } from '../abandoned-checkout';
 
 const row = (overrides: Partial<CheckoutRow> = {}): CheckoutRow => ({

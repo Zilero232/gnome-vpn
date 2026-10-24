@@ -1,8 +1,9 @@
 import { isNumber, isString, omit, sumBy } from 'remeda';
 
+import { NEW_LINE } from '@/modules/telegram/config';
+
 import type { ApiFailure, ApiPayload, Repair } from './send-defaults.types';
 
-import { NEW_LINE } from '../../config';
 import { html } from '../html';
 import { SEND_DEFAULTS } from './send-defaults.constants';
 

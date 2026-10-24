@@ -1,9 +1,10 @@
 import { isNullish } from 'remeda';
 
+import { basePrisma } from '@/core';
+
 import type { EmailLocale } from '../email';
 import type { EmailLocaleForInput, RememberLocaleInput } from './auth.types';
 
-import { basePrisma } from '../../core';
 import { acceptedLocale, pickEmailLocale } from '../email';
 import { AUTH_LOCALE } from './auth.constants';
 import { headerLocale } from './request-locale';

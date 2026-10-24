@@ -1,8 +1,8 @@
 import slugify from '@sindresorhus/slugify';
 
-import type { PeerNameInput } from './peer-name.types';
+import { PEER_PREFIX, PEER_PROTOCOL_SUFFIX } from '@/modules/peers/config';
 
-import { PEER_PREFIX, PEER_PROTOCOL_SUFFIX } from '../../config';
+import type { PeerNameInput } from './peer-name.types';
 
 export const peerClientName = ({ userId, kind, name, nodeId, protocol }: PeerNameInput): string => {
   const prefix = kind === 'session' ? PEER_PREFIX.session : PEER_PREFIX.config;

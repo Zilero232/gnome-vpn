@@ -3,12 +3,13 @@ import { Injectable, Logger } from '@nestjs/common';
 import { isNonNullish, isNullish } from 'remeda';
 import { match } from 'ts-pattern';
 
+import { describeError, errorCodeOf } from '@/common/lib';
+import { CheckoutService } from '@/modules/billing';
+import { DevicesService } from '@/modules/devices';
+import { SubscriptionService } from '@/modules/subscription';
+
 import type { BotContext, BotMessage, DevicesViewInput, RemovalInput } from '../telegram.types';
 
-import { describeError, errorCodeOf } from '../../../common/lib';
-import { CheckoutService } from '../../billing';
-import { DevicesService } from '../../devices';
-import { SubscriptionService } from '../../subscription';
 import { BOT_TEXT, CALLBACK_PREFIX } from '../config';
 import {
   confirmKeyboard,

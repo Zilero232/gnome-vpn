@@ -1,10 +1,9 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 
-import { PrismaClient } from '../../../generated';
-import { validateEnv } from '../../config/env.schema';
-import { createPool } from './pg-pool';
+import { env } from '@/config';
+import { PrismaClient } from '@/generated';
 
-const env = validateEnv(process.env);
+import { createPool } from './pg-pool';
 
 const globalForPrisma = globalThis as unknown as { basePrisma?: PrismaClient };
 

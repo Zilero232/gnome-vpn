@@ -1,9 +1,10 @@
 import { countryName } from '@gnomevpn/schemas';
 import { isTruthy } from 'remeda';
 
+import { countryFlag } from '@/common/lib';
+
 import type { NodeLabelInput } from './node-label.types';
 
-import { countryFlag } from '../../../../common/lib';
 import { CITY_SEPARATOR } from './node-label.constants';
 
 export const nodeLabel = ({ node, locale }: NodeLabelInput): string => {

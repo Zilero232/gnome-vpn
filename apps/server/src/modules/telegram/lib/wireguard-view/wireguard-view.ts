@@ -2,10 +2,12 @@ import { InlineKeyboard } from 'grammy';
 import { isNullish } from 'remeda';
 import { match } from 'ts-pattern';
 
-import type { BotMessage, BotText } from '../../telegram.types';
+import type { BotMessage, BotText } from '@/modules/telegram/telegram.types';
+
+import { BOT_TEXT, CALLBACK_PREFIX, SUBJECT_SEPARATOR, WIREGUARD_KINDS } from '@/modules/telegram/config';
+
 import type { WireguardCaptionInput, WireguardKindViewInput, WireguardViewInput } from './wireguard-view.types';
 
-import { BOT_TEXT, CALLBACK_PREFIX, SUBJECT_SEPARATOR, WIREGUARD_KINDS } from '../../config';
 import { fillLabel, fillText } from '../fill-text';
 import { html } from '../html';
 import { menuButtons } from '../keyboard';

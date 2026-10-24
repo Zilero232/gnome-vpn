@@ -14,3 +14,19 @@ Each gets its own `index.ts`, `<name>.types.ts` and `<name>.constants.ts` where
 it needs them. A helper too small to have its own types belongs in the
 `<name>.helpers.ts` of the concern that uses it — a one-line regex behind its own
 barrel is three levels of indirection for one statement.
+
+## Too thin, too thick
+
+Merge a folder that holds one short function, constant or type into the concern
+that uses it (tests merge into one `_tests/<name>.test.ts`). Split a file that
+does several jobs — one service per domain of work, private `<Fn>Input` types
+beside their service rather than in a module-wide `.types.ts`.
+
+## Barrels
+
+An `index.ts` only at a boundary (`modules/<x>/`, `core/`, `common/<layer>/`,
+`lib/<integration>/`, or a `lib/<concern>/` imported from outside its folder),
+exporting only names with an outside consumer. The server has no aggregate
+`lib/index.ts`: import `@/lib/xray`, `@/lib/auth`, `@/lib/yookassa`,
+`@/lib/email`.
+

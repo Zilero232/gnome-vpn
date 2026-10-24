@@ -1,4 +1,4 @@
-import type { WireguardKind } from '../../telegram.types';
+import type { WireguardKind } from '@/modules/telegram/telegram.types';
 
 export type CountFromInput = {
   raw: string;

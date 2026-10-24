@@ -2,9 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { isEmpty } from 'remeda';
 
-import { describeError } from '../../../../common/lib';
-import { DEVICE_TITLE, DevicesService } from '../../../devices';
-import { TelegramNotifyService } from '../../../telegram/services/telegram-notify.service';
+import { describeError } from '@/common/lib';
+import { DEVICE_TITLE, DevicesService } from '@/modules/devices';
+import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
 
 @Injectable()
 export class DeviceSlotsJob {

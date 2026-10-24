@@ -1,6 +1,7 @@
-import type { Prisma } from '../../../../../generated';
-import type { StatusNodeRow } from '../../../status';
-import type { CAMPAIGN_ROW_SELECT, GIFT_ROW_SELECT, PAYMENT_ROW_SELECT, USER_ROW_SELECT } from '../../config';
+import type { Prisma } from '@/generated';
+import type { CAMPAIGN_ROW_SELECT, GIFT_ROW_SELECT, PAYMENT_ROW_SELECT, USER_ROW_SELECT } from '@/modules/admin/config';
+import type { StatusNodeRow } from '@/modules/status';
+
 import type { GroupTotal } from '../group-total';
 
 export type PaymentRow = Prisma.PaymentGetPayload<{ select: typeof PAYMENT_ROW_SELECT }>;

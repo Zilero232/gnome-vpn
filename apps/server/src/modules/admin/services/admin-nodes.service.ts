@@ -3,11 +3,12 @@ import type { AdminNode, AdminNodeList } from '@gnomevpn/schemas';
 import { adminNodeListSchema, adminNodeSchema } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
 
+import { utcDay } from '@/common/lib';
+import { PrismaService } from '@/core';
+import { historyStart, UPTIME_ROW_SELECT } from '@/modules/status';
+
 import type { SetAvailabilityInput } from '../admin.types';
 
-import { utcDay } from '../../../common/lib';
-import { PrismaService } from '../../../core';
-import { historyStart, UPTIME_ROW_SELECT } from '../../status';
 import { ADMIN_ACTION, ADMIN_NODE_SELECT, NODE_ORDER } from '../config';
 import { nodeView } from '../lib';
 import { AdminAuditService } from './admin-audit.service';

@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 
-import type { NodeTraffic } from '../../../lib';
-import type { RecordNodeTrafficInput, TrafficClient } from '../subscription-link.service.types';
+import type { NodeTraffic } from '@/lib/xray';
 
-import { NO_TRAFFIC, sumTraffic } from '../../../lib';
+import { NO_TRAFFIC, sumTraffic } from '@/lib/xray';
+
+import type { RecordNodeTrafficInput, TrafficClient } from '../subscription-link.service.types';
 
 @Injectable()
 export class NodeTrafficService {

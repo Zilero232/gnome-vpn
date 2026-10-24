@@ -4,8 +4,9 @@ import type { Response } from 'express';
 import { Catch, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { isNonNullish, isObjectType } from 'remeda';
 
-import { isPrismaRequestError } from '../../core';
-import { PRISMA_ERROR } from './all-exceptions.constants';
+import { isPrismaRequestError } from '@/core';
+
+import { PRISMA_ERROR_RESPONSE } from './all-exceptions.constants';
 import { codeForStatus } from './all-exceptions.helpers';
 
 @Catch()
@@ -26,7 +27,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     }
 
     if (isPrismaRequestError(exception)) {
-      const mapped = PRISMA_ERROR[exception.code];
+      const mapped = PRISMA_ERROR_RESPONSE[exception.code];
 
       if (mapped) {
         response.status(mapped.status).json({ error: mapped.code, code: mapped.code });

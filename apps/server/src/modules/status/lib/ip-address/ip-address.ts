@@ -1,6 +1,6 @@
-import type { CountryForIpInput } from './ip-address.types';
+import { canonicalIp } from '@/common/lib';
 
-import { canonicalIp } from '../../../../common/lib';
+import type { CountryForIpInput } from './ip-address.types';
 
 export const countryForIp = ({ addresses, ip }: CountryForIpInput): string | null => {
   const target = canonicalIp(ip);

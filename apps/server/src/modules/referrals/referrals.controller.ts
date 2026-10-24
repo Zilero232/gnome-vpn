@@ -1,7 +1,8 @@
 import { Controller, Get } from '@nestjs/common';
 import { ZodResponse } from 'nestjs-zod';
 
-import { CurrentUserId } from '../../common/decorators';
+import { CurrentUserId } from '@/common/decorators';
+
 import { ReferralOverviewDto } from './dto/referrals.dto';
 import { ReferralService } from './services';
 

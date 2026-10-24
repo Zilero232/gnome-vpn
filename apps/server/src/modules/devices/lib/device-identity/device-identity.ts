@@ -1,8 +1,9 @@
 import { isNullish } from 'remeda';
 
+import { DEVICE_HEADER, DEVICE_KEY } from '@/modules/devices/config';
+
 import type { DeviceHeaders, DeviceIdentity } from './device-identity.types';
 
-import { DEVICE_HEADER, DEVICE_KEY } from '../../config';
 import { agentPlatformOf, appOf, cleaned, headerOf, hwidOf } from './device-identity.helpers';
 
 export const deviceIdentity = (headers: DeviceHeaders): DeviceIdentity => {

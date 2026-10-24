@@ -1,4 +1,4 @@
-import { STATUS_NODE_SELECT } from '../../status';
+import { STATUS_NODE_SELECT } from '@/modules/status';
 
 export const USER_ROW_SELECT = {
   id: true,

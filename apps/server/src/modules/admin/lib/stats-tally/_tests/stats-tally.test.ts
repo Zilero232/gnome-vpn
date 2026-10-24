@@ -3,9 +3,10 @@ import { subMinutes } from 'date-fns';
 import { sumBy } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
+import { nodeStatus } from '@/modules/status';
+
 import type { StatsSubscription, TallyNode } from '../stats-tally.types';
 
-import { nodeStatus } from '../../../../status';
 import { nodeTally, subscriptionTally } from '../stats-tally';
 
 const NOW = new Date('2026-10-23T12:00:00.000Z');

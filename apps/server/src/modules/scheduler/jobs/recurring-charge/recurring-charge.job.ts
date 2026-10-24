@@ -4,17 +4,17 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { addHours, subHours, subMinutes } from 'date-fns';
 import { isNonNullish } from 'remeda';
 
-import type { ChargeAttemptInput, DueSubscription } from './recurring-charge.job.types';
+import { describeError } from '@/common/lib';
+import { AppConfigService } from '@/config';
+import { PrismaService } from '@/core';
+import { YooKassaClient } from '@/lib/yookassa';
+import { CardService, CheckoutService, describeRenewal, renewalIdempotenceKey, WebhookService } from '@/modules/billing';
+import { PENDING, WINDOW } from '@/modules/scheduler/config';
+import { periodKind } from '@/modules/subscription';
+import { TelegramAlertService } from '@/modules/telegram/services/telegram-alert.service';
+import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
 
-import { describeError } from '../../../../common/lib';
-import { AppConfigService } from '../../../../config';
-import { PrismaService } from '../../../../core';
-import { YooKassaClient } from '../../../../lib';
-import { CardService, CheckoutService, describeRenewal, renewalIdempotenceKey, WebhookService } from '../../../billing';
-import { periodKind } from '../../../subscription';
-import { TelegramAlertService } from '../../../telegram/services/telegram-alert.service';
-import { TelegramNotifyService } from '../../../telegram/services/telegram-notify.service';
-import { PENDING, WINDOW } from '../../config';
+import type { ChargeAttemptInput, DueSubscription } from './recurring-charge.job.types';
 
 @Injectable()
 export class RecurringChargeJob {

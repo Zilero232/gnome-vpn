@@ -1,6 +1,7 @@
 import type { PlanId } from '@gnomevpn/schemas';
 
-import type { BotLocale } from '../../telegram.types';
+import type { BotLocale } from '@/modules/telegram/telegram.types';
+
 import type { NodeAlertKind } from '../node-health';
 
 export type LoadResource = 'cpu' | 'memory';

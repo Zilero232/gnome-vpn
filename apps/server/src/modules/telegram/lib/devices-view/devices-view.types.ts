@@ -1,6 +1,6 @@
 import type { DeviceList, SubscriptionStatus } from '@gnomevpn/schemas';
 
-import type { BotLocale } from '../../telegram.types';
+import type { BotLocale } from '@/modules/telegram/telegram.types';
 
 export type DevicesViewInput = {
   list: DeviceList;

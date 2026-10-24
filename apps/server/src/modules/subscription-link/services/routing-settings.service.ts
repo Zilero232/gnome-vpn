@@ -3,10 +3,11 @@ import type { RoutingSettings } from '@gnomevpn/schemas';
 import { Injectable } from '@nestjs/common';
 import { isDeepEqual, pick } from 'remeda';
 
+import { PrismaService, withUniqueRetry } from '@/core';
+
 import type { StoredRouting } from '../lib';
 import type { UpdateRoutingSettingsServiceInput } from '../subscription-link.service.types';
 
-import { PrismaService, withUniqueRetry } from '../../../core';
 import { ROUTING_SELECT } from '../config';
 import { generateSubscriptionToken, nextRoutingStamp } from '../lib';
 

@@ -1,6 +1,6 @@
 import type { PeriodKind } from '@gnomevpn/schemas';
 
-import type { PrismaExecutor } from '../../core';
+import type { PrismaExecutor } from '@/core';
 
 export type TrialState = {
   period: PeriodKind;

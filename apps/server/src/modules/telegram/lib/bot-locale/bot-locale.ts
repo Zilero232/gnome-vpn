@@ -1,4 +1,4 @@
-import type { BotLocale } from '../../telegram.types';
+import type { BotLocale } from '@/modules/telegram/telegram.types';
 
 import { RUSSIAN_PREFIX } from './bot-locale.constants';
 

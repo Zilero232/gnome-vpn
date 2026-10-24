@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { html } from '../../html';
+import { html } from '@/modules/telegram/lib/html';
+
 import { SEND_DEFAULTS } from '../send-defaults.constants';
 import { cellsOf, isFormatted, repairFor, withDefaults, withWidth } from '../send-defaults.helpers';
 

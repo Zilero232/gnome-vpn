@@ -1,11 +1,12 @@
 import type { InlineKeyboardButton } from 'grammy/types';
 
 import { GrammyError, HttpError } from 'grammy';
-import { describe, expect, it } from 'vitest';
+import { assert, describe, expect, it } from 'vitest';
+
+import { BOT_TEXT, BROADCAST, BROADCAST_AUDIENCES, CALLBACK_PREFIX } from '@/modules/telegram/config';
 
 import type { BroadcastChat } from '../broadcast.types';
 
-import { BOT_TEXT, BROADCAST, BROADCAST_AUDIENCES, CALLBACK_PREFIX } from '../../../config';
 import {
   audienceKeyboard,
   audienceOf,
@@ -51,6 +52,8 @@ describe('broadcast callbacks', () => {
   it('reads back the audience and message the keyboard wrote', () => {
     const [row] = audienceKeyboard({ locale: 'ru', source: 42 }).inline_keyboard;
 
+    assert(row);
+
     for (const [index, button] of row.entries()) {
       const choice = broadcastChoice(dataOf(button).slice(CALLBACK_PREFIX.broadcastAudience.length));
 
@@ -59,7 +62,9 @@ describe('broadcast callbacks', () => {
   });
 
   it('reads back the confirmation the keyboard wrote, and its refusal', () => {
-    const [[yes, no]] = broadcastConfirm({ choice: { audience: 'active', source: 42 }, count: 3, locale: 'en' }).markup?.inline_keyboard ?? [[]];
+    const [yes, no] = broadcastConfirm({ choice: { audience: 'active', source: 42 }, count: 3, locale: 'en' }).markup?.inline_keyboard[0] ?? [];
+
+    assert(yes && no);
     const read = (button: InlineKeyboardButton) => broadcastAnswer(dataOf(button).slice(CALLBACK_PREFIX.broadcastSend.length));
 
     expect(read(yes)).toEqual({ audience: 'active', source: 42, isConfirmed: true });

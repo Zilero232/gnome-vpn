@@ -2,8 +2,9 @@ import type { InlineKeyboard } from 'grammy';
 
 import { describe, expect, it } from 'vitest';
 
-import { BOT_LOCALES, BOT_TEXT, CALLBACK_PREFIX, CONFIRMED, DECLINED } from '../../../config';
-import { deviceAnswer } from '../../callback-value';
+import { BOT_LOCALES, BOT_TEXT, CALLBACK_PREFIX, CONFIRMED, DECLINED } from '@/modules/telegram/config';
+import { deviceAnswer } from '@/modules/telegram/lib/callback-value';
+
 import { confirmKeyboard, removeDeviceCopy } from '../confirm-copy';
 
 const deviceId = '3f2b8c1e-9a4d-4e6f-8b7a-1c2d3e4f5a6b';

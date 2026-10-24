@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { AppBadRequestException } from '../../../../../common/exceptions';
+import { AppBadRequestException } from '@/common/exceptions';
+
 import { refusalText } from '../refusal-text';
 
 const COPIES = { REFERRAL_SELF: 'self', REFERRAL_CODE_INVALID: 'invalid' };

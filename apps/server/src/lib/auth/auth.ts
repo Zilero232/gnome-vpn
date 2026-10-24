@@ -6,10 +6,11 @@ import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { bearer } from 'better-auth/plugins';
 import { createElement } from 'react';
 
-import { describeError } from '../../common/lib';
-import { allowedOrigins } from '../../config/cors';
-import { validateEnv } from '../../config/env.schema';
-import { basePrisma } from '../../core';
+import { describeError } from '@/common/lib';
+import { env } from '@/config';
+import { allowedOrigins } from '@/config/cors';
+import { basePrisma } from '@/core';
+
 import { ChangeEmail, EMAIL_TEXT, ResetPassword, sendEmail, VerifyEmail } from '../email';
 import { withClientCallback } from './auth-callback-url';
 import { AUTH_PATHS, SESSION } from './auth.constants';
@@ -17,7 +18,6 @@ import { claimedEmail } from './claimed-email';
 import { returnedUserId } from './request-locale';
 import { emailLocaleFor, rememberLocale } from './user-locale';
 
-const env = validateEnv(process.env);
 const logger = new Logger('Auth');
 
 export const auth = betterAuth({

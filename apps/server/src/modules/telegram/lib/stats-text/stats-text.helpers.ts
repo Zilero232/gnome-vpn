@@ -1,8 +1,9 @@
 import { match } from 'ts-pattern';
 
+import { BOT_TEXT } from '@/modules/telegram/config';
+
 import type { NodeLineInput } from './stats-text.types';
 
-import { BOT_TEXT } from '../../config';
 import { fillText } from '../fill-text';
 import { formatAgo } from '../format-date';
 import { nodeStatus } from '../node-health';

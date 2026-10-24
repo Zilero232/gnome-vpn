@@ -1,10 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 
+import { describeError } from '@/common/lib';
+import { AdminStatsService } from '@/modules/admin';
+
 import type { BotStats } from '../lib';
 import type { BotContext } from '../telegram.types';
 
-import { describeError } from '../../../common/lib';
-import { AdminStatsService } from '../../admin';
 import { BOT_TEXT } from '../config';
 import { resolveLocale, statsText } from '../lib';
 

@@ -2,10 +2,12 @@ import { EXTRA_DEVICE_PRICE_RUB, extraDevicesPriceRub } from '@gnomevpn/schemas'
 import { InlineKeyboard } from 'grammy';
 import { match } from 'ts-pattern';
 
-import type { BotMessage } from '../../telegram.types';
+import type { BotMessage } from '@/modules/telegram/telegram.types';
+
+import { BOT_TEXT, CALLBACK_PREFIX, DEVICE_CHOICES } from '@/modules/telegram/config';
+
 import type { DevicesViewInput } from './devices-view.types';
 
-import { BOT_TEXT, CALLBACK_PREFIX, DEVICE_CHOICES } from '../../config';
 import { deviceName, devicesText } from '../device-text';
 import { fillLabel, fillText } from '../fill-text';
 import { html } from '../html';

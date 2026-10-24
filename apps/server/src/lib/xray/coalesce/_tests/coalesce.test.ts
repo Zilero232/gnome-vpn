@@ -26,6 +26,16 @@ const task = vi.fn(() => {
   return run.promise;
 });
 
+const runAt = (index: number) => {
+  const run = runs[index];
+
+  if (!run) {
+    throw new Error(`run ${index} never started`);
+  }
+
+  return run;
+};
+
 afterEach(async () => {
   for (const run of runs) {
     run.resolve();
@@ -43,7 +53,7 @@ describe('coalesceByKey', () => {
 
     expect(task).toHaveBeenCalledTimes(1);
 
-    runs[0].resolve();
+    runAt(0).resolve();
 
     await expect(done).resolves.toBeUndefined();
   });
@@ -56,13 +66,13 @@ describe('coalesceByKey', () => {
     expect(second).toBe(third);
     expect(task).toHaveBeenCalledTimes(1);
 
-    runs[0].resolve();
+    runAt(0).resolve();
     await first;
     await flush();
 
     expect(task).toHaveBeenCalledTimes(2);
 
-    runs[1].resolve();
+    runAt(1).resolve();
 
     await expect(second).resolves.toBeUndefined();
     expect(task).toHaveBeenCalledTimes(2);
@@ -81,12 +91,12 @@ describe('coalesceByKey', () => {
     const first = coalesceByKey({ key: 'd', task });
     const second = coalesceByKey({ key: 'd', task });
 
-    runs[0].reject(new Error('restart failed'));
+    runAt(0).reject(new Error('restart failed'));
 
     await expect(first).rejects.toThrow('restart failed');
     await flush();
 
-    runs[1].resolve();
+    runAt(1).resolve();
 
     await expect(second).resolves.toBeUndefined();
   });
@@ -94,7 +104,7 @@ describe('coalesceByKey', () => {
   it('runs again for a call made after everything settled', async () => {
     const first = coalesceByKey({ key: 'e', task });
 
-    runs[0].resolve();
+    runAt(0).resolve();
     await first;
     await flush();
 

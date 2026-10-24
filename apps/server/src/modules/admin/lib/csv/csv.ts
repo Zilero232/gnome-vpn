@@ -1,8 +1,8 @@
 import { stringify } from 'csv-stringify/sync';
 
-import type { ToCsvInput } from './csv.types';
+import { ADMIN_CSV } from '@/modules/admin/config';
 
-import { ADMIN_CSV } from '../../config';
+import type { ToCsvInput } from './csv.types';
 
 export const toCsv = <Row>({ columns, rows }: ToCsvInput<Row>): string =>
   stringify(

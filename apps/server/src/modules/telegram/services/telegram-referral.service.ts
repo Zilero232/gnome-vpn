@@ -2,10 +2,11 @@ import { MAX_FRIEND_DAYS } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
 import { isNullish } from 'remeda';
 
+import { describeError } from '@/common/lib';
+import { ReferralService } from '@/modules/referrals';
+
 import type { ArriveInput, AttributeNoteInput, BotContext } from '../telegram.types';
 
-import { describeError } from '../../../common/lib';
-import { ReferralService } from '../../referrals';
 import { BOT_TEXT } from '../config';
 import { dayCount, fillText, identityOf, inviteView, refusalText } from '../lib';
 import { TelegramAccountService } from './telegram-account.service';

@@ -1,9 +1,10 @@
 import { millisecondsInDay } from 'date-fns/constants';
 import { match } from 'ts-pattern';
 
+import { BOT_TEXT, NEW_LINE } from '@/modules/telegram/config';
+
 import type { DaysLeftInput, StatusTextInput } from './status-text.types';
 
-import { BOT_TEXT, NEW_LINE } from '../../config';
 import { dayCount } from '../day-count';
 import { fillText } from '../fill-text';
 import { formatDate } from '../format-date';

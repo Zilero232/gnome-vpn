@@ -1,9 +1,11 @@
 import { InlineKeyboard } from 'grammy';
 
-import type { BotMessage } from '../../telegram.types';
+import type { BotMessage } from '@/modules/telegram/telegram.types';
+
+import { BOT_TEXT } from '@/modules/telegram/config';
+
 import type { LinkMessageInput } from './link-message.types';
 
-import { BOT_TEXT } from '../../config';
 import { html } from '../html';
 import { menuButtons } from '../keyboard';
 

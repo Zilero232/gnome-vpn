@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import type { BotMessage } from '../../../telegram.types';
+import type { BotMessage } from '@/modules/telegram/telegram.types';
 
-import { BOT_TEXT, CALLBACK_PREFIX, OFFERS_CHOICE } from '../../../config';
-import { offersChoice } from '../../callback-value';
+import { BOT_TEXT, CALLBACK_PREFIX, OFFERS_CHOICE } from '@/modules/telegram/config';
+import { offersChoice } from '@/modules/telegram/lib/callback-value';
+
 import { offersButton, offersPanel } from '../offers-panel';
 
 const callbacks = (panel: BotMessage): string[] =>

@@ -2,10 +2,11 @@ import type { InlineKeyboardButton } from 'grammy/types';
 
 import { InlineKeyboard } from 'grammy';
 
-import type { BotMessage } from '../../telegram.types';
-import type { OffersPanelInput } from './offers-panel.types';
+import type { BotMessage } from '@/modules/telegram/telegram.types';
 
-import { BOT_TEXT, CALLBACK_PREFIX, OFFERS_CHOICE } from '../../config';
+import { BOT_TEXT, CALLBACK_PREFIX, OFFERS_CHOICE } from '@/modules/telegram/config';
+
+import type { OffersPanelInput } from './offers-panel.types';
 
 export const offersButton = ({ isOn, locale }: OffersPanelInput): InlineKeyboardButton => {
   const text = BOT_TEXT[locale];

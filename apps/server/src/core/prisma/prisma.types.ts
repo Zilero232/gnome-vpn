@@ -1,3 +1,3 @@
-import type { Prisma } from '../../../generated';
+import type { Prisma } from '@/generated';
 
 export type PrismaExecutor = Prisma.TransactionClient;

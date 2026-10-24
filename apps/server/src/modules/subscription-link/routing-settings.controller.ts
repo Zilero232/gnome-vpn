@@ -1,7 +1,8 @@
 import { Body, Controller, Get, Patch } from '@nestjs/common';
 import { ZodResponse } from 'nestjs-zod';
 
-import { CurrentUserId } from '../../common/decorators';
+import { CurrentUserId } from '@/common/decorators';
+
 import { RoutingSettingsDto, UpdateRoutingSettingsDto } from './dto/routing-settings.dto';
 import { RoutingSettingsService } from './services';
 

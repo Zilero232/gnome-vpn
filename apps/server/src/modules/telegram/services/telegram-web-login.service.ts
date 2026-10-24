@@ -5,10 +5,11 @@ import { addMinutes } from 'date-fns';
 import { randomBytes } from 'node:crypto';
 import { isEmpty, isNullish, isString } from 'remeda';
 
-import { AppBadRequestException, AppUnauthorizedException } from '../../../common/exceptions';
-import { AppConfigService } from '../../../config';
-import { PrismaService } from '../../../core';
-import { IdentityService } from '../../auth';
+import { AppBadRequestException, AppUnauthorizedException } from '@/common/exceptions';
+import { AppConfigService } from '@/config';
+import { PrismaService } from '@/core';
+import { IdentityService } from '@/modules/auth';
+
 import { WEB_LOGIN } from '../config';
 import { isWidgetPayload, verifyWidgetPayload, widgetIdentity } from '../lib';
 import { TelegramLinkService } from './telegram-link.service';

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { AUTO_RENEW_CHOICE, CONFIRMED, DECLINED, SUBJECT_SEPARATOR, WIREGUARD_KINDS } from '../../../config';
+import { AUTO_RENEW_CHOICE, CONFIRMED, DECLINED, SUBJECT_SEPARATOR, WIREGUARD_KINDS } from '@/modules/telegram/config';
+
 import { autoRenewChoice, countFrom, deviceAnswer, isConfirmed, parseUuid, wireguardChoice } from '../callback-value';
 
 const deviceId = '3f2b8c1e-9a4d-4e6f-8b7a-1c2d3e4f5a6b';

@@ -1,7 +1,8 @@
 import { autoRetry } from '@grammyjs/auto-retry';
 import { Bot } from 'grammy';
 
-import { AppConfigService } from '../../../config';
+import { AppConfigService } from '@/config';
+
 import { BOT_API } from '../config';
 import { retryNetworkErrors, sendDefaults } from '../lib';
 import { TELEGRAM_BOT } from './telegram-bot.constants';

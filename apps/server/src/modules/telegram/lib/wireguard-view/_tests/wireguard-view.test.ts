@@ -2,10 +2,11 @@ import type { WireguardNode, WireguardOverview } from '@gnomevpn/schemas';
 
 import { describe, expect, it } from 'vitest';
 
-import type { BotMessage } from '../../../telegram.types';
+import type { BotMessage } from '@/modules/telegram/telegram.types';
 
-import { BOT_TEXT, CALLBACK_PREFIX, SUBJECT_SEPARATOR, WIREGUARD_KINDS } from '../../../config';
-import { fillText } from '../../fill-text';
+import { BOT_TEXT, CALLBACK_PREFIX, SUBJECT_SEPARATOR, WIREGUARD_KINDS } from '@/modules/telegram/config';
+import { fillText } from '@/modules/telegram/lib/fill-text';
+
 import { wireguardCaption, wireguardKindView, wireguardView } from '../wireguard-view';
 
 const amsterdam: WireguardNode = {

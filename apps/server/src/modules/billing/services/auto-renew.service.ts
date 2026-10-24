@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
-import { AppBadRequestException } from '../../../common/exceptions';
-import { PrismaService } from '../../../core';
+import { AppBadRequestException } from '@/common/exceptions';
+import { PrismaService } from '@/core';
+
 import { BillingSharedService } from './billing-shared.service';
 
 @Injectable()

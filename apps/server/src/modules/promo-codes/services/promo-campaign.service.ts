@@ -3,11 +3,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { isAfter } from 'date-fns';
 import { isNullish } from 'remeda';
 
+import { AppBadRequestException } from '@/common/exceptions';
+import { isUniqueViolation, PrismaService } from '@/core';
+
 import type { CreateCampaignInput } from '../lib';
 import type { CampaignSummary, PromoCampaign, StopCampaignInput } from '../promo-codes.types';
 
-import { AppBadRequestException } from '../../../common/exceptions';
-import { isPrismaRequestError, PrismaService, UNIQUE_VIOLATION } from '../../../core';
 import { CAMPAIGN_LIST, CAMPAIGN_PROBLEM, CAMPAIGN_SELECT } from '../config';
 import { campaignDraft, campaignProblem } from '../lib';
 
@@ -33,7 +34,7 @@ export class PromoCampaignService {
 
       return created;
     } catch (error) {
-      if (isPrismaRequestError(error) && error.code === UNIQUE_VIOLATION) {
+      if (isUniqueViolation(error)) {
         throw new AppBadRequestException('PROMO_CODE_TAKEN', `The code ${draft.code} already exists`);
       }
 

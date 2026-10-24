@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { CALLBACK_PREFIX } from '../../../config';
+import { CALLBACK_PREFIX } from '@/modules/telegram/config';
+
 import { callbackPattern } from '../callback';
 
 describe('callbackPattern', () => {

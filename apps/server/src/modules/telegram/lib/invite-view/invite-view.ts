@@ -1,10 +1,12 @@
 import { PLANS, REFERRAL_POLICY, referralReward } from '@gnomevpn/schemas';
 import { InlineKeyboard } from 'grammy';
 
-import type { BotMessage } from '../../telegram.types';
+import type { BotMessage } from '@/modules/telegram/telegram.types';
+
+import { BOT_TEXT, INVITE_SHARE, NEW_LINE } from '@/modules/telegram/config';
+
 import type { InviteLineInput, InviteViewInput, ShareUrlInput } from './invite-view.types';
 
-import { BOT_TEXT, INVITE_SHARE, NEW_LINE } from '../../config';
 import { dayCount } from '../day-count';
 import { fillText } from '../fill-text';
 import { html } from '../html';

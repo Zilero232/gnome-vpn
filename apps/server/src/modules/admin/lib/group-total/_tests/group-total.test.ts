@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { Prisma } from '../../../../../../generated';
+import { Prisma } from '@/generated';
+
 import { groupTotal } from '../group-total';
 
 const GROUPS = [

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { TEXT_TOKEN } from '../../../config';
-import { html } from '../../html';
+import { TEXT_TOKEN } from '@/modules/telegram/config';
+import { html } from '@/modules/telegram/lib/html';
+
 import { fillLabel, fillText } from '../fill-text';
 
 describe('fillText', () => {

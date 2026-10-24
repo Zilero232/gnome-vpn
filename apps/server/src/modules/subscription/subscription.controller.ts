@@ -1,7 +1,8 @@
 import { Controller, Get, Post } from '@nestjs/common';
 import { ZodResponse } from 'nestjs-zod';
 
-import { CurrentUserId } from '../../common/decorators';
+import { CurrentUserId } from '@/common/decorators';
+
 import { SubscriptionStatusDto } from './dto/subscription.dto';
 import { SubscriptionService, TrialService } from './services';
 

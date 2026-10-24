@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { isNullish } from 'remeda';
 
+import { ConsentService } from '@/modules/consents';
+
 import type { BotContext } from '../telegram.types';
 
-import { ConsentService } from '../../consents';
 import { CALLBACK_PREFIX } from '../config';
 import { offersChoice, offersPanel } from '../lib';
 import { TelegramSharedService } from './telegram-shared.service';

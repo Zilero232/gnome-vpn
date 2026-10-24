@@ -1,6 +1,6 @@
 import { adminUserCardSchema } from '@gnomevpn/schemas';
 import { addDays } from 'date-fns';
-import { describe, expect, it } from 'vitest';
+import { assert, describe, expect, it } from 'vitest';
 
 import type { CardUserRow, UserCardInput } from '../user-card.types';
 
@@ -69,7 +69,10 @@ describe('userCard', () => {
       input({ redemptions: [{ createdAt: NOW, consumedAt: null, replacedAt: null, promoCode: { code, kind: 'gift', percent: null, days: 30 } }] })
     );
 
-    expect(card.redemptions[0].code.replaceAll('-', '')).not.toBe(code);
+    const [redemption] = card.redemptions;
+
+    assert(redemption);
+    expect(redemption.code.replaceAll('-', '')).not.toBe(code);
   });
 
   it('leaves out the other side of a referral whose account was deleted, since there is nobody to link to', () => {

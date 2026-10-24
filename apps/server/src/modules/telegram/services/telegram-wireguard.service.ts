@@ -4,6 +4,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InputFile } from 'grammy';
 import { isNonNullish, isNullish } from 'remeda';
 
+import { describeError, errorCodeOf } from '@/common/lib';
+import { SubscriptionService } from '@/modules/subscription';
+import { WireguardConfigService } from '@/modules/subscription-link';
+
 import type {
   BotContext,
   BotMessage,
@@ -14,9 +18,6 @@ import type {
   WireguardRefusedInput
 } from '../telegram.types';
 
-import { describeError, errorCodeOf } from '../../../common/lib';
-import { SubscriptionService } from '../../subscription';
-import { WireguardConfigService } from '../../subscription-link';
 import { BOT_TEXT, CALLBACK_PREFIX, WIREGUARD_REFUSALS } from '../config';
 import { noAccessMessage, parseUuid, wireguardCaption, wireguardChoice, wireguardKindView, wireguardName, wireguardView } from '../lib';
 import { TelegramSharedService } from './telegram-shared.service';

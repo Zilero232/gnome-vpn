@@ -3,6 +3,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { groupBy, isEmpty } from 'remeda';
 import { match } from 'ts-pattern';
 
+import { AppServiceUnavailableException } from '@/common/exceptions';
+import { describeError } from '@/common/lib';
+import { PrismaService } from '@/core';
+import { IDENTIFIED_NODE_SELECT, xrayClientForNode } from '@/lib/xray';
+
 import type {
   CreatedPeer,
   DeleteClientInput,
@@ -15,9 +20,6 @@ import type {
   SetPeerEnabledInput
 } from '../peers.service.types';
 
-import { AppServiceUnavailableException } from '../../../common/exceptions';
-import { describeError, IDENTIFIED_NODE_SELECT, xrayClientForNode } from '../../../common/lib';
-import { PrismaService } from '../../../core';
 import { generateWireguardKeys, peerClientName } from '../lib';
 
 @Injectable()

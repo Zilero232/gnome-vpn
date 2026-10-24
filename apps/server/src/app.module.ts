@@ -4,7 +4,7 @@ import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { AllExceptionsFilter } from './common/filters';
-import { AppConfigModule } from './config/config.module';
+import { AppConfigModule } from './config';
 import { PrismaModule } from './core';
 import { AdminModule } from './modules/admin';
 import { AuthModule } from './modules/auth';

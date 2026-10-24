@@ -1,8 +1,9 @@
 import { match, P } from 'ts-pattern';
 
+import { BOT_TEXT } from '@/modules/telegram/config';
+
 import type { AccessLineInput } from './support-header.types';
 
-import { BOT_TEXT } from '../../config';
 import { fillText } from '../fill-text';
 import { formatDate } from '../format-date';
 import { planLabel } from '../plan-label';

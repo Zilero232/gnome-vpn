@@ -1,7 +1,8 @@
 import type { Plan, PlanId, PromoDiscount } from '@gnomevpn/schemas';
 
-import type { PromoCodeKind } from '../../../generated';
-import type { PrismaExecutor } from '../../core';
+import type { PrismaExecutor } from '@/core';
+import type { PromoCodeKind } from '@/generated';
+
 import type { GiftPayment, PromoEffect } from './lib';
 
 export type RedeemInput = {

@@ -1,9 +1,10 @@
 import type { ReferralOverview } from '@gnomevpn/schemas';
 
 import { REFERRAL_REWARDS } from '@gnomevpn/schemas';
-import { describe, expect, it } from 'vitest';
+import { assert, describe, expect, it } from 'vitest';
 
-import { isTelegramHtml } from '../../html';
+import { isTelegramHtml } from '@/modules/telegram/lib/html';
+
 import { inviteLine, inviteView, shareUrl } from '../invite-view';
 
 const OVERVIEW: ReferralOverview = {
@@ -45,6 +46,7 @@ describe('inviteView', () => {
   it('shares the bot link when there is one', () => {
     const [share] = buttonsOf(OVERVIEW);
 
+    assert(share);
     expect('url' in share && share.url).toContain(encodeURIComponent(OVERVIEW.telegramLink ?? ''));
   });
 
@@ -53,6 +55,7 @@ describe('inviteView', () => {
     const { text } = inviteView({ overview, locale: 'ru' });
     const [share] = buttonsOf(overview);
 
+    assert(share);
     expect(text).not.toContain('t.me/GnomeVpnBot');
     expect('url' in share && share.url).toContain(encodeURIComponent(OVERVIEW.link));
   });

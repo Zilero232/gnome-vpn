@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { html } from '../../html';
+import { html } from '@/modules/telegram/lib/html';
+
 import { urlMessage } from '../url-message';
 
 const base = { intro: 'Pay here', label: 'Pay', style: 'success' as const };

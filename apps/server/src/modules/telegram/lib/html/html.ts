@@ -1,4 +1,4 @@
-import { invert, isTruthy } from 'remeda';
+import { invert, isNullish, isTruthy } from 'remeda';
 
 import type { TelegramTag } from './html.types';
 
@@ -28,7 +28,7 @@ export const isTelegramHtml = (markup: string): boolean => {
   const open: string[] = [];
 
   for (const [tag, name] of markup.matchAll(TAG_PATTERN)) {
-    if (!isTelegramTag(name)) {
+    if (isNullish(name) || !isTelegramTag(name)) {
       return false;
     }
 

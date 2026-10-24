@@ -3,9 +3,10 @@ import type { AdminRedemption, AdminReferral, AdminUserCard } from '@gnomevpn/sc
 import { isPlaceholderEmail } from '@gnomevpn/schemas';
 import { isNonNullish } from 'remeda';
 
+import { periodKind } from '@/modules/subscription';
+
 import type { CardUserRow, RedemptionRow, UserCardInput } from './user-card.types';
 
-import { periodKind } from '../../../subscription';
 import { maskGiftCode } from '../gift-mask';
 import { giftView, isoOrNull, paymentView } from '../row-views';
 

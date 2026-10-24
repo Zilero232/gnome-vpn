@@ -1,5 +1,7 @@
 import { isEmpty } from 'remeda';
 
+import { AppServiceUnavailableException } from '@/common/exceptions';
+
 import type {
   AddClientInput,
   AddPanelClientInput,
@@ -18,7 +20,6 @@ import type {
   UpdateInboundInput
 } from './panel-client.types';
 
-import { AppServiceUnavailableException } from '../../../common/exceptions';
 import { VLESS_FLOW } from '../vless/vless.constants';
 import { CLIENT_DEFAULTS, PANEL_ROUTES } from './panel-client.constants';
 import { collectLastOnline, collectOnlineEmails } from './panel-client.helpers';

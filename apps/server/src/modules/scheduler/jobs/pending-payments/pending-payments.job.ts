@@ -2,10 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { subDays, subMinutes } from 'date-fns';
 
-import { describeError } from '../../../../common/lib';
-import { PrismaService } from '../../../../core';
-import { WebhookService } from '../../../billing';
-import { PENDING } from '../../config';
+import { describeError } from '@/common/lib';
+import { PrismaService } from '@/core';
+import { WebhookService } from '@/modules/billing';
+import { PENDING } from '@/modules/scheduler/config';
 
 @Injectable()
 export class PendingPaymentsJob {

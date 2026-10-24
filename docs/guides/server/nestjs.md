@@ -48,6 +48,8 @@ import { SubscriptionGuard } from '../subscription'; // yes
 import { SubscriptionGuard } from '../subscription/guards/subscription.guard'; // no
 ```
 
+**Paths.** `@/` is `apps/server/src` and `@/generated` the Prisma client (`apps/server/tsconfig.json` `paths`; Bun, Vitest and `scripts/` resolve the same aliases). Anything that leaves the current folder by more than one level is written with `@/` — `@/core`, `@/modules/billing` — and a file next door or one level up stays relative. The rewrite removed 678 `../../…` chains, some seven levels deep.
+
 Inside a module, relative paths are fine. The barrel exports only what other modules legitimately need — a controller or a DTO has no business being imported elsewhere. The one deliberate exception is the notify module's two services, `TelegramNotifyService` and `TelegramAlertService`, which billing, the scheduler, the subscription feed and admin import by file — see [telegram-bot.md](../../architecture/telegram-bot.md).
 
 The better-auth instance lives in `lib/auth/`, not in `modules/auth/`: it is configuration for an external library, and `modules/auth/` only wires it into Nest beside the account endpoints.
@@ -62,9 +64,9 @@ The schema itself belongs in [`packages/schemas`](../../../packages/schemas) —
 
 ## Environment
 
-`config/env.schema.ts` validates on boot and **throws** on a missing variable. That is deliberate: a server that starts without `DATABASE_URL` fails later, in a harder-to-read way.
+`config/env.schema.ts` validates on boot and **throws** on a missing variable. That is deliberate: a server that starts without `DATABASE_URL` fails later, in a harder-to-read way. The validated values are `env` from `@/config`, read once: code outside Nest's injector (the Prisma pool, better-auth, the mail transport, `main.ts`) imports `env`; a provider injects `AppConfigService`. Nothing calls `validateEnv(process.env)` itself.
 
-Node panel API tokens are the exception. The `node` table stores the _name_ of an env var (`apiTokenEnvVar`), never the token; `xrayClientForNode` in `common/lib/node-credentials` resolves it at call time:
+Node panel API tokens are the exception. The `node` table stores the _name_ of an env var (`apiTokenEnvVar`), never the token; `xrayClientForNode` in `lib/xray/node-access.ts` resolves it at call time:
 
 ```ts
 const key = process.env[ref];

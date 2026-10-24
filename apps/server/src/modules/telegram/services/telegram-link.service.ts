@@ -5,7 +5,18 @@ import { Injectable, Logger } from '@nestjs/common';
 import { addMinutes } from 'date-fns';
 import { isNonNullish, isNullish } from 'remeda';
 
-import type { PeerRef } from '../../peers';
+import type { PeerRef } from '@/modules/peers';
+
+import { AppBadRequestException, AppServiceUnavailableException } from '@/common/exceptions';
+import { describeError, generateShortCode } from '@/common/lib';
+import { AppConfigService } from '@/config';
+import { isUniqueViolation, PrismaService } from '@/core';
+import { IdentityService } from '@/modules/auth';
+import { ConsentService } from '@/modules/consents';
+import { PEER_REF_SELECT, PeersService } from '@/modules/peers';
+import { ReferralService } from '@/modules/referrals';
+import { TrialService } from '@/modules/subscription';
+
 import type {
   ConsumeLinkCodeInput,
   EnsuredChat,
@@ -19,15 +30,6 @@ import type {
   UntouchedUserInput
 } from '../telegram.types';
 
-import { AppBadRequestException, AppServiceUnavailableException } from '../../../common/exceptions';
-import { describeError, generateShortCode } from '../../../common/lib';
-import { AppConfigService } from '../../../config';
-import { isPrismaRequestError, PrismaService, UNIQUE_VIOLATION } from '../../../core';
-import { IdentityService } from '../../auth';
-import { ConsentService } from '../../consents';
-import { PEER_REF_SELECT, PeersService } from '../../peers';
-import { ReferralService } from '../../referrals';
-import { TrialService } from '../../subscription';
 import { LINK_CODE } from '../config';
 import { resolveLocale } from '../lib';
 import { TelegramNotifyService } from './telegram-notify.service';
@@ -164,7 +166,7 @@ export class TelegramLinkService {
     try {
       await this.prisma.telegramAccount.create({ data: { userId, telegramId, username, languageCode } });
     } catch (error) {
-      if (!isPrismaRequestError(error) || error.code !== UNIQUE_VIOLATION) {
+      if (!isUniqueViolation(error)) {
         throw error;
       }
 

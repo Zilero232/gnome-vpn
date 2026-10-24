@@ -1,7 +1,8 @@
 import type { DeviceList } from '@gnomevpn/schemas';
 
-import type { Prisma } from '../../../../../generated';
-import type { INVITED_SELECT, REDEMPTION_SELECT, USER_CARD_SELECT } from '../../config';
+import type { Prisma } from '@/generated';
+import type { INVITED_SELECT, REDEMPTION_SELECT, USER_CARD_SELECT } from '@/modules/admin/config';
+
 import type { GiftRow, PaymentRow } from '../row-views';
 
 export type CardUserRow = Prisma.UserGetPayload<{ select: typeof USER_CARD_SELECT }>;

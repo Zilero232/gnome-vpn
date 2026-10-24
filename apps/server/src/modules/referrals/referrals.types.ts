@@ -1,6 +1,6 @@
 import type { PlanId } from '@gnomevpn/schemas';
 
-import type { PrismaExecutor } from '../../core';
+import type { PrismaExecutor } from '@/core';
 
 export type AttributeInput = {
   userId: string;

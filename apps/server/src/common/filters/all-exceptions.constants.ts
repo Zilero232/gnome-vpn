@@ -2,7 +2,7 @@ import type { ApiErrorCode } from '@gnomevpn/schemas';
 
 import { HttpStatus } from '@nestjs/common';
 
-import { UNIQUE_VIOLATION } from '../../core';
+import { PRISMA_ERROR } from '@/core';
 
 export const STATUS_TO_CODE: Record<number, ApiErrorCode> = {
   [HttpStatus.BAD_REQUEST]: 'VALIDATION_FAILED',
@@ -11,7 +11,7 @@ export const STATUS_TO_CODE: Record<number, ApiErrorCode> = {
   [HttpStatus.FORBIDDEN]: 'FORBIDDEN'
 };
 
-export const PRISMA_ERROR: Record<string, { status: number; code: ApiErrorCode }> = {
-  P2025: { status: HttpStatus.NOT_FOUND, code: 'NOT_FOUND' },
-  [UNIQUE_VIOLATION]: { status: HttpStatus.CONFLICT, code: 'CONFLICT' }
+export const PRISMA_ERROR_RESPONSE: Record<string, { status: number; code: ApiErrorCode }> = {
+  [PRISMA_ERROR.notFound]: { status: HttpStatus.NOT_FOUND, code: 'NOT_FOUND' },
+  [PRISMA_ERROR.uniqueViolation]: { status: HttpStatus.CONFLICT, code: 'CONFLICT' }
 };

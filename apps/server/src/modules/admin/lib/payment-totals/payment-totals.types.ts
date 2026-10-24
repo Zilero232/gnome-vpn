@@ -1,6 +1,6 @@
 import type { AdminPaymentPage, PaymentStatus } from '@gnomevpn/schemas';
 
-import type { Prisma } from '../../../../../generated';
+import type { Prisma } from '@/generated';
 
 export type PaymentStatusGroup = {
   status: PaymentStatus;

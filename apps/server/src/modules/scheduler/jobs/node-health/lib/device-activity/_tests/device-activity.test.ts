@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
+import { peerClientName } from '@/modules/peers';
+
 import type { ActivityPeer } from '../device-activity.types';
 
-import { peerClientName } from '../../../../../../peers';
 import { deviceActivity } from '../device-activity';
 
 const peer = (overrides: Partial<ActivityPeer> = {}): ActivityPeer => ({

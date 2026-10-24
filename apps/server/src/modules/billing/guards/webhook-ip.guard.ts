@@ -2,7 +2,8 @@ import type { CanActivate, ExecutionContext } from '@nestjs/common';
 
 import { Injectable } from '@nestjs/common';
 
-import { AppForbiddenException } from '../../../common/exceptions';
+import { AppForbiddenException } from '@/common/exceptions';
+
 import { isAllowedWebhookIp } from '../lib';
 
 @Injectable()

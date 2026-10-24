@@ -1,6 +1,7 @@
 import { isNonNullish } from 'remeda';
 
-import type { Prisma } from '../../../../../generated';
+import type { Prisma } from '@/generated';
+
 import type { PaymentWhereInput } from './payment-filter.types';
 
 import { periodStart } from '../period-start';

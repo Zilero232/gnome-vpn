@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import type { SetEnabledAllInput } from '../subscription-link.service.types';
+import { describeError } from '@/common/lib';
+import { PeersService } from '@/modules/peers';
 
-import { describeError } from '../../../common/lib';
-import { PeersService } from '../../peers';
+import type { SetEnabledAllInput } from '../subscription-link.service.types';
 
 @Injectable()
 export class SubscriptionAccessService {

@@ -1,7 +1,8 @@
 import { CLIENT_IDS, CLIENT_REGISTRY } from '@gnomevpn/schemas';
 import { describe, expect, it } from 'vitest';
 
-import { BOT_LOCALES, BOT_TEXT } from '../../../config';
+import { BOT_LOCALES, BOT_TEXT } from '@/modules/telegram/config';
+
 import { clientName, clientPaste, parseClientId } from '../client-name';
 
 describe('clientName', () => {
@@ -24,7 +25,7 @@ describe('clientName', () => {
     for (const id of CLIENT_IDS) {
       const [ru, en] = BOT_LOCALES.map((locale) => clientName({ id, locale }));
 
-      expect(en.split(' ')[0]).toBe(ru.split(' ')[0]);
+      expect(en?.split(' ')[0]).toBe(ru?.split(' ')[0]);
     }
   });
 });

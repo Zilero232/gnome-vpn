@@ -3,10 +3,11 @@ import { addDays, subMinutes } from 'date-fns';
 import { keys } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
-import type { CampaignSummary } from '../../../../promo-codes';
+import type { CampaignSummary } from '@/modules/promo-codes';
 
-import { BOT_LOCALES, BOT_TEXT } from '../../../config';
-import { isTelegramHtml } from '../../html';
+import { BOT_LOCALES, BOT_TEXT } from '@/modules/telegram/config';
+import { isTelegramHtml } from '@/modules/telegram/lib/html';
+
 import { campaignCreatedText, campaignLine, campaignListText, campaignProblemText } from '../promo-text';
 import { CAMPAIGN_PROBLEM_TEXT } from '../promo-text.constants';
 

@@ -1,4 +1,4 @@
-import type { TEXT_TOKEN } from '../../config';
+import type { TEXT_TOKEN } from '@/modules/telegram/config';
 
 export type TextFill = Partial<Record<keyof typeof TEXT_TOKEN, string>>;
 

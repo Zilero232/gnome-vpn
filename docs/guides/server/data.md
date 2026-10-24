@@ -25,9 +25,15 @@ that reach a missing row together both try to create it and one throws
 `P2002`, which the exception filter answers as `409`. The account's Connect tab
 does exactly that on a first visit — the link and the routing settings each
 upsert the same `subscription_link` row — so both go through `withUniqueRetry`
-(`core/unique-retry`): one more attempt after a unique violation, by which time
-the row exists and the second upsert only reads it. A genuine duplicate still
-fails on the retry. `withSerializableRetry` is the same idea for `P2034`.
+(`core/prisma/prisma-retry.ts`): one more attempt after a unique violation, by
+which time the row exists and the second upsert only reads it. A genuine
+duplicate still fails on the retry. A unique violation is recognised with
+`isUniqueViolation(error)`, never by comparing `error.code` by hand.
+
+**A Serializable transaction is `prisma.serializable(work)`.** It runs `work`
+in a `Serializable` transaction and retries a serialization failure (`P2034`)
+with backoff — the one place that pairs the isolation level with its retry, so
+no caller can write one without the other.
 
 **Say a thing once by inserting its row, not by stamping the row it is
 about.** A job that must notify once claims it in `notice_log` with

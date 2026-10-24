@@ -1,8 +1,9 @@
 import { Text } from 'react-email';
 
+import { EMAIL_TEXT, fillEmail } from '@/lib/email/email-text';
+
 import type { NoticeEmailProps } from './NoticeEmail.types';
 
-import { EMAIL_TEXT, fillEmail } from '../../email-text';
 import { BaseEmail } from '../BaseEmail';
 import { emailStyles } from '../email-styles';
 

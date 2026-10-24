@@ -1,6 +1,5 @@
-import type { PeerKind, Prisma, TunnelProtocol } from '../../../generated';
-import type { NodeAccess } from '../../common/lib';
-import type { XrayClient } from '../../lib/xray';
+import type { PeerKind, Prisma, TunnelProtocol } from '@/generated';
+import type { NodeAccess, XrayClient } from '@/lib/xray';
 
 export type PeerRef = {
   id: string;

@@ -1,9 +1,10 @@
 import { differenceInMilliseconds, differenceInMinutes } from 'date-fns';
 import { isNullish } from 'remeda';
 
+import { OWNER_ALERT } from '@/modules/telegram/config';
+
 import type { NodeAlertInput, NodeAlertOutcome, NodeSilenceInput, NodeStatus, NodeStatusInput } from './node-health.types';
 
-import { OWNER_ALERT } from '../../config';
 import { QUIET_NODE } from './node-health.constants';
 
 const isSilent = ({ healthyAt, now }: NodeSilenceInput): boolean => differenceInMinutes(now, healthyAt) >= OWNER_ALERT.nodeDownAfterMinutes;

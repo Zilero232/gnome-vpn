@@ -5,11 +5,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { isNonNullish, isNullish, omit } from 'remeda';
 import { match } from 'ts-pattern';
 
+import { AppNotFoundException, AppServiceUnavailableException } from '@/common/exceptions';
+import { PrismaService } from '@/core';
+import { PromoCampaignService } from '@/modules/promo-codes';
+
 import type { CampaignPageInput, CreateCampaignActionInput, GiftPageInput, StopCampaignActionInput } from '../admin.types';
 
-import { AppNotFoundException, AppServiceUnavailableException } from '../../../common/exceptions';
-import { PrismaService } from '../../../core';
-import { PromoCampaignService } from '../../promo-codes';
 import { ADMIN_ACTION, CAMPAIGN_ROW_SELECT, GIFT_ROW_SELECT } from '../config';
 import { campaignExpiry, campaignState, campaignView, giftStateWhere, giftView, groupTotal, pageWindow } from '../lib';
 import { AdminAuditService } from './admin-audit.service';

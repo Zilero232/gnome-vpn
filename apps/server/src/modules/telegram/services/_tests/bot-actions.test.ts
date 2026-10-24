@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
+import { BOT_COMMANDS, CALLBACK_PREFIX, CHAT_ID_COMMAND, KEYBOARD_ROWS, MORE_ROWS, NOTICES } from '@/modules/telegram/config';
+
 import type { TelegramBotService } from '../telegram-bot.service';
 
-import { BOT_COMMANDS, CALLBACK_PREFIX, CHAT_ID_COMMAND, KEYBOARD_ROWS, MORE_ROWS, NOTICES } from '../../config';
 import { TelegramBotService as Bot } from '../telegram-bot.service';
 
 const botOf = (): TelegramBotService => Object.create(Bot.prototype) as TelegramBotService;

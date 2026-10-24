@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 
-import { AppConfigService } from '../../config';
-import { makeYooKassaClient, YooKassaClient } from '../../lib';
+import { AppConfigService } from '@/config';
+import { makeYooKassaClient, YooKassaClient } from '@/lib/yookassa';
+
 import { PromoCodesModule } from '../promo-codes';
 import { ReferralsModule } from '../referrals';
 import { SubscriptionLinkModule } from '../subscription-link';

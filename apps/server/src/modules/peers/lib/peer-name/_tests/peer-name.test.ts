@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { PEER_PROTOCOL_SUFFIX } from '../../../config';
+import { PEER_PROTOCOL_SUFFIX } from '@/modules/peers/config';
+
 import { peerClientName } from '../peer-name';
 
 describe('peerClientName', () => {

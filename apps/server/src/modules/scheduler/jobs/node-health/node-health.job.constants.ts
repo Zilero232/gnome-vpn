@@ -1,4 +1,4 @@
-import { IDENTIFIED_NODE_SELECT } from '../../../../common/lib';
+import { IDENTIFIED_NODE_SELECT } from '@/lib/xray';
 
 export const ACTIVITY_PEER_SELECT = {
   deviceId: true,

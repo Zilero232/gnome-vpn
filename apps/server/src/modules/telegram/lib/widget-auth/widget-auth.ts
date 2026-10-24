@@ -1,10 +1,12 @@
 import { createHash, createHmac } from 'node:crypto';
 import { entries, isNullish, isPlainObject, isString, keys, values } from 'remeda';
 
-import type { TelegramIdentity } from '../../telegram.types';
+import type { TelegramIdentity } from '@/modules/telegram/telegram.types';
+
+import { timingSafeEqual } from '@/common/lib';
+
 import type { IsFreshInput, VerifyWidgetInput, WidgetPayload } from './widget-auth.types';
 
-import { timingSafeEqual } from '../../../../common/lib';
 import { WIDGET_AUTH } from './widget-auth.constants';
 
 const TELEGRAM_ID = /^\d{1,19}$/u;

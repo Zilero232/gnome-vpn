@@ -1,11 +1,15 @@
 import { isNullish } from 'remeda';
 import { z } from 'zod';
 
-import type { AutoRenewChoice } from '../../telegram.types';
+import type { AutoRenewChoice } from '@/modules/telegram/telegram.types';
+
+import { AUTO_RENEW_CHOICE, CONFIRMED, DECLINED, OFFERS_CHOICE, SUBJECT_SEPARATOR, WIREGUARD_KINDS } from '@/modules/telegram/config';
+
 import type { CountFromInput, DeviceAnswer, WireguardChoice } from './callback-value.types';
 
-import { AUTO_RENEW_CHOICE, CONFIRMED, DECLINED, OFFERS_CHOICE, SUBJECT_SEPARATOR, WIREGUARD_KINDS } from '../../config';
-import { DIGITS, SUBJECT_PARTS } from './callback-value.constants';
+import { DIGITS } from './callback-value.constants';
+
+export const isPair = (parts: string[]): parts is [string, string] => parts.length === 2;
 
 export const isConfirmed = (raw: string): boolean => raw === CONFIRMED;
 
@@ -34,7 +38,7 @@ export const parseUuid = (raw: string): string | null => (z.uuid().safeParse(raw
 export const deviceAnswer = (raw: string): DeviceAnswer | null => {
   const parts = raw.split(SUBJECT_SEPARATOR);
 
-  if (parts.length !== SUBJECT_PARTS) {
+  if (!isPair(parts)) {
     return null;
   }
 
@@ -51,7 +55,7 @@ export const deviceAnswer = (raw: string): DeviceAnswer | null => {
 export const wireguardChoice = (raw: string): WireguardChoice | null => {
   const parts = raw.split(SUBJECT_SEPARATOR);
 
-  if (parts.length !== SUBJECT_PARTS) {
+  if (!isPair(parts)) {
     return null;
   }
 

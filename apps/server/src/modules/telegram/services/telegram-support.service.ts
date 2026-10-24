@@ -3,13 +3,14 @@ import { TTLCache } from '@isaacs/ttlcache';
 import { Injectable, Logger } from '@nestjs/common';
 import { isEmpty, isNonNullish, isNullish } from 'remeda';
 
+import { describeError } from '@/common/lib';
+import { AppConfigService } from '@/config';
+import { PrismaService } from '@/core';
+import { periodKind } from '@/modules/subscription';
+
 import type { SupportAccount } from '../lib';
 import type { BotContext, RememberThreadInput, ResolvedChat, SupportAnswerInput, SupportDeliverInput, SupportThreadInput } from '../telegram.types';
 
-import { describeError } from '../../../common/lib';
-import { AppConfigService } from '../../../config';
-import { PrismaService } from '../../../core';
-import { periodKind } from '../../subscription';
 import { BOT_TEXT, DEFAULT_BOT_LOCALE, SUPPORT } from '../config';
 import { deliveryOutcome, migratedChatId, resolveLocale, supportHeader, urlMessage } from '../lib';
 import { TelegramLinkService } from './telegram-link.service';

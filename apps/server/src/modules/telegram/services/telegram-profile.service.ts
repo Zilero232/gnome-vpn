@@ -5,10 +5,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import pRetry from 'p-retry';
 import { isDeepEqual } from 'remeda';
 
+import { describeError } from '@/common/lib';
+import { AppConfigService } from '@/config';
+
 import type { DescribeInput } from '../telegram.types';
 
-import { describeError } from '../../../common/lib';
-import { AppConfigService } from '../../../config';
 import { BOT_API, BOT_COMMANDS, BOT_LOCALES, BOT_PROFILE, FALLBACK_BOT_LOCALE } from '../config';
 import { profileText, webhookUrl } from '../lib';
 

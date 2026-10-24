@@ -4,13 +4,15 @@ import { TUNNEL_PROTOCOL } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
 import { isEmpty, isNonNullish } from 'remeda';
 
-import type { NodeTraffic } from '../../../lib';
+import type { NodeTraffic } from '@/lib/xray';
+
+import { describeError } from '@/common/lib';
+import { PrismaService } from '@/core';
+import { DEVICE_PEER, devicePeerName } from '@/modules/devices';
+import { hasReality, peerClientName, PeersService } from '@/modules/peers';
+
 import type { EnsureNodeInput, FeedPeer, IssueFeedPeerInput, PersistPeerInput, SubscriptionNode } from '../subscription-link.service.types';
 
-import { describeError } from '../../../common/lib';
-import { PrismaService, withSerializableRetry } from '../../../core';
-import { DEVICE_PEER, devicePeerName } from '../../devices';
-import { hasReality, peerClientName, PeersService } from '../../peers';
 import { NODE_FEED_SELECT } from '../config';
 import { NodeTrafficService } from './node-traffic.service';
 
@@ -98,17 +100,12 @@ export class SubscriptionPeersService {
   private persist({ userId, deviceId, name, nodeId, protocol, nodeCredential, tunnelAddress }: PersistPeerInput): Promise<void> {
     const identity = { userId, kind: 'config', name, nodeId, protocol } as const;
 
-    return withSerializableRetry(() =>
-      this.prisma.$transaction(
-        async (tx) => {
-          await tx.peer.upsert({
-            where: { userId_kind_name_nodeId_protocol: identity },
-            update: { nodeCredential, tunnelAddress, deviceId, revokedAt: null, state: 'active' },
-            create: { ...identity, deviceId, nodeCredential, tunnelAddress }
-          });
-        },
-        { isolationLevel: 'Serializable' }
-      )
-    );
+    return this.prisma.serializable(async (tx) => {
+      await tx.peer.upsert({
+        where: { userId_kind_name_nodeId_protocol: identity },
+        update: { nodeCredential, tunnelAddress, deviceId, revokedAt: null, state: 'active' },
+        create: { ...identity, deviceId, nodeCredential, tunnelAddress }
+      });
+    });
   }
 }

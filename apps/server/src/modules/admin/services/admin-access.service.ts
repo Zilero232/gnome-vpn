@@ -4,10 +4,11 @@ import { adminSessionSchema } from '@gnomevpn/schemas';
 import { Injectable } from '@nestjs/common';
 import { isEmpty, isNullish } from 'remeda';
 
+import { AppConfigService } from '@/config';
+import { PrismaService } from '@/core';
+
 import type { CurrentAdminUser } from '../admin.types';
 
-import { AppConfigService } from '../../../config';
-import { PrismaService } from '../../../core';
 import { isAdmin } from '../lib';
 
 @Injectable()

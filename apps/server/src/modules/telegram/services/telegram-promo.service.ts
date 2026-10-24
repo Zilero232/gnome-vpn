@@ -2,12 +2,13 @@ import { normalisePromoCode } from '@gnomevpn/schemas';
 import { Injectable, Logger } from '@nestjs/common';
 import { match } from 'ts-pattern';
 
+import { describeError, errorCodeOf } from '@/common/lib';
+import { AppConfigService } from '@/config';
+import { campaignProblem, PromoCampaignService } from '@/modules/promo-codes';
+import { webPromoLink } from '@/modules/referrals';
+
 import type { BotContext, PromoAnswerInput, PromoCreateInput } from '../telegram.types';
 
-import { describeError, errorCodeOf } from '../../../common/lib';
-import { AppConfigService } from '../../../config';
-import { campaignProblem, PromoCampaignService } from '../../promo-codes';
-import { webPromoLink } from '../../referrals';
 import { BOT_TEXT } from '../config';
 import { campaignCreatedText, campaignListText, campaignProblemText, fillText, html, parsePromoCommand, resolveLocale } from '../lib';
 

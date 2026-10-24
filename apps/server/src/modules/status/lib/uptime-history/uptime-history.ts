@@ -1,9 +1,10 @@
 import { UPTIME_HISTORY } from '@gnomevpn/schemas';
 import { groupBy } from 'remeda';
 
+import { dayKey, dayKeys, windowStart } from '@/common/lib';
+
 import type { UptimeHistory, UptimeHistoryInput } from './uptime-history.types';
 
-import { dayKey, dayKeys, windowStart } from '../../../../common/lib';
 import { minuteRatio } from './uptime-history.helpers';
 
 export const historyStart = (today: Date): Date => windowStart({ now: today, days: UPTIME_HISTORY.days });

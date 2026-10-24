@@ -39,3 +39,12 @@ export type EnsureInboundInput = {
   inbound: Record<string, unknown>;
   remark: string;
 };
+
+export type NodeAccess = {
+  apiUrl: string;
+  apiTokenEnvVar: string;
+};
+
+export type IdentifiedNode = NodeAccess & {
+  id: string;
+};

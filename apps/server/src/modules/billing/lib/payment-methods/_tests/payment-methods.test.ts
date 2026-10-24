@@ -1,7 +1,8 @@
 import { PAYMENT_METHODS } from '@gnomevpn/schemas';
 import { describe, expect, it } from 'vitest';
 
-import { YOOKASSA_METHODS } from '../../../config';
+import { YOOKASSA_METHODS } from '@/modules/billing/config';
+
 import { offeredMethods } from '../payment-methods';
 
 describe('offeredMethods', () => {

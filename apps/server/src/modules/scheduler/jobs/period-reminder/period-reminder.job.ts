@@ -3,15 +3,16 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { addHours, differenceInHours } from 'date-fns';
 
-import type { NotifyInput } from '../../../telegram/telegram.types';
-import type { EndingSubscription } from './period-reminder.job.types';
+import type { NotifyInput } from '@/modules/telegram/telegram.types';
 
-import { describeError } from '../../../../common/lib';
-import { AppConfigService } from '../../../../config';
-import { claimNotice, NOTICE_CLAIM, PrismaService } from '../../../../core';
-import { periodKind } from '../../../subscription';
-import { TelegramNotifyService } from '../../../telegram/services/telegram-notify.service';
-import { WINDOW } from '../../config';
+import { describeError } from '@/common/lib';
+import { AppConfigService } from '@/config';
+import { claimNotice, NOTICE_CLAIM, PrismaService } from '@/core';
+import { WINDOW } from '@/modules/scheduler/config';
+import { periodKind } from '@/modules/subscription';
+import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
+
+import type { EndingSubscription } from './period-reminder.job.types';
 
 @Injectable()
 export class PeriodReminderJob {

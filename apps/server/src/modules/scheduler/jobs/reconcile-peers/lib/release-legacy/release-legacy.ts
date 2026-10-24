@@ -1,11 +1,13 @@
 import { subHours } from 'date-fns';
 import { isEmpty, isNullish, unique } from 'remeda';
 
-import type { ReconcilePeer } from '../../reconcile-peers.job.types';
+import type { ReconcilePeer } from '@/modules/scheduler/jobs/reconcile-peers/reconcile-peers.job.types';
+
+import { LEGACY_PEER } from '@/modules/devices';
+import { peerClientName } from '@/modules/peers';
+
 import type { ReleaseLegacyInput } from './release-legacy.types';
 
-import { LEGACY_PEER } from '../../../../../devices';
-import { peerClientName } from '../../../../../peers';
 import { deleteNodeClients, peersGoneFromNode } from '../delete-node-clients';
 import { isReplacedLegacyPeer } from './release-legacy.helpers';
 

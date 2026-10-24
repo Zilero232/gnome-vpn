@@ -18,8 +18,10 @@ export default defineConfig({
     }
   },
   resolve: {
-    alias: {
-      '@gnomevpn/schemas': resolve(import.meta.dirname, '../../packages/schemas/src')
-    }
+    alias: [
+      { find: '@gnomevpn/schemas', replacement: resolve(import.meta.dirname, '../../packages/schemas/src') },
+      { find: '@/generated', replacement: resolve(import.meta.dirname, 'generated') },
+      { find: /^@\//, replacement: `${resolve(import.meta.dirname, 'src')}/` }
+    ]
   }
 });

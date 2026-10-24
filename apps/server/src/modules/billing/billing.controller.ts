@@ -3,7 +3,8 @@ import { SkipThrottle } from '@nestjs/throttler';
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 import { ZodResponse } from 'nestjs-zod';
 
-import { CurrentUserId } from '../../common/decorators';
+import { CurrentUserId } from '@/common/decorators';
+
 import {
   BindCardResultDto,
   BuyExtraDevicesDto,

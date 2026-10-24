@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import type { EmailLocale } from '../../email-locale';
+import type { EmailLocale } from '@/lib/email/email-locale';
 
 export type EmailAction = {
   url: string;

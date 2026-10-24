@@ -1,9 +1,10 @@
 import { giftDays, PLANS } from '@gnomevpn/schemas';
 import { describe, expect, it } from 'vitest';
 
+import { GIFT } from '@/modules/promo-codes/config';
+
 import type { GiftPayment } from '../gift.types';
 
-import { GIFT } from '../../../config';
 import { giftToIssue, giftView } from '../gift';
 
 const payment = (overrides: Partial<GiftPayment> = {}): GiftPayment => ({

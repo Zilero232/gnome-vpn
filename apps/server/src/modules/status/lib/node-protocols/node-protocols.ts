@@ -2,9 +2,9 @@ import type { TunnelProtocol } from '@gnomevpn/schemas';
 
 import { TUNNEL_PROTOCOL } from '@gnomevpn/schemas';
 
-import type { ProtocolNode } from './node-protocols.types';
+import { hasReality, hasWireguard } from '@/modules/peers';
 
-import { hasReality, hasWireguard } from '../../../peers';
+import type { ProtocolNode } from './node-protocols.types';
 
 export const nodeProtocols = (node: ProtocolNode): TunnelProtocol[] => [
   TUNNEL_PROTOCOL.hysteria2,

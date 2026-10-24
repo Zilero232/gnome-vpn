@@ -1,16 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { subHours } from 'date-fns';
-import { isEmpty } from 'remeda';
+import { isEmpty, zip } from 'remeda';
+
+import { describeError } from '@/common/lib';
+import { PrismaService } from '@/core';
+import { WINDOW } from '@/modules/scheduler/config';
+import { activeSince, lapsedBefore } from '@/modules/scheduler/lib';
+import { SubscriptionAccessService } from '@/modules/subscription-link';
+import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
 
 import type { OwnersOfInput, SweepInput } from './expired-access.job.types';
-
-import { describeError } from '../../../../common/lib';
-import { PrismaService } from '../../../../core';
-import { SubscriptionAccessService } from '../../../subscription-link';
-import { TelegramNotifyService } from '../../../telegram/services/telegram-notify.service';
-import { WINDOW } from '../../config';
-import { activeSince, lapsedBefore } from '../../lib';
 
 @Injectable()
 export class ExpiredAccessJob {
@@ -43,11 +43,7 @@ export class ExpiredAccessJob {
       this.logger.error(`sweeping a subscriber failed: ${describeError(result.reason)}`);
     }
 
-    return owners.filter((_, index) => {
-      const result = results[index];
-
-      return result.status === 'fulfilled' && result.value > 0;
-    });
+    return zip(owners, results).flatMap(([userId, result]) => (result.status === 'fulfilled' && result.value > 0 ? [userId] : []));
   }
 
   @Cron(CronExpression.EVERY_5_MINUTES)

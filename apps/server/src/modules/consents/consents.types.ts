@@ -1,6 +1,6 @@
 import type { ConsentSource } from '@gnomevpn/schemas';
 
-import type { EmailLocale } from '../../lib/email';
+import type { EmailLocale } from '@/lib/email';
 
 export type SetMarketingInput = {
   userId: string;

@@ -1,8 +1,9 @@
 import { Text } from 'react-email';
 
+import { EMAIL_TEXT } from '@/lib/email/email-text';
+
 import type { ResetPasswordProps } from './ResetPassword.types';
 
-import { EMAIL_TEXT } from '../../email-text';
 import { BaseEmail } from '../BaseEmail';
 import { emailStyles } from '../email-styles';
 

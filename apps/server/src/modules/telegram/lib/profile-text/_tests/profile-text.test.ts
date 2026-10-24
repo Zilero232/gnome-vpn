@@ -1,7 +1,8 @@
 import { LOWEST_MONTHLY_RUB } from '@gnomevpn/schemas';
 import { describe, expect, it } from 'vitest';
 
-import { BOT_LOCALES, BOT_PROFILE } from '../../../config';
+import { BOT_LOCALES, BOT_PROFILE } from '@/modules/telegram/config';
+
 import { profileText } from '../profile-text';
 import { PRICE_TOKEN } from '../profile-text.constants';
 

@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { isNullish } from 'remeda';
 
+import { errorCodeOf } from '@/common/lib';
+import { AutoRenewService } from '@/modules/billing';
+import { SubscriptionService } from '@/modules/subscription';
+import { SubscriptionLinkService } from '@/modules/subscription-link';
+
 import type { BotContext } from '../telegram.types';
 
-import { errorCodeOf } from '../../../common/lib';
-import { AutoRenewService } from '../../billing';
-import { SubscriptionService } from '../../subscription';
-import { SubscriptionLinkService } from '../../subscription-link';
 import { AUTO_RENEW_CHOICE, BOT_TEXT, CALLBACK_PREFIX } from '../config';
 import { autoRenewChoice, autoRenewPanel, linkMessage, rotateCopy } from '../lib';
 import { TelegramSharedService } from './telegram-shared.service';

@@ -3,10 +3,12 @@ import type { ClientId } from '@gnomevpn/schemas';
 import { CLIENT_IDS, CLIENT_REGISTRY } from '@gnomevpn/schemas';
 import { InlineKeyboard } from 'grammy';
 
-import type { BotLocale } from '../../telegram.types';
+import type { BotLocale } from '@/modules/telegram/telegram.types';
+
+import { BOT_BUTTONS, BOT_PLATFORMS, BOT_TEXT, CALLBACK_PREFIX } from '@/modules/telegram/config';
+
 import type { ClientNameInput, PlatformNamesInput } from './client-name.types';
 
-import { BOT_BUTTONS, BOT_PLATFORMS, BOT_TEXT, CALLBACK_PREFIX } from '../../config';
 import { CLIENT_LABELS, CLIENT_PASTE, RECOMMENDED_MARK } from './client-name.constants';
 
 export const parseClientId = (raw: string): ClientId | null => CLIENT_IDS.find((id) => id === raw) ?? null;

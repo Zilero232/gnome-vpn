@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { USER_SEARCH } from '../../../config';
+import { USER_SEARCH } from '@/modules/admin/config';
+
 import { parseUserSearch, userSearchWhere } from '../user-search';
 
 const USER_ID = '3f2b9c4e-8a1d-4c6b-9e7f-0a1b2c3d4e5f';

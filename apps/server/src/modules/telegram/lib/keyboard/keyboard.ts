@@ -4,7 +4,19 @@ import { InlineKeyboard, Keyboard } from 'grammy';
 import { isEmpty } from 'remeda';
 import { match } from 'ts-pattern';
 
-import type { BotLocale } from '../../telegram.types';
+import type { BotLocale } from '@/modules/telegram/telegram.types';
+
+import {
+  BOT_BUTTONS,
+  BOT_TEXT,
+  BUTTON_STYLE,
+  CALLBACK_PREFIX,
+  CURRENT_LANGUAGE_MARK,
+  KEYBOARD_ROWS,
+  LANGUAGE_BUTTONS,
+  MORE_ROWS
+} from '@/modules/telegram/config';
+
 import type {
   ButtonKey,
   ChatState,
@@ -16,17 +28,6 @@ import type {
   OfferInput,
   VisibilityInput
 } from './keyboard.types';
-
-import {
-  BOT_BUTTONS,
-  BOT_TEXT,
-  BUTTON_STYLE,
-  CALLBACK_PREFIX,
-  CURRENT_LANGUAGE_MARK,
-  KEYBOARD_ROWS,
-  LANGUAGE_BUTTONS,
-  MORE_ROWS
-} from '../../config';
 
 const isVisible = ({ when, state }: VisibilityInput) =>
   match(when)

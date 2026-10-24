@@ -1,7 +1,8 @@
 import { Controller, Delete, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ZodResponse } from 'nestjs-zod';
 
-import { CurrentUserId } from '../../common/decorators';
+import { CurrentUserId } from '@/common/decorators';
+
 import { TelegramLinkCodeDto, TelegramStatusDto } from './dto';
 import { TelegramLinkService } from './services';
 

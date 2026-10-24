@@ -4,14 +4,15 @@ import { DEFAULT_PLAN_ID, isPlaceholderEmail, normalisePromoCode, promoCodeOrigi
 import { Injectable, Logger } from '@nestjs/common';
 import { isNullish } from 'remeda';
 
+import { AppBadRequestException, AppNotFoundException, AppServiceUnavailableException } from '@/common/exceptions';
+import { describeError } from '@/common/lib';
+import { isUniqueViolation, PrismaService } from '@/core';
+import { ReferralService } from '@/modules/referrals';
+import { TrialGrantService } from '@/modules/subscription';
+import { SubscriptionAccessService } from '@/modules/subscription-link';
+
 import type { Claimed, ClaimInput, ExtendAccessInput, RedeemInput } from '../promo-codes.types';
 
-import { AppBadRequestException, AppNotFoundException, AppServiceUnavailableException } from '../../../common/exceptions';
-import { describeError } from '../../../common/lib';
-import { isPrismaRequestError, PrismaService, UNIQUE_VIOLATION, withSerializableRetry } from '../../../core';
-import { ReferralService } from '../../referrals';
-import { TrialGrantService } from '../../subscription';
-import { SubscriptionAccessService } from '../../subscription-link';
 import { FRIEND_REDEMPTION, PROMO_REDEEM, REDEMPTION_REFUSAL } from '../config';
 import { accessExtension, accountRedemptions, promoEffect, redemptionRefusal, redemptionResult } from '../lib';
 
@@ -59,11 +60,9 @@ export class PromoRedemptionService {
 
   private async claimOnce(input: Omit<ClaimInput, 'db'>): Promise<Claimed> {
     try {
-      return await withSerializableRetry(() =>
-        this.prisma.$transaction((tx) => this.claim({ ...input, db: tx }), { isolationLevel: 'Serializable' })
-      );
+      return await this.prisma.serializable((tx) => this.claim({ ...input, db: tx }));
     } catch (error) {
-      if (isPrismaRequestError(error) && error.code === UNIQUE_VIOLATION) {
+      if (isUniqueViolation(error)) {
         throw new AppBadRequestException('PROMO_CODE_ALREADY_USED', REDEMPTION_REFUSAL.PROMO_CODE_ALREADY_USED);
       }
 

@@ -1,5 +1,4 @@
-import type { IdentifiedNode } from '../../../../common/lib';
-import type { NodeHealth, XrayClient } from '../../../../lib';
+import type { IdentifiedNode, NodeHealth, XrayClient } from '@/lib/xray';
 
 export type ProbeNodeRow = IdentifiedNode & {
   lastHealthyAt: Date | null;

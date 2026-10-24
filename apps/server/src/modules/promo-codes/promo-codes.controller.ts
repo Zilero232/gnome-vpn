@@ -2,7 +2,8 @@ import { Body, Controller, Get, Post } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { ZodResponse } from 'nestjs-zod';
 
-import { CurrentUserId } from '../../common/decorators';
+import { CurrentUserId } from '@/common/decorators';
+
 import { PROMO_REDEEM } from './config';
 import { GiftListDto, PendingDiscountDto, PromoRedemptionDto, RedeemPromoCodeDto } from './dto/promo-codes.dto';
 import { GiftCodeService, PromoDiscountService, PromoRedemptionService } from './services';

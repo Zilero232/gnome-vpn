@@ -5,14 +5,16 @@ import { Injectable } from '@nestjs/common';
 import { subDays } from 'date-fns';
 import { isNullish, omit } from 'remeda';
 
-import type { Prisma } from '../../../../generated';
+import type { Prisma } from '@/generated';
+
+import { AppNotFoundException } from '@/common/exceptions';
+import { dayKey } from '@/common/lib';
+import { PrismaService } from '@/core';
+import { DevicesService } from '@/modules/devices';
+import { periodKind } from '@/modules/subscription';
+
 import type { UserExportInput, UserListInput, UserLookupInput, UserWhereInput } from '../admin.types';
 
-import { AppNotFoundException } from '../../../common/exceptions';
-import { dayKey } from '../../../common/lib';
-import { PrismaService } from '../../../core';
-import { DevicesService } from '../../devices';
-import { periodKind } from '../../subscription';
 import {
   ADMIN_EXPORT_FILE,
   GIFT_ROW_SELECT,

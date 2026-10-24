@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { periodStart } from '../../period-start';
+import { periodStart } from '@/modules/admin/lib/period-start';
+
 import { paymentWhere } from '../payment-filter';
 
 const NOW = new Date('2026-10-23T12:00:00.000Z');
