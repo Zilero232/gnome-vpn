@@ -41,7 +41,7 @@ export const withClientCallback = ({ url, locale, path = '/' }: ClientCallbackIn
     return url;
   }
 
-  parsed.searchParams.set('callbackURL', new URL(localizedPath({ path, locale }), env.CLIENT_URL).toString());
+  parsed.searchParams.set('callbackURL', new URL(localizedPath({ path, locale }), env.app.clientUrl).toString());
 
   return parsed.toString();
 };

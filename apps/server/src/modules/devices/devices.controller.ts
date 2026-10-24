@@ -4,7 +4,7 @@ import { ZodResponse } from 'nestjs-zod';
 import { CurrentUserId } from '@/common/decorators/current-user-id.decorator';
 
 import { DeviceIdParamDto, DeviceListDto } from './dto/devices.dto';
-import { DevicesService } from './services';
+import { DevicesService } from './services/devices.service';
 
 @Controller('devices')
 export class DevicesController {

@@ -59,7 +59,7 @@ export class TelegramPromoService {
     try {
       const campaign = await this.campaigns.create(input);
 
-      return campaignCreatedText({ campaign, link: webPromoLink({ clientUrl: this.config.get('CLIENT_URL'), code: campaign.code }), locale });
+      return campaignCreatedText({ campaign, link: webPromoLink({ clientUrl: this.config.get('app').clientUrl, code: campaign.code }), locale });
     } catch (error) {
       if (errorCodeOf(error) !== 'PROMO_CODE_TAKEN') {
         throw error;

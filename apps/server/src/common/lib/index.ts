@@ -6,17 +6,18 @@ export { paymentPlan } from './payment-plan';
 export type { PaymentPlanInput } from './payment-plan';
 
 export {
+  accessExtension,
   activeDeviceLimit,
   extendPeriod,
+  extraDevicesGrant,
   hasLapsedBeyondGrace,
   isPeriodActive,
-  nextPeriodEnd,
   PERIOD_GRACE,
   resolveStatus,
   rewindPeriod,
   SUBSCRIPTION_PERIOD_SELECT
 } from './period';
-export type { ExtendPeriodInput, LapseInput, PeriodInput, RewindPeriodInput, SubscriptionPeriod } from './period';
+export type { SubscriptionPeriod } from './period';
 
 export { countryFlag, fillTokens, pluralize } from './text';
 export type { PluralForms } from './text';

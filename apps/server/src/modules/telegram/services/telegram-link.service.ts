@@ -61,7 +61,7 @@ export class TelegramLinkService {
     return {
       code,
       expiresAt: expiresAt.toISOString(),
-      botUsername: this.config.get('TELEGRAM_BOT_USERNAME')
+      botUsername: this.config.get('telegram').botUsername
     };
   }
 
@@ -208,7 +208,7 @@ export class TelegramLinkService {
     return {
       isLinked: Boolean(row),
       username: row?.username ?? null,
-      botUsername: this.config.get('TELEGRAM_BOT_USERNAME')
+      botUsername: this.config.get('telegram').botUsername
     };
   }
 

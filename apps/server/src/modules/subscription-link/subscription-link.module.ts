@@ -9,7 +9,6 @@ import { RoutingSettingsController } from './routing-settings.controller';
 import {
   FeedNoticeService,
   GeoFilesService,
-  NodeTrafficService,
   RoutingSettingsService,
   SubscriptionAccessService,
   SubscriptionFeedService,
@@ -26,7 +25,6 @@ import { WireguardConfigController } from './wireguard-config.controller';
   controllers: [SubscriptionLinkController, SubscriptionFeedController, WireguardConfigController, RoutingSettingsController, GeoFilesController],
   providers: [
     FeedNoticeService,
-    NodeTrafficService,
     SubscriptionLinkService,
     SubscriptionFeedService,
     SubscriptionPeersService,
@@ -35,6 +33,6 @@ import { WireguardConfigController } from './wireguard-config.controller';
     RoutingSettingsService,
     GeoFilesService
   ],
-  exports: [NodeTrafficService, SubscriptionLinkService, SubscriptionAccessService, WireguardConfigService, GeoFilesService]
+  exports: [SubscriptionLinkService, SubscriptionAccessService, WireguardConfigService, GeoFilesService]
 })
 export class SubscriptionLinkModule {}

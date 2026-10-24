@@ -10,7 +10,7 @@ paths:
 
 ## Environment
 
-`config/env.schema.ts` validates on boot and **throws** on a missing variable.
+`config/env/` validates on boot and **throws** on a missing variable. Code reads the groups (`config.get('yookassa').shopId`, `env.database.url`), one zod file per group, never a flat `config.get('YOOKASSA_SHOP_ID')`.
 Node panel API tokens are the exception: the `node` table stores the _name_ of an
 env var (`apiTokenEnvVar`), never the secret, and `xrayClientForNode` resolves it
 at call time. The values (`XRAY_KEY_<CC>`) live in the gitignored `.env.nodes`,

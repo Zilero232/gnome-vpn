@@ -1,4 +1,2 @@
-export { DEVICE_FIELD, DEVICE_HEADER, DEVICE_KEY } from './identity.config';
-export { DEVICE_ORDER } from './order.config';
-export { DEVICE_PEER, LEGACY_PEER } from './slots.config';
-export { DEVICE_TITLE } from './title.config';
+export { DEVICE_FIELD, DEVICE_HEADER, DEVICE_KEY, DEVICE_TITLE } from './identity.config';
+export { DEVICE_ORDER, DEVICE_PEER } from './slots.config';

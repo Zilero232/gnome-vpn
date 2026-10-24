@@ -6,10 +6,9 @@ import { randomUUID } from 'node:crypto';
 import { isNullish } from 'remeda';
 
 import { AppBadRequestException, AppNotFoundException, AppServiceUnavailableException } from '@/common/exceptions';
-import { activeDeviceLimit, SUBSCRIPTION_PERIOD_SELECT } from '@/common/lib';
 import { PrismaService } from '@/core';
-import { WIREGUARD_INBOUND } from '@/lib/xray';
-import { DEVICE_KEY, DEVICE_ORDER, DevicesService } from '@/modules/devices';
+import { INBOUND } from '@/lib/xray';
+import { DEVICE_KEY, DEVICE_ORDER, DevicesService, isWireguardDevice } from '@/modules/devices';
 import { buildTunnelConfig, hasWireguard } from '@/modules/peers';
 
 import type {
@@ -34,7 +33,7 @@ export class WireguardConfigService {
   ) {}
 
   async overview(userId: string): Promise<WireguardOverview> {
-    const [nodes, devices, subscription] = await Promise.all([
+    const [nodes, devices, deviceLimit] = await Promise.all([
       this.peers.availableNodes(),
       this.prisma.device.findMany({
         where: { userId },
@@ -47,7 +46,7 @@ export class WireguardConfigService {
           peers: { where: { protocol: TUNNEL_PROTOCOL.wireguard, revokedAt: null }, select: { node: { select: NODE_FEED_SELECT } }, take: 1 }
         }
       }),
-      this.prisma.subscription.findUnique({ where: { userId }, select: SUBSCRIPTION_PERIOD_SELECT })
+      this.devices.limitOf(userId)
     ]);
 
     const live = this.liveIds(nodes);
@@ -55,7 +54,7 @@ export class WireguardConfigService {
     const configs = devices.flatMap((device) => {
       const [peer] = device.peers;
 
-      if (!device.key.startsWith(DEVICE_KEY.wireguard) || isNullish(peer)) {
+      if (!isWireguardDevice(device.key) || isNullish(peer)) {
         return [];
       }
 
@@ -73,14 +72,14 @@ export class WireguardConfigService {
       nodes: nodes.filter((node) => hasWireguard(node)).map((node) => wireguardNodeView({ node, live })),
       configs,
       deviceCount: devices.length,
-      deviceLimit: activeDeviceLimit(subscription)
+      deviceLimit
     };
   }
 
   async create({ userId, nodeId, name, shouldAnnounce = true }: CreateWireguardConfigServiceInput): Promise<WireguardConfigFile> {
-    const [node, subscription] = await Promise.all([
+    const [node, deviceLimit] = await Promise.all([
       this.prisma.node.findFirst({ where: { id: nodeId, isAvailable: true }, select: NODE_FEED_SELECT }),
-      this.prisma.subscription.findUnique({ where: { userId }, select: SUBSCRIPTION_PERIOD_SELECT })
+      this.devices.limitOf(userId)
     ]);
 
     if (isNullish(node) || !hasWireguard(node)) {
@@ -91,7 +90,6 @@ export class WireguardConfigService {
       throw new AppServiceUnavailableException('NODE_UNAVAILABLE', 'The WireGuard server is down right now');
     }
 
-    const deviceLimit = activeDeviceLimit(subscription);
     const identity = {
       key: `${DEVICE_KEY.wireguard}${randomUUID()}`,
       hwid: null,
@@ -160,7 +158,7 @@ export class WireguardConfigService {
         serverPublicKey: config.wireguard.publicKey,
         host: config.server,
         port: config.port,
-        keepAlive: WIREGUARD_INBOUND.keepAlive
+        keepAlive: INBOUND.wireguard.keepAlive
       })
     };
   }

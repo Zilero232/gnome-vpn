@@ -60,7 +60,7 @@ describe('withClientCallback', () => {
     const url = new URL(withClientCallback({ url: VERIFY_URL, locale: 'en', path: AUTH_PATHS.account }));
 
     expect(url.searchParams.get('token')).toBe('t');
-    expect(url.searchParams.get('callbackURL')).toBe(new URL(`/en${AUTH_PATHS.account}`, env.CLIENT_URL).toString());
+    expect(url.searchParams.get('callbackURL')).toBe(new URL(`/en${AUTH_PATHS.account}`, env.app.clientUrl).toString());
   });
 
   it('hands back a link it cannot read untouched', () => {

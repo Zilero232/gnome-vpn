@@ -40,7 +40,7 @@ export class TelegramSharedService {
   ) {}
 
   returnUrl(): string | undefined {
-    return botUrl(this.config.get('TELEGRAM_BOT_USERNAME'));
+    return botUrl(this.config.get('telegram').botUsername);
   }
 
   termsUrl(locale: BotLocale): string {
@@ -52,7 +52,7 @@ export class TelegramSharedService {
   }
 
   private siteUrl({ path, locale }: SiteUrlInput): string {
-    return new URL(localizedPath({ path, locale }), this.config.get('CLIENT_URL')).toString();
+    return new URL(localizedPath({ path, locale }), this.config.get('app').clientUrl).toString();
   }
 
   textFor(ctx: BotContext): BotText {
@@ -67,7 +67,7 @@ export class TelegramSharedService {
   }
 
   adminChatId(): number | null {
-    return adminChatOf(this.config.get('TELEGRAM_ADMIN_CHAT_ID'));
+    return adminChatOf(this.config.get('telegram').adminChatId);
   }
 
   isAdminChat(ctx: BotContext): boolean {

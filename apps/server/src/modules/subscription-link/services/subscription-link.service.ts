@@ -6,6 +6,7 @@ import { Injectable } from '@nestjs/common';
 import { AppConfigService } from '@/config';
 import { PrismaService, withUniqueRetry } from '@/core';
 import { DEVICE_KEY } from '@/modules/devices';
+import { peerRevocation } from '@/modules/peers';
 
 import type { PresentLinkInput } from '../subscription-link.service.types';
 
@@ -45,7 +46,7 @@ export class SubscriptionLinkService {
 
       await tx.peer.updateMany({
         where: { userId, kind: 'config', revokedAt: null, OR: [{ deviceId: null }, { deviceId: { in: deviceIds } }] },
-        data: { revokedAt: new Date(), state: 'disabled' }
+        data: peerRevocation(new Date())
       });
 
       await tx.device.deleteMany({ where: { id: { in: deviceIds } } });
@@ -62,7 +63,7 @@ export class SubscriptionLinkService {
   }
 
   private present({ token, createdAt }: PresentLinkInput): SubscriptionLink {
-    const url = new URL(`${FEED.path}/${token}`, this.config.get('API_URL')).toString();
+    const url = new URL(`${FEED.path}/${token}`, this.config.get('app').apiUrl).toString();
     const deepLink = encryptLink(url, { name: FEED.deepLinkName });
 
     return {

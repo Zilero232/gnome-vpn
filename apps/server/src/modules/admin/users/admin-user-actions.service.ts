@@ -4,11 +4,10 @@ import { adminExtendResultSchema, adminMessageResultSchema, DEFAULT_PLAN_ID, isP
 import { Injectable, Logger } from '@nestjs/common';
 
 import { AppBadRequestException } from '@/common/exceptions';
-import { describeError } from '@/common/lib';
+import { accessExtension, describeError } from '@/common/lib';
 import { PrismaService, withUniqueRetry } from '@/core';
 import { AutoRenewService } from '@/modules/billing';
 import { DevicesService } from '@/modules/devices';
-import { accessExtension } from '@/modules/promo-codes';
 import { SubscriptionAccessService, SubscriptionLinkService } from '@/modules/subscription-link';
 import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
 

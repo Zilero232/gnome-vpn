@@ -29,7 +29,7 @@ export class SubscriptionService {
   }
 
   async getStatus(userId: string): Promise<SubscriptionStatus> {
-    const isRecurringAvailable = this.config.get('YOOKASSA_RECURRING');
+    const isRecurringAvailable = this.config.get('yookassa').isRecurringEnabled;
 
     const [row, lastPayment] = await Promise.all([
       this.prisma.subscription.findUnique({

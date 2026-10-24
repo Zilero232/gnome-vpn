@@ -9,7 +9,7 @@ const logger = new Logger('PgPool');
 
 const globalForPools = globalThis as unknown as { pgPools?: Pool[] };
 
-if (env.NODE_ENV === 'development') {
+if (env.app.isDevelopment) {
   for (const stale of globalForPools.pgPools ?? []) {
     void stale.end().catch(() => {});
   }
@@ -24,7 +24,7 @@ export const createPool = (connectionString: string): Pool => {
     logger.warn(`idle connection dropped: ${error.message}`);
   });
 
-  if (env.NODE_ENV === 'development') {
+  if (env.app.isDevelopment) {
     globalForPools.pgPools?.push(pool);
   }
 

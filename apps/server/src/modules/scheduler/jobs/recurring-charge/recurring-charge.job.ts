@@ -127,7 +127,7 @@ export class RecurringChargeJob {
 
   @Cron(CronExpression.EVERY_HOUR)
   async run(): Promise<void> {
-    if (!this.config.get('YOOKASSA_RECURRING')) {
+    if (!this.config.get('yookassa').isRecurringEnabled) {
       return;
     }
 

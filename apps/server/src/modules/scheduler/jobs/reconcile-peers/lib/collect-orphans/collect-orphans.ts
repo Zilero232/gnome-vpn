@@ -1,6 +1,6 @@
 import { isEmpty, isNullish } from 'remeda';
 
-import { peerClientName } from '@/modules/peers';
+import { PEER_NAME_SELECT, peerClientName } from '@/modules/peers';
 
 import type { CollectOrphansInput, NamedOnNodeInput } from './collect-orphans.types';
 
@@ -9,7 +9,7 @@ import { isServerOwned } from './collect-orphans.helpers';
 const namedOnNode = async ({ prisma, nodeId }: NamedOnNodeInput): Promise<Set<string>> => {
   const rows = await prisma.peer.findMany({
     where: { nodeId },
-    select: { userId: true, kind: true, name: true, nodeId: true, protocol: true }
+    select: PEER_NAME_SELECT
   });
 
   return new Set(rows.map((row) => peerClientName(row)));

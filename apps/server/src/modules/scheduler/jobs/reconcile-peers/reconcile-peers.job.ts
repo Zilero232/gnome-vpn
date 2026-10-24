@@ -5,7 +5,6 @@ import { isEmpty, isNullish, unique, zip } from 'remeda';
 import { describeError } from '@/common/lib';
 import { PrismaService } from '@/core';
 import { IDENTIFIED_NODE_SELECT, xrayClientForNode } from '@/lib/xray';
-import { LEGACY_PEER } from '@/modules/devices';
 import { ALERT, SCHEDULE } from '@/modules/scheduler/config';
 import { TelegramAlertService } from '@/modules/telegram/services/telegram-alert.service';
 import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
@@ -22,7 +21,7 @@ import {
   restoreMissing,
   syncEnabled
 } from './lib';
-import { RECONCILE_PEER_SELECT } from './reconcile-peers.job.constants';
+import { LEGACY_PEER, RECONCILE_PEER_SELECT } from './reconcile-peers.job.constants';
 
 @Injectable()
 export class ReconcilePeersJob {

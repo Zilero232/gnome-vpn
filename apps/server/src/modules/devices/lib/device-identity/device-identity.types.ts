@@ -18,3 +18,14 @@ export type CleanedInput = {
   value: string | null;
   maxLength?: number;
 };
+
+export type TitledDevice = {
+  model: string | null;
+  app: string | null;
+  platform: string | null;
+};
+
+export type IncyAgent = {
+  version: string;
+  platform: string;
+};

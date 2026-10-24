@@ -42,7 +42,7 @@ export class NoticeEmailService {
       const chat = user.telegramAccount;
       const locale = pickEmailLocale([user.locale, isNonNullish(chat) ? resolveLocale(chat.locale ?? chat.languageCode) : null]);
       const tokens = { ...fill, ...(date && { date: formatDate({ iso: date.toISOString(), locale }) }) };
-      const url = new URL(localizedPath({ path: NOTICE_EMAIL.path, locale }), this.config.get('CLIENT_URL'));
+      const url = new URL(localizedPath({ path: NOTICE_EMAIL.path, locale }), this.config.get('app').clientUrl);
 
       url.hash = NOTICE_EMAIL.tab;
 

@@ -43,9 +43,9 @@ export class TelegramSupportService {
       return;
     }
 
-    const supportUrl = this.config.get('SUPPORT_URL');
+    const supportUrl = this.config.get('app').supportUrl;
     const message = isEmpty(supportUrl)
-      ? urlMessage({ intro: copy.supportOfflineSite, url: this.config.get('CLIENT_URL'), label: copy.supportSite, style: 'primary' })
+      ? urlMessage({ intro: copy.supportOfflineSite, url: this.config.get('app').clientUrl, label: copy.supportSite, style: 'primary' })
       : urlMessage({ intro: copy.supportOffline, url: supportUrl, label: copy.supportWrite, style: 'primary' });
 
     await this.shared.reply({ ctx, chat, ...message });

@@ -7,7 +7,7 @@ import { AppConfigService } from '@/config';
 import { PrismaService } from '@/core';
 import { NO_TRAFFIC } from '@/lib/xray';
 import { DEVICE_HEADER, deviceIdentity, deviceIpLimit, DevicesService, headerOf, isKeylessIncy } from '@/modules/devices';
-import { buildTunnelConfig } from '@/modules/peers';
+import { buildTunnelConfig, feedProtocols } from '@/modules/peers';
 
 import type { BuildFeedInput, ServerUrisInput, SubscriptionBody, TouchLinkInput } from '../subscription-link.service.types';
 
@@ -77,14 +77,14 @@ export class SubscriptionFeedService {
       ? await this.serverUris({ userId: link.userId, deviceId, nodes, tls: tlsMode(userAgent), issuable, limitIp: deviceIpLimit(identity.key) })
       : [];
 
-    const expected = live.flatMap((node) => this.subscriptionPeers.protocolsFor(node)).length;
+    const expected = live.flatMap((node) => feedProtocols(node)).length;
 
     if (isNonNullish(deviceId) && uris.length < expected) {
       this.logger.warn(`feed for ${link.userId} served ${uris.length} of ${expected} servers to device ${deviceId}`);
     }
 
     const traffic = canAdmit ? await this.subscriptionPeers.traffic(link.userId) : NO_TRAFFIC;
-    const routing = isNonNullish(deviceId) ? incyRouting({ app: identity.app, stored: link, apiUrl: this.config.get('API_URL') }) : null;
+    const routing = isNonNullish(deviceId) ? incyRouting({ app: identity.app, stored: link, apiUrl: this.config.get('app').apiUrl }) : null;
     const lines = isNonNullish(routing) ? [...uris, routing.line] : uris;
 
     return {
@@ -93,8 +93,8 @@ export class SubscriptionFeedService {
         ...incyHeaders({
           currentPeriodEnd,
           traffic,
-          clientUrl: this.config.get('CLIENT_URL'),
-          supportUrl: this.config.get('SUPPORT_URL') || null,
+          clientUrl: this.config.get('app').clientUrl,
+          supportUrl: this.config.get('app').supportUrl || null,
           announce: announcement({
             nodes,
             hasSubscription: isNonNullish(subscription),
@@ -128,7 +128,7 @@ export class SubscriptionFeedService {
 
     return zip(nodes, issued)
       .flatMap(([node, peers]) =>
-        this.subscriptionPeers.protocolsFor(node).map((protocol) => {
+        feedProtocols(node).map((protocol) => {
           const peer = peers.find((candidate) => candidate.protocol === protocol);
 
           if (!peer) {

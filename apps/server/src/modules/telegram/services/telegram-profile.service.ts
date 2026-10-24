@@ -54,8 +54,8 @@ export class TelegramProfileService {
   }
 
   private async listen(bot: Bot): Promise<void> {
-    const secret = this.config.get('TELEGRAM_WEBHOOK_SECRET');
-    const base = this.config.get('TELEGRAM_WEBHOOK_URL');
+    const secret = this.config.get('telegram').webhookSecret;
+    const base = this.config.get('telegram').webhookUrl;
 
     if (!secret || !base) {
       this.logger.log('telegram webhook not registered: TELEGRAM_WEBHOOK_URL and TELEGRAM_WEBHOOK_SECRET are both needed');

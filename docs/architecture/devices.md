@@ -203,7 +203,8 @@ shrinks — paid extras end when the subscription lapses, a renewal keeps them
 ([billing.md](billing.md)) — the devices past it lose their keys. A device that
 fetches the feed stays registered and comes back on the next fetch once there is
 room again. A `wg:` device never fetches the feed, so nothing would ever bring it
-back, and it would hold a slot for good while serving nothing: `revokeOverLimit`
+back, and it would hold a slot for good while serving nothing:
+`DeviceLimitService.revokeOverLimit`
 deletes it instead, its peers revoked and its row deleted in one transaction, as
 removing it by hand does.
 
@@ -226,7 +227,8 @@ registry every account had one set of `incy` peers shared by all its devices.
 04:17, the pass that already asks the node who is online and already restarts
 the core — and only when both hold:
 
-- the account has a device registered more than `LEGACY_PEER.graceHours` (48)
+- the account has a device registered more than `LEGACY_PEER.graceHours` (48,
+  beside the reconcile job, the only code that still names the shared peer)
   ago, so its installs have had several 12-hour refreshes to pick up keys of
   their own;
 - the node does not report that client online. A shared key carrying a session

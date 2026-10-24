@@ -250,7 +250,7 @@ export class TelegramAccountService {
     const text = BOT_TEXT[locale];
 
     return html.paragraphs([
-      fillText({ text: text.start, fill: { site: this.config.get('CLIENT_URL') } }),
+      fillText({ text: text.start, fill: { site: this.config.get('app').clientUrl } }),
       fillText({ text: text.consentLine, fill: { link: this.shared.consentUrl(locale) } })
     ]);
   }

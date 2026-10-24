@@ -7,10 +7,10 @@ import { createPool } from './pg-pool';
 
 const globalForPrisma = globalThis as unknown as { basePrisma?: PrismaClient };
 
-const createBasePrisma = (): PrismaClient => new PrismaClient({ adapter: new PrismaPg(createPool(env.DATABASE_URL)) });
+const createBasePrisma = (): PrismaClient => new PrismaClient({ adapter: new PrismaPg(createPool(env.database.url)) });
 
 export const basePrisma = globalForPrisma.basePrisma ?? createBasePrisma();
 
-if (env.NODE_ENV === 'development') {
+if (env.app.isDevelopment) {
   globalForPrisma.basePrisma = basePrisma;
 }

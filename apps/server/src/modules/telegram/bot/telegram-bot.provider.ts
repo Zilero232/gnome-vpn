@@ -10,7 +10,7 @@ import { TELEGRAM_BOT } from './telegram-bot.constants';
 export const telegramBotProvider = {
   provide: TELEGRAM_BOT,
   useFactory: (config: AppConfigService): Bot | null => {
-    const token = config.get('TELEGRAM_BOT_TOKEN');
+    const token = config.get('telegram').botToken;
 
     if (!token) {
       return null;

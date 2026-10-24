@@ -1,5 +1,10 @@
 import { SUBSCRIPTION_PERIOD_SELECT } from '@/common/lib';
 
+export const LEGACY_PEER = {
+  name: 'incy',
+  graceHours: 48
+} as const;
+
 export const RECONCILE_PEER_SELECT = {
   id: true,
   deviceId: true,

@@ -101,7 +101,7 @@ export class TelegramAlertService {
 
   private post(compose: () => Promise<string>): void {
     const bot = this.bot;
-    const chatId = adminChatOf(this.config.get('TELEGRAM_ADMIN_CHAT_ID'));
+    const chatId = adminChatOf(this.config.get('telegram').adminChatId);
 
     if (isNullish(bot) || isNullish(chatId)) {
       return;

@@ -23,13 +23,6 @@ export type Claimed = {
   currentPeriodEnd: Date | null;
 };
 
-export type ExtendAccessInput = {
-  userId: string;
-  days: number;
-  now: Date;
-  db: PrismaExecutor;
-};
-
 export type AppliedDiscount = PromoDiscount & {
   promoCodeId: string;
 };

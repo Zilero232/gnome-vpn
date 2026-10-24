@@ -29,4 +29,4 @@ app.use(json());
 app.useGlobalPipes(new ZodValidationPipe());
 app.enableShutdownHooks();
 
-await app.listen(env.PORT);
+await app.listen(env.app.port);

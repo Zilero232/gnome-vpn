@@ -30,3 +30,10 @@ exporting only names with an outside consumer. The server has no aggregate
 `lib/index.ts`: import `@/lib/xray`, `@/lib/auth`, `@/lib/yookassa`,
 `@/lib/email`.
 
+## Feature folders in a big module
+
+A server module with several features splits into one folder per feature
+(controller, services, helpers, types, config, `_tests/`), plus `shared/` for
+what several features use; Nest wiring stays in the module file. A feature
+reaches a sibling only through `shared/`, and owns the constants only it uses.
+
