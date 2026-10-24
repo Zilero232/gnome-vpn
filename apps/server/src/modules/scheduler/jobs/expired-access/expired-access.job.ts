@@ -8,7 +8,7 @@ import { PrismaService } from '@/core';
 import { WINDOW } from '@/modules/scheduler/config';
 import { activeSince, lapsedBefore } from '@/modules/scheduler/lib';
 import { SubscriptionAccessService } from '@/modules/subscription-link';
-import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
+import { TelegramNotifyService } from '@/modules/telegram/notify';
 
 import type { OwnersOfInput, SweepInput } from './expired-access.job.types';
 

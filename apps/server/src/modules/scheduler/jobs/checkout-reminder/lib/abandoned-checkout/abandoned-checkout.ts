@@ -2,7 +2,7 @@ import { isNullish, sortBy, uniqueBy } from 'remeda';
 import { match } from 'ts-pattern';
 
 import type { PaymentKind } from '@/generated';
-import type { NoticeKey } from '@/modules/telegram/telegram.types';
+import type { NoticeKey } from '@/modules/telegram/notify';
 
 import { CHECKOUT_REMINDER } from '@/modules/scheduler/config';
 

@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 
+import { TelegramNotifyModule } from '@/modules/telegram/notify';
+
 import { BillingModule } from '../billing';
 import { ConsentsModule } from '../consents';
 import { DevicesModule } from '../devices';
 import { PromoCodesModule } from '../promo-codes';
 import { StatusModule } from '../status';
 import { SubscriptionLinkModule } from '../subscription-link';
-import { TelegramNotifyModule } from '../telegram/telegram-notify.module';
 import {
   CheckoutReminderJob,
   DeviceSlotsJob,

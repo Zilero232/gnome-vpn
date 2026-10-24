@@ -8,7 +8,7 @@ import { isNullish } from 'remeda';
 import { describeError } from '@/common/lib';
 import { claimNotice, NOTICE_CLAIM, NOTICE_REF, PrismaService } from '@/core';
 import { DEVICE_KEY, deviceTitle } from '@/modules/devices';
-import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
+import { TelegramNotifyService } from '@/modules/telegram/notify';
 
 import type { DeviceAddedInput, DeviceBlockedInput } from '../subscription-link.service.types';
 

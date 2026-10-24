@@ -10,8 +10,7 @@ import { YooKassaClient } from '@/lib/yookassa';
 import { GiftCodeService, PromoDiscountService } from '@/modules/promo-codes';
 import { ReferralRewardService } from '@/modules/referrals';
 import { SubscriptionAccessService } from '@/modules/subscription-link';
-import { TelegramAlertService } from '@/modules/telegram/services/telegram-alert.service';
-import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
+import { TelegramAlertService, TelegramNotifyService } from '@/modules/telegram/notify';
 
 import type {
   AnnounceReferralInput,

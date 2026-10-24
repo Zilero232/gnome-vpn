@@ -1,7 +1,7 @@
 import type { NOTICE_CLAIM } from '@/core';
 import type { AutoDiscountOffer, AutomaticCode } from '@/modules/promo-codes';
 import type { WIN_BACK } from '@/modules/scheduler/config';
-import type { NoticeKey } from '@/modules/telegram/telegram.types';
+import type { NoticeKey } from '@/modules/telegram/notify';
 
 export type WinBackAudience = keyof typeof WIN_BACK.codes;
 

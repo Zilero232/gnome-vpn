@@ -7,7 +7,7 @@ import { claimNotice, NOTICE_CLAIM, PrismaService } from '@/core';
 import { ConsentService } from '@/modules/consents';
 import { AutoDiscountService } from '@/modules/promo-codes';
 import { REACHABLE_USER, SCHEDULE, WIN_BACK } from '@/modules/scheduler/config';
-import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
+import { TelegramNotifyService } from '@/modules/telegram/notify';
 
 import type { WinBackCandidate, WinBackCodes, WinBackTouchInput } from './win-back.job.types';
 

@@ -4,7 +4,7 @@ import { isEmpty } from 'remeda';
 
 import { describeError } from '@/common/lib';
 import { DEVICE_TITLE, DevicesService } from '@/modules/devices';
-import { TelegramNotifyService } from '@/modules/telegram/services/telegram-notify.service';
+import { TelegramNotifyService } from '@/modules/telegram/notify';
 
 @Injectable()
 export class DeviceSlotsJob {
