@@ -22,7 +22,7 @@ export class UnsubscribeService {
   ) {}
 
   link({ userId, locale }: UnsubscribeLinkInput): string {
-    const url = new URL(localizedPath({ path: UNSUBSCRIBE.path, locale }), this.config.get('CLIENT_URL'));
+    const url = new URL(localizedPath({ path: UNSUBSCRIBE.path, locale }), this.config.get('app').clientUrl);
 
     url.searchParams.set(UNSUBSCRIBE.tokenParam, signUnsubscribe({ userId, secret: this.secret() }));
 
@@ -46,6 +46,6 @@ export class UnsubscribeService {
   }
 
   private secret(): string {
-    return this.config.get('BETTER_AUTH_SECRET');
+    return this.config.get('auth').secret;
   }
 }

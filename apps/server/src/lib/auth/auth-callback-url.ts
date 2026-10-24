@@ -8,7 +8,7 @@ export const withClientCallback = ({ url, locale, path = '/' }: ClientCallbackIn
   try {
     const parsed = new URL(url);
 
-    parsed.searchParams.set('callbackURL', new URL(localizedPath({ path, locale }), env.CLIENT_URL).toString());
+    parsed.searchParams.set('callbackURL', new URL(localizedPath({ path, locale }), env.app.clientUrl).toString());
 
     return parsed.toString();
   } catch {

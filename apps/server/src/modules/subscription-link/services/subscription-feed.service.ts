@@ -84,7 +84,7 @@ export class SubscriptionFeedService {
     }
 
     const traffic = canAdmit ? await this.subscriptionPeers.traffic(link.userId) : NO_TRAFFIC;
-    const routing = isNonNullish(deviceId) ? incyRouting({ app: identity.app, stored: link, apiUrl: this.config.get('API_URL') }) : null;
+    const routing = isNonNullish(deviceId) ? incyRouting({ app: identity.app, stored: link, apiUrl: this.config.get('app').apiUrl }) : null;
     const lines = isNonNullish(routing) ? [...uris, routing.line] : uris;
 
     return {
@@ -93,8 +93,8 @@ export class SubscriptionFeedService {
         ...incyHeaders({
           currentPeriodEnd,
           traffic,
-          clientUrl: this.config.get('CLIENT_URL'),
-          supportUrl: this.config.get('SUPPORT_URL') || null,
+          clientUrl: this.config.get('app').clientUrl,
+          supportUrl: this.config.get('app').supportUrl || null,
           announce: announcement({
             nodes,
             hasSubscription: isNonNullish(subscription),

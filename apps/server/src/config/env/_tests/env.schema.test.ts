@@ -10,20 +10,28 @@ const validEnv = {
 };
 
 describe('validateEnv', () => {
-  it('parses an env carrying every required variable', () => {
-    expect(validateEnv(validEnv)).toMatchObject(validEnv);
+  it('parses an env carrying every required variable into its groups', () => {
+    expect(validateEnv(validEnv)).toMatchObject({
+      database: { url: validEnv.DATABASE_URL, directUrl: validEnv.DIRECT_URL },
+      app: { apiUrl: validEnv.API_URL },
+      auth: { secret: validEnv.BETTER_AUTH_SECRET }
+    });
   });
 
   it('applies the defaults for everything optional', () => {
     const parsed = validateEnv(validEnv);
 
     expect(parsed).toMatchObject({
-      NODE_ENV: 'development',
-      PORT: 4000,
-      CORS_ORIGINS: 'http://localhost:3000',
-      CLIENT_URL: 'http://localhost:3000',
-      YOOKASSA_RETURN_URL: 'http://localhost:3000/account',
-      SMTP_PORT: 465
+      app: {
+        nodeEnv: 'development',
+        isDevelopment: true,
+        isProduction: false,
+        port: 4000,
+        corsOrigins: 'http://localhost:3000',
+        clientUrl: 'http://localhost:3000'
+      },
+      yookassa: { returnUrl: 'http://localhost:3000/account' },
+      email: { smtp: { port: 465 } }
     });
   });
 
@@ -48,17 +56,17 @@ describe('validateEnv', () => {
   });
 
   it('turns the string true into a real boolean', () => {
-    expect(validateEnv({ ...validEnv, YOOKASSA_RECURRING: 'true' }).YOOKASSA_RECURRING).toBe(true);
+    expect(validateEnv({ ...validEnv, YOOKASSA_RECURRING: 'true' }).yookassa.isRecurringEnabled).toBe(true);
   });
 
   it('turns the string false into a real boolean', () => {
-    expect(validateEnv({ ...validEnv, SMTP_SECURE: 'false' }).SMTP_SECURE).toBe(false);
+    expect(validateEnv({ ...validEnv, SMTP_SECURE: 'false' }).email.smtp.secure).toBe(false);
   });
 
   it('defaults the recurring flag to false and the smtp secure flag to true', () => {
     const parsed = validateEnv(validEnv);
 
-    expect([parsed.YOOKASSA_RECURRING, parsed.SMTP_SECURE]).toEqual([false, true]);
+    expect([parsed.yookassa.isRecurringEnabled, parsed.email.smtp.secure]).toEqual([false, true]);
   });
 
   it('rejects a boolean variable that is neither true nor false', () => {
@@ -66,7 +74,7 @@ describe('validateEnv', () => {
   });
 
   it('coerces a numeric port from its string form', () => {
-    expect(validateEnv({ ...validEnv, PORT: '8080' }).PORT).toBe(8080);
+    expect(validateEnv({ ...validEnv, PORT: '8080' }).app.port).toBe(8080);
   });
 
   it('rejects an unknown node environment', () => {
@@ -78,14 +86,14 @@ describe('validateEnv', () => {
   });
 
   it('has no admins unless the list names some', () => {
-    expect(validateEnv(validEnv).ADMIN_EMAILS).toEqual([]);
+    expect(validateEnv(validEnv).auth.adminEmails).toEqual([]);
   });
 
   it('reads the admin list case-insensitively, once per address, skipping empty entries', () => {
     const admins = ['owner@example.com', 'support@example.com'] as const;
     const raw = ` ${admins[0].toUpperCase()} ,, ${admins[1]}, ${admins[0]} `;
 
-    expect(validateEnv({ ...validEnv, ADMIN_EMAILS: raw }).ADMIN_EMAILS).toEqual(admins);
+    expect(validateEnv({ ...validEnv, ADMIN_EMAILS: raw }).auth.adminEmails).toEqual(admins);
   });
 
   it('refuses to boot with an admin entry that is not an email', () => {

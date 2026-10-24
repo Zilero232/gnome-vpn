@@ -19,7 +19,7 @@ export class AdminAccessService {
   ) {}
 
   async adminOf(userId: string | undefined): Promise<CurrentAdminUser | null> {
-    const admins = this.config.get('ADMIN_EMAILS');
+    const admins = this.config.get('auth').adminEmails;
 
     if (isNullish(userId) || isEmpty(admins)) {
       return null;

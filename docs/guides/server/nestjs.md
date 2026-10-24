@@ -64,7 +64,7 @@ The schema itself belongs in [`packages/schemas`](../../../packages/schemas) —
 
 ## Environment
 
-`config/env.schema.ts` validates on boot and **throws** on a missing variable. That is deliberate: a server that starts without `DATABASE_URL` fails later, in a harder-to-read way. The validated values are `env` from `@/config`, read once: code outside Nest's injector (the Prisma pool, better-auth, the mail transport, `main.ts`) imports `env`; a provider injects `AppConfigService`. Nothing calls `validateEnv(process.env)` itself.
+`config/env/` validates on boot and **throws** on a missing variable. The variables keep their flat names in `.env`, but the code reads them grouped by concern — one file per group (`app.env.ts`, `database.env.ts`, `auth.env.ts`, `yookassa.env.ts`, `email.env.ts`, `telegram.env.ts`), each a zod object of its variables with a transform to readable keys — so a call site says `config.get('yookassa').shopId` or `env.email.smtp.host`, never `config.get('YOOKASSA_SHOP_ID')`. A new variable goes into its group's file; a new concern gets a new group. That is deliberate: a server that starts without `DATABASE_URL` fails later, in a harder-to-read way. The validated values are `env` from `@/config`, read once: code outside Nest's injector (the Prisma pool, better-auth, the mail transport, `main.ts`) imports `env`; a provider injects `AppConfigService`. Nothing calls `validateEnv(process.env)` itself.
 
 Node panel API tokens are the exception. The `node` table stores the _name_ of an env var (`apiTokenEnvVar`), never the token; `xrayClientForNode` in `lib/xray/node-access.ts` resolves it at call time:
 

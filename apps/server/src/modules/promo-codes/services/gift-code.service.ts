@@ -71,7 +71,7 @@ export class GiftCodeService {
   }
 
   async list(userId: string): Promise<GiftList> {
-    const clientUrl = this.config.get('CLIENT_URL');
+    const clientUrl = this.config.get('app').clientUrl;
 
     const [rows, pendingCount] = await Promise.all([
       this.prisma.promoCode.findMany({

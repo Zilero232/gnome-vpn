@@ -22,8 +22,8 @@ const logger = new Logger('Auth');
 
 export const auth = betterAuth({
   basePath: '/auth',
-  baseURL: env.API_URL,
-  secret: env.BETTER_AUTH_SECRET,
+  baseURL: env.app.apiUrl,
+  secret: env.auth.secret,
   trustedOrigins: allowedOrigins,
   session: SESSION,
   emailAndPassword: {

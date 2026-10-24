@@ -15,8 +15,8 @@ import { withSerializableRetry } from './prisma-retry';
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   constructor() {
     super({
-      adapter: new PrismaPg(createPool(env.DATABASE_URL)),
-      log: env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error']
+      adapter: new PrismaPg(createPool(env.database.url)),
+      log: env.app.isDevelopment ? ['error', 'warn'] : ['error']
     });
   }
   async onModuleInit() {

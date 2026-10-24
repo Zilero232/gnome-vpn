@@ -37,8 +37,8 @@ export class ReferralService {
 
     return {
       code,
-      link: webReferralLink({ clientUrl: this.config.get('CLIENT_URL'), code }),
-      telegramLink: telegramReferralLink({ botUsername: this.config.get('TELEGRAM_BOT_USERNAME'), code }),
+      link: webReferralLink({ clientUrl: this.config.get('app').clientUrl, code }),
+      telegramLink: telegramReferralLink({ botUsername: this.config.get('telegram').botUsername, code }),
       invited,
       rewarded,
       daysEarned: earned._sum.referrerDays ?? 0,

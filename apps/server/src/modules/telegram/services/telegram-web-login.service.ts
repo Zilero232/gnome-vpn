@@ -26,7 +26,7 @@ export class TelegramWebLoginService {
   ) {}
 
   widget(): TelegramWidget {
-    return { botUsername: this.config.get('TELEGRAM_BOT_USERNAME') };
+    return { botUsername: this.config.get('telegram').botUsername };
   }
 
   async issue(userId: string): Promise<string> {
@@ -38,7 +38,7 @@ export class TelegramWebLoginService {
       this.prisma.telegramWebLogin.create({ data: { code, userId, expiresAt } })
     ]);
 
-    const url = new URL(WEB_LOGIN.path, this.config.get('CLIENT_URL'));
+    const url = new URL(WEB_LOGIN.path, this.config.get('app').clientUrl);
 
     url.searchParams.set('code', code);
 
@@ -46,7 +46,7 @@ export class TelegramWebLoginService {
   }
 
   async signInWithWidget(raw: unknown): Promise<string> {
-    const botToken = this.config.get('TELEGRAM_BOT_TOKEN');
+    const botToken = this.config.get('telegram').botToken;
     const payload = isWidgetPayload(raw) ? raw : null;
     const identity = isNullish(payload) ? null : widgetIdentity(payload);
 

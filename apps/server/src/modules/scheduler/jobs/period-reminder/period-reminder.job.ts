@@ -32,7 +32,7 @@ export class PeriodReminderJob {
       return hoursLeft < WINDOW.trialRemindHours ? { userId, notice: 'trialEndingSoon' } : null;
     }
 
-    const willCharge = !subscription.cancelAtPeriodEnd && subscription.savedCardId !== null && this.config.get('YOOKASSA_RECURRING');
+    const willCharge = !subscription.cancelAtPeriodEnd && subscription.savedCardId !== null && this.config.get('yookassa').isRecurringEnabled;
 
     if (!willCharge) {
       return { userId, notice: 'endingSoon', date: currentPeriodEnd };

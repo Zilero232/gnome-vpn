@@ -62,7 +62,7 @@ export class SubscriptionLinkService {
   }
 
   private present({ token, createdAt }: PresentLinkInput): SubscriptionLink {
-    const url = new URL(`${FEED.path}/${token}`, this.config.get('API_URL')).toString();
+    const url = new URL(`${FEED.path}/${token}`, this.config.get('app').apiUrl).toString();
     const deepLink = encryptLink(url, { name: FEED.deepLinkName });
 
     return {

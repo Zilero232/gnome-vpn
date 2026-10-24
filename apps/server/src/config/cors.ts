@@ -11,11 +11,11 @@ const originOf = (url: string): string | null => {
 };
 
 const webOrigins = pipe(
-  env.CORS_ORIGINS.split(','),
+  env.app.corsOrigins.split(','),
   map((origin) => origin.trim()),
   filter((origin) => !isEmpty(origin))
 );
 
-const clientOrigin = originOf(env.CLIENT_URL);
+const clientOrigin = originOf(env.app.clientUrl);
 
 export const allowedOrigins = unique([...webOrigins, ...(clientOrigin ? [clientOrigin] : [])]);

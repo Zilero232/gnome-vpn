@@ -613,7 +613,7 @@ each call site to remember.
 **`TELEGRAM_ADMIN_CHAT_ID` is the owner's side of the bot, and it is optional.**
 It names one chat — the owner's private chat with the bot, or a group of the
 people who answer — where support requests arrive, the owner commands work and
-the alerts are posted. It defaults to `''`, and `config/env.schema.ts` accepts
+the alerts are posted. It defaults to `''`, and `config/env/telegram.env.ts` accepts
 only that or a whole number (a group's id is negative). Empty switches all of it
 off without a word: the owner commands answer nowhere, the alerts are dropped
 before anything is composed, and the support entry falls back to what the bot

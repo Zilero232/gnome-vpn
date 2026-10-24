@@ -31,7 +31,7 @@ export class TelegramController {
   }
 
   private isFromTelegram(secret: string | undefined): boolean {
-    const expected = this.config.get('TELEGRAM_WEBHOOK_SECRET');
+    const expected = this.config.get('telegram').webhookSecret;
 
     if (!expected || isNullish(secret)) {
       return false;

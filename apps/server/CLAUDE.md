@@ -27,7 +27,7 @@ src/
 ├── lib/             # external integrations, each its own boundary: @/lib/auth, @/lib/email, @/lib/xray, @/lib/yookassa
 ├── core/            # Prisma (service with serializable(), base client, pg pool, error codes and retries), logger, the notice-log claim
 ├── common/          # exceptions, filters, decorators, shared lib (node credentials, period…)
-└── config/          # env schema (Zod), config service, CORS
+└── config/          # env/ (one zod file per group: app, database, auth, yookassa, email, telegram), config service, CORS
 ```
 
 ## Where to read more
@@ -54,7 +54,7 @@ src/
 - **Import another module through its barrel**, never into its files. The one deliberate exception is the Telegram notify and alert imports from billing, the scheduler, the subscription feed and admin — see [telegram-bot.md](../../docs/architecture/telegram-bot.md).
 - **DTOs wrap a schema from `@gnomevpn/schemas`** (`createZodDto(platformSchema)`), so the client validates against the same one.
 - **Errors** are the app exceptions from `common/exceptions` with a code from `@gnomevpn/schemas`; the code is a contract, the message is free text.
-- **`config/env.schema.ts` throws on boot** on a missing variable. Node panel API tokens are the exception: the `node` table stores the env var's _name_ (`apiTokenEnvVar`), and the values live in `.env.nodes`, written by `bun run provision:nodes`.
+- **`config/env/` throws on boot** on a missing variable; code reads the groups — `config.get('yookassa').shopId`, `env.database.url`. Node panel API tokens are the exception: the `node` table stores the env var's _name_ (`apiTokenEnvVar`), and the values live in `.env.nodes`, written by `bun run provision:nodes`.
 - **Every outbound `fetch` carries `AbortSignal.timeout(MS)`.**
 - **`XrayClient` talks to the 3x-ui panel, not to Xray-core**: client adds, deletes and disables apply live in the running core, so never call `restartCore()` after a client change — only provisioning restarts, after an inbound changed; WireGuard clients must never be re-enabled through `bulkEnable`.
 - **A revocation needs a restore in the same sweep**, and every write path parses settings strictly.

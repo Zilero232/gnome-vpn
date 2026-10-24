@@ -30,11 +30,11 @@ export class BillingSharedService {
   ) {}
 
   isRecurringEnabled(): boolean {
-    return this.config.get('YOOKASSA_RECURRING');
+    return this.config.get('yookassa').isRecurringEnabled;
   }
 
   returnUrl({ returnUrl, locale }: CheckoutReturnInput = {}): string {
-    return returnUrl ?? localizedReturnUrl({ baseUrl: this.config.get('YOOKASSA_RETURN_URL'), locale });
+    return returnUrl ?? localizedReturnUrl({ baseUrl: this.config.get('yookassa').returnUrl, locale });
   }
 
   async setAutoRenew({ userId, isEnabled }: SetAutoRenewServiceInput): Promise<void> {
