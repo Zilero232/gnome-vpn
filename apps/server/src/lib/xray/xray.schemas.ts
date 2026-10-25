@@ -24,9 +24,9 @@ export const PANEL_SCHEMA = {
     remark: z.string(),
     port: z.number(),
     protocol: z.string(),
-    settings: SETTINGS.optional(),
-    streamSettings: SETTINGS.optional(),
-    sniffing: SETTINGS.optional(),
+    settings: SETTINGS.nullish(),
+    streamSettings: SETTINGS.nullish(),
+    sniffing: SETTINGS.nullish(),
     clientStats: z
       .array(
         z.object({
