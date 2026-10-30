@@ -12,7 +12,8 @@ enum PaymentKind {
 }
 
 model Payment {
-  id                String  @id @default(dbgenerated("gen_random_uuid()"))
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
   userId            String? @map("user_id")
   yookassaPaymentId String  @unique @map("yookassa_payment_id")
 

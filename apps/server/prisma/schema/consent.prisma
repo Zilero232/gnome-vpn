@@ -12,7 +12,8 @@ enum ConsentSource {
 }
 
 model Consent {
-  id     String @id @default(dbgenerated("gen_random_uuid()"))
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
   userId String @map("user_id")
 
   kind    ConsentKind

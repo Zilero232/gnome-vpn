@@ -8,8 +8,7 @@ model TelegramAccount {
   username   String?
 
   languageCode String? @map("language_code")
-
-  locale String?
+  locale       String?
 
   linkedAt   DateTime  @default(now()) @map("linked_at") @db.Timestamptz(3)
   lastSeenAt DateTime? @map("last_seen_at") @db.Timestamptz(3)

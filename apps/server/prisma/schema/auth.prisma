@@ -1,44 +1,54 @@
 model User {
   id String @id @default(dbgenerated("gen_random_uuid()"))
 
-  name          String
   email         String  @unique
   emailVerified Boolean @default(false) @map("email_verified")
-  image         String?
-  locale        String?
+
+  name  String
+  image String?
+
+  locale String?
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  sessions         Session[]
-  accounts         Account[]
-  payments         Payment[]
-  peers            Peer[]
-  devices          Device[]
+  sessions Session[]
+  accounts Account[]
+
   subscription     Subscription?
   subscriptionLink SubscriptionLink?
-  telegramAccount  TelegramAccount?
-  telegramCodes    TelegramLinkCode[]
-  telegramLogins   TelegramWebLogin[]
-  referralCode     ReferralCode?
-  referralsMade    Referral[]         @relation("ReferralsMade")
-  referredBy       Referral?          @relation("ReferredBy")
-  giftsBought      PromoCode[]        @relation("GiftsBought")
+  payments         Payment[]
+
+  devices Device[]
+  peers   Peer[]
+
+  telegramAccount TelegramAccount?
+  telegramCodes   TelegramLinkCode[]
+  telegramLogins  TelegramWebLogin[]
+
+  referralCode  ReferralCode?
+  referralsMade Referral[]    @relation("ReferralsMade")
+  referredBy    Referral?     @relation("ReferredBy")
+
+  giftsBought      PromoCode[]       @relation("GiftsBought")
   promoRedemptions PromoRedemption[]
-  noticeLog        NoticeLog[]
-  consents         Consent[]
+
+  noticeLog NoticeLog[]
+  consents  Consent[]
 
   @@map("user")
 }
 
 model Session {
-  id     String @id @default(dbgenerated("gen_random_uuid()"))
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
   userId String @map("user_id")
   token  String @unique
 
+  ipAddress String? @map("ip_address")
+  userAgent String? @map("user_agent")
+
   expiresAt DateTime @map("expires_at") @db.Timestamptz(3)
-  ipAddress String?  @map("ip_address")
-  userAgent String?  @map("user_agent")
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -51,19 +61,22 @@ model Session {
 }
 
 model Account {
-  id         String @id @default(dbgenerated("gen_random_uuid()"))
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
   userId     String @map("user_id")
   accountId  String @map("account_id")
   providerId String @map("provider_id")
   issuer     String @default("local:credential")
 
-  accessToken           String?   @map("access_token")
-  refreshToken          String?   @map("refresh_token")
-  idToken               String?   @map("id_token")
+  accessToken  String? @map("access_token")
+  refreshToken String? @map("refresh_token")
+  idToken      String? @map("id_token")
+  scope        String?
+
   accessTokenExpiresAt  DateTime? @map("access_token_expires_at") @db.Timestamptz(3)
   refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at") @db.Timestamptz(3)
-  scope                 String?
-  password              String?
+
+  password String?
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -80,7 +93,8 @@ model Verification {
 
   identifier String
   value      String
-  expiresAt  DateTime @map("expires_at") @db.Timestamptz(3)
+
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(3)
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
