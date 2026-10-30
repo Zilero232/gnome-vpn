@@ -29,11 +29,11 @@ back with `node:util` `parseEnv` (`readEnvValue`), the same rules as the
 `--env-file` the server boots with, so a quoted value reads the same in both.
 
 **`remote/` is one folder per thing done to the host**, not one file that grew:
-`host-packages` (docker, jq, fail2ban), `firewall`, `xray-stack`, `host-cert`,
+`host-packages` (docker, jq, fail2ban), `firewall`, `host-tuning`, `xray-stack`, `host-cert`,
 `key-files` (`ensureKeyFiles` writes a set of key files only when one is missing;
 `ensureRealityKeys` and `ensureWireguardKeys` are built on it), `panel-config`,
 `panel-session`, `xray-panel`, and `host-prepare`, which runs the host-level
-steps (packages, firewall, the compose stack) in order.
+steps (packages, firewall, tuning, the compose stack) in order.
 They were a single 232-line `remote-setup.ts` holding five unrelated concerns.
 `inContainer` lives with the stack that defines the container name, so a
 concern needing it imports the stack rather than a shared shell helper.
@@ -48,17 +48,32 @@ without anything hand-indenting its own messages. A summary at the end is not
 enough: a node that takes 30 seconds on `apt-get` looks identical to one that
 has hung.
 
-**fail2ban is provisioned, not installed by hand.** Every node gets the same
+**fail2ban is provisioned, not installed by hand.** It guards sshd only — the
+panel's own fail2ban, which enforced the IP limit, is off
+([nodes-and-peers.md](nodes-and-peers.md#no-ip-limit-on-the-panel)). Every node gets the same
 `jail.d/sshd.local` — `backend = systemd`, because the nodes ship
 without rsyslog and a jail reading `/var/log/auth.log` silently bans nobody.
 `ensureFail2ban` is idempotent: it installs only when the binary is missing but
 rewrites the jail every run, so changing a threshold in `FAIL2BAN` is a
 re-provision rather than an ssh session.
 
+**The host is tuned for QUIC and capped on logs.** `tuneHost` writes
+`/etc/sysctl.d/99-gnomevpn.conf`: the UDP socket buffer ceilings go from
+Ubuntu's 208 KB to 16 MB, because quic-go — Hysteria2's transport — asks for
+several megabytes and silently drops packets under load without them (the
+Hysteria docs recommend the same), and TCP moves to BBR on `fq`, which helps
+VLESS over long, lossy routes. It also caps journald at 300 MB in
+`/etc/systemd/journald.conf.d/gnomevpn.conf`: on a 15 GB disk the journal had
+reached 1.4 GB. The compose file caps the container's own log the same way
+(`json-file`, 3 × 10 MB) and sets `XUI_LOG_LEVEL=warning` for the console; the
+panel's file log under `/var/log/x-ui` stays at debug and rotates itself.
+Changing the compose environment recreates the container, so the run that
+ships it restarts the core once.
+
 ## What a run does to a node
 
-`provisionHost` is staged: `prepareHost` (docker, jq, fail2ban, firewall, the
-3x-ui compose stack) → `configurePanel` (credentials, port and path, the api
+`provisionHost` is staged: `prepareHost` (docker, jq, fail2ban, firewall,
+tuning, the 3x-ui compose stack) → `configurePanel` (credentials, port and path, the api
 token) → `rememberNodeSecrets` (the three `.env.nodes` keys) → `openPanelSession`
 (wait for the api from the workstation) → `installInbounds` (cert, cert
 fingerprint, Reality keys, WireGuard keys, then `syncInbounds` for the

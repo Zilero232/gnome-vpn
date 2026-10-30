@@ -51,7 +51,6 @@ export type ServerUrisInput = {
   nodes: SubscriptionNode[];
   tls: TlsMode;
   issuable: Set<string>;
-  limitIp: number;
 };
 
 export type EnsureNodeInput = {
@@ -59,13 +58,11 @@ export type EnsureNodeInput = {
   deviceId: string;
   node: SubscriptionNode;
   canIssue: boolean;
-  limitIp?: number;
   protocols?: TunnelProtocol[];
 };
 
-export type IssueFeedPeerInput = Omit<EnsureNodeInput, 'canIssue' | 'limitIp' | 'protocols'> & {
+export type IssueFeedPeerInput = Omit<EnsureNodeInput, 'canIssue' | 'protocols'> & {
   protocol: TunnelProtocol;
-  limitIp: number;
 };
 
 export type PersistPeerInput = {

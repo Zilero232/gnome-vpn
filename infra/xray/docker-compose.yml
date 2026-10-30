@@ -1,11 +1,12 @@
 services:
   xray:
-    image: ghcr.io/mhsanaei/3x-ui:v3.10.2
+    image: ghcr.io/mhsanaei/3x-ui:v3.11.0
     container_name: gnomevpn-xray
     restart: unless-stopped
     environment:
       XRAY_VMESS_AEAD_FORCED: 'false'
-      XUI_ENABLE_FAIL2BAN: 'true'
+      XUI_ENABLE_FAIL2BAN: 'false'
+      XUI_LOG_LEVEL: warning
     volumes:
       - xray-db:/etc/x-ui
       - xray-certs:/root/cert
@@ -13,6 +14,11 @@ services:
     network_mode: host
     cap_add:
       - NET_ADMIN
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
 
 volumes:
   xray-db:

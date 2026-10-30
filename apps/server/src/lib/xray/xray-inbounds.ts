@@ -73,6 +73,10 @@ export class XrayInbounds {
     return clients.map((client) => client.email);
   }
 
+  clearWireguardKeepAlive(): Promise<number> {
+    return new WireguardClients(this.panel).clearServerKeepAlive();
+  }
+
   restartCore(reason: string): Promise<void> {
     return coalesceByKey({
       key: this.panel.nodeKey,

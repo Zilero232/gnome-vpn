@@ -6,7 +6,7 @@ import { activeDeviceLimit, describeError, isPeriodActive, SUBSCRIPTION_PERIOD_S
 import { AppConfigService } from '@/config';
 import { PrismaService } from '@/core';
 import { NO_TRAFFIC } from '@/lib/xray';
-import { DEVICE_HEADER, deviceIdentity, deviceIpLimit, DevicesService, headerOf, isKeylessIncy } from '@/modules/devices';
+import { DEVICE_HEADER, deviceIdentity, DevicesService, headerOf, isKeylessIncy } from '@/modules/devices';
 import { buildTunnelConfig, feedProtocols } from '@/modules/peers';
 
 import type { BuildFeedInput, ServerUrisInput, SubscriptionBody, TouchLinkInput } from '../subscription-link.service.types';
@@ -73,9 +73,7 @@ export class SubscriptionFeedService {
     }
 
     const issuable = new Set(live.map((node) => node.id));
-    const uris = isNonNullish(deviceId)
-      ? await this.serverUris({ userId: link.userId, deviceId, nodes, tls: tlsMode(userAgent), issuable, limitIp: deviceIpLimit(identity.key) })
-      : [];
+    const uris = isNonNullish(deviceId) ? await this.serverUris({ userId: link.userId, deviceId, nodes, tls: tlsMode(userAgent), issuable }) : [];
 
     const expected = live.flatMap((node) => feedProtocols(node)).length;
 
@@ -121,9 +119,9 @@ export class SubscriptionFeedService {
     }
   }
 
-  private async serverUris({ userId, deviceId, nodes, tls, issuable, limitIp }: ServerUrisInput): Promise<string[]> {
+  private async serverUris({ userId, deviceId, nodes, tls, issuable }: ServerUrisInput): Promise<string[]> {
     const issued = await Promise.all(
-      nodes.map((node) => this.subscriptionPeers.ensureNode({ userId, deviceId, node, canIssue: issuable.has(node.id), limitIp }))
+      nodes.map((node) => this.subscriptionPeers.ensureNode({ userId, deviceId, node, canIssue: issuable.has(node.id) }))
     );
 
     return zip(nodes, issued)

@@ -70,8 +70,7 @@ skipped** — one unreachable node must not empty the user's whole server list.
 Issuing restarts no core: the panel pushes each new client into the running core
 itself, which was verified against v3.10.2 before the restart was removed
 ([nodes-and-peers.md](nodes-and-peers.md#client-changes-apply-live-only-an-inbound-needs-a-restart)).
-The peers are issued with `limitIp` from `deviceIpLimit` — 1 for an app that
-sends no hardware id, 2 otherwise ([devices.md](devices.md#a-device-is-what-fetches-the-subscription)).
+The peers carry no IP limit ([nodes-and-peers.md](nodes-and-peers.md#no-ip-limit-on-the-panel)).
 
 `feedProtocols` (`peers/lib/tunnel-config`) decides what a node advertises in the
 feed. Hysteria2 always; VLESS only when

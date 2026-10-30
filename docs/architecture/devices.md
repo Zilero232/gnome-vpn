@@ -51,8 +51,7 @@ the install fetches as `hwid:<UUID>` and registers like any device; the old
 therefore final for every HWID-less INCY install of the account.
 
 Other apps never send a hardware id, so `app:<name>` stays one shared slot for
-them, but their clients get `limitIp` 1 instead of 2 (`deviceIpLimit`): the
-shared keys work from one network at a time. INCY's announcement texts are
+them, and every install of that app on the account shares its keys. INCY's announcement texts are
 Russian only, like every announcement ([subscription-feed.md](subscription-feed.md#headers-traffic-and-the-announce-banner)).
 
 **A fetch that is not a VPN client is not a device.** The second rule used to
@@ -124,9 +123,8 @@ slot.
 
 A peer is issued per `(device, node, protocol)` and named `d-<12 hex of the
 device id>`, so its panel email is unique to the device. Removing a device
-revokes exactly its keys; the other devices keep theirs. `limitIp` on a device's
-client is `DEVICE_PEER.ipsPerClient` (2) — no longer the seat count, only a net
-against one device's config being copied to a third network.
+revokes exactly its keys; the other devices keep theirs. No client carries an
+IP limit ([nodes-and-peers.md](nodes-and-peers.md#no-ip-limit-on-the-panel)).
 
 ## Last activity is the tunnel, not the feed
 
@@ -284,6 +282,7 @@ first.
 ## What it does not stop
 
 A user who exports a device's server configuration by hand and imports it
-elsewhere shares that device's keys; the per-client IP limit is the only check
-left there. `hide-url` keeps the subscription URL itself out of INCY's share
+elsewhere shares that device's keys, and nothing on the node stops that: the
+panel's IP limit was switched off because it cut off paying users on mobile
+networks ([nodes-and-peers.md](nodes-and-peers.md#no-ip-limit-on-the-panel)). `hide-url` keeps the subscription URL itself out of INCY's share
 sheet ([subscription-feed.md](subscription-feed.md)).

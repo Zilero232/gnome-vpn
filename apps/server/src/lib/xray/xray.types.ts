@@ -89,12 +89,18 @@ export type PanelCommandInput = {
 
 export type NewPanelClient = {
   email: string;
-  limitIp: number;
-} & ({ auth: string } | { id: string; flow: string } | { privateKey: string; publicKey: string; keepAlive: number; allowedIPs?: string[] });
+} & ({ auth: string } | { id: string; flow: string } | { privateKey: string; publicKey: string; allowedIPs?: string[] });
 
 export type AddClientInput = {
   inboundId: number;
   client: NewPanelClient;
+};
+
+export type StoredPanelClient = z.infer<typeof PANEL_SCHEMA.storedClient>;
+
+export type UpdateClientInput = {
+  email: string;
+  client: StoredPanelClient;
 };
 
 export type SetClientsEnabledInput = {
@@ -115,18 +121,15 @@ export type CoalesceSlot = {
 export type IssueClientInput = {
   email: string;
   credential: string;
-  limitIp: number;
 };
 
 export type IssueHysteriaClientInput = {
   email: string;
-  limitIp: number;
   auth?: string;
 };
 
 export type IssueVlessClientInput = {
   email: string;
-  limitIp: number;
   id?: string;
 };
 
@@ -147,7 +150,6 @@ export type CreateWireguardClientInput = {
   email: string;
   privateKey: string;
   publicKey: string;
-  limitIp: number;
   address?: string | null;
 };
 
@@ -160,7 +162,6 @@ export type AddWireguardClientInput = {
   email: string;
   privateKey: string;
   publicKey: string;
-  limitIp: number;
   address: string | null | undefined;
 };
 
@@ -179,4 +180,11 @@ export type NodeHealth = {
   cpu: number | null;
   memoryRatio: number | null;
   tcpCount: number | null;
+  bootedAt: Date | null;
+  coreStartedAt: Date | null;
+};
+
+export type StartedAtInput = {
+  uptimeSeconds: number | null | undefined;
+  now: Date;
 };

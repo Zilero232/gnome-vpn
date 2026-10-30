@@ -92,25 +92,28 @@ of its own, and a device past the limit is refused in the feed. The whole
 mechanism, and why the panel's per-client `limitIp` could not do it, is in
 [devices.md](devices.md).
 
-`limitIp` is still set on every client, from `deviceIpLimit`: 2
-(`DEVICE_PEER.ipsPerClient`) for a device with a hardware id or a WireGuard
-config, 1 (`ipsPerKeylessClient`) for an app that sends none — every install of
-such an app on the account shares the keys, so one network at a time is all one
-"device" gets. It is a net against a config being copied elsewhere, not a seat
-count. 3x-ui counts the IPs through Xray's online-stats API — no access log is
-involved since v3.x, the panel says so at boot (`using connection-based onlines
-and access-log-free IP limit`), and the generated core config carries
-`"access": "none"` — and has fail2ban drop the oldest IP over the limit, which
-needs `XUI_ENABLE_FAIL2BAN=true` (`infra/xray/docker-compose.yml` sets it). It
-bans the address for 30 minutes; it does not refuse the new connection. A limit
-is written when a client is created, so existing keyless-app clients keep the 2
-they were issued with until they are issued again.
+### No IP limit on the panel
 
-**A restored peer gets the limit it was issued with.** `restoreMissing` recreates
-a client the node has lost: a device's peer with `deviceIpLimit` of its device
-key (`RECONCILE_PEER_SELECT` pulls `device.key`), a shared legacy `incy` peer
-with its owner's `activeDeviceLimit` — which is why it still pulls
-`user.subscription`. Revoked peers are never restored; `releaseRevoked` deletes
+Every client is written with `limitIp: 0` (`CLIENT_DEFAULTS`), and the nodes run
+with `XUI_ENABLE_FAIL2BAN=false` (`infra/xray/docker-compose.yml`), which makes
+3x-ui's IP-limit job return before it looks at a single client.
+
+The limit used to be 2 per device client (1 for an app with no hardware id),
+enforced the only way 3x-ui can: every ten seconds its job reads the client's
+IPs from Xray's online stats, and past the limit it bans the _oldest_ IP for 30
+minutes through fail2ban, in iptables, on every port of the host. A phone on a
+Russian mobile carrier sits behind carrier NAT that hands one device a new
+public address several times an hour, so the phone kept tripping its own
+limit: on 29.10 one iPhone on MegaFon was banned four times in three minutes,
+each ban 30 minutes long, and could not reach the node at all — not even a
+ping. The banned address is a carrier NAT address, so every other customer
+behind it lost the node too, which read as random drops for random people. The
+device registry already caps the seats; the IP limit only guarded against a
+config copied by hand, and it cost far more than it caught.
+
+**A restored peer is written as any new one.** `restoreMissing` recreates a
+client the node has lost with its stored credential (and, for WireGuard, its
+stored address). Revoked peers are never restored; `releaseRevoked` deletes
 them first.
 
 **Liveness comes from the Xray core.** `onlineEmails()` reads
@@ -159,7 +162,7 @@ immediately.
 
 `lib/xray/wireguard-clients.ts` holds them. A WireGuard
 peer is an ordinary panel client of the `GnomeVPN WireGuard` inbound — email,
-`privateKey`, `publicKey`, `allowedIPs`, `keepAlive` — added through the same
+`privateKey`, `publicKey`, `allowedIPs` — added through the same
 `/panel/api/clients/add`, and since 3x-ui v3.4.2 the panel turns those clients
 into xray peers itself, so the per-client traffic, online list and deletion
 work as for the other two protocols.
@@ -192,6 +195,18 @@ Re-adding a client drops its traffic counter on the panel, so the usage a
 device reports starts over after a renewal that had disabled it; access is not
 affected.
 
+**The server side of a peer carries no keepalive.** 3x-ui turns a client's
+`keepAlive` into the core peer's `PersistentKeepalive`, so the node itself tries
+to ping every peer every 25 seconds — and a peer that has not connected yet has
+no endpoint to ping. Each such attempt logged `Failed to send handshake
+initiation: no known endpoint for peer`: 99.6% of a node's panel log, about
+170,000 lines a day, which rotated the log every ten hours and buried
+everything else. Keeping a NAT mapping open is the client's job, and the `.conf`
+still carries `PersistentKeepalive = 25` (`INBOUND.wireguard.keepAlive`); new
+clients are added without one, and provisioning clears it from the existing
+ones (`clearWireguardKeepAlive`, a live per-peer update through
+`/panel/api/clients/update`, no core restart).
+
 ## Client changes apply live; only an inbound needs a restart
 
 **3x-ui v3.10.2 pushes every client change into the running core.**
@@ -212,8 +227,16 @@ instead (`reconciled node …: released 1, restored 2`). `XrayInbounds.restartCo
 is left for provisioning, after it creates or changes a Hysteria2 or VLESS
 **inbound**; it is coalesced per node (`coalesceByKey`) and logs its reason.
 
-This was proved against the image the nodes run, `ghcr.io/mhsanaei/3x-ui:v3.10.2`
-(Xray 26.10.10), before the restarts were removed. A local container was set up
+This was proved against `ghcr.io/mhsanaei/3x-ui:v3.10.2` (Xray 26.10.10), the
+image the nodes ran then, before the restarts were removed. The nodes moved to
+v3.11.0 (Xray 26.10.21 — the 26.10.10 build was pulled upstream) after its
+source was checked against everything `lib/xray` and provisioning rely on: the
+routes and request bodies are unchanged (two routes were only added),
+`appStats.uptime` is still the core's uptime, a client edit still applies live
+and keeps the stored keys, a WireGuard `keepAlive` still serialises as a number
+(ranges are AmneziaWG-only), the CLI flags provisioning uses still exist, and
+with `XUI_ENABLE_FAIL2BAN=false` the IP-limit job now records IPs for the panel's
+display but still neither bans nor disconnects anyone. A local container was set up
 the way provisioning does it — `restartXrayOnClientDisable` off, then
 `syncInbounds` with the real `buildHysteriaInbound` (UDP/443, self-signed
 certificate), `buildRealityInbound` (gRPC) and `buildWireguardInbound`, which

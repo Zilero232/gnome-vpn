@@ -11,7 +11,7 @@ import { PANEL_SCHEMA } from './xray.schemas';
 export class ProtocolClients<TClient extends { email: string }> {
   constructor(private readonly options: ProtocolClientsInput<TClient>) {}
 
-  async create({ email, credential, limitIp }: IssueClientInput): Promise<IssuedClient> {
+  async create({ email, credential }: IssueClientInput): Promise<IssuedClient> {
     const { panel, remark, credentialOf, newClient } = this.options;
 
     return serializeByKey({
@@ -26,7 +26,7 @@ export class ProtocolClients<TClient extends { email: string }> {
           return { nodeCredential: credentialOf(existing), email };
         }
 
-        await panel.addClient({ inboundId: inbound.id, client: newClient({ email, credential, limitIp }) });
+        await panel.addClient({ inboundId: inbound.id, client: newClient({ email, credential }) });
 
         return { nodeCredential: credential, email };
       }

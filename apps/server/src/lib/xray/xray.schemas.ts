@@ -41,12 +41,19 @@ export const PANEL_SCHEMA = {
     cpu: z.number().nullish(),
     mem: RESOURCE_USAGE.nullish(),
     tcpCount: z.number().nullish(),
-    xray: z.object({ state: z.string().nullish() }).nullish()
+    uptime: z.number().nullish(),
+    xray: z.object({ state: z.string().nullish() }).nullish(),
+    appStats: z.object({ uptime: z.number().nullish() }).nullish()
   }),
   onlines: z.union([z.array(z.string()), z.record(z.string(), z.array(z.string()))]).nullish(),
   lastOnline: z.record(z.string(), z.number()).nullish(),
   settings: z.looseObject({
     clients: z.array(z.unknown()).nullish()
+  }),
+  storedClient: z.looseObject({
+    email: z.string().min(1),
+    keepAlive: z.number().nullish(),
+    limitIp: z.number().nullish()
   })
 } as const;
 
@@ -56,7 +63,6 @@ export const CLIENT_SCHEMA = {
   wireguard: CLIENT.extend({
     privateKey: z.string().optional(),
     publicKey: z.string().optional(),
-    allowedIPs: z.array(z.string()).optional(),
-    limitIp: z.number().optional()
+    allowedIPs: z.array(z.string()).optional()
   })
 } as const;

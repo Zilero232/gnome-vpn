@@ -24,7 +24,6 @@ const peer = (overrides: Partial<ReconcilePeer> = {}): ReconcilePeer => ({
   nodeCredential: 'private-key',
   tunnelAddress: '10.8.0.2/32',
   device: { key: 'hwid:abc' },
-  user: { subscription: null },
   ...overrides
 });
 
