@@ -25,9 +25,6 @@ export const isKeylessIncy = (identity: DeviceIdentity): boolean => isNullish(id
 
 export const isWireguardDevice = (key: string): boolean => key.startsWith(DEVICE_KEY.wireguard);
 
-export const deviceIpLimit = (key: string | null | undefined): number =>
-  key?.startsWith(DEVICE_KEY.app) ? DEVICE_PEER.ipsPerKeylessClient : DEVICE_PEER.ipsPerClient;
-
 export const devicePeerName = (deviceId: string): string => `${DEVICE_PEER.namePrefix}${deviceId.replaceAll('-', '').slice(0, DEVICE_PEER.idLength)}`;
 
 export const deviceTitle = ({ model, app, platform }: TitledDevice): string => {

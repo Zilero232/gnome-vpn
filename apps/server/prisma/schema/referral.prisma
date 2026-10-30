@@ -1,6 +1,7 @@
 model ReferralCode {
   userId String @id @map("user_id")
-  code   String @unique
+
+  code String @unique
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
@@ -10,7 +11,8 @@ model ReferralCode {
 }
 
 model Referral {
-  id         String  @id @default(dbgenerated("gen_random_uuid()"))
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
   referrerId String? @map("referrer_id")
   referredId String? @unique @map("referred_id")
 

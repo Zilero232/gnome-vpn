@@ -9,7 +9,7 @@ import { dayCount, html, nodeLabel, planLabel } from '@/modules/telegram/shared/
 
 import type { AlertAccount, AlertPurchase, BotStats, NodeAlertState, StatsNode, SupportAccount } from '../owner-text.types';
 
-import { chargeFailedText, paymentAlertText, reconcileAlertText, refundAlertText } from '../alert-text';
+import { chargeFailedText, paymentAlertText, reconcileAlertText, refundAlertText, restartAlertText } from '../alert-text';
 import { nodeAlert, nodeStatus } from '../node-health';
 import { OWNER_ALERT } from '../owner-text.constants';
 import { statsText } from '../stats-text';
@@ -153,6 +153,19 @@ describe('reconcileAlertText', () => {
 
     expect(text).toContain(html.escape('<'));
     expect(text).not.toContain('x'.repeat(OWNER_ALERT.errorLength));
+  });
+});
+
+describe('restartAlertText', () => {
+  it('tells a reboot from a core restart', () => {
+    const now = addMinutes(START, 2);
+    const reboot = restartAlertText({ restart: 'reboot', node: 'FI', restartedAt: START, now, locale: 'ru' });
+    const core = restartAlertText({ restart: 'core', node: 'FI', restartedAt: START, now, locale: 'ru' });
+
+    expect(reboot).toContain('FI');
+    expect(reboot).not.toBe(core);
+    expect(reboot).not.toMatch(/\{\w+\}/u);
+    expect(core).not.toMatch(/\{\w+\}/u);
   });
 });
 

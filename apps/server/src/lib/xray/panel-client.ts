@@ -13,6 +13,7 @@ import type {
   PanelRequestInput,
   PanelServerStatus,
   SetClientsEnabledInput,
+  UpdateClientInput,
   UpdateInboundInput
 } from './xray.types';
 
@@ -110,6 +111,10 @@ export class PanelClient {
 
   addClient({ inboundId, client }: AddClientInput): Promise<void> {
     return this.command({ path: PANEL.routes.addClient, body: { inboundIds: [inboundId], client: { ...client, ...CLIENT_DEFAULTS } } });
+  }
+
+  updateClient({ email, client }: UpdateClientInput): Promise<void> {
+    return this.command({ path: PANEL.routes.updateClient(email), body: client });
   }
 
   deleteClient(email: string): Promise<void> {

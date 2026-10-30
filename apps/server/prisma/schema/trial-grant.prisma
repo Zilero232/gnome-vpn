@@ -1,6 +1,7 @@
 model TrialGrant {
   identityHash String @id @map("identity_hash")
-  userId       String @map("user_id")
+
+  userId String @map("user_id")
 
   grantedAt DateTime @default(now()) @map("granted_at") @db.Timestamptz(3)
 

@@ -1,4 +1,3 @@
-import type { SubscriptionPeriod } from '@/common/lib';
 import type { PeerKind, PeerState, TunnelProtocol } from '@/generated';
 import type { IdentifiedNode } from '@/lib/xray';
 
@@ -12,10 +11,6 @@ export type PeerIdentity = {
   protocol: TunnelProtocol;
 };
 
-export type PeerOwner = {
-  subscription: SubscriptionPeriod | null;
-};
-
 export type ReconcilePeer = PeerIdentity & {
   id: string;
   deviceId: string | null;
@@ -24,7 +19,6 @@ export type ReconcilePeer = PeerIdentity & {
   nodeCredential: string;
   tunnelAddress: string | null;
   device: { key: string } | null;
-  user: PeerOwner;
 };
 
 export type NoteFailureInput = {

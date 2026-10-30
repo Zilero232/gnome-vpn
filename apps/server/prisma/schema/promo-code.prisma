@@ -5,7 +5,8 @@ enum PromoCodeKind {
 }
 
 model PromoCode {
-  id   String @id @default(dbgenerated("gen_random_uuid()"))
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
   code String @unique
 
   kind    PromoCodeKind
@@ -34,7 +35,8 @@ model PromoCode {
 }
 
 model PromoRedemption {
-  id          String  @id @default(dbgenerated("gen_random_uuid()"))
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
   promoCodeId String  @map("promo_code_id")
   userId      String? @map("user_id")
 

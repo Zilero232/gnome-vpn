@@ -9,11 +9,12 @@ import type {
   IssuedWireguardClient,
   PanelInbound,
   ReaddWireguardClientInput,
+  StoredPanelClient,
   WireguardClient
 } from './xray.types';
 
 import { serializeByKey } from './key-lock';
-import { INBOUND } from './xray.constants';
+import { INBOUND, SERVER_PEER_RESET } from './xray.constants';
 import { addressOf, hostRoute, readSettings } from './xray.helpers';
 import { CLIENT_SCHEMA, PANEL_SCHEMA } from './xray.schemas';
 
@@ -26,7 +27,7 @@ export class WireguardClients {
     return inbound ? this.clientsIn(inbound) : [];
   }
 
-  async create({ email, privateKey, publicKey, limitIp, address }: CreateWireguardClientInput): Promise<IssuedWireguardClient> {
+  async create({ email, privateKey, publicKey, address }: CreateWireguardClientInput): Promise<IssuedWireguardClient> {
     return serializeByKey({
       key: this.panel.nodeKey,
       task: async () => {
@@ -42,7 +43,7 @@ export class WireguardClients {
           await this.panel.deleteClient(email);
         }
 
-        await this.add({ inboundId: inbound.id, email, privateKey, publicKey, limitIp, address: address ?? existingAddress });
+        await this.add({ inboundId: inbound.id, email, privateKey, publicKey, address: address ?? existingAddress });
 
         const assigned = await this.assignedAddress(email).catch(async (error: unknown) => {
           await this.panel.deleteClient(email).catch(() => undefined);
@@ -80,15 +81,48 @@ export class WireguardClients {
     });
   }
 
+  async clearServerKeepAlive(): Promise<number> {
+    return serializeByKey({
+      key: this.panel.nodeKey,
+      task: async () => {
+        const inbound = await this.panel.findInbound(INBOUND.wireguard.remark);
+
+        if (isNullish(inbound)) {
+          return 0;
+        }
+
+        const stale = this.storedClientsIn(inbound).filter((client) => (client.keepAlive ?? 0) > 0 || (client.limitIp ?? 0) > 0);
+
+        for (const client of stale) {
+          await this.panel.updateClient({ email: client.email, client: { ...client, ...SERVER_PEER_RESET } });
+        }
+
+        return stale.length;
+      }
+    });
+  }
+
   clientsIn(inbound: PanelInbound): WireguardClient[] {
+    return this.rawClientsIn(inbound).flatMap((client) => {
+      const parsed = CLIENT_SCHEMA.wireguard.safeParse(client);
+
+      return parsed.success ? [parsed.data] : [];
+    });
+  }
+
+  private rawClientsIn(inbound: PanelInbound): unknown[] {
     const settings = readSettings({ inbound, schema: PANEL_SCHEMA.settings });
 
     if (isNullish(settings)) {
       throw new AppServiceUnavailableException('NODE_UNAVAILABLE', 'refusing to read a wireguard inbound whose settings could not be parsed');
     }
 
-    return (settings.clients ?? []).flatMap((client) => {
-      const parsed = CLIENT_SCHEMA.wireguard.safeParse(client);
+    return settings.clients ?? [];
+  }
+
+  private storedClientsIn(inbound: PanelInbound): StoredPanelClient[] {
+    return this.rawClientsIn(inbound).flatMap((client) => {
+      const parsed = PANEL_SCHEMA.storedClient.safeParse(client);
 
       return parsed.success ? [parsed.data] : [];
     });
@@ -112,20 +146,17 @@ export class WireguardClients {
       email: client.email,
       privateKey: client.privateKey,
       publicKey: client.publicKey,
-      limitIp: client.limitIp ?? 0,
       address: addressOf(client)
     });
   }
 
-  private async add({ inboundId, email, privateKey, publicKey, limitIp, address }: AddWireguardClientInput): Promise<void> {
+  private async add({ inboundId, email, privateKey, publicKey, address }: AddWireguardClientInput): Promise<void> {
     await this.panel.addClient({
       inboundId,
       client: {
         email,
         privateKey,
         publicKey,
-        keepAlive: INBOUND.wireguard.keepAlive,
-        limitIp,
         ...(address && { allowedIPs: [hostRoute(address)] })
       }
     });

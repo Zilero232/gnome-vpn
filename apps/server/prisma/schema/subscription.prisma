@@ -5,7 +5,8 @@ enum SubscriptionPlan {
 }
 
 model Subscription {
-  id     String @id @default(dbgenerated("gen_random_uuid()"))
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
   userId String @unique @map("user_id")
 
   plan              SubscriptionPlan @default(monthly)

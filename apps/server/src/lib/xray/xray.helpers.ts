@@ -1,3 +1,4 @@
+import { subSeconds } from 'date-fns';
 import { randomBytes } from 'node:crypto';
 import { isNullish, isString } from 'remeda';
 
@@ -12,6 +13,7 @@ import type {
   PanelResourceUsage,
   ReadSettingsInput,
   RequireInboundInput,
+  StartedAtInput,
   WireguardClient
 } from './xray.types';
 
@@ -29,6 +31,9 @@ const parsedJson = (text: string): unknown => {
 const stringified = (value: unknown): string => (isNullish(value) ? '' : JSON.stringify(value));
 
 export const generateAuth = (): string => randomBytes(AUTH_BYTES).toString('hex');
+
+export const startedAt = ({ uptimeSeconds, now }: StartedAtInput): Date | null =>
+  isNullish(uptimeSeconds) || uptimeSeconds <= 0 ? null : subSeconds(now, uptimeSeconds);
 
 export const usageRatio = (usage: PanelResourceUsage): number | null => {
   if (isNullish(usage?.current) || isNullish(usage.total) || usage.total === 0) {

@@ -20,7 +20,6 @@ const peer = (overrides: Partial<ReconcilePeer> = {}): ReconcilePeer => ({
   nodeCredential: 'secret',
   tunnelAddress: null,
   device: null,
-  user: { subscription: null },
   ...overrides
 });
 

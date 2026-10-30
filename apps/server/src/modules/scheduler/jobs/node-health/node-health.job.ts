@@ -10,9 +10,9 @@ import { ALERT } from '@/modules/scheduler/config';
 import { NodeUptimeService } from '@/modules/status';
 import { TelegramAlertService } from '@/modules/telegram/notify';
 
-import type { NoteLoadInput, ProbedNode, ProbeNodeRow, RecordNodeInput } from './node-health.job.types';
+import type { NoteLoadInput, NoteRestartInput, ProbedNode, ProbeNodeRow, RecordNodeInput } from './node-health.job.types';
 
-import { deviceActivity, isOverloaded } from './lib';
+import { deviceActivity, isOverloaded, nodeRestart } from './lib';
 import { ACTIVITY_PEER_SELECT, PROBE_NODE_SELECT } from './node-health.job.constants';
 
 @Injectable()
@@ -38,9 +38,16 @@ export class NodeHealthJob {
 
     const { xray, health } = probed;
 
+    this.noteRestart({ node, health });
+
     await this.prisma.node.update({
       where: { id: node.id },
-      data: { lastHealthyAt: new Date(), isOverloaded: isOverloaded(health) }
+      data: {
+        lastHealthyAt: new Date(),
+        isOverloaded: isOverloaded(health),
+        bootedAt: health.bootedAt ?? node.bootedAt,
+        coreStartedAt: health.coreStartedAt ?? node.coreStartedAt
+      }
     });
 
     await Promise.all([this.recordActivity({ node, xray }), this.recordTraffic({ node, xray })]);
@@ -93,6 +100,19 @@ export class NodeHealthJob {
         this.prisma.device.updateMany({ where: { id: deviceId, lastSeenAt: { lt: at } }, data: { lastSeenAt: at } })
       )
     );
+  }
+
+  private noteRestart({ node, health }: NoteRestartInput): void {
+    const restart = nodeRestart({ previous: node, current: health });
+
+    if (isNullish(restart)) {
+      return;
+    }
+
+    const restartedAt = (restart === 'reboot' ? health.bootedAt : health.coreStartedAt) ?? new Date();
+
+    this.logger.warn(`node ${node.id}: ${restart === 'reboot' ? 'the host rebooted' : 'the xray core restarted'} at ${restartedAt.toISOString()}`);
+    this.alerts.nodeRestarted({ nodeId: node.id, restart, restartedAt });
   }
 
   private noteLoad({ node, health }: NoteLoadInput): void {

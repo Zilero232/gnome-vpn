@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { PanelInbound } from '../xray.types';
 
 import { AUTH_BYTES } from '../xray.constants';
-import { addressOf, generateAuth, hostOf, hostRoute, readClients, readSettings } from '../xray.helpers';
+import { addressOf, generateAuth, hostOf, hostRoute, readClients, readSettings, startedAt } from '../xray.helpers';
 import { PANEL_SCHEMA } from '../xray.schemas';
 
 const inbound = (patch: Partial<PanelInbound>): PanelInbound => ({
@@ -113,5 +113,22 @@ describe('addressOf', () => {
   it('answers null for a client the panel has not addressed', () => {
     expect(addressOf({ email: 'a' })).toBeNull();
     expect(addressOf(undefined)).toBeNull();
+  });
+});
+
+describe('startedAt', () => {
+  const now = new Date('2026-10-30T09:00:00Z');
+
+  it('turns an uptime in seconds into the moment the process started', () => {
+    expect(startedAt({ uptimeSeconds: 90, now })).toEqual(new Date('2026-10-30T08:58:30Z'));
+  });
+
+  it('has no start for a process the panel reports as not running', () => {
+    expect(startedAt({ uptimeSeconds: 0, now })).toBeNull();
+  });
+
+  it('has no start for a panel that does not report an uptime', () => {
+    expect(startedAt({ uptimeSeconds: undefined, now })).toBeNull();
+    expect(startedAt({ uptimeSeconds: null, now })).toBeNull();
   });
 });

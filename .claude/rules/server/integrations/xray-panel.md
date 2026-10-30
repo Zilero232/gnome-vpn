@@ -30,3 +30,12 @@ core, so every connection fails auth. `PanelClient` spreads `CLIENT_DEFAULTS`
 over every client it adds. A VLESS client also carries a `flow` field
 (`INBOUND.vless.flow`, currently `''`). The client email carries the protocol, because
 the database is unique on it.
+
+## No IP limit, no server-side WireGuard keepalive
+
+`limitIp` is always 0 (`CLIENT_DEFAULTS`) and the nodes run
+`XUI_ENABLE_FAIL2BAN=false`: the panel's IP limit bans a phone's carrier-NAT
+address for 30 minutes on every port, cutting off the phone and everyone behind
+that address. A WireGuard client is added without `keepAlive` — on the server
+it makes the core ping peers that have no endpoint and floods the log; the
+`.conf` keeps `PersistentKeepalive`.

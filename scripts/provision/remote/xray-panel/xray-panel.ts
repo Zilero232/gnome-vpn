@@ -40,6 +40,14 @@ const dropLegacyWireguardClients = async (credentials: PanelCredentials) => {
   }
 };
 
+const clearWireguardKeepAlive = async (credentials: PanelCredentials) => {
+  const cleared = await new XrayInbounds(credentials).clearWireguardKeepAlive();
+
+  if (cleared > 0) {
+    log.done(`${cleared} wireguard client(s) no longer carry a server-side keepalive`);
+  }
+};
+
 export const syncInbounds = async ({ inbounds, ...credentials }: SyncInboundsInput) => {
   const panel = new XrayInbounds(credentials);
   const existing = await panel.list();
@@ -72,6 +80,7 @@ export const syncInbounds = async ({ inbounds, ...credentials }: SyncInboundsInp
   });
 
   await dropLegacyWireguardClients(credentials);
+  await clearWireguardKeepAlive(credentials);
 
   if (hysteria === 'unchanged' && vless === 'unchanged') {
     log.done('no hysteria2 or vless inbound changed, the core keeps its sessions');

@@ -17,7 +17,7 @@ Intervals that have no `CronExpression` constant live in `SCHEDULE`
 
 | Job                           | Runs                                      | Does                                                                              |
 | ----------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------- |
-| `node-health`                 | every minute                              | probes every available node, stamps `lastHealthyAt` and uptime, warns on load     |
+| `node-health`                 | every minute                              | probes every available node, stamps `lastHealthyAt` and uptime, warns on load and restarts |
 | `reconcile-peers` (`run`)     | `SCHEDULE.reconcileCron`, every 5 minutes | deletes revoked clients, syncs peer rows with the panels, restores lost ones      |
 | `reconcile-peers` (`collect`) | `SCHEDULE.collectOrphansCron`, weekly     | the same pass plus orphan collection, idle shared `incy` peers and feed WireGuard |
 | `expired-access`              | every 5 minutes                           | revokes lapsed access and restores access left disabled on a live period          |
@@ -39,7 +39,15 @@ logged as an error rather than a warning, and posted to the owner's admin chat.
 
 `node-health` probes every available node each minute, and never two runs at once (`waitForCompletion`): an overlapping run used to move `lastCheckedAt` backwards and could credit one run's success to the other's uptime minute. A node whose panel token is missing from the environment counts as a failed probe like any other — building its client is inside the guarded probe — so a lost `.env.nodes` raises the down alert instead of a lone log line. `health()` returns the
 inbound's state together with the panel's own `cpu`, memory ratio and TCP count,
-so a node crossing `ALERT.nodeCpuPercent` or `ALERT.nodeMemoryRatio` is logged
+and when the host booted and the xray core started — 3x-ui's `/server/status`
+reports the host's `uptime` and, under `appStats.uptime`, the core process's
+(not the panel's). The job stores both on the node (`bootedAt`,
+`coreStartedAt`) and compares each probe with the stored pair: a start that
+moved later by more than `ALERT.restartToleranceMs` is a reboot or a core
+restart, and every session on that node dropped with it. That is what the owner
+is told — a restart over in seconds never shows as "down", and it was invisible
+before. The pair lives in the database, so a deploy of the server between two
+probes misses nothing. So a node crossing `ALERT.nodeCpuPercent` or `ALERT.nodeMemoryRatio` is logged
 as a warning before it starts dropping tunnels. Every probe — up or down — is
 also reported to `TelegramAlertService`, which decides whether the owner hears
 about it: a node going quiet, coming back, or running hot

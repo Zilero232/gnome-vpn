@@ -17,6 +17,7 @@ export const PANEL = {
     onlines: `${CLIENTS}/onlines`,
     lastOnline: `${CLIENTS}/lastOnline`,
     addClient: `${CLIENTS}/add`,
+    updateClient: (email: string) => `${CLIENTS}/update/${encodeURIComponent(email)}`,
     deleteClient: (email: string) => `${CLIENTS}/del/${encodeURIComponent(email)}`,
     setEnabled: (enabled: boolean) => `${CLIENTS}/${enabled ? 'bulkEnable' : 'bulkDisable'}`
   }
@@ -28,8 +29,14 @@ export const INBOUND = {
   wireguard: { remark: 'GnomeVPN WireGuard', keepAlive: 25, hostMask: '/32' }
 } as const;
 
+export const SERVER_PEER_RESET = {
+  keepAlive: 0,
+  limitIp: NO_LIMIT
+} as const;
+
 export const CLIENT_DEFAULTS = {
   enable: true,
+  limitIp: NO_LIMIT,
   totalGB: NO_LIMIT,
   expiryTime: NO_LIMIT,
   tgId: NO_LIMIT,

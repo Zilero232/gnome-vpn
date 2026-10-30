@@ -20,7 +20,7 @@ import { PanelClient } from './panel-client';
 import { ProtocolClients } from './protocol-clients';
 import { WireguardClients } from './wireguard-clients';
 import { INBOUND, PANEL } from './xray.constants';
-import { generateAuth, requireInbound, usageRatio } from './xray.helpers';
+import { generateAuth, requireInbound, startedAt, usageRatio } from './xray.helpers';
 import { CLIENT_SCHEMA } from './xray.schemas';
 
 export class XrayClient {
@@ -37,7 +37,7 @@ export class XrayClient {
       remark: INBOUND.hysteria.remark,
       schema: CLIENT_SCHEMA.hysteria,
       credentialOf: (client) => client.auth,
-      newClient: ({ email, credential, limitIp }) => ({ email, auth: credential, limitIp })
+      newClient: ({ email, credential }) => ({ email, auth: credential })
     });
 
     this.vless = new ProtocolClients({
@@ -45,18 +45,18 @@ export class XrayClient {
       remark: INBOUND.vless.remark,
       schema: CLIENT_SCHEMA.vless,
       credentialOf: (client) => client.id,
-      newClient: ({ email, credential, limitIp }) => ({ email, id: credential, flow: INBOUND.vless.flow, limitIp })
+      newClient: ({ email, credential }) => ({ email, id: credential, flow: INBOUND.vless.flow })
     });
 
     this.wireguard = new WireguardClients(this.panel);
   }
 
-  createHysteriaClient({ email, auth, limitIp }: IssueHysteriaClientInput): Promise<IssuedClient> {
-    return this.hysteria.create({ email, credential: auth ?? generateAuth(), limitIp });
+  createHysteriaClient({ email, auth }: IssueHysteriaClientInput): Promise<IssuedClient> {
+    return this.hysteria.create({ email, credential: auth ?? generateAuth() });
   }
 
-  createVlessClient({ email, id, limitIp }: IssueVlessClientInput): Promise<IssuedClient> {
-    return this.vless.create({ email, credential: id ?? randomUUID(), limitIp });
+  createVlessClient({ email, id }: IssueVlessClientInput): Promise<IssuedClient> {
+    return this.vless.create({ email, credential: id ?? randomUUID() });
   }
 
   createWireguardClient(input: CreateWireguardClientInput): Promise<IssuedWireguardClient> {
@@ -115,12 +115,15 @@ export class XrayClient {
 
   async health(): Promise<NodeHealth> {
     const [inbound, status] = await Promise.all([this.panel.inbound(INBOUND.hysteria.remark), this.panel.serverStatus()]);
+    const now = new Date();
 
     return {
       isHealthy: inbound.enable && status.xray?.state === PANEL.runningState,
       cpu: status.cpu ?? null,
       memoryRatio: usageRatio(status.mem),
-      tcpCount: status.tcpCount ?? null
+      tcpCount: status.tcpCount ?? null,
+      bootedAt: startedAt({ uptimeSeconds: status.uptime, now }),
+      coreStartedAt: startedAt({ uptimeSeconds: status.appStats?.uptime, now })
     };
   }
 

@@ -2,7 +2,7 @@ import type { PlanId } from '@gnomevpn/schemas';
 import type { Bot } from 'grammy';
 
 import type { BOT_THROTTLE } from '../config';
-import type { AlertPurchase, LoadResource, RefundAlertReason } from '../shared/owner-text';
+import type { AlertPurchase, LoadResource, NodeRestart, RefundAlertReason } from '../shared/owner-text';
 import type { BotLocale, NoticeSpec, NotifyInput } from '../telegram.types';
 
 export type NotifiedChat = {
@@ -85,6 +85,12 @@ export type NodeProbeInput = {
   nodeId: string;
   isUp: boolean;
   healthyAt: Date;
+};
+
+export type NodeRestartedInput = {
+  nodeId: string;
+  restart: NodeRestart;
+  restartedAt: Date;
 };
 
 export type NodeLoadInput = {
