@@ -11,6 +11,7 @@ import type {
   ChargeFailedInput,
   NodeLoadInput,
   NodeProbeInput,
+  NodeRestartedInput,
   OnceInput,
   PaymentRefundedInput,
   PaymentSettledInput,
@@ -27,7 +28,8 @@ import {
   nodeAlertText,
   paymentAlertText,
   reconcileAlertText,
-  refundAlertText
+  refundAlertText,
+  restartAlertText
 } from '../shared/owner-text';
 import { nodeLabel } from '../shared/text';
 import { adminChatOf, migratedChatId } from '../shared/update';
@@ -56,6 +58,10 @@ export class TelegramAlertService {
     }
 
     this.post(async () => nodeAlertText({ alert, node: await this.nodeName(nodeId), healthyAt, now, locale: DEFAULT_BOT_LOCALE }));
+  }
+
+  nodeRestarted({ nodeId, restart, restartedAt }: NodeRestartedInput): void {
+    this.post(async () => restartAlertText({ restart, node: await this.nodeName(nodeId), restartedAt, now: new Date(), locale: DEFAULT_BOT_LOCALE }));
   }
 
   nodeLoad({ nodeId, resource, percent }: NodeLoadInput): void {

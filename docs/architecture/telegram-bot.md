@@ -848,6 +848,12 @@ never more than an hour out of date. The state is in memory: after a restart a
 node still down is announced again, and one that recovered across the restart
 gets no recovery line.
 
+**A reboot or a core restart is announced every time** (`nodeRestarted`), with
+when the node came back: it is rare, it cut every connection on the node, and
+the owner wants to match it against users' complaints. `node-health` decides
+which of the two it was ([scheduler.md](scheduler.md)); a reboot is reported
+instead of the core restart that comes with it.
+
 **Load and reconcile alerts are once per node per kind per hour**
 (`BOT_THROTTLE.limits.ownerAlert`, keyed `cpu:<node>`, `memory:<node>`, `reconcile:<node>`).
 Billing alerts ride on the claims billing already makes: a settled payment is

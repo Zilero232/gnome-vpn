@@ -8,6 +8,8 @@ import type { LabelledNode } from '../text';
 
 export type LoadResource = 'cpu' | 'memory';
 
+export type NodeRestart = 'core' | 'reboot';
+
 export type RefundAlertReason = 'canceled' | 'discountUsed' | 'lapsed' | 'manual' | 'orphan' | 'partial';
 
 export type AlertAccount = {
@@ -39,6 +41,14 @@ export type NodeAlertTextInput = {
   alert: NodeAlertKind;
   node: string;
   healthyAt: Date;
+  now: Date;
+  locale: BotLocale;
+};
+
+export type RestartAlertTextInput = {
+  restart: NodeRestart;
+  node: string;
+  restartedAt: Date;
   now: Date;
   locale: BotLocale;
 };

@@ -1,3 +1,4 @@
+export type { NodeRestart } from '../shared/owner-text';
 export type { NoticeKey, NotifyInput } from '../telegram.types';
 export { TelegramAlertService } from './telegram-alert.service';
 export { TelegramChatsService } from './telegram-chats.service';

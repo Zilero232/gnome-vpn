@@ -13,7 +13,8 @@ import type {
   PaymentAlertTextInput,
   PurchaseLabelInput,
   ReconcileAlertTextInput,
-  RefundAlertTextInput
+  RefundAlertTextInput,
+  RestartAlertTextInput
 } from './owner-text.types';
 
 import { fillLabel, fillText, formatAgo, formatAmount, planLabel } from '../text';
@@ -52,6 +53,9 @@ export const nodeAlertText = ({ alert, node, healthyAt, now, locale }: NodeAlert
 
 export const loadAlertText = ({ resource, node, percent, locale }: LoadAlertTextInput): string =>
   fillText({ text: BOT_TEXT[locale][ALERT_TEXT.load[resource]], fill: { node, percent: percent.toFixed(0) } });
+
+export const restartAlertText = ({ restart, node, restartedAt, now, locale }: RestartAlertTextInput): string =>
+  fillText({ text: BOT_TEXT[locale][ALERT_TEXT.restart[restart]], fill: { node, ago: formatAgo({ date: restartedAt, now, locale }) } });
 
 export const reconcileAlertText = ({ node, streak, error, locale }: ReconcileAlertTextInput): string =>
   fillText({ text: BOT_TEXT[locale].alertReconcile, fill: { node, count: String(streak), error: error.slice(0, OWNER_ALERT.errorLength) } });
