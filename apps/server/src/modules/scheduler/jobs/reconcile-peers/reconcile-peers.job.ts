@@ -2,13 +2,15 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { isEmpty, isNullish, unique, zip } from 'remeda';
 
+import type { XrayClient } from '@/lib/xray';
+
 import { describeError } from '@/common/lib';
 import { PrismaService } from '@/core';
 import { IDENTIFIED_NODE_SELECT, xrayClientForNode } from '@/lib/xray';
 import { ALERT, SCHEDULE } from '@/modules/scheduler/config';
 import { TelegramAlertService, TelegramNotifyService } from '@/modules/telegram/notify';
 
-import type { NoteFailureInput, ReconcileNodeInput } from './reconcile-peers.job.types';
+import type { ClientPresence, NoteFailureInput, ReconcileNodeInput } from './reconcile-peers.job.types';
 
 import {
   changeSummary,
@@ -38,15 +40,17 @@ export class ReconcilePeersJob {
   private async reconcileNode({ node, withOrphans }: ReconcileNodeInput): Promise<string[]> {
     const xray = xrayClientForNode(node);
 
-    const [peers, nodeClients, online] = await Promise.all([
+    const [peers, nodeClients, presence] = await Promise.all([
       this.prisma.peer.findMany({ where: { nodeId: node.id }, select: RECONCILE_PEER_SELECT }),
       xray.clientEnabledByEmail(),
-      withOrphans ? xray.onlineEmails() : Promise.resolve(null)
+      withOrphans ? this.presenceOn(xray) : Promise.resolve(null)
     ]);
 
+    const now = new Date();
+
     const released = await releaseRevoked({ prisma: this.prisma, xray, logger: this.logger, peers, nodeClients });
-    const retired = await releaseLegacy({ prisma: this.prisma, xray, logger: this.logger, peers, nodeClients, online, now: new Date() });
-    const feedWireguard = await releaseFeedWireguard({ prisma: this.prisma, xray, logger: this.logger, peers, nodeClients, online });
+    const retired = await releaseLegacy({ prisma: this.prisma, xray, logger: this.logger, peers, nodeClients, presence, now });
+    const feedWireguard = await releaseFeedWireguard({ prisma: this.prisma, xray, logger: this.logger, peers, nodeClients, presence, now });
     const retiredIds = new Set([...retired, ...feedWireguard].map((peer) => peer.id));
     const live = peers.filter((peer) => isNullish(peer.revokedAt) && !retiredIds.has(peer.id));
     const restorable = live.filter((peer) => !isFeedWireguardPeer(peer));
@@ -54,7 +58,7 @@ export class ReconcilePeersJob {
     const restored = await restoreMissing({ prisma: this.prisma, logger: this.logger, xray, node, peers: restorable, nodeClients });
     const synced = await syncEnabled({ xray, peers: live, nodeClients });
 
-    const collected = await collectOrphans({ prisma: this.prisma, xray, nodeId: node.id, peers, nodeClients, online });
+    const collected = await collectOrphans({ prisma: this.prisma, xray, nodeId: node.id, peers, nodeClients, online: presence?.online ?? null });
 
     const changes = changeSummary({ released, retired: retired.length, feedWireguard: feedWireguard.length, restored, synced, collected });
 
@@ -63,6 +67,12 @@ export class ReconcilePeersJob {
     }
 
     return unique(retired.map((peer) => peer.userId));
+  }
+
+  private async presenceOn(xray: XrayClient): Promise<ClientPresence | null> {
+    const [online, lastOnline] = await Promise.all([xray.onlineEmails(), xray.lastOnline()]);
+
+    return isNullish(online) ? null : { online, lastOnline };
   }
 
   private async sweep(withOrphans: boolean): Promise<void> {

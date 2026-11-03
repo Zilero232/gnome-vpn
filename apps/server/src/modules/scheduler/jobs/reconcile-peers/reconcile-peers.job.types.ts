@@ -21,6 +21,11 @@ export type ReconcilePeer = PeerIdentity & {
   device: { key: string } | null;
 };
 
+export type ClientPresence = {
+  online: Set<string>;
+  lastOnline: Map<string, Date>;
+};
+
 export type NoteFailureInput = {
   nodeId: string;
   reason: unknown;

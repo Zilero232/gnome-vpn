@@ -3,6 +3,10 @@ export const LEGACY_PEER = {
   graceHours: 48
 } as const;
 
+export const QUIET_CLIENT = {
+  idleDays: 14
+} as const;
+
 export const RECONCILE_PEER_SELECT = {
   id: true,
   deviceId: true,
