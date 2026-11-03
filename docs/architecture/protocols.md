@@ -70,7 +70,7 @@ what it is good at: a `.conf` for one device and one country, for a router or
 an app that speaks nothing else, made on the account's Connect tab
 («По конфигу») or with `/wireguard` in the bot. The WireGuard peers that feed
 devices were issued before this are released by `reconcile-peers`
-(`releaseFeedWireguard`) in its weekly pass, once the client is not online —
+(`releaseFeedWireguard`) in its weekly pass, once the client has gone quiet —
 see [devices.md](devices.md).
 
 Plain WireGuard, not AmneziaWG: AmneziaVPN and the official apps read a plain

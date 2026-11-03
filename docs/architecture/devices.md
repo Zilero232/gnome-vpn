@@ -225,28 +225,36 @@ registry every account had one set of `incy` peers shared by all its devices.
 04:17, the pass that already asks the node who is online and already restarts
 the core — and only when both hold:
 
-- the account has a device registered more than `LEGACY_PEER.graceHours` (48,
-  beside the reconcile job, the only code that still names the shared peer)
-  ago, so its installs have had several 12-hour refreshes to pick up keys of
-  their own;
-- the node does not report that client online. A shared key carrying a session
-  right now waits for next week rather than cutting it mid-stream, the same rule
-  orphan collection follows.
+- the account has a device that fetches the feed registered more than
+  `LEGACY_PEER.graceHours` (48, beside the reconcile job, the only code that
+  still names the shared peer) ago, so its installs have had several 12-hour
+  refreshes to pick up keys of their own. A `wg:` config made on the site or in
+  the bot does not count: it says nothing about the account's apps;
+- the client is quiet (`isQuietClient`): not online now and not online for
+  `QUIET_CLIENT.idleDays` (14) by the panel's `lastOnline`, or never.
+
+Both used to be weaker, and on 01.11 that cut off an account in daily use. Its
+only device older than 48 hours was a router's WireGuard config, while its
+iPhone and Windows INCY had never refreshed and still ran on the shared keys;
+"not online" was checked at 04:17 on a Sunday, when nobody is. Both apps
+stopped until the owner refreshed the subscription by hand. A shared key that
+is still in use is a working install, and it stays until it has really gone
+quiet.
 
 **The WireGuard peers of feed devices go in the same pass.** The feed no
 longer lists WireGuard ([protocols.md](protocols.md)), so a device that fetched
 it before still holds a WireGuard client nobody will be shown again.
 `releaseFeedWireguard` deletes those — a WireGuard peer whose device key does
-not start with `DEVICE_KEY.wireguard` — under the same "not online right now"
-rule. A config made on the site or in the bot is a `wg:` device and is never
+not start with `DEVICE_KEY.wireguard` — under the same quiet rule: an app that
+never refreshed may still use its WireGuard line every day. A config made on the site or in the bot is a `wg:` device and is never
 touched. Until that pass deletes them, the five-minute pass leaves them out of
 `restoreMissing`: a node that lost one would otherwise get it back every five
 minutes for the rest of the week, only to have it deleted on Sunday.
 
 Doing it there rather than on its own schedule costs no extra core restart — a
-restart drops every tunnel on the node — and lands it at night. A device that
-never refreshed loses the shared key then and connects again after one manual
-refresh in the app.
+restart drops every tunnel on the node — and lands it at night. Only a key that
+has gone unused for two weeks is taken, so an app that comes back after that
+connects again after one manual refresh in the app.
 
 ## The owner hears about every change in Telegram
 

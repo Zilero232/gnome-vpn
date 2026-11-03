@@ -6,6 +6,7 @@ import { peerClientName } from '@/modules/peers';
 
 import type { ReleaseFeedWireguardInput } from './release-feed-wireguard.types';
 
+import { isQuietClient } from '../client-presence';
 import { deleteNodeClients, peersGoneFromNode } from '../delete-node-clients';
 import { isFeedWireguardPeer } from './release-feed-wireguard.helpers';
 
@@ -15,13 +16,14 @@ export const releaseFeedWireguard = async ({
   logger,
   peers,
   nodeClients,
-  online
+  presence,
+  now
 }: ReleaseFeedWireguardInput): Promise<ReconcilePeer[]> => {
-  if (isNullish(online)) {
+  if (isNullish(presence)) {
     return [];
   }
 
-  const idle = peers.filter((peer) => isFeedWireguardPeer(peer) && !online.has(peerClientName(peer)));
+  const idle = peers.filter((peer) => isFeedWireguardPeer(peer) && isQuietClient({ email: peerClientName(peer), presence, now }));
 
   if (isEmpty(idle)) {
     return [];

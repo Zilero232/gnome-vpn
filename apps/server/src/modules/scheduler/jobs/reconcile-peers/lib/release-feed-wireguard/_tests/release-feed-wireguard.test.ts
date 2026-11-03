@@ -1,10 +1,11 @@
 import type { Logger } from '@nestjs/common';
 
+import { subDays } from 'date-fns';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { PrismaService } from '@/core';
 import type { XrayClient } from '@/lib/xray';
-import type { ReconcilePeer } from '@/modules/scheduler/jobs/reconcile-peers/reconcile-peers.job.types';
+import type { ClientPresence, ReconcilePeer } from '@/modules/scheduler/jobs/reconcile-peers/reconcile-peers.job.types';
 
 import { DEVICE_KEY } from '@/modules/devices';
 import { peerClientName } from '@/modules/peers';
@@ -27,16 +28,18 @@ const peer = (overrides: Partial<ReconcilePeer> = {}): ReconcilePeer => ({
   ...overrides
 });
 
+const NOW = new Date('2026-11-01T04:17:00.000Z');
+
 const silentLogger = () => ({ log: vi.fn(), warn: vi.fn() }) as unknown as Logger;
 
 type RunInput = {
   peers: ReconcilePeer[];
-  online?: Set<string> | null;
+  presence?: ClientPresence | null;
   deleteClient?: ReturnType<typeof vi.fn>;
   deleteMany?: ReturnType<typeof vi.fn>;
 };
 
-const run = ({ peers, online = new Set<string>(), deleteClient = vi.fn(), deleteMany = vi.fn() }: RunInput) => {
+const run = ({ peers, presence = { online: new Set(), lastOnline: new Map() }, deleteClient = vi.fn(), deleteMany = vi.fn() }: RunInput) => {
   deleteClient.mockResolvedValue(undefined);
   deleteMany.mockResolvedValue({ count: peers.length });
 
@@ -46,7 +49,8 @@ const run = ({ peers, online = new Set<string>(), deleteClient = vi.fn(), delete
     logger: silentLogger(),
     peers,
     nodeClients: new Map(peers.map((each) => [peerClientName(each), true])),
-    online
+    presence,
+    now: NOW
   });
 };
 
@@ -79,14 +83,22 @@ describe('releaseFeedWireguard', () => {
   it('leaves a peer that is carrying a session right now for a later pass', async () => {
     const deleteClient = vi.fn();
 
-    expect(await run({ peers: [peer()], online: new Set([peerClientName(peer())]), deleteClient })).toEqual([]);
+    expect(await run({ peers: [peer()], presence: { online: new Set([peerClientName(peer())]), lastOnline: new Map() }, deleteClient })).toEqual([]);
     expect(deleteClient).not.toHaveBeenCalled();
   });
 
   it('does nothing in a pass that does not know who is online', async () => {
     const deleteClient = vi.fn();
 
-    expect(await run({ peers: [peer()], online: null, deleteClient })).toEqual([]);
+    expect(await run({ peers: [peer()], presence: null, deleteClient })).toEqual([]);
+    expect(deleteClient).not.toHaveBeenCalled();
+  });
+
+  it('keeps a WireGuard peer still in use from a cached subscription, though it is offline at four in the morning', async () => {
+    const deleteClient = vi.fn();
+    const presence = { online: new Set<string>(), lastOnline: new Map([[peerClientName(peer()), subDays(NOW, 2)]]) };
+
+    expect(await run({ peers: [peer()], presence, deleteClient })).toEqual([]);
     expect(deleteClient).not.toHaveBeenCalled();
   });
 });

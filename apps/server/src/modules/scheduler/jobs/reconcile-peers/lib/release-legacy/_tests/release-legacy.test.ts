@@ -1,11 +1,13 @@
 import type { Logger } from '@nestjs/common';
 
+import { subDays } from 'date-fns';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { PrismaService } from '@/core';
 import type { XrayClient } from '@/lib/xray';
 import type { ReconcilePeer } from '@/modules/scheduler/jobs/reconcile-peers/reconcile-peers.job.types';
 
+import { DEVICE_KEY } from '@/modules/devices';
 import { peerClientName } from '@/modules/peers';
 
 import { releaseLegacy } from '../release-legacy';
@@ -44,7 +46,7 @@ describe('releaseLegacy', () => {
       logger: silentLogger(),
       peers: [peer()],
       nodeClients: new Map([[peerClientName(peer()), true]]),
-      online: null,
+      presence: null,
       now: NOW
     });
 
@@ -65,7 +67,7 @@ describe('releaseLegacy', () => {
       logger: silentLogger(),
       peers: [shared],
       nodeClients,
-      online: new Set(),
+      presence: { online: new Set(), lastOnline: new Map() },
       now: NOW
     });
 
@@ -85,7 +87,7 @@ describe('releaseLegacy', () => {
       logger: silentLogger(),
       peers: [shared],
       nodeClients: new Map([[peerClientName(shared), true]]),
-      online: new Set([peerClientName(shared)]),
+      presence: { online: new Set([peerClientName(shared)]), lastOnline: new Map() },
       now: NOW
     });
 
@@ -102,7 +104,7 @@ describe('releaseLegacy', () => {
       logger: silentLogger(),
       peers: [peer()],
       nodeClients: new Map([[peerClientName(peer()), true]]),
-      online: new Set(),
+      presence: { online: new Set(), lastOnline: new Map() },
       now: NOW
     });
 
@@ -120,11 +122,47 @@ describe('releaseLegacy', () => {
       logger: silentLogger(),
       peers: [devicePeer],
       nodeClients: new Map([[peerClientName(devicePeer), true]]),
-      online: new Set(),
+      presence: { online: new Set(), lastOnline: new Map() },
       now: NOW
     });
 
     expect(retired).toEqual([]);
     expect(deleteClient).not.toHaveBeenCalled();
+  });
+
+  it('keeps a shared peer that was in use last evening, though nobody is on it at four in the morning', async () => {
+    const shared = peer();
+    const deleteClient = vi.fn();
+
+    const retired = await releaseLegacy({
+      prisma: prismaWith(),
+      xray: { deleteClient } as unknown as XrayClient,
+      logger: silentLogger(),
+      peers: [shared],
+      nodeClients: new Map([[peerClientName(shared), true]]),
+      presence: { online: new Set(), lastOnline: new Map([[peerClientName(shared), subDays(NOW, 1)]]) },
+      now: NOW
+    });
+
+    expect(retired).toEqual([]);
+    expect(deleteClient).not.toHaveBeenCalled();
+  });
+
+  it('does not count a WireGuard config as proof that the account apps took keys of their own', async () => {
+    const prisma = prismaWith();
+
+    await releaseLegacy({
+      prisma,
+      xray: { deleteClient: vi.fn().mockResolvedValue(undefined) } as unknown as XrayClient,
+      logger: silentLogger(),
+      peers: [peer()],
+      nodeClients: new Map([[peerClientName(peer()), true]]),
+      presence: { online: new Set(), lastOnline: new Map() },
+      now: NOW
+    });
+
+    expect(prisma.device.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ NOT: { key: { startsWith: DEVICE_KEY.wireguard } } }) })
+    );
   });
 });
