@@ -1,23 +1,27 @@
 @use '@/shared/styles/mixins' as *;
 
 .root {
-  @include stack(14px);
+  @include stack(16px);
 
   min-width: 0;
   padding: 18px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   background-color: var(--color-surface-raised);
+  container: node / inline-size;
 
   &[data-available='false'] {
     background-color: var(--color-surface);
+  }
+
+  @include below(md) {
+    padding: 14px;
   }
 }
 
 .head {
   display: flex;
   min-width: 0;
-  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
 }
@@ -36,18 +40,39 @@
 
 .name {
   margin: 0;
-  font-size: 16px;
-  font-weight: 650;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .badges {
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 6px;
 }
 
-.actions {
+.foot {
   display: flex;
-  justify-content: flex-end;
-  margin-top: auto;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+  gap: 14px 24px;
+}
+
+.facts {
+  flex: 1 1 420px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.toggle {
+  flex: none;
+  margin-left: auto;
+
+  @include below(md) {
+    width: 100%;
+  }
 }

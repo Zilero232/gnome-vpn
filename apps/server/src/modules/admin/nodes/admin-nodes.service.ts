@@ -11,7 +11,7 @@ import type { SetAvailabilityInput } from './nodes.types';
 
 import { AdminAuditService } from '../shared/admin-audit.service';
 import { ADMIN_ACTION, NODE_ORDER } from '../shared/admin.config';
-import { ADMIN_NODE_SELECT } from './nodes.config';
+import { ADMIN_NODE_SELECT, PEAK_ROW_SELECT } from './nodes.config';
 import { nodeView } from './nodes.helpers';
 
 @Injectable()
@@ -43,9 +43,12 @@ export class AdminNodesService {
   }
 
   private select(now: Date) {
+    const inWindow = { day: { gte: historyStart(utcDay(now)) } };
+
     return {
       ...ADMIN_NODE_SELECT,
-      uptime: { where: { day: { gte: historyStart(utcDay(now)) } }, select: UPTIME_ROW_SELECT }
+      uptime: { where: inWindow, select: UPTIME_ROW_SELECT },
+      peaks: { where: inWindow, select: PEAK_ROW_SELECT }
     };
   }
 }

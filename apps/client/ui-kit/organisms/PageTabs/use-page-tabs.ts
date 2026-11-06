@@ -81,7 +81,7 @@ export const usePageTabs = ({ items, layout }: UsePageTabsInput) => {
     tabsRef,
     pillId,
     edges,
-    isVertical: layout === 'rail' && isWide,
+    isVertical: layout !== 'bar' && isWide,
     select
   };
 };

@@ -73,7 +73,9 @@ export const ROW_SELECT = {
     country: true,
     city: true,
     isAvailable: true,
-    createdAt: true
+    createdAt: true,
+    onlineClients: true,
+    onlineUsers: true
   } as const satisfies Prisma.NodeSelect
 } as const;
 

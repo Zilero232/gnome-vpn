@@ -23,3 +23,16 @@ export type CountryForIpInput = {
   addresses: NodeAddress[];
   ip: string;
 };
+
+export type OnlineTally = {
+  clients: number;
+  users: number;
+};
+
+export type RecordPeakInput = {
+  nodeId: string;
+  at: Date;
+  online: OnlineTally | null;
+  cpu: number | null;
+  memory: number | null;
+};

@@ -94,12 +94,19 @@
         "hint": "{count, plural, one {# оплата} few {# оплаты} many {# оплат} other {# оплаты}}",
         "none": "оплат не было"
       },
-      "devices": "Устройства",
-      "chats": "Привязали Telegram",
+      "devices": {
+        "label": "Устройства",
+        "hint": "привязали Telegram: {chats}"
+      },
+      "online": {
+        "label": "Онлайн сейчас",
+        "hint": "{users, plural, one {# пользователь} few {# пользователя} many {# пользователей} other {# пользователя}}",
+        "unknown": "ноды пока не ответили"
+      },
       "nodes": {
-        "label": "Ноды",
-        "value": "{up} из {total} в норме",
-        "hint": "с перебоями: {degraded} · лежат: {down} · выведены: {off}"
+        "label": "Ноды в норме",
+        "value": "{up} / {total}",
+        "hint": "с перебоями {degraded} · лежат {down} · выведены {off}"
       },
       "paidNone": "сейчас нет"
     },
@@ -580,6 +587,28 @@
     "putBack": "Вернуть в ротацию",
     "takeOutDone": "{name} выведена из ротации",
     "putBackDone": "{name} снова в ротации",
+    "load": {
+      "now": "Онлайн сейчас",
+      "today": "Пик сегодня",
+      "best": "Пик за {days} дн.",
+      "resources": "CPU и RAM сегодня",
+      "users": "{count, plural, one {# пользователь} few {# пользователя} many {# пользователей} other {# пользователя}}",
+      "at": "в {time}",
+      "on": "{date}, {time}",
+      "memory": "RAM {value}",
+      "none": "—",
+      "noData": "нет данных"
+    },
+    "peaks": {
+      "title": "Пик подключений по дням",
+      "summary": "Максимум за {days} дн.: {peak} одновременно, {date} · дни по UTC",
+      "empty": "Пиков пока нет: они копятся с минутной проверки ноды.",
+      "value": "Подключений",
+      "users": "Пользователей",
+      "time": "Время пика",
+      "cpu": "CPU",
+      "memory": "RAM"
+    },
     "facts": {
       "host": "Адрес",
       "protocols": "Протоколы",

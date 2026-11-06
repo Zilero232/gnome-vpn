@@ -1,4 +1,4 @@
-import type { AdminPageInfo, AdminPeriod } from '@gnomevpn/schemas';
+import type { AdminPageInfo, AdminPeriod, NodeState } from '@gnomevpn/schemas';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import type { Request } from 'express';
 
@@ -94,4 +94,15 @@ export type GiftViewInput = {
 export type AutoRenewFlags = {
   savedCardId: string | null;
   cancelAtPeriodEnd: boolean;
+};
+
+export type NodeOnlineRow = {
+  isAvailable: boolean;
+  onlineClients: number | null;
+  onlineUsers: number | null;
+};
+
+export type NodeOnlineInput = {
+  node: NodeOnlineRow;
+  state: NodeState;
 };

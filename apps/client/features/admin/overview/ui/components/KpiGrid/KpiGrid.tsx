@@ -17,7 +17,7 @@ export const KpiGrid = ({ overview }: KpiGridProps) => {
   const plans = useTranslations('plans.plans');
   const format = useAdminFormat();
 
-  const { users, subscriptions, payments, nodes, trend } = overview;
+  const { users, subscriptions, payments, nodes, online, trend } = overview;
   const paid = sumBy(subscriptions.paid, (entry) => entry.count);
   const totalNodes = nodes.up + nodes.degraded + nodes.down + nodes.off;
   const byPlan = subscriptions.paid
@@ -33,17 +33,21 @@ export const KpiGrid = ({ overview }: KpiGridProps) => {
         trend={visibleTrend(trend.signups)}
         value={format.count(users.total)}
       />
+      <StatTile
+        hint={online ? t('online.hint', { users: online.users }) : t('online.unknown')}
+        label={t('online.label')}
+        value={online ? format.count(online.clients) : '—'}
+      />
       <StatTile hint={paid > 0 ? byPlan : t('paidNone')} label={t('paid')} value={format.count(paid)} />
-      <StatTile label={t('trials')} value={format.count(subscriptions.trials)} />
-      <StatTile hint={t('autoRenew.hint', { paid })} label={t('autoRenew.label')} value={format.count(subscriptions.autoRenew)} />
       <StatTile
         hint={payments.count > 0 ? t('payments.hint', { count: payments.count }) : t('payments.none')}
         label={t('payments.label', { days: payments.days })}
         trend={visibleTrend(trend.revenue)}
         value={format.money(payments.amount)}
       />
-      <StatTile label={t('devices')} value={format.count(overview.devices)} />
-      <StatTile label={t('chats')} value={format.count(overview.chats)} />
+      <StatTile label={t('trials')} value={format.count(subscriptions.trials)} />
+      <StatTile hint={t('autoRenew.hint', { paid })} label={t('autoRenew.label')} value={format.count(subscriptions.autoRenew)} />
+      <StatTile hint={t('devices.hint', { chats: format.count(overview.chats) })} label={t('devices.label')} value={format.count(overview.devices)} />
       <StatTile
         hint={t('nodes.hint', { degraded: nodes.degraded, down: nodes.down, off: nodes.off })}
         label={t('nodes.label')}

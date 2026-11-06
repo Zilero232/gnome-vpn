@@ -8,3 +8,12 @@ export const ADMIN_NODE_SELECT = {
   port: true,
   displayOrder: true
 } as const satisfies Prisma.NodeSelect;
+
+export const PEAK_ROW_SELECT = {
+  day: true,
+  clients: true,
+  clientsAt: true,
+  users: true,
+  cpu: true,
+  memory: true
+} as const satisfies Prisma.NodePeakSelect;

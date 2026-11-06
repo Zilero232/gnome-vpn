@@ -94,12 +94,19 @@
         "hint": "{count, plural, one {# payment} other {# payments}}",
         "none": "no payments"
       },
-      "devices": "Devices",
-      "chats": "Linked Telegram",
+      "devices": {
+        "label": "Devices",
+        "hint": "Telegram linked: {chats}"
+      },
+      "online": {
+        "label": "Online now",
+        "hint": "{users, plural, one {# user} other {# users}}",
+        "unknown": "no data from the nodes"
+      },
       "nodes": {
-        "label": "Nodes",
-        "value": "{up} of {total} healthy",
-        "hint": "degraded: {degraded} · down: {down} · out of rotation: {off}"
+        "label": "Nodes healthy",
+        "value": "{up} / {total}",
+        "hint": "degraded {degraded} · down {down} · out {off}"
       },
       "paidNone": "none right now"
     },
@@ -580,6 +587,28 @@
     "putBack": "Put back into rotation",
     "takeOutDone": "{name} is out of rotation",
     "putBackDone": "{name} is back in rotation",
+    "load": {
+      "now": "Online now",
+      "today": "Peak today",
+      "best": "Peak in {days} days",
+      "resources": "CPU and RAM today",
+      "users": "{count, plural, one {# user} other {# users}}",
+      "at": "at {time}",
+      "on": "{date}, {time}",
+      "memory": "RAM {value}",
+      "none": "—",
+      "noData": "no data"
+    },
+    "peaks": {
+      "title": "Peak connections by day",
+      "summary": "Most in {days} days: {peak} at once, {date} · days are UTC",
+      "empty": "No peaks yet: they build up from the node's minute check.",
+      "value": "Connections",
+      "users": "Users",
+      "time": "Peak time",
+      "cpu": "CPU",
+      "memory": "RAM"
+    },
     "facts": {
       "host": "Address",
       "protocols": "Protocols",

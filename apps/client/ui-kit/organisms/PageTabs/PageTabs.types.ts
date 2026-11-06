@@ -9,7 +9,7 @@ export type PageTab = {
   aliases?: readonly string[];
 };
 
-export type PageTabsLayout = 'bar' | 'rail';
+export type PageTabsLayout = 'bar' | 'console' | 'rail';
 
 export type PageTabsProps = {
   items: PageTab[];

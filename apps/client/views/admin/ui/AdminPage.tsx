@@ -62,7 +62,7 @@ export const AdminPage = () => {
             </Link>
           </header>
 
-          <PageTabs items={tabs} label={t('tabs.label')} layout='bar' panelClassName={s.card} />
+          <PageTabs items={tabs} label={t('tabs.label')} layout='console' panelClassName={s.card} />
         </main>
       </AdminNavigationContext>
     </NuqsAdapter>

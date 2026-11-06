@@ -1,11 +1,21 @@
-import type { AdminDay, AdminNodeTally, AdminShare } from '@gnomevpn/schemas';
+import type { AdminDay, AdminNodeOnline, AdminNodeTally, AdminShare, NodeState } from '@gnomevpn/schemas';
 
 import { PLANS } from '@gnomevpn/schemas';
-import { groupBy, mapValues, sortBy, sumBy } from 'remeda';
+import { groupBy, isEmpty, isNonNullish, mapValues, sortBy, sumBy } from 'remeda';
 
 import { nodeStatus } from '@/modules/status';
 
-import type { BuildDaysInput, FoldSharesInput, NodeTallyInput, ShareRow, StatsSubscription, SubscriptionTally } from './overview.types';
+import type {
+  BuildDaysInput,
+  FoldSharesInput,
+  LiveStateInput,
+  NodeTallyInput,
+  ShareRow,
+  StatsSubscription,
+  SubscriptionTally
+} from './overview.types';
+
+import { nodeOnline } from '../shared/node-online.helpers';
 
 export const subscriptionTally = (rows: StatsSubscription[]): SubscriptionTally => {
   const paid = rows.filter((row) => row.period === 'paid');
@@ -17,14 +27,26 @@ export const subscriptionTally = (rows: StatsSubscription[]): SubscriptionTally 
   };
 };
 
+const liveState = ({ node, now }: LiveStateInput): NodeState => nodeStatus({ node: { ...node, uptime: [] }, now }).state;
+
 export const nodeTally = ({ nodes, now }: NodeTallyInput): AdminNodeTally => {
   const tally: AdminNodeTally = { up: 0, degraded: 0, down: 0, off: 0 };
 
   for (const node of nodes) {
-    tally[node.isAvailable ? nodeStatus({ node: { ...node, uptime: [] }, now }).state : 'off'] += 1;
+    tally[node.isAvailable ? liveState({ node, now }) : 'off'] += 1;
   }
 
   return tally;
+};
+
+export const onlineTotal = ({ nodes, now }: NodeTallyInput): AdminNodeOnline | null => {
+  const reporting = nodes.map((node) => nodeOnline({ node, state: liveState({ node, now }) })).filter(isNonNullish);
+
+  if (isEmpty(reporting)) {
+    return null;
+  }
+
+  return { clients: sumBy(reporting, (online) => online.clients), users: sumBy(reporting, (online) => online.users) };
 };
 
 const labelOf = (label: string | null): string | null => {

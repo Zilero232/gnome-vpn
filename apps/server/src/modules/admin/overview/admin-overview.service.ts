@@ -8,7 +8,7 @@ import { PrismaService } from '@/core';
 
 import { AdminSeriesService } from './admin-series.service';
 import { AdminStatsService } from './admin-stats.service';
-import { foldShares, nodeTally } from './overview.helpers';
+import { foldShares, nodeTally, onlineTotal } from './overview.helpers';
 
 @Injectable()
 export class AdminOverviewService {
@@ -35,6 +35,7 @@ export class AdminOverviewService {
       devices: snapshot.devices,
       chats: snapshot.chats,
       nodes: nodeTally({ nodes: snapshot.nodes, now }),
+      online: onlineTotal({ nodes: snapshot.nodes, now }),
       trend: {
         dates: trend.map((day) => day.date),
         revenue: trend.map((day) => day.revenue),

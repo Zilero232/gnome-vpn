@@ -1,0 +1,1 @@
+export { PeakChart } from './PeakChart';

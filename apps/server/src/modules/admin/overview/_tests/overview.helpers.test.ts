@@ -7,7 +7,7 @@ import { nodeStatus } from '@/modules/status';
 
 import type { ShareRow, StatsNodeRow, StatsSubscription } from '../overview.types';
 
-import { buildDays, foldShares, nodeTally, subscriptionTally } from '../overview.helpers';
+import { buildDays, foldShares, nodeTally, onlineTotal, subscriptionTally } from '../overview.helpers';
 
 const NOW = new Date('2026-10-23T12:00:00.000Z');
 
@@ -33,6 +33,8 @@ const node = (patch: Partial<StatsNodeRow>): StatsNodeRow => ({
   lastCheckedAt: NOW,
   isOverloaded: false,
   isAvailable: true,
+  onlineClients: 0,
+  onlineUsers: 0,
   ...patch
 });
 
@@ -168,5 +170,27 @@ describe('buildDays', () => {
     const days = buildDays({ keys, series: { ...NO_ROWS, revenue: [{ day: '2026-09-01', value: 7 }] } });
 
     expect(days.every((entry) => entry.revenue === 0)).toBe(true);
+  });
+});
+
+describe('onlineTotal', () => {
+  it('adds up what the serving nodes report', () => {
+    const nodes = [node({ onlineClients: 12, onlineUsers: 9 }), node({ countryCode: 'NL', onlineClients: 5, onlineUsers: 4 })];
+
+    expect(onlineTotal({ nodes, now: NOW })).toEqual({ clients: 17, users: 13 });
+  });
+
+  it('leaves out a node that is down or out of rotation, since its count is no longer current', () => {
+    const nodes = [
+      node({ onlineClients: 12, onlineUsers: 9 }),
+      node({ countryCode: 'FI', lastHealthyAt: null, lastCheckedAt: subMinutes(NOW, 1), onlineClients: 30, onlineUsers: 30 }),
+      node({ countryCode: 'PL', isAvailable: false, onlineClients: 7, onlineUsers: 7 })
+    ];
+
+    expect(onlineTotal({ nodes, now: NOW })).toEqual({ clients: 12, users: 9 });
+  });
+
+  it('is unknown while no node has reported yet', () => {
+    expect(onlineTotal({ nodes: [node({ onlineClients: null, onlineUsers: null })], now: NOW })).toBeNull();
   });
 });

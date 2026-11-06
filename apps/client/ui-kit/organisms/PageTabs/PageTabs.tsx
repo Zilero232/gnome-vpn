@@ -37,8 +37,8 @@ export const PageTabs = ({ items, label, layout = 'rail', panelClassName }: Page
               {value === current?.value && <motion.span aria-hidden className={s.pill} layoutId={pillId} transition={PILL_MOTION} />}
 
               <span className={s.label}>
-                <Icon aria-hidden size={16} />
-                {tabLabel}
+                <Icon aria-hidden className={s.icon} size={16} />
+                <span className={s.text}>{tabLabel}</span>
               </span>
             </Tabs.Tab>
           ))}

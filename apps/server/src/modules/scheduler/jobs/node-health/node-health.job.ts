@@ -7,7 +7,7 @@ import { PrismaService } from '@/core';
 import { xrayClientForNode } from '@/lib/xray';
 import { NodeTrafficService } from '@/modules/peers';
 import { ALERT } from '@/modules/scheduler/config';
-import { NodeUptimeService } from '@/modules/status';
+import { NodePeakService, NodeUptimeService } from '@/modules/status';
 import { TelegramAlertService } from '@/modules/telegram/notify';
 
 import type {
@@ -17,10 +17,11 @@ import type {
   NoteRestartInput,
   ProbedNode,
   ProbeNodeRow,
+  RecordActivityInput,
   RecordNodeInput
 } from './node-health.job.types';
 
-import { deviceActivity, isOverloaded, isSustainedLoad, nextLoadStreak, nodeRestart } from './lib';
+import { deviceActivity, isOverloaded, isSustainedLoad, nextLoadStreak, nodeRestart, onlineCount } from './lib';
 import { ACTIVITY_PEER_SELECT, PROBE_NODE_SELECT } from './node-health.job.constants';
 
 @Injectable()
@@ -32,6 +33,7 @@ export class NodeHealthJob {
     private readonly prisma: PrismaService,
     private readonly nodeTraffic: NodeTrafficService,
     private readonly uptime: NodeUptimeService,
+    private readonly peaks: NodePeakService,
     private readonly alerts: TelegramAlertService
   ) {}
 
@@ -59,7 +61,7 @@ export class NodeHealthJob {
       }
     });
 
-    await Promise.all([this.recordActivity({ node, xray }), this.recordTraffic({ node, xray })]);
+    await Promise.all([this.recordActivity({ node, xray, health }), this.recordTraffic({ node, xray })]);
   }
 
   private async connect(node: ProbeNodeRow): Promise<ProbedNode> {
@@ -96,19 +98,28 @@ export class NodeHealthJob {
     this.nodeTraffic.record({ nodeId: node.id, traffic: await xray.clientTraffic() });
   }
 
-  private async recordActivity({ node, xray }: RecordNodeInput): Promise<void> {
-    const [peers, lastOnline] = await Promise.all([
-      this.prisma.peer.findMany({ where: { nodeId: node.id, revokedAt: null, deviceId: { not: null } }, select: ACTIVITY_PEER_SELECT }),
-      xray.lastOnline()
+  private async recordActivity({ node, xray, health }: RecordActivityInput): Promise<void> {
+    const [peers, lastOnline, onlineEmails] = await Promise.all([
+      this.prisma.peer.findMany({ where: { nodeId: node.id, revokedAt: null }, select: ACTIVITY_PEER_SELECT }),
+      xray.lastOnline(),
+      xray.onlineEmails()
     ]);
 
     const activity = deviceActivity({ peers, lastOnline });
+    const online = isNullish(onlineEmails) ? null : onlineCount({ peers, online: onlineEmails });
+    const memory = isNonNullish(health.memoryRatio) ? health.memoryRatio * 100 : null;
 
-    await this.prisma.$transaction(
-      [...activity].map(([deviceId, at]) =>
+    await this.prisma.$transaction([
+      ...[...activity].map(([deviceId, at]) =>
         this.prisma.device.updateMany({ where: { id: deviceId, lastSeenAt: { lt: at } }, data: { lastSeenAt: at } })
-      )
-    );
+      ),
+      this.prisma.node.update({
+        where: { id: node.id },
+        data: { onlineClients: online?.clients ?? null, onlineUsers: online?.users ?? null }
+      })
+    ]);
+
+    await this.peaks.record({ nodeId: node.id, at: new Date(), online, cpu: health.cpu, memory });
   }
 
   private noteRestart({ node, health }: NoteRestartInput): void {
@@ -176,6 +187,10 @@ export class NodeHealthJob {
 
     await this.uptime.record({ checkedAt, nodeIds: nodes.map((node) => node.id) }).catch((error: unknown) => {
       this.logger.warn(`Node uptime not recorded: ${describeError(error)}`);
+    });
+
+    await this.peaks.prune(checkedAt).catch((error: unknown) => {
+      this.logger.warn(`Old node peaks not pruned: ${describeError(error)}`);
     });
   }
 }
