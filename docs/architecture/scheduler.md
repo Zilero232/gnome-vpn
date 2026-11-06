@@ -31,6 +31,15 @@ Intervals that have no `CronExpression` constant live in `SCHEDULE`
 | `win-back`                    | `SCHEDULE.winBackCron`, hourly 10–20 MSK  | two touches after a lapse, with a personal discount ([below](#win-back))          |
 | `checkout-reminder`           | every 10 minutes                          | reminds once of a checkout left unpaid ([billing.md](billing.md#abandoned-checkouts)) |
 
+`reconcile-peers` runs only in production (`env.app.isProduction`). The nodes
+are shared and the database is not: a development server reaches the live
+panels — the node firewall lets the workstation that provisions them in — but
+holds its own local database, so its passes would sync the live nodes against
+the wrong peer list, and the weekly orphan collection would delete every
+offline client the local database has never heard of. Locally the minute
+`node-health` probe still runs: it only reads the panels and writes the local
+database.
+
 `reconcile-peers` waits out `SCHEDULE.bootGraceMs` after a boot, and its passes
 never overlap: a regular run is skipped while a pass is in flight, and the weekly
 orphan collection waits for the running pass to finish rather than being
@@ -53,6 +62,10 @@ also reported to `TelegramAlertService`, which decides whether the owner hears
 about it: a node going quiet, coming back, or running hot
 ([telegram-bot.md](telegram-bot.md#operational-alerts)). The job only reports;
 the thresholds and the de-duplication live there.
+
+The same probe reads the panel's online client list, stores the current count
+on the node and raises the day's peak in `node_peak` (`NodePeakService`) — what
+the admin's node cards chart ([admin.md](admin.md#online-now-and-the-daily-peak)).
 
 `support-threads` deletes the rows that let an admin's reply find its way back
 to a user (`telegram_support_message`) once they are

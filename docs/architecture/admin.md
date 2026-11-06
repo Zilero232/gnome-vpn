@@ -365,6 +365,33 @@ server name and keys are never selected, and the response is
 parsed through `adminNodeListSchema`, so a wider select added later still cannot
 leak them — a test hands the view a row carrying them.
 
+### Online now and the daily peak
+
+Each card also shows who the node is serving: online now, today's peak and when
+it happened, the busiest day of the last 30, and today's CPU and RAM peaks,
+above a column chart of the daily peak. The minute `node-health` probe reads the
+panel's online client list (`/panel/api/clients/onlines`) and stores two things
+([scheduler.md](scheduler.md)):
+
+- **Now** — `node.online_clients` and `node.online_users`, overwritten every
+  minute. The card drops them while the node is down or out of rotation, since
+  the last count is then stale; the overview's «Онлайн сейчас» tile sums the
+  same counts over the serving nodes (`onlineTotal`).
+- **The day's peak** — one `node_peak` row per node and UTC day, raised with
+  `GREATEST` in a single upsert, so a row only ever holds the maximum and two
+  writers cannot lower it. `clients_at` moves only when the client count
+  strictly grows, so it is the first minute the peak was reached. Rows older
+  than the uptime retention (`STATUS_PAGE.uptimeRetentionDays`) are pruned by
+  the same job.
+
+A **client** is one panel client online — one device on one protocol; a device
+that holds Hysteria2 and VLESS at once counts twice. A **user** is a distinct
+owner among the node's peers whose client is online. A client the database does
+not know (a legacy key) counts as a connection but not as a user. A peak is a
+sample of the minute probe, so a burst shorter than a minute can slip between
+two probes. The users across nodes are summed, so one person on two nodes counts
+twice in the overview.
+
 «Вывести из ротации» sets `isAvailable = false`: the node leaves the
 subscriptions on their next refresh, the public status page (after its
 30-second cache) and the minute health checks. Peers on the node are not

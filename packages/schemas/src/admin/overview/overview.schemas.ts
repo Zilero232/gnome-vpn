@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { planIdSchema } from '../../billing/plans';
 import { adminAmountSchema, adminCountSchema } from '../common/common.schemas';
+import { adminNodeOnlineSchema } from '../nodes/nodes.schemas';
 
 export const adminShareSchema = z.object({
   label: z.string().nullable(),
@@ -35,6 +36,7 @@ export const adminOverviewSchema = z.object({
   devices: adminCountSchema,
   chats: adminCountSchema,
   nodes: adminNodeTallySchema,
+  online: adminNodeOnlineSchema.nullable(),
   trend: z.object({
     dates: z.array(z.iso.date()),
     revenue: z.array(adminAmountSchema),

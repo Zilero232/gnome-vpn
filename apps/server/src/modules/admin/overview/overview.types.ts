@@ -36,6 +36,11 @@ export type NodeTallyInput = {
   now: Date;
 };
 
+export type LiveStateInput = {
+  node: StatsNodeRow;
+  now: Date;
+};
+
 export type ShareRow = {
   label: string | null;
   count: number;

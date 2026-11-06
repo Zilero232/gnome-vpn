@@ -38,3 +38,7 @@ export type ProbedNode = {
   xray: XrayClient;
   health: NodeHealth;
 };
+
+export type RecordActivityInput = RecordNodeInput & {
+  health: NodeHealth;
+};

@@ -1,3 +1,3 @@
-export { adminNodeAvailabilitySchema, adminNodeListSchema, adminNodeSchema } from './nodes.schemas';
+export { adminNodeAvailabilitySchema, adminNodeListSchema, adminNodeOnlineSchema, adminNodePeakSchema, adminNodeSchema } from './nodes.schemas';
 
-export type { AdminNode, AdminNodeAvailability, AdminNodeList } from './nodes.types';
+export type { AdminNode, AdminNodeAvailability, AdminNodeList, AdminNodeOnline, AdminNodePeak } from './nodes.types';

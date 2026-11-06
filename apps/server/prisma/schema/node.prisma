@@ -30,10 +30,14 @@ model Node {
   bootedAt      DateTime? @map("booted_at") @db.Timestamptz(3)
   coreStartedAt DateTime? @map("core_started_at") @db.Timestamptz(3)
 
+  onlineClients Int? @map("online_clients")
+  onlineUsers   Int? @map("online_users")
+
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
   peers  Peer[]
   uptime NodeUptime[]
+  peaks  NodePeak[]
 
   @@map("node")
 }

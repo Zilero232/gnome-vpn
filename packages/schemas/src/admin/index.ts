@@ -25,8 +25,8 @@ export {
 } from './common';
 export type { AdminCsvFile, AdminDeviceParam, AdminIdParam, AdminPageInfo, AdminPageQuery, AdminPeriod, AdminSession, AdminUserRef } from './common';
 
-export { adminNodeAvailabilitySchema, adminNodeListSchema, adminNodeSchema } from './nodes';
-export type { AdminNode, AdminNodeAvailability, AdminNodeList } from './nodes';
+export { adminNodeAvailabilitySchema, adminNodeListSchema, adminNodeOnlineSchema, adminNodePeakSchema, adminNodeSchema } from './nodes';
+export type { AdminNode, AdminNodeAvailability, AdminNodeList, AdminNodeOnline, AdminNodePeak } from './nodes';
 
 export { ADMIN_OVERVIEW, adminNodeTallySchema, adminOverviewSchema, adminShareSchema } from './overview';
 export type { AdminNodeTally, AdminOverview, AdminShare } from './overview';
