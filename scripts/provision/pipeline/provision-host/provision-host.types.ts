@@ -17,4 +17,5 @@ export type ProvisionHostInput = {
   prisma: PrismaLike;
   serverEnvPath: string;
   xrayComposeContent: string;
+  panelSources: string[];
 };

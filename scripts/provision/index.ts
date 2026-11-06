@@ -10,6 +10,7 @@ import { basePrisma } from '../../apps/server/src/core';
 import { log } from './config';
 import { loadNodesConfig, pruneNodes, syncToProduction } from './node';
 import { formatSummary, provisionHost } from './pipeline';
+import { productionSources } from './remote';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 
@@ -38,6 +39,7 @@ const warnLosses = (result: ProvisionResult) => {
 
 const provisionAll = async (nodes: NodeConfig[]): Promise<ProvisionResult[]> => {
   const xrayComposeContent = await readFile(PATHS.xrayCompose, 'utf8');
+  const panelSources = await productionSources();
   const results: ProvisionResult[] = [];
 
   for (const config of nodes) {
@@ -48,7 +50,8 @@ const provisionAll = async (nodes: NodeConfig[]): Promise<ProvisionResult[]> => 
       config,
       prisma: basePrisma,
       serverEnvPath: PATHS.serverEnv,
-      xrayComposeContent
+      xrayComposeContent,
+      panelSources
     });
 
     results.push(result);

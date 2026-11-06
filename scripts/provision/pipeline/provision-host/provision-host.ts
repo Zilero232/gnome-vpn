@@ -6,9 +6,15 @@ import { describeError } from '../../../../apps/server/src/common/lib/errors';
 import { generateAuth } from '../../../../apps/server/src/lib/xray';
 import { installInbounds } from '../../inbound';
 import { registerNode, rememberNodeSecrets, resolveNodeCredentials } from '../../node';
-import { configurePanel, openPanelSession, prepareHost } from '../../remote';
+import { configurePanel, connectNode, lockToKey, openPanelSession, prepareHost } from '../../remote';
 
-export const provisionHost = async ({ config, prisma, serverEnvPath, xrayComposeContent }: ProvisionHostInput): Promise<ProvisionResult> => {
+export const provisionHost = async ({
+  config,
+  prisma,
+  serverEnvPath,
+  xrayComposeContent,
+  panelSources
+}: ProvisionHostInput): Promise<ProvisionResult> => {
   const ssh = new SshClient();
   const outcome = { host: config.host, country: config.country };
 
@@ -18,7 +24,8 @@ export const provisionHost = async ({ config, prisma, serverEnvPath, xrayCompose
       select: { certFingerprint: true, realityPublicKey: true, wgPublicKey: true }
     });
 
-    await ssh.connect({ host: config.host, username: config.sshUser, password: config.sshPassword });
+    await connectNode({ ssh, config });
+    await lockToKey({ ssh, config });
 
     const { password, panelPath, apiToken } = await resolveNodeCredentials({
       envFilePath: serverEnvPath,
@@ -27,7 +34,7 @@ export const provisionHost = async ({ config, prisma, serverEnvPath, xrayCompose
 
     const auth = generateAuth();
 
-    await prepareHost({ ssh, xrayComposeContent });
+    await prepareHost({ ssh, xrayComposeContent, panelSources });
 
     const token = await configurePanel({ ssh, password, panelPath, knownToken: apiToken });
 

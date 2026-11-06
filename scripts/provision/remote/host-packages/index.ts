@@ -1,1 +1,1 @@
-export { ensureDocker, ensureFail2ban, ensureJq } from './host-packages';
+export { ensureDocker, ensureFail2ban, ensureJq, ensureUfw } from './host-packages';

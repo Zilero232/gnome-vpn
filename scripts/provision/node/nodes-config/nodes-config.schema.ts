@@ -5,7 +5,7 @@ import { duplicatesOf } from './nodes-config.helpers';
 export const nodeConfigSchema = z.object({
   host: z.string().min(1),
   sshUser: z.string().min(1),
-  sshPassword: z.string().min(1),
+  sshPassword: z.string().min(1).optional(),
   country: z.string().min(1),
   countryCode: z.string().regex(/^[A-Z]{2}$/, 'must be two uppercase letters'),
   city: z.string().min(1).optional()

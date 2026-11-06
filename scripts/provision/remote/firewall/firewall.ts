@@ -1,25 +1,37 @@
-import type { SshClient } from '@gnomevpn/scripts/ssh';
+import { all } from '@gnomevpn/scripts/shell';
+import { lookup } from 'node:dns/promises';
+import { isEmpty } from 'remeda';
 
-import { line } from '@gnomevpn/scripts/shell';
+import type { ConfigureFirewallInput } from './firewall.types';
 
-import { log, PORTS } from '../../config';
+import { log } from '../../config';
+import { FIREWALL } from './firewall.constants';
+import { firewallCommands, validSources } from './firewall.helpers';
 
-export const openTunnelPort = async (ssh: SshClient) => {
-  const hasUfw = await ssh.exec('command -v ufw');
+export const productionSources = async (): Promise<string[]> => {
+  const host = process.env[FIREWALL.productionHostEnv];
 
-  if (hasUfw.exitCode !== 0) {
-    log.done('no ufw on this host, leaving the firewall alone');
-
-    return;
+  if (!host) {
+    return [];
   }
 
-  const rules = [`${PORTS.hysteria}/udp`, `${PORTS.reality}/tcp`, `${PORTS.wireguard}/udp`, `${PORTS.panel}/tcp`];
+  const addresses = await lookup(host, { all: true, family: 4 });
 
-  log.step(`opening ${rules.join(', ')}`);
+  return addresses.map(({ address }) => address);
+};
 
-  for (const rule of rules) {
-    await ssh.run(line(['ufw', 'allow', rule]));
+export const configureFirewall = async ({ ssh, panelSources }: ConfigureFirewallInput): Promise<void> => {
+  if (isEmpty(panelSources)) {
+    log.warn(`${FIREWALL.productionHostEnv} is not set, so the panel port stays open to everyone`);
   }
 
-  log.done('the tunnel ports are open');
+  const workstation = (await ssh.run(FIREWALL.clientAddressCommand)).stdout;
+  const allowed = isEmpty(panelSources) ? [] : validSources([...panelSources, workstation]);
+  const panelAudience = isEmpty(allowed) ? 'everyone' : allowed.join(', ');
+
+  log.step(`closing everything but ssh, the tunnels and the panel for ${panelAudience}`);
+
+  await ssh.run(all(firewallCommands(allowed)));
+
+  log.done('the firewall is on');
 };
