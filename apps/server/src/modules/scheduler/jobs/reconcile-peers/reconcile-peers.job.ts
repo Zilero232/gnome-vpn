@@ -5,6 +5,7 @@ import { isEmpty, isNullish, unique, zip } from 'remeda';
 import type { XrayClient } from '@/lib/xray';
 
 import { describeError } from '@/common/lib';
+import { env } from '@/config';
 import { PrismaService } from '@/core';
 import { IDENTIFIED_NODE_SELECT, xrayClientForNode } from '@/lib/xray';
 import { ALERT, SCHEDULE } from '@/modules/scheduler/config';
@@ -76,7 +77,7 @@ export class ReconcilePeersJob {
   }
 
   private async sweep(withOrphans: boolean): Promise<void> {
-    if (Date.now() - this.bootedAt < SCHEDULE.bootGraceMs || (this.running && !withOrphans)) {
+    if (!env.app.isProduction || Date.now() - this.bootedAt < SCHEDULE.bootGraceMs || (this.running && !withOrphans)) {
       return;
     }
 
