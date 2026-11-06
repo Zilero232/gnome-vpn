@@ -9,6 +9,7 @@ import { Badge, Button, CountryFlag, FactList, Text } from '@/ui-kit';
 import type { NodeItemProps } from './NodeItem.types';
 
 import { NODE_STATE_TONE } from '../../../config';
+import { NodeLoad, PeakChart } from './components';
 
 import s from './NodeItem.module.scss';
 
@@ -29,7 +30,7 @@ export const NodeItem = ({ node, name, isToggling, onToggle }: NodeItemProps) =>
 
   return (
     <li className={s.root} data-available={node.isAvailable}>
-      <div className={s.head}>
+      <header className={s.head}>
         <CountryFlag className={s.flag} countryCode={node.countryCode} size='lg' />
 
         <div className={s.place}>
@@ -48,17 +49,21 @@ export const NodeItem = ({ node, name, isToggling, onToggle }: NodeItemProps) =>
           {node.isAvailable ? <Badge tone={NODE_STATE_TONE[node.state]}>{states(node.state)}</Badge> : <Badge tone='muted'>{t('off')}</Badge>}
           {node.isOverloaded && <Badge tone='warning'>{t('overloaded')}</Badge>}
         </div>
-      </div>
+      </header>
 
-      <FactList items={facts} />
+      <NodeLoad node={node} />
+
+      <PeakChart peaks={node.peaks} />
 
       <UptimeStrip days={node.days} uptime={node.uptime} />
 
-      <div className={s.actions}>
-        <Button disabled={isToggling} size='md' variant={node.isAvailable ? 'ghost' : 'primary'} onClick={onToggle}>
+      <footer className={s.foot}>
+        <FactList className={s.facts} items={facts} />
+
+        <Button className={s.toggle} disabled={isToggling} size='md' variant={node.isAvailable ? 'ghost' : 'primary'} onClick={onToggle}>
           {node.isAvailable ? t('takeOut') : t('putBack')}
         </Button>
-      </div>
+      </footer>
     </li>
   );
 };

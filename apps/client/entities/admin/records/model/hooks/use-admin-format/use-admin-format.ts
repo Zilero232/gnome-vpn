@@ -16,6 +16,7 @@ export const useAdminFormat = () => {
     percent: (ratio: number) => format.number(ratio, ADMIN_FORMAT.percent),
     date: (iso: string) => format.dateTime(new Date(iso), ADMIN_FORMAT.date),
     dateTime: (iso: string) => format.dateTime(new Date(iso), ADMIN_FORMAT.dateTime),
-    day: (key: string) => format.dateTime(new Date(key), ADMIN_FORMAT.day)
+    day: (key: string) => format.dateTime(new Date(key), ADMIN_FORMAT.day),
+    time: (iso: string) => format.dateTime(new Date(iso), ADMIN_FORMAT.time)
   };
 };

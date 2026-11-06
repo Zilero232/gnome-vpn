@@ -17,7 +17,7 @@ export const StatTile = ({ label, value, hint, trend, className }: StatTileProps
     </Text>
 
     {hint && (
-      <Text as='p' size='xs' tone='muted'>
+      <Text as='p' className={s.hint} size='xs' tone='muted'>
         {hint}
       </Text>
     )}

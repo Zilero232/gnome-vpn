@@ -108,24 +108,62 @@
   white-space: nowrap;
 }
 
+@mixin vertical-rail($top) {
+  display: grid;
+  align-items: start;
+  gap: var(--gap-lg);
+  grid-template-columns: minmax(0, 210px) minmax(0, 1fr);
+
+  .navWrap {
+    position: sticky;
+    top: $top;
+  }
+
+  .nav {
+    flex-direction: column;
+    padding: 0;
+    border-color: transparent;
+    background-color: transparent;
+    gap: 4px;
+    overflow-x: visible;
+  }
+
+  .more {
+    display: none;
+  }
+
+  .tab {
+    flex: none;
+  }
+
+  .label {
+    justify-content: flex-start;
+    padding: 10px 12px;
+  }
+}
+
 @include from(2xl) {
   .root[data-layout='rail'] {
-    display: grid;
-    align-items: start;
-    gap: var(--gap-lg);
-    grid-template-columns: minmax(0, 210px) minmax(0, 1fr);
+    @include vertical-rail(calc(var(--safe-area-top) + 16px));
+  }
 
+  .root[data-layout='console'] {
+    @include vertical-rail(calc(var(--safe-area-top) + var(--header-height) + 16px));
+  }
+}
+
+@include below(2xl) {
+  .root[data-layout='console'] {
     .navWrap {
       position: sticky;
-      top: calc(var(--safe-area-top) + 16px);
+      z-index: 20;
+      top: calc(var(--safe-area-top) + var(--header-height));
+      padding: 6px 0;
+      margin: -6px 0;
+      background-color: var(--color-bg);
     }
 
     .nav {
-      flex-direction: column;
-      padding: 0;
-      border-color: transparent;
-      background-color: transparent;
-      gap: 4px;
       overflow-x: visible;
     }
 
@@ -134,14 +172,26 @@
     }
 
     .tab {
-      flex: none;
+      min-width: var(--tap-target);
+      flex: 0 0 auto;
+
+      &[data-active] {
+        flex: 1 1 auto;
+      }
+
+      &:not([data-active]) .text {
+        @include visually-hidden;
+      }
     }
 
     .label {
-      justify-content: flex-start;
-      padding: 10px 12px;
+      padding: 9px 12px;
     }
   }
+}
+
+.icon {
+  flex: none;
 }
 
 .panel:focus-visible {
