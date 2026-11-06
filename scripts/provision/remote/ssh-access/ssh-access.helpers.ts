@@ -15,5 +15,13 @@ export const authorizeKeyCommand = (publicKey: string): string => {
   const hasKey = line(['grep', '-qxF', arg(publicKey), '~/.ssh/authorized_keys']);
   const appendKey = `${line(['echo', arg(publicKey)])} >> ~/.ssh/authorized_keys`;
 
-  return ['install -d -m 700 ~/.ssh', 'touch ~/.ssh/authorized_keys', 'chmod 600 ~/.ssh/authorized_keys', `${hasKey} || ${appendKey}`].join(' && ');
+  const endWithNewline = String.raw`sed -i -e '$a\' ~/.ssh/authorized_keys`;
+
+  return [
+    'install -d -m 700 ~/.ssh',
+    'touch ~/.ssh/authorized_keys',
+    'chmod 600 ~/.ssh/authorized_keys',
+    endWithNewline,
+    `${hasKey} || ${appendKey}`
+  ].join(' && ');
 };

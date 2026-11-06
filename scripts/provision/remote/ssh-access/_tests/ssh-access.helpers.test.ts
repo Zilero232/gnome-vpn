@@ -26,6 +26,15 @@ describe('authorizeKeyCommand', () => {
     expect(command).toMatch(/grep -qxF .+ \|\| echo .+ >> ~\/\.ssh\/authorized_keys$/u);
   });
 
+  it('ends the file with a newline before appending, so the key never glues onto the last line', () => {
+    const steps = authorizeKeyCommand(PUBLIC_KEY).split(' && ');
+    const newline = steps.findIndex((step) => step.startsWith('sed -i'));
+    const append = steps.findIndex((step) => step.includes('>> ~/.ssh/authorized_keys'));
+
+    expect(steps[newline]).toBe(String.raw`sed -i -e '$a\' ~/.ssh/authorized_keys`);
+    expect(newline).toBeLessThan(append);
+  });
+
   it('quotes the key, so its spaces reach the file as one line', () => {
     expect(authorizeKeyCommand(PUBLIC_KEY)).toContain(`'${PUBLIC_KEY}'`);
   });
