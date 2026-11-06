@@ -1,1 +1,1 @@
-export { isOverloaded } from './node-load';
+export { isOverloaded, isSustainedLoad, nextLoadStreak } from './node-load';

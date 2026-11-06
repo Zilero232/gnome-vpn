@@ -854,6 +854,11 @@ the owner wants to match it against users' complaints. `node-health` decides
 which of the two it was ([scheduler.md](scheduler.md)); a reboot is reported
 instead of the core restart that comes with it.
 
+**A load alert needs the load to hold.** CPU or memory over its threshold for
+`ALERT.loadStreakMinutes` (3) probes in a row, not a single minute: a nightly
+package update on a one-core node peaks for half a minute and used to read as an
+overload.
+
 **Load and reconcile alerts are once per node per kind per hour**
 (`BOT_THROTTLE.limits.ownerAlert`, keyed `cpu:<node>`, `memory:<node>`, `reconcile:<node>`).
 Billing alerts ride on the claims billing already makes: a settled payment is

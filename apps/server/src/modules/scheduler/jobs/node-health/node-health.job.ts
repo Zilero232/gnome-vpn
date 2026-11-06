@@ -10,14 +10,23 @@ import { ALERT } from '@/modules/scheduler/config';
 import { NodeUptimeService } from '@/modules/status';
 import { TelegramAlertService } from '@/modules/telegram/notify';
 
-import type { NoteLoadInput, NoteRestartInput, ProbedNode, ProbeNodeRow, RecordNodeInput } from './node-health.job.types';
+import type {
+  LoadReading,
+  NoteLoadInput,
+  NoteReadingInput,
+  NoteRestartInput,
+  ProbedNode,
+  ProbeNodeRow,
+  RecordNodeInput
+} from './node-health.job.types';
 
-import { deviceActivity, isOverloaded, nodeRestart } from './lib';
+import { deviceActivity, isOverloaded, isSustainedLoad, nextLoadStreak, nodeRestart } from './lib';
 import { ACTIVITY_PEER_SELECT, PROBE_NODE_SELECT } from './node-health.job.constants';
 
 @Injectable()
 export class NodeHealthJob {
   private readonly logger = new Logger(NodeHealthJob.name);
+  private readonly loadStreaks = new Map<string, number>();
 
   constructor(
     private readonly prisma: PrismaService,
@@ -109,22 +118,41 @@ export class NodeHealthJob {
       return;
     }
 
-    const restartedAt = (restart === 'reboot' ? health.bootedAt : health.coreStartedAt) ?? new Date();
+    const isReboot = restart === 'reboot';
+    const restartedAt = (isReboot ? health.bootedAt : health.coreStartedAt) ?? new Date();
+    const what = isReboot ? 'the host rebooted' : 'the xray core restarted';
 
-    this.logger.warn(`node ${node.id}: ${restart === 'reboot' ? 'the host rebooted' : 'the xray core restarted'} at ${restartedAt.toISOString()}`);
+    this.logger.warn(`node ${node.id}: ${what} at ${restartedAt.toISOString()}`);
     this.alerts.nodeRestarted({ nodeId: node.id, restart, restartedAt });
   }
 
   private noteLoad({ node, health }: NoteLoadInput): void {
-    if (isNonNullish(health.cpu) && health.cpu >= ALERT.nodeCpuPercent) {
-      this.logger.warn(`node ${node.id} is at ${health.cpu.toFixed(0)}% cpu`);
-      this.alerts.nodeLoad({ nodeId: node.id, resource: 'cpu', percent: health.cpu });
+    const memoryPercent = isNonNullish(health.memoryRatio) ? health.memoryRatio * 100 : null;
+
+    const readings: LoadReading[] = [
+      { resource: 'cpu', percent: health.cpu, threshold: ALERT.nodeCpuPercent },
+      { resource: 'memory', percent: memoryPercent, threshold: ALERT.nodeMemoryRatio * 100 }
+    ];
+
+    for (const reading of readings) {
+      this.noteReading({ node, reading });
+    }
+  }
+
+  private noteReading({ node, reading }: NoteReadingInput): void {
+    const { resource, percent, threshold } = reading;
+    const key = `${resource}:${node.id}`;
+    const isHot = isNonNullish(percent) && percent >= threshold;
+    const streak = nextLoadStreak({ previous: this.loadStreaks.get(key) ?? 0, isHot });
+
+    this.loadStreaks.set(key, streak);
+
+    if (isNullish(percent) || !isSustainedLoad(streak)) {
+      return;
     }
 
-    if (isNonNullish(health.memoryRatio) && health.memoryRatio >= ALERT.nodeMemoryRatio) {
-      this.logger.warn(`node ${node.id} is at ${(health.memoryRatio * 100).toFixed(0)}% memory`);
-      this.alerts.nodeLoad({ nodeId: node.id, resource: 'memory', percent: health.memoryRatio * 100 });
-    }
+    this.logger.warn(`node ${node.id} has been at ${percent.toFixed(0)}% ${resource} for ${streak} minutes`);
+    this.alerts.nodeLoad({ nodeId: node.id, resource, percent });
   }
 
   @Cron(CronExpression.EVERY_MINUTE, { waitForCompletion: true })

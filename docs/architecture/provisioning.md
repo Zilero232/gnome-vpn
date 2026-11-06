@@ -29,7 +29,7 @@ back with `node:util` `parseEnv` (`readEnvValue`), the same rules as the
 `--env-file` the server boots with, so a quoted value reads the same in both.
 
 **`remote/` is one folder per thing done to the host**, not one file that grew:
-`host-packages` (docker, jq, fail2ban), `firewall`, `host-tuning`, `xray-stack`, `host-cert`,
+`ssh-access`, `host-packages` (docker, jq, fail2ban, ufw), `firewall`, `host-tuning`, `xray-stack`, `host-cert`,
 `key-files` (`ensureKeyFiles` writes a set of key files only when one is missing;
 `ensureRealityKeys` and `ensureWireguardKeys` are built on it), `panel-config`,
 `panel-session`, `xray-panel`, and `host-prepare`, which runs the host-level
@@ -57,6 +57,31 @@ without rsyslog and a jail reading `/var/log/auth.log` silently bans nobody.
 rewrites the jail every run, so changing a threshold in `FAIL2BAN` is a
 re-provision rather than an ssh session.
 
+**SSH takes our key only, and only after the key has been proven.** A node
+used to accept root logins by password — the one in `nodes.json` — from anywhere.
+`connectNode` logs in with the workstation's key when the node already takes it
+(`PROVISION_NODE_SSH_KEY`, else the first of `~/.ssh/gnomevpn_deploy`,
+`id_ed25519`, `id_rsa`, `id_ecdsa`) and falls back to the password otherwise, so
+`sshPassword` is optional once a node is locked. `lockToKey` appends the public
+key to `authorized_keys`, opens a **second** connection with it, and only when
+that succeeds writes `/etc/ssh/sshd_config.d/00-gnomevpn.conf`
+(`PasswordAuthentication no`, `KbdInteractiveAuthentication no`,
+`PermitRootLogin prohibit-password`), checks it with `sshd -t` and reloads. The
+file sorts before Ubuntu's `50-cloud-init.conf`, which turns passwords back on,
+because sshd keeps the first value it reads. A run without a key pair warns and
+leaves passwords on rather than locking anybody out.
+
+**Everything is closed but SSH, the tunnels and the panel for two addresses.**
+FI had no firewall at all and NL opened every port it had, the panel's 2053
+included. `configureFirewall` rebuilds the ufw rules from nothing on every run
+(`ufw --force reset`), so an address from an older run never lingers: deny
+incoming, `ufw limit 22/tcp`, 443/tcp, 443/udp and 51820/udp for the tunnels,
+and 2053 only from the production VPS (`PROVISION_SSH_HOST`, resolved to IPv4)
+and from the workstation running the provisioning (`$SSH_CLIENT` as the node
+sees it). Without `PROVISION_SSH_HOST` the panel stays open to everyone, with a
+warning — closing it would cut the server off its nodes. SSH is allowed before
+ufw is turned on, and a reset leaves ufw off, so no step of a run locks it out.
+
 **The host is tuned for QUIC and capped on logs.** `tuneHost` writes
 `/etc/sysctl.d/99-gnomevpn.conf`: the UDP socket buffer ceilings go from
 Ubuntu's 208 KB to 16 MB, because quic-go — Hysteria2's transport — asks for
@@ -69,6 +94,36 @@ reached 1.4 GB. The compose file caps the container's own log the same way
 panel's file log under `/var/log/x-ui` stays at debug and rotates itself.
 Changing the compose environment recreates the container, so the run that
 ships it restarts the core once.
+
+**Every UDP socket gets a real buffer, not only the inbound.** The inbound
+sockets ask for 16 MB and drop nothing; every other UDP socket takes
+`net.core.rmem_default`, which Ubuntu leaves at 208 KB. The core opens one per
+user UDP flow — QUIC to YouTube, calls, games — and those overflowed: the
+kernel counted 1.4 million `RcvbufErrors` on FI in a week, and the WireGuard
+socket alone dropped over a thousand packets. The defaults are 4 MB now. The
+same file carries the rest of a proxy node's usual set: TCP buffers up to
+16 MB, `tcp_mtu_probing` against MTU black holes on Russian routes,
+`tcp_slow_start_after_idle=0` so a long-lived tunnel keeps its window after a
+pause, a 256 K conntrack table and `vm.swappiness=10`.
+
+**Nothing a VPS does not use, and a docker restart keeps the tunnel.**
+ModemManager, udisks2, upower, multipathd and fwupd are masked. Docker runs with
+`live-restore`, written into whatever `daemon.json` the host already has, so an
+upgrade of dockerd no longer stops the xray container.
+
+**Package updates run at night, behind the tunnel.** Ubuntu's
+`apt-daily-upgrade` fired between 06:00 and 07:00 UTC — 9 to 10 in Moscow — and
+on a one-core node took the CPU for half a minute: both "node overloaded"
+alerts of 05.11 and 06.11 were it, to the minute. `tuneHost` moves `apt-daily`
+to 00:30 and `apt-daily-upgrade` to 01:30 UTC (each with up to 30 minutes of
+jitter), and runs both at `Nice=19`, `CPUWeight=10`, `IOWeight=10`; security
+updates still install every night.
+
+**NTP that answers.** The hosts have no IPv6 route, and `ntp.ubuntu.com`
+resolves to IPv6 first: `systemd-timesyncd` had never synchronised, with
+hundreds of timeouts a day, and the NL clock had drifted 1.2 s. TLS and Reality
+both fail on a clock far enough off. `timesyncd.conf.d/gnomevpn.conf` names
+Cloudflare's and Google's servers, with the Ubuntu pool as the fallback.
 
 ## What a run does to a node
 

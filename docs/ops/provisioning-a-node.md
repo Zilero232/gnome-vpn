@@ -6,7 +6,7 @@ Adding a VPN node, step by step. Why the pipeline is shaped the way it is:
 
 ## What it does
 
-`bun run provision:nodes` reads `nodes.json` from the repo root (gitignored — it holds root SSH passwords; `nodes.example.json` next to it is the committed template) and sets each host up over SSH: install Docker, jq and fail2ban, open the tunnel and panel ports, ship the 3x-ui compose stack, configure the panel, generate the TLS cert, the Reality keys and the WireGuard keys, install the Hysteria2, VLESS and WireGuard inbounds, register the node. When every host succeeded it prunes nodes missing from `nodes.json`; either way it then pushes the result to production, so a token rotated on a host that failed later still gets there — with a failed host it only adds and updates production nodes, never deletes one, and the run exits 1.
+`bun run provision:nodes` reads `nodes.json` from the repo root (gitignored — it holds root SSH passwords; `nodes.example.json` next to it is the committed template) and sets each host up over SSH: lock SSH to your key, install Docker, jq, fail2ban and ufw, close every port but SSH and the tunnels (the panel only for the production VPS and your workstation), tune the kernel and the update schedule, ship the 3x-ui compose stack, configure the panel, generate the TLS cert, the Reality keys and the WireGuard keys, install the Hysteria2, VLESS and WireGuard inbounds, register the node. When every host succeeded it prunes nodes missing from `nodes.json`; either way it then pushes the result to production, so a token rotated on a host that failed later still gets there — with a failed host it only adds and updates production nodes, never deletes one, and the run exits 1.
 
 It runs on a workstation, never in CI: the node credentials live in
 `nodes.json` and `.env.nodes`, the production VPS credentials in the root
@@ -17,6 +17,10 @@ commit.
 
 1. Copy `nodes.example.json` to `nodes.json` and fill in each host, its SSH
    credentials (`sshUser`, `sshPassword`), the country, `countryCode` and city.
+   The first run installs your SSH key (`PROVISION_NODE_SSH_KEY`, else
+   `~/.ssh/gnomevpn_deploy` or `id_ed25519`) and turns password logins off, so
+   keep that key: from then on it is the only way in, and `sshPassword` is only
+   needed for a brand-new host.
    A node left out of the file is **removed** on the next run, together with its
    keys.
 2. Make sure the root `.env` has a `DATABASE_URL` the script can write to — the

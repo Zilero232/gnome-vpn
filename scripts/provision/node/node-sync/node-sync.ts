@@ -1,18 +1,14 @@
 import { arg, line } from '@gnomevpn/scripts/shell';
 import { SshClient } from '@gnomevpn/scripts/ssh';
 import { randomBytes } from 'node:crypto';
-import { existsSync } from 'node:fs';
-import { homedir } from 'node:os';
-import { join, posix } from 'node:path';
+import { posix } from 'node:path';
 
 import type { SyncResult, SyncToProductionInput } from './node-sync.types';
 
 import { describeError } from '../../../../apps/server/src/common/lib/errors';
+import { defaultKeyPath } from '../../config';
 import { ENV_NODES, HEREDOC_NONCE_BYTES, PRODUCTION_SSH } from './node-sync.constants';
 import { applyServerEnvCommand, applySqlCommand, buildNodeSync, installEnvFileCommand, isSameEnvFile, readFileCommand } from './node-sync.helpers';
-
-const defaultKeyPath = (): string | undefined =>
-  PRODUCTION_SSH.keyNames.map((name) => join(homedir(), '.ssh', name)).find((path) => existsSync(path));
 
 export const syncToProduction = async ({ nodes, envNodes, pruneMissing }: SyncToProductionInput): Promise<SyncResult> => {
   const host = process.env.PROVISION_SSH_HOST;

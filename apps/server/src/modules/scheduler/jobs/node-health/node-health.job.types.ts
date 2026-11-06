@@ -1,4 +1,5 @@
 import type { IdentifiedNode, NodeHealth, XrayClient } from '@/lib/xray';
+import type { LoadResource } from '@/modules/telegram/notify';
 
 export type ProbeNodeRow = IdentifiedNode & {
   lastHealthyAt: Date | null;
@@ -15,6 +16,17 @@ export type NoteRestartInput = {
 export type NoteLoadInput = {
   node: IdentifiedNode;
   health: NodeHealth;
+};
+
+export type LoadReading = {
+  resource: LoadResource;
+  percent: number | null;
+  threshold: number;
+};
+
+export type NoteReadingInput = {
+  node: IdentifiedNode;
+  reading: LoadReading;
 };
 
 export type RecordNodeInput = {

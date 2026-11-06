@@ -50,6 +50,10 @@ export const ensureJq = async (ssh: SshClient) => {
   await ensureApt({ ssh, name: 'jq', probe: 'command -v jq' });
 };
 
+export const ensureUfw = async (ssh: SshClient) => {
+  await ensureApt({ ssh, name: 'ufw', probe: 'command -v ufw' });
+};
+
 export const ensureFail2ban = async (ssh: SshClient) => {
   await ensureApt({ ssh, name: 'fail2ban', probe: 'command -v fail2ban-server' });
 
