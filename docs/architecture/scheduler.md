@@ -17,7 +17,7 @@ Intervals that have no `CronExpression` constant live in `SCHEDULE`
 
 | Job                           | Runs                                      | Does                                                                              |
 | ----------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------- |
-| `node-health`                 | every minute                              | probes every available node, stamps `lastHealthyAt` and uptime, warns on load and restarts |
+| `node-health`                 | every minute                              | probes every available node, stamps `lastHealthyAt` and uptime, warns on sustained load and restarts |
 | `reconcile-peers` (`run`)     | `SCHEDULE.reconcileCron`, every 5 minutes | deletes revoked clients, syncs peer rows with the panels, restores lost ones      |
 | `reconcile-peers` (`collect`) | `SCHEDULE.collectOrphansCron`, weekly     | the same pass plus orphan collection, idle shared `incy` peers and feed WireGuard |
 | `expired-access`              | every 5 minutes                           | revokes lapsed access and restores access left disabled on a live period          |
