@@ -51,40 +51,12 @@
     "android": "Google Play",
     "ios": "App Store"
   },
-  "targetLabel": "What you will open the config with",
   "setupLink": "Where to get the app →",
   "steps": {
     "create": "Create a config",
-    "connect": "Connect"
-  },
-  "targets": {
-    "amnezia": {
-      "name": "AmneziaVPN",
-      "reach": "iPhone and Android",
-      "title": "Add it to AmneziaVPN",
-      "import": "Open AmneziaVPN, tap “+” and pick the settings file — or scan the config’s QR code from a computer screen.",
-      "connect": "Switch the connection on in AmneziaVPN. One config is one device: create another for a second phone."
-    },
-    "wireguard": {
-      "name": "WireGuard",
-      "reach": "Any platform",
-      "title": "Add it to WireGuard",
-      "import": "In the WireGuard app, tap “+” and import the tunnel from the .conf file. On a phone you can scan the QR code instead.",
-      "connect": "Turn the tunnel on with its switch. One config is one device."
-    },
-    "wiresock": {
-      "name": "WireSock",
-      "reach": "Windows",
-      "title": "Add it to WireSock",
-      "import": "Open WireSock Secure Connect and import the downloaded .conf file.",
-      "connect": "Press Connect. The tunnel settings can route only chosen programs through the VPN."
-    },
-    "router": {
-      "name": "Router",
-      "reach": "Keenetic, OpenWrt, MikroTik",
-      "title": "Load it into the router",
-      "import": "Find the WireGuard client in the router’s web interface and upload the .conf file — or copy its fields over by hand.",
-      "connect": "Switch the connection on — every device on the home network goes through the VPN."
-    }
+    "import": "Add it to an app",
+    "importHint": "Any app with WireGuard will do: AmneziaVPN or WireGuard on a phone, WireGuard or WireSock on a computer, the WireGuard client of a router. Tap “+” and import the downloaded .conf file — on a phone you can scan the QR code instead.",
+    "connect": "Connect",
+    "connectHint": "Switch the connection on. One config is one device: create another for a second one. On a router, the whole home network goes through the VPN."
   }
 }

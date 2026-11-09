@@ -10,7 +10,7 @@ import { CreateConfigForm } from '../CreateConfigForm';
 
 import s from './ConfigSteps.module.scss';
 
-export const ConfigSteps = ({ overview, target, onCreated }: ConfigStepsProps) => {
+export const ConfigSteps = ({ overview, onCreated }: ConfigStepsProps) => {
   const t = useTranslations('wireguard');
 
   const isFull = overview.deviceCount >= overview.deviceLimit;
@@ -31,8 +31,8 @@ export const ConfigSteps = ({ overview, target, onCreated }: ConfigStepsProps) =
               <CreateConfigForm isFull={isFull} nodes={overview.nodes} onCreated={onCreated} />
             )
         },
-        { key: 'import', title: t(`targets.${target}.title`), description: t(`targets.${target}.import`) },
-        { key: 'connect', title: t('steps.connect'), description: t(`targets.${target}.connect`) }
+        { key: 'import', title: t('steps.import'), description: t('steps.importHint') },
+        { key: 'connect', title: t('steps.connect'), description: t('steps.connectHint') }
       ]}
       variant='panel'
     />
