@@ -95,8 +95,8 @@ its own, for networks that drop TLS and QUIC to the nodes. Why and how:
    summary lists it with its ports, and the run logs which node is now served
    through which relay. Production gets `relay_host`/`relay_port` with the rest
    of the node rows.
-4. Refresh the subscription in INCY: every routed country appears first through
-   the relay under its usual name, and again with the `Direct` suffix.
+4. Refresh the subscription in INCY: every routed country now dials the relay,
+   under the same name as before. Nothing else in the list changes.
 
 To check a relay by hand: `nft list table ip gnomevpn_relay` on it shows the
 forwards, `systemctl status gnomevpn-relay` the unit, and from a client
@@ -104,5 +104,5 @@ forwards, `systemctl status gnomevpn-relay` the unit, and from a client
 complete the TLS handshake through it to the node's Reality fallback.
 
 To drop a relay, remove it from `relays` and run again: its nodes are cleared and
-lose the relay entries on the next feed fetch. The relay host itself keeps its
+are served directly again on the next feed fetch. The relay host itself keeps its
 rules until `systemctl disable --now gnomevpn-relay` there.

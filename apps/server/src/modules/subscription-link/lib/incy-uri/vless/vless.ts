@@ -4,7 +4,7 @@ import type { IncyServerUriInput } from '../incy-uri.types';
 
 import { VLESS_ENCRYPTION, VLESS_GRPC_MODE, VLESS_NETWORK, VLESS_SCHEME, VLESS_SECURITY } from './vless.constants';
 
-export const vlessUri = ({ config, country, countryCode, city, suffix }: IncyServerUriInput): string | null => {
+export const vlessUri = ({ config, country, countryCode }: IncyServerUriInput): string | null => {
   if (!config.reality) {
     return null;
   }
@@ -32,7 +32,7 @@ export const vlessUri = ({ config, country, countryCode, city, suffix }: IncySer
     url.searchParams.set('flow', config.reality.flow);
   }
 
-  url.hash = serverName({ country, countryCode, city, suffix });
+  url.hash = serverName({ country, countryCode });
 
   return url.toString();
 };

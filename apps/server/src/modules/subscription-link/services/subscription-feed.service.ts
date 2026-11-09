@@ -86,7 +86,7 @@ export class SubscriptionFeedService {
     const issuable = new Set(live.map((node) => node.id));
     const uris = isNonNullish(deviceId) ? await this.serverUris({ userId: link.userId, deviceId, nodes, tls: tlsMode(userAgent), issuable }) : [];
 
-    const expected = feedRoutes(live).flatMap(({ node }) => feedProtocols(node)).length;
+    const expected = live.flatMap((node) => feedProtocols(node)).length;
 
     if (isNonNullish(deviceId) && uris.length < expected) {
       this.logger.warn(`feed for ${link.userId} served ${uris.length} of ${expected} servers to device ${deviceId}`);
@@ -135,12 +135,10 @@ export class SubscriptionFeedService {
       nodes.map((node) => this.subscriptionPeers.ensureNode({ userId, deviceId, node, canIssue: issuable.has(node.id) }))
     );
 
-    const peersByNode = new Map(zip(nodes, issued).map(([node, peers]) => [node.id, peers]));
-
-    return feedRoutes(nodes)
-      .flatMap(({ node, endpoint, suffix }) =>
+    return zip(feedRoutes(nodes), issued)
+      .flatMap(([{ node, endpoint }, peers]) =>
         feedProtocols(node).map((protocol) => {
-          const peer = peersByNode.get(node.id)?.find((candidate) => candidate.protocol === protocol);
+          const peer = peers.find((candidate) => candidate.protocol === protocol);
 
           if (!peer) {
             return null;
@@ -148,7 +146,7 @@ export class SubscriptionFeedService {
 
           const config = buildTunnelConfig({ node, protocol, auth: peer.nodeCredential, address: peer.tunnelAddress, endpoint });
 
-          return incyServerUri({ config, country: node.country, countryCode: node.countryCode, city: node.city, tls, suffix });
+          return incyServerUri({ config, country: node.country, countryCode: node.countryCode, tls });
         })
       )
       .filter(isNonNullish);

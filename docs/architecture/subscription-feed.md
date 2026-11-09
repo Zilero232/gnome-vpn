@@ -126,11 +126,11 @@ returned an empty string for a node without reality keys, and the feed filters
 on `isNonNullish` — so the empty string survived into the feed and a client
 parsing the list hit a blank entry.
 
-**A node behind a relay is listed twice.** `feedRoutes` serves it first through
-the relay under its usual name and again directly with the `Direct` suffix, every
-primary entry before every fallback; both use the same peer. The count the feed
-checks itself against (`expected`) follows the same routes. Why and how:
-[relays.md](relays.md).
+**A node behind a relay is listed through the relay only.** `feedRoutes` swaps
+the node's address and port for the relay's and keeps everything else, the peer
+included. An entry is named by the flag and the country alone, no city, and the
+nodes come by `displayOrder` and then by country, so the list keeps its order
+between fetches. Why and how: [relays.md](relays.md).
 
 ## Certificates: pin or skip
 

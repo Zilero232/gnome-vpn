@@ -1,41 +1,31 @@
 import { describe, expect, it } from 'vitest';
 
 import { feedRoutes, relayOf } from '../feed-routes';
-import { FEED_ROUTE } from '../feed-routes.constants';
 
 const direct = { id: 'nl', relayHost: null, relayPort: null };
 const relayed = { id: 'fi', relayHost: '198.51.100.7', relayPort: 9443 };
 
 describe('relayOf', () => {
   it('reads the relay a node is served through', () => {
-    expect(relayOf(relayed)).toEqual({ host: '198.51.100.7', port: 9443 });
+    expect(relayOf(relayed)).toEqual({ host: relayed.relayHost, port: relayed.relayPort });
   });
 
   it('gives nothing when either half of the relay is missing', () => {
     expect(relayOf(direct)).toBeNull();
-    expect(relayOf({ relayHost: '198.51.100.7', relayPort: null })).toBeNull();
+    expect(relayOf({ relayHost: relayed.relayHost, relayPort: null })).toBeNull();
   });
 });
 
 describe('feedRoutes', () => {
-  it('serves a node without a relay once, directly and unlabelled', () => {
+  it('serves a node without a relay directly', () => {
     expect(feedRoutes([direct])).toEqual([{ node: direct }]);
   });
 
-  it('serves a relayed node through the relay first and directly as the fallback', () => {
-    expect(feedRoutes([relayed])).toEqual([
-      { node: relayed, endpoint: { host: '198.51.100.7', port: 9443 } },
-      { node: relayed, suffix: FEED_ROUTE.directSuffix }
-    ]);
+  it('serves a relayed node only through its relay, never directly as well', () => {
+    expect(feedRoutes([relayed])).toEqual([{ node: relayed, endpoint: relayOf(relayed) }]);
   });
 
-  it('puts every primary route above every fallback, keeping the node order within each', () => {
-    const routes = feedRoutes([relayed, direct]);
-
-    expect(routes.map((route) => [route.node.id, route.suffix ?? 'primary'])).toEqual([
-      ['fi', 'primary'],
-      ['nl', 'primary'],
-      ['fi', FEED_ROUTE.directSuffix]
-    ]);
+  it('keeps one route per node, in the order the nodes came', () => {
+    expect(feedRoutes([relayed, direct]).map((route) => route.node.id)).toEqual([relayed.id, direct.id]);
   });
 });

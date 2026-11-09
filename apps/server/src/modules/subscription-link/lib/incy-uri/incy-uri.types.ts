@@ -6,7 +6,5 @@ export type IncyServerUriInput = {
   config: TunnelConfig;
   country: string;
   countryCode: string;
-  city: string | null;
   tls: TlsMode;
-  suffix?: string;
 };
