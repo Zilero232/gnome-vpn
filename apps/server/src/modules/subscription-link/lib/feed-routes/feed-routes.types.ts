@@ -8,5 +8,4 @@ export type RelayedNode = {
 export type FeedRoute<TNode extends RelayedNode> = {
   node: TNode;
   endpoint?: TunnelEndpoint;
-  suffix?: string;
 };

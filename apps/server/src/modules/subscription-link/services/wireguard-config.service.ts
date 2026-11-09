@@ -12,6 +12,7 @@ import { DEVICE_KEY, DEVICE_ORDER, DevicesService, isWireguardDevice } from '@/m
 import { buildTunnelConfig, hasWireguard } from '@/modules/peers';
 
 import type {
+  ConfigOrdinalInput,
   CreateWireguardConfigServiceInput,
   RenderConfigInput,
   SubscriptionNode,
@@ -118,29 +119,47 @@ export class WireguardConfigService {
       void this.notice.deviceAdded({ userId, identity, deviceCount: admitted.deviceCount, deviceLimit });
     }
 
-    return this.render({ deviceId, name, node, peer });
+    const ordinal = await this.ordinal({ userId, deviceId, nodeId: node.id });
+
+    return this.render({ deviceId, ordinal, node, peer });
   }
 
   async file({ userId, deviceId }: WireguardConfigFileInput): Promise<WireguardConfigFile> {
     const peer = await this.prisma.peer.findFirst({
       where: { userId, deviceId, protocol: TUNNEL_PROTOCOL.wireguard, revokedAt: null, device: { key: { startsWith: DEVICE_KEY.wireguard } } },
-      select: { protocol: true, nodeCredential: true, tunnelAddress: true, node: { select: NODE_FEED_SELECT }, device: { select: { model: true } } }
+      select: { protocol: true, nodeCredential: true, tunnelAddress: true, node: { select: NODE_FEED_SELECT } }
     });
 
     if (isNullish(peer)) {
       throw new AppNotFoundException('DEVICE_NOT_FOUND', 'No WireGuard config with this id');
     }
 
-    const { node, device, ...feedPeer } = peer;
+    const { node, ...feedPeer } = peer;
+    const ordinal = await this.ordinal({ userId, deviceId, nodeId: node.id });
 
-    return this.render({ deviceId, name: device?.model ?? null, node, peer: feedPeer });
+    return this.render({ deviceId, ordinal, node, peer: feedPeer });
+  }
+
+  private async ordinal({ userId, deviceId, nodeId }: ConfigOrdinalInput): Promise<number> {
+    const configs = await this.prisma.peer.findMany({
+      where: { userId, nodeId, protocol: TUNNEL_PROTOCOL.wireguard, revokedAt: null, device: { key: { startsWith: DEVICE_KEY.wireguard } } },
+      orderBy: [{ device: { createdAt: 'asc' } }, { deviceId: 'asc' }],
+      select: { deviceId: true }
+    });
+
+    return (
+      Math.max(
+        configs.findIndex((config) => config.deviceId === deviceId),
+        0
+      ) + 1
+    );
   }
 
   private liveIds(nodes: SubscriptionNode[]): Set<string> {
     return new Set(liveNodes({ nodes, now: new Date() }).map((node) => node.id));
   }
 
-  private render({ deviceId, name, node, peer }: RenderConfigInput): WireguardConfigFile {
+  private render({ deviceId, ordinal, node, peer }: RenderConfigInput): WireguardConfigFile {
     const config = buildTunnelConfig({ node, protocol: TUNNEL_PROTOCOL.wireguard, auth: peer.nodeCredential, address: peer.tunnelAddress });
 
     if (isNullish(config.wireguard)) {
@@ -149,7 +168,7 @@ export class WireguardConfigService {
 
     return {
       deviceId,
-      filename: wireguardFileName({ name, countryCode: node.countryCode, deviceId }),
+      filename: wireguardFileName({ countryCode: node.countryCode, ordinal }),
       conf: wireguardConf({
         privateKey: config.auth,
         address: config.wireguard.address,

@@ -1,3 +1,5 @@
+import type { SshClient } from '@gnomevpn/scripts/ssh';
+
 export type SyncableNode = {
   country: string;
   countryCode: string;
@@ -48,4 +50,12 @@ export type ApplySqlCommandInput = {
   deployPath: string;
   sql: string;
   delimiter: string;
+};
+
+export type ConnectProductionInput = {
+  ssh: SshClient;
+  host: string;
+  username: string;
+  password?: string;
+  privateKeyPath?: string;
 };

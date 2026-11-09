@@ -25,7 +25,7 @@ export class SubscriptionPeersService {
   availableNodes(): Promise<SubscriptionNode[]> {
     return this.prisma.node.findMany({
       where: { isAvailable: true },
-      orderBy: { displayOrder: 'asc' },
+      orderBy: [{ displayOrder: 'asc' }, { country: 'asc' }],
       select: NODE_FEED_SELECT
     });
   }

@@ -93,21 +93,25 @@ relay change never revokes a peer: the keys are the node's and stay the same.
 
 ## In the subscription
 
-`feedRoutes` turns the nodes into the entries of the feed. A node without a
-relay is served once, directly, under its usual name. A node with a relay is
-served twice: through the relay under its usual name, and directly with the
-`Direct` suffix as the fallback. Every primary entry comes before every
-fallback, so the top of the list in INCY is what works best. Both entries use
-the same peer, so a relay costs no extra keys and no extra device slot.
+`feedRoutes` gives each node one route. A node with a relay is served **only**
+through the relay; a node without one, directly. The name is the same either
+way, so the user never has to choose between two entries of one country. The
+peer is the node's, so a relay costs no extra keys and no extra device slot.
+
+A direct fallback beside the relay entry was built first and dropped: the
+networks that need the relay are the ones where the direct entry fails half the
+time, and two identical countries in the list only made people pick.
 
 `buildTunnelConfig` takes the relay as an `endpoint` that replaces only the
 address and port. VLESS would otherwise always dial `REALITY.listenPort`.
 
 ## Risks
 
-- **The relay sits in Russia.** If Roskomnadzor finds it, the relay's address or
-  the hosting account goes; the direct entries keep working as before. A relay
-  is meant to be replaced in minutes: a new host in `nodes.json` and a run.
+- **The relay sits in Russia, and its nodes have no other entry.** If Roskomnadzor
+  finds it, or the hoster closes the account, every node it routes is gone from
+  the subscription's working list. The way back is a run: remove the relay (or
+  point the routes at a new one) in `nodes.json` and run provisioning; the nodes
+  are served directly, or through the new relay, on the next feed fetch.
 - **Never on the production VPS.** The site, the bot and the subscription live
   there; a block of a relay address must not take them down. Keep relays on a
   separate hosting account too, since a hoster may close the whole account.
@@ -116,6 +120,6 @@ address and port. VLESS would otherwise always dial `REALITY.listenPort`.
   from one of its subnets. The draft "Antifraud 3.0" would bar Russian hosting
   for VPN owners from March 2028; if it passes, a Russian relay stops being an
   option.
-- **The relay is not health-probed.** A dead relay leaves its entries dead and
-  the `Direct` entries working; `node-health` probes the node's panel, not the
-  path through the relay.
+- **The relay is not health-probed.** `node-health` probes the node's panel,
+  not the path through the relay, so a dead relay shows nowhere in the admin
+  panel; users see its countries stop connecting.

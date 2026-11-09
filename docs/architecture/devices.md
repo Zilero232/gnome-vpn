@@ -77,13 +77,17 @@ a `.conf`. The WireGuard side of the account page's Connect tab makes one: `POST
 its app, admits it through the same `DevicesService.admit` — so it takes a slot
 and is refused at the limit with `DEVICE_LIMIT_REACHED` — and issues only the
 WireGuard peer on the chosen node (`ensureNode({ protocols: [wireguard] })`).
-The response is the `.conf` and its file name: the name the person typed,
-transliterated by `slugify`, then four hex of the device id and the country —
-`Ноутбук` on NL becomes `noutbuk-3f2a-nl.conf`. The apps take the file name as
-the tunnel name, so it must fit the 15 characters a tunnel name may have on
-Windows and Linux and must differ between two configs called the same; the id
-does the second, and the name is cut to what is left. A name with nothing left
-to keep becomes `gnome-<4 hex>-<country>`. The client
+The response is the `.conf` and its file name: the brand and the country,
+`GnomeVPN-NL.conf`, and from the second config of the same country on its
+position among the account's live configs there by creation time,
+`GnomeVPN-NL-2.conf`. The apps take the file name as the tunnel name, so it must
+fit the 15 characters a tunnel name may have on Windows and Linux and must
+differ between two configs of one country; the number does the second. The name
+the person typed stays on the site, where it tells the configs apart. It used to
+be in the file too, transliterated and followed by four hex of the device id
+(`noutbuk-3f2a-nl.conf`), which read as noise in the apps. A number shifts when
+an earlier config of the country is removed, so a later download of the same
+config may carry a lower one. The client
 saves it as `application/octet-stream` and revokes the blob URL only after the
 download started: as `text/plain` mobile browsers saved it as `.txt`, and a URL
 revoked in the same tick made some browsers fall back to a random name.

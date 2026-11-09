@@ -10,11 +10,8 @@ import { ROUTES } from '@/shared/constants';
 import { Link } from '@/shared/i18n/navigation';
 import { ErrorBlock, LoadingBlock, Text } from '@/ui-kit';
 
-import type { WireguardTarget } from '../config';
-
-import { WIREGUARD_TARGETS } from '../config';
 import { useWireguard } from '../model/hooks';
-import { ConfigDialog, ConfigList, ConfigSteps, TargetPicker } from './components';
+import { ConfigDialog, ConfigList, ConfigSteps } from './components';
 
 import s from './WireguardPanel.module.scss';
 
@@ -22,7 +19,6 @@ export const WireguardPanel = () => {
   const t = useTranslations('wireguard');
   const { data: overview, isPending, isError, isRefetching, refetch } = useWireguard();
 
-  const [target, setTarget] = useState<WireguardTarget>(WIREGUARD_TARGETS[0].id);
   const [shown, setShown] = useState<WireguardConfigFile | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -41,9 +37,7 @@ export const WireguardPanel = () => {
 
   return (
     <div className={s.root}>
-      <TargetPicker value={target} onChange={setTarget} />
-
-      <ConfigSteps overview={overview} target={target} onCreated={show} />
+      <ConfigSteps overview={overview} onCreated={show} />
 
       <Link className={s.setupLink} href={`${ROUTES.setup}#wireguard`}>
         {t('setupLink')}

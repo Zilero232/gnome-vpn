@@ -44,8 +44,16 @@ const capJournal = async (ssh: SshClient): Promise<void> => {
 const syncClock = async (ssh: SshClient): Promise<void> => {
   log.step(`pointing the clock at ${TIMESYNC.servers.join(', ')}`);
 
+  const unit = await ssh.exec(silent(line(['systemctl', 'cat', TIMESYNC.unit])));
+
+  if (unit.exitCode !== 0) {
+    log.done(`${TIMESYNC.unit} is not on this host, so the clock stays with the image's own ntp client`);
+
+    return;
+  }
+
   await putConf({ ssh, path: TIMESYNC.path, content: timesyncConf() });
-  await ssh.run('systemctl restart systemd-timesyncd');
+  await ssh.run(line(['systemctl', 'restart', TIMESYNC.unit]));
 
   log.done('ntp no longer depends on ntp.ubuntu.com alone');
 };
