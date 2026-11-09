@@ -125,6 +125,13 @@ hundreds of timeouts a day, and the NL clock had drifted 1.2 s. TLS and Reality
 both fail on a clock far enough off. `timesyncd.conf.d/gnomevpn.conf` names
 Cloudflare's and Google's servers, with the Ubuntu pool as the fallback.
 
+**`nodes.json` holds the relays too.** It is `{ "nodes": [...], "relays": [...] }`
+— the old bare list still reads as nodes without relays — and the `relay/`
+folder sets each relay up after the nodes: the same SSH lock, ufw, fail2ban and
+`tuneBase` (the tuning without the Docker step, which `tuneHost` adds for a
+node), then forwarding and the nftables ruleset. What a relay is and why:
+[relays.md](relays.md).
+
 ## What a run does to a node
 
 `provisionHost` is staged: `prepareHost` (docker, jq, fail2ban, firewall,

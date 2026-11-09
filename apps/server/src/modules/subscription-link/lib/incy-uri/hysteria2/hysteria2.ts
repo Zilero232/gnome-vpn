@@ -8,7 +8,7 @@ import type { IncyServerUriInput } from '../incy-uri.types';
 import { HYSTERIA2_SCHEME, INSECURE } from './hysteria2.constants';
 import { pinnedFingerprint } from './hysteria2.helpers';
 
-export const hysteria2Uri = ({ config, country, countryCode, city, tls }: IncyServerUriInput): string => {
+export const hysteria2Uri = ({ config, country, countryCode, city, tls, suffix }: IncyServerUriInput): string => {
   const url = new URL(`${HYSTERIA2_SCHEME}://${config.server}`);
   const pinned = config.certFingerprint ? pinnedFingerprint(config.certFingerprint) : null;
   const canPin = tls === TLS_MODE.pin && isNonNullish(pinned);
@@ -24,7 +24,7 @@ export const hysteria2Uri = ({ config, country, countryCode, city, tls }: IncySe
     url.searchParams.set('insecure', INSECURE);
   }
 
-  url.hash = serverName({ country, countryCode, city });
+  url.hash = serverName({ country, countryCode, city, suffix });
 
   return url.toString();
 };

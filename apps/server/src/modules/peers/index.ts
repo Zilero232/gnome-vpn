@@ -2,7 +2,7 @@ export { PEER_NAME_SELECT, PEER_PREFIX, PEER_REF_SELECT, WIREGUARD } from './con
 export { peerClientName, peerRevocation } from './lib/peer-row';
 export type { PeerNameInput } from './lib/peer-row';
 export { buildTunnelConfig, feedProtocols, hasWireguard, nodeProtocols } from './lib/tunnel-config';
-export type { ProtocolNode, TunnelNode } from './lib/tunnel-config';
+export type { ProtocolNode, TunnelEndpoint, TunnelNode } from './lib/tunnel-config';
 export { wireguardPublicKey } from './lib/x25519-keys';
 export { PeersModule } from './peers.module';
 export type { CreatedPeer, PeerRef } from './peers.types';

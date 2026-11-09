@@ -12,6 +12,8 @@ export const NODE_FEED_SELECT = {
   realityPublicKey: true,
   realityShortId: true,
   wgPublicKey: true,
+  relayHost: true,
+  relayPort: true,
   createdAt: true,
   lastHealthyAt: true
 } as const;

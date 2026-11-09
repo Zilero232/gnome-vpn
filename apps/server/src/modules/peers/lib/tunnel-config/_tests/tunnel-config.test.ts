@@ -75,6 +75,25 @@ describe('buildTunnelConfig over vless', () => {
   });
 });
 
+describe('buildTunnelConfig through a relay', () => {
+  const endpoint = { host: '198.51.100.7', port: 9443 };
+
+  it('dials the relay for hysteria2 while keeping what authenticates the node', () => {
+    const config = buildTunnelConfig({ ...hysteria2, endpoint });
+    const direct = buildTunnelConfig(hysteria2);
+
+    expect({ host: config.server, port: config.port }).toEqual(endpoint);
+    expect({ ...config, server: direct.server, port: direct.port }).toEqual(direct);
+  });
+
+  it('dials the relay for vless instead of the reality port, keeping the reality keys', () => {
+    const config = buildTunnelConfig({ ...vless, endpoint });
+
+    expect({ host: config.server, port: config.port }).toEqual(endpoint);
+    expect(config.reality).toEqual(buildTunnelConfig(vless).reality);
+  });
+});
+
 describe('buildTunnelConfig over wireguard', () => {
   const wireguard = { auth: 'peer-private-key', node, protocol: TUNNEL_PROTOCOL.wireguard, address: '10.9.0.7' };
 

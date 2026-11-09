@@ -12,7 +12,18 @@ import { buildTunnelConfig, feedProtocols } from '@/modules/peers';
 import type { BuildFeedInput, ServerUrisInput, SubscriptionBody, TouchLinkInput } from '../subscription-link.service.types';
 
 import { ROUTING_SELECT } from '../config';
-import { announcement, clientPlatform, hwidHint, incyHeaders, incyRouting, incyServerUri, isClientFetch, liveNodes, tlsMode } from '../lib';
+import {
+  announcement,
+  clientPlatform,
+  feedRoutes,
+  hwidHint,
+  incyHeaders,
+  incyRouting,
+  incyServerUri,
+  isClientFetch,
+  liveNodes,
+  tlsMode
+} from '../lib';
 import { FeedNoticeService } from './feed-notice.service';
 import { SubscriptionPeersService } from './subscription-peers.service';
 
@@ -75,7 +86,7 @@ export class SubscriptionFeedService {
     const issuable = new Set(live.map((node) => node.id));
     const uris = isNonNullish(deviceId) ? await this.serverUris({ userId: link.userId, deviceId, nodes, tls: tlsMode(userAgent), issuable }) : [];
 
-    const expected = live.flatMap((node) => feedProtocols(node)).length;
+    const expected = feedRoutes(live).flatMap(({ node }) => feedProtocols(node)).length;
 
     if (isNonNullish(deviceId) && uris.length < expected) {
       this.logger.warn(`feed for ${link.userId} served ${uris.length} of ${expected} servers to device ${deviceId}`);
@@ -124,18 +135,20 @@ export class SubscriptionFeedService {
       nodes.map((node) => this.subscriptionPeers.ensureNode({ userId, deviceId, node, canIssue: issuable.has(node.id) }))
     );
 
-    return zip(nodes, issued)
-      .flatMap(([node, peers]) =>
+    const peersByNode = new Map(zip(nodes, issued).map(([node, peers]) => [node.id, peers]));
+
+    return feedRoutes(nodes)
+      .flatMap(({ node, endpoint, suffix }) =>
         feedProtocols(node).map((protocol) => {
-          const peer = peers.find((candidate) => candidate.protocol === protocol);
+          const peer = peersByNode.get(node.id)?.find((candidate) => candidate.protocol === protocol);
 
           if (!peer) {
             return null;
           }
 
-          const config = buildTunnelConfig({ node, protocol, auth: peer.nodeCredential, address: peer.tunnelAddress });
+          const config = buildTunnelConfig({ node, protocol, auth: peer.nodeCredential, address: peer.tunnelAddress, endpoint });
 
-          return incyServerUri({ config, country: node.country, countryCode: node.countryCode, city: node.city, tls });
+          return incyServerUri({ config, country: node.country, countryCode: node.countryCode, city: node.city, tls, suffix });
         })
       )
       .filter(isNonNullish);

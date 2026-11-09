@@ -2,11 +2,7 @@ import type { NodeConfigIssues } from './nodes-config.types';
 
 export const duplicatesOf = (values: string[]): string[] => [...new Set(values.filter((value, index) => values.indexOf(value) !== index))];
 
-export const formatIssues = (issues: NodeConfigIssues) =>
-  issues
-    .map((issue) => {
-      const [index, ...field] = issue.path;
+const formatPath = (path: PropertyKey[]): string =>
+  path.map((segment, index) => (typeof segment === 'number' ? `[${segment}]` : `${index === 0 ? '' : '.'}${String(segment)}`)).join('');
 
-      return typeof index === 'number' ? `index ${index}: ${field.join('.')} — ${issue.message}` : `${issue.path.join('.')} — ${issue.message}`;
-    })
-    .join('\n');
+export const formatIssues = (issues: NodeConfigIssues) => issues.map((issue) => `${formatPath(issue.path)} — ${issue.message}`).join('\n');

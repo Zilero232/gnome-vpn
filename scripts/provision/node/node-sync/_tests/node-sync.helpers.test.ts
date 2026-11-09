@@ -15,12 +15,28 @@ const node: SyncableNode = {
   realityPublicKey: null,
   realityShortId: null,
   wgPublicKey: 'wg-pub+/=',
+  relayHost: null,
+  relayPort: null,
   apiUrl: 'http://203.0.113.10:2053/abc',
   apiTokenEnvVar: 'XRAY_KEY_NL',
   displayOrder: 0
 };
 
 describe('buildNodeSync', () => {
+  it('carries the relay into both the update and the insert', () => {
+    const sql = buildNodeSync({ nodes: [{ ...node, relayHost: '198.51.100.7', relayPort: 9443 }], pruneMissing: true });
+
+    expect(sql).toContain("'198.51.100.7', 9443");
+    expect(sql).toContain('relay_host = i.relay_host, relay_port = i.relay_port');
+    expect(sql.slice(sql.indexOf('INSERT INTO node'))).toContain('i.relay_host, i.relay_port');
+  });
+
+  it('never revokes a peer over a relay change, since the keys stay the same', () => {
+    const sql = buildNodeSync({ nodes: [node], pruneMissing: true });
+
+    expect(sql.slice(sql.indexOf('UPDATE peer SET'), sql.indexOf('UPDATE node SET'))).not.toContain('relay');
+  });
+
   it('carries the wireguard key into both the update and the insert', () => {
     const sql = buildNodeSync({ nodes: [node], pruneMissing: true });
 

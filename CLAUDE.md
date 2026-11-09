@@ -7,7 +7,7 @@ A commercial VPN: Hysteria2 (QUIC/UDP) on self-hosted nodes, with VLESS + Realit
 - The subscription feed, the product surface: [docs/architecture/subscription-feed.md](docs/architecture/subscription-feed.md)
 - Billing and automatic renewal: [docs/architecture/billing.md](docs/architecture/billing.md); referrals: [docs/architecture/referrals.md](docs/architecture/referrals.md); the Telegram bot: [docs/architecture/telegram-bot.md](docs/architecture/telegram-bot.md)
 - Things that have already bitten us: [docs/architecture/pitfalls.md](docs/architecture/pitfalls.md)
-- Deploying the VPS: [docs/ops/deploy.md](docs/ops/deploy.md); adding a node: [docs/ops/provisioning-a-node.md](docs/ops/provisioning-a-node.md)
+- Deploying the VPS: [docs/ops/deploy.md](docs/ops/deploy.md); adding a node: [docs/ops/provisioning-a-node.md](docs/ops/provisioning-a-node.md); the Russian relays in front of the nodes: [docs/architecture/relays.md](docs/architecture/relays.md)
 
 Respond to the user in Russian. Code, comments, docs and commits are in English. UI text is in Russian and English via next-intl.
 
@@ -20,7 +20,7 @@ Respond to the user in Russian. Code, comments, docs and commits are in English.
 | `packages/schemas`                       | `@gnomevpn/schemas`: Zod contracts shared by the client and the server, plans, error codes, the client registry                                                                                       |
 | `packages/logger`                        | `@gnomevpn/logger`: the one pino config — levels, redaction, pretty vs json ([docs/architecture/logging.md](docs/architecture/logging.md))                                                            |
 | `packages/scripts`                       | `@gnomevpn/scripts`: the shared script layer — `reporter`, `ssh`, `shell`                                                                                                                             |
-| `scripts/provision`                      | VPN node setup over SSH, run locally by a person ([docs/architecture/provisioning.md](docs/architecture/provisioning.md)); `nodes.json` and `.env.nodes` sit at the repo root, gitignored             |
+| `scripts/provision`                      | VPN node and relay setup over SSH, run locally by a person ([docs/architecture/provisioning.md](docs/architecture/provisioning.md)); `nodes.json` and `.env.nodes` sit at the repo root, gitignored   |
 | `scripts/secrets`, `scripts/brand-icons` | `bun run secrets` fills in the empty secrets in `.env`; `bun run brand:icons` renders the PNG icons from the SVG brand mark                                                                           |
 | `infra/caddy`                            | Caddyfile: TLS and reverse proxy, bind-mounted on the VPS                                                                                                                                             |
 | `infra/xray`                             | the 3x-ui compose file that provisioning ships to every node                                                                                                                                          |

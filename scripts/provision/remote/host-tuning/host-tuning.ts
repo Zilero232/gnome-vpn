@@ -86,11 +86,15 @@ const keepContainersOnDockerRestart = async (ssh: SshClient): Promise<void> => {
   log.done('a docker restart no longer takes the tunnel down with it');
 };
 
-export const tuneHost = async (ssh: SshClient): Promise<void> => {
+export const tuneBase = async (ssh: SshClient): Promise<void> => {
   await tuneNetwork(ssh);
   await capJournal(ssh);
   await syncClock(ssh);
   await quietUpdates(ssh);
   await stopIdleUnits(ssh);
+};
+
+export const tuneHost = async (ssh: SshClient): Promise<void> => {
+  await tuneBase(ssh);
   await keepContainersOnDockerRestart(ssh);
 };

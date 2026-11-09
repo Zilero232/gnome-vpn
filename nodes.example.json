@@ -1,10 +1,25 @@
-[
-  {
-    "host": "203.0.113.10",
-    "sshUser": "root",
-    "sshPassword": "REPLACE_ME",
-    "country": "Germany",
-    "countryCode": "DE",
-    "city": "Frankfurt"
-  }
-]
+{
+  "nodes": [
+    {
+      "host": "203.0.113.10",
+      "sshUser": "root",
+      "sshPassword": "REPLACE_ME",
+      "country": "Germany",
+      "countryCode": "DE",
+      "city": "Frankfurt"
+    }
+  ],
+  "relays": [
+    {
+      "host": "198.51.100.7",
+      "sshUser": "root",
+      "sshPassword": "REPLACE_ME",
+      "routes": [
+        {
+          "countryCode": "DE",
+          "port": 8443
+        }
+      ]
+    }
+  ]
+}

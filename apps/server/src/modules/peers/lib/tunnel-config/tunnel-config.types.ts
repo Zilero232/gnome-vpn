@@ -27,9 +27,15 @@ export type ResolvedWireguardNode<T extends WireguardNode> = T & {
   wgPublicKey: string;
 };
 
+export type TunnelEndpoint = {
+  host: string;
+  port: number;
+};
+
 export type BuildConfigInput = {
   node: TunnelNode;
   protocol: TunnelProtocol;
   auth: string;
   address?: string | null;
+  endpoint?: TunnelEndpoint;
 };

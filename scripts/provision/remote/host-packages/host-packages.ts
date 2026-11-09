@@ -54,6 +54,10 @@ export const ensureUfw = async (ssh: SshClient) => {
   await ensureApt({ ssh, name: 'ufw', probe: 'command -v ufw' });
 };
 
+export const ensureNftables = async (ssh: SshClient) => {
+  await ensureApt({ ssh, name: 'nftables', probe: 'command -v nft' });
+};
+
 export const ensureFail2ban = async (ssh: SshClient) => {
   await ensureApt({ ssh, name: 'fail2ban', probe: 'command -v fail2ban-server' });
 

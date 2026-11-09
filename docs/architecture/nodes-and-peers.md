@@ -81,6 +81,11 @@ casting it. A tolerant
 parse is what once erased a node's clients: it produced an empty settings object,
 which was then written back over the real one.
 
+A node row may also carry `relay_host` and `relay_port`: the Russian relay that
+forwards its 443, written by provisioning and read only by the feed. A relay
+changes where a client dials, never a key, so it revokes nothing
+([relays.md](relays.md)).
+
 ## Device limits
 
 A subscription covers `DEFAULT_DEVICE_LIMIT` (2) devices, plus whatever

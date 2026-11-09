@@ -17,6 +17,9 @@ model Node {
 
   wgPublicKey String? @map("wg_public_key")
 
+  relayHost String? @map("relay_host")
+  relayPort Int?    @map("relay_port")
+
   apiUrl         String @map("api_url")
   apiTokenEnvVar String @map("api_token_env_var")
 

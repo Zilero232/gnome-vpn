@@ -1,13 +1,13 @@
 import type { SshClient } from '@gnomevpn/scripts/ssh';
 
-import type { NodeConfig } from '../../node';
+import type { SshTarget } from '../../node';
 
 export type NodeSshInput = {
   ssh: SshClient;
-  config: NodeConfig;
+  config: SshTarget;
 };
 
 export type CanLogInWithKeyInput = {
-  config: NodeConfig;
+  config: SshTarget;
   privateKeyPath: string;
 };

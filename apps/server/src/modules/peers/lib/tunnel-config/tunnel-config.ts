@@ -25,10 +25,10 @@ export const nodeProtocols = (node: ProtocolNode): TunnelProtocol[] => [
   ...(hasWireguard(node) ? [TUNNEL_PROTOCOL.wireguard] : [])
 ];
 
-const buildHysteria2Config = ({ node, auth }: BuildConfigInput): TunnelConfig => ({
+const buildHysteria2Config = ({ node, auth, endpoint }: BuildConfigInput): TunnelConfig => ({
   protocol: TUNNEL_PROTOCOL.hysteria2,
-  server: node.host,
-  port: node.port,
+  server: endpoint?.host ?? node.host,
+  port: endpoint?.port ?? node.port,
   auth,
   serverName: node.serverName,
   insecure: TUNNEL.insecure,
@@ -36,15 +36,15 @@ const buildHysteria2Config = ({ node, auth }: BuildConfigInput): TunnelConfig =>
   dns: [...TUNNEL.dns]
 });
 
-const buildVlessConfig = ({ node, auth }: BuildConfigInput): TunnelConfig => {
+const buildVlessConfig = ({ node, auth, endpoint }: BuildConfigInput): TunnelConfig => {
   if (!hasReality(node)) {
     throw new AppServiceUnavailableException('NODE_UNAVAILABLE', 'node has no reality endpoint');
   }
 
   return {
     protocol: TUNNEL_PROTOCOL.vless,
-    server: node.host,
-    port: REALITY.listenPort,
+    server: endpoint?.host ?? node.host,
+    port: endpoint?.port ?? REALITY.listenPort,
     auth,
     serverName: node.serverName,
     insecure: false,

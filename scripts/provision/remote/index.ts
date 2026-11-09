@@ -1,6 +1,8 @@
-export { productionSources } from './firewall';
+export { FIREWALL, productionSources } from './firewall';
 export { ensureCert, readCertFingerprint } from './host-cert';
+export { ensureFail2ban, ensureNftables, ensureUfw } from './host-packages';
 export { prepareHost } from './host-prepare';
+export { tuneBase } from './host-tuning';
 export { ensureRealityKeys, ensureWireguardKeys } from './key-files';
 export { configurePanel } from './panel-config';
 export type { PanelSession } from './panel-session';

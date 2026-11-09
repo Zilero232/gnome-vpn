@@ -20,6 +20,8 @@ export type SubscriptionNode = {
   realityPublicKey: string | null;
   realityShortId: string | null;
   wgPublicKey: string | null;
+  relayHost: string | null;
+  relayPort: number | null;
   createdAt: Date;
   lastHealthyAt: Date | null;
 };

@@ -1,15 +1,17 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { prop } from 'remeda';
+import { isNonNullish, prop } from 'remeda';
 
-import type { NodeConfig, SyncResult } from './node';
+import type { NodeConfig, ProvisionConfig, SyncResult } from './node';
 import type { ProvisionResult } from './pipeline';
+import type { RelayResult } from './relay';
 
 import { basePrisma } from '../../apps/server/src/core';
 import { log } from './config';
 import { loadNodesConfig, pruneNodes, syncToProduction } from './node';
 import { formatSummary, provisionHost } from './pipeline';
+import { assignRelays, formatRelaySummary, provisionRelay } from './relay';
 import { productionSources } from './remote';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
@@ -63,6 +65,30 @@ const provisionAll = async (nodes: NodeConfig[]): Promise<ProvisionResult[]> => 
   return results;
 };
 
+const provisionRelays = async ({ nodes, relays }: ProvisionConfig): Promise<RelayResult[]> => {
+  const results: RelayResult[] = [];
+
+  for (const relay of relays) {
+    log.tint(relay.host);
+    log.step(`relay (${relay.host})`);
+
+    const result = await provisionRelay({ relay, nodes });
+
+    results.push(result);
+    log.done(`${result.status}${isNonNullish(result.error) ? `: ${result.error}` : ''}`);
+    log.untint();
+  }
+
+  const failedRelays = results.filter((result) => result.status === 'failed').map(prop('host'));
+  const assignments = await assignRelays({ prisma: basePrisma, nodes, relays, failedRelays });
+
+  for (const { host, relayHost, relayPort } of assignments) {
+    log.info(isNonNullish(relayHost) ? `${host} is served through ${relayHost}:${relayPort}` : `${host} has no relay`);
+  }
+
+  return results;
+};
+
 const pruneStale = async (nodes: NodeConfig[]) => {
   const { removedKeys, removedNodes } = await pruneNodes({
     prisma: basePrisma,
@@ -97,13 +123,16 @@ const pushToProduction = async (pruneMissing: boolean): Promise<SyncResult> => {
 };
 
 const main = async () => {
-  const nodes = await loadNodesConfig(PATHS.nodesConfig);
+  const config = await loadNodesConfig(PATHS.nodesConfig);
+  const { nodes } = config;
 
   try {
     const results = await provisionAll(nodes);
-    const hasFailed = results.map(prop('status')).includes('failed');
+    const relayResults = await provisionRelays(config);
+    const hasFailed = [...results, ...relayResults].map(prop('status')).includes('failed');
+    const relaySummary = relayResults.length > 0 ? `\n${formatRelaySummary(relayResults)}` : '';
 
-    log.info(`\nsummary:\n${formatSummary(results)}`);
+    log.info(`\nsummary:\n${formatSummary(results)}${relaySummary}`);
 
     if (hasFailed) {
       log.warn('a host failed, so nodes missing from nodes.json are kept until a clean run');

@@ -1,1 +1,1 @@
-export { tuneHost } from './host-tuning';
+export { tuneBase, tuneHost } from './host-tuning';

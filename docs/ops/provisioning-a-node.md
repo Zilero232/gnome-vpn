@@ -15,8 +15,10 @@ commit.
 
 ## Running it
 
-1. Copy `nodes.example.json` to `nodes.json` and fill in each host, its SSH
-   credentials (`sshUser`, `sshPassword`), the country, `countryCode` and city.
+1. Copy `nodes.example.json` to `nodes.json` and fill in each host under
+   `nodes`: its SSH credentials (`sshUser`, `sshPassword`), the country,
+   `countryCode` and city. Relays go under `relays` (see
+   [Adding a relay](#adding-a-relay)); leave the list empty when there are none.
    The first run installs your SSH key (`PROVISION_NODE_SSH_KEY`, else
    `~/.ssh/gnomevpn_deploy` or `id_ed25519`) and turns password logins off, so
    keep that key: from then on it is the only way in, and `sshPassword` is only
@@ -76,3 +78,31 @@ A node provisioned before a field existed (`certFingerprint`,
 `realityPublicKey`, `realityShortId`, `wgPublicKey`) keeps working with what it
 has; re-provision it to pick the new field up. A node without `wgPublicKey`
 simply offers no WireGuard config.
+
+## Adding a relay
+
+A relay is a Russian VPS that forwards a node's 443 (TCP and UDP) from a port of
+its own, for networks that drop TLS and QUIC to the nodes. Why and how:
+[architecture/relays.md](../architecture/relays.md).
+
+1. Take a separate VPS in Russia — never the production VPS, and on a hosting
+   account the site does not use. Ubuntu 24.04, one core is plenty; what matters
+   is unmetered traffic and a hoster whose rules do not forbid VPN or proxy use.
+2. Add it under `relays` in `nodes.json` with its SSH login and one route per
+   node: `{ "countryCode": "FI", "port": 9443 }`. The port is what users dial on
+   the relay; pick one per node, 1024 or above, and never the same one twice.
+3. Run `bun run provision:nodes`. The relay is set up after the nodes; the
+   summary lists it with its ports, and the run logs which node is now served
+   through which relay. Production gets `relay_host`/`relay_port` with the rest
+   of the node rows.
+4. Refresh the subscription in INCY: every routed country appears first through
+   the relay under its usual name, and again with the `Direct` suffix.
+
+To check a relay by hand: `nft list table ip gnomevpn_relay` on it shows the
+forwards, `systemctl status gnomevpn-relay` the unit, and from a client
+`curl --resolve www.bing.com:<port>:<relay> https://www.bing.com:<port>/` must
+complete the TLS handshake through it to the node's Reality fallback.
+
+To drop a relay, remove it from `relays` and run again: its nodes are cleared and
+lose the relay entries on the next feed fetch. The relay host itself keeps its
+rules until `systemctl disable --now gnomevpn-relay` there.

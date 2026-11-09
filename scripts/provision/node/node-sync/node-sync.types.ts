@@ -9,6 +9,8 @@ export type SyncableNode = {
   realityPublicKey: string | null;
   realityShortId: string | null;
   wgPublicKey: string | null;
+  relayHost: string | null;
+  relayPort: number | null;
   apiUrl: string;
   apiTokenEnvVar: string;
   displayOrder: number;

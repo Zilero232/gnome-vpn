@@ -8,4 +8,5 @@ export type IncyServerUriInput = {
   countryCode: string;
   city: string | null;
   tls: TlsMode;
+  suffix?: string;
 };
