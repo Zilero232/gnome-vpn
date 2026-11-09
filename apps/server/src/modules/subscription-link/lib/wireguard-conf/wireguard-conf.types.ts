@@ -10,9 +10,8 @@ export type WireguardConfInput = {
 };
 
 export type WireguardFileNameInput = {
-  name: string | null;
   countryCode: string;
-  deviceId: string;
+  ordinal: number;
 };
 
 export type WireguardNodeSource = {

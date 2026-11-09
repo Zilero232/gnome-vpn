@@ -126,9 +126,15 @@ export type WireguardConfigFileInput = {
 
 export type RenderConfigInput = {
   deviceId: string;
-  name: string | null;
+  ordinal: number;
   node: SubscriptionNode;
   peer: FeedPeer;
+};
+
+export type ConfigOrdinalInput = {
+  userId: string;
+  deviceId: string;
+  nodeId: string;
 };
 
 export type UpdateRoutingSettingsServiceInput = {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { wireguardConf } from '../wireguard-conf';
+import { WIREGUARD_CONF } from '../wireguard-conf.constants';
 import { wireguardFileName } from '../wireguard-conf.helpers';
 
 const INPUT = {
@@ -40,34 +41,25 @@ describe('wireguardConf', () => {
 });
 
 describe('wireguardFileName', () => {
-  const DEVICE_ID = '3f2a91c0-0000-4000-8000-000000000000';
-
-  it('names the file after the device, transliterated, then a short id and the country', () => {
-    expect(wireguardFileName({ name: 'Ноутбук', countryCode: 'NL', deviceId: DEVICE_ID })).toBe('noutbuk-3f2a-nl.conf');
+  it('names the first config of a country by the brand and the country alone', () => {
+    expect(wireguardFileName({ countryCode: 'NL', ordinal: 1 })).toBe(`${WIREGUARD_CONF.fileBrand}-NL${WIREGUARD_CONF.fileExtension}`);
   });
 
-  it('keeps a brand name in one piece', () => {
-    expect(wireguardFileName({ name: 'iPhone', countryCode: 'FI', deviceId: DEVICE_ID })).toBe('iphone-3f2a-fi.conf');
+  it('numbers every later config of the same country, so the apps do not refuse the second import', () => {
+    const names = [1, 2, 3].map((ordinal) => wireguardFileName({ countryCode: 'NL', ordinal }));
+
+    expect(new Set(names).size).toBe(names.length);
+    expect(names[1]).toBe(`${WIREGUARD_CONF.fileBrand}-NL-2${WIREGUARD_CONF.fileExtension}`);
   });
 
-  it('gives two devices with the same name different files, so the apps do not refuse the second', () => {
-    const other = 'b71c0000-0000-4000-8000-000000000000';
+  it('stays within the characters and the length an interface name may have', () => {
+    const name = wireguardFileName({ countryCode: 'DE', ordinal: 99 }).replace(WIREGUARD_CONF.fileExtension, '');
 
-    expect(wireguardFileName({ name: 'Ноутбук', countryCode: 'NL', deviceId: DEVICE_ID })).not.toBe(
-      wireguardFileName({ name: 'Ноутбук', countryCode: 'NL', deviceId: other })
-    );
+    expect(name.length).toBeLessThanOrEqual(WIREGUARD_CONF.tunnelNameLength);
+    expect(name).toMatch(/^[\w=+.-]+$/u);
   });
 
-  it('stays within the 15 characters an interface name may have', () => {
-    const name = wireguardFileName({ name: 'Рабочий ноутбук мамы', countryCode: 'DE', deviceId: DEVICE_ID }).replace('.conf', '');
-
-    expect(name.length).toBeLessThanOrEqual(15);
-    expect(name).toMatch(/^[\w=+.-]{1,15}$/u);
-    expect(name).not.toMatch(/--/u);
-  });
-
-  it('falls back to a short id when the name has no letters to keep', () => {
-    expect(wireguardFileName({ name: '😀', countryCode: 'NL', deviceId: DEVICE_ID })).toBe('gnome-3f2a-nl.conf');
-    expect(wireguardFileName({ name: null, countryCode: 'N/L', deviceId: DEVICE_ID })).toBe('gnome-3f2a-nl.conf');
+  it('drops anything from the country code that is not a letter', () => {
+    expect(wireguardFileName({ countryCode: 'n/l', ordinal: 1 })).toBe(wireguardFileName({ countryCode: 'NL', ordinal: 1 }));
   });
 });

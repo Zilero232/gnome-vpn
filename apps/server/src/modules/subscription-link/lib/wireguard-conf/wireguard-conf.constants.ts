@@ -1,7 +1,6 @@
 export const WIREGUARD_CONF = {
   allowedIps: '0.0.0.0/0, ::/0',
-  filePrefix: 'gnome',
-  fileIdLength: 4,
+  fileBrand: 'GnomeVPN',
   tunnelNameLength: 15,
   fileExtension: '.conf'
 } as const;
