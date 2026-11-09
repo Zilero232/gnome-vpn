@@ -3,18 +3,34 @@ import { SshClient } from '@gnomevpn/scripts/ssh';
 import { randomBytes } from 'node:crypto';
 import { posix } from 'node:path';
 
-import type { SyncResult, SyncToProductionInput } from './node-sync.types';
+import type { ConnectProductionInput, SyncResult, SyncToProductionInput } from './node-sync.types';
 
 import { describeError } from '../../../../apps/server/src/common/lib/errors';
 import { defaultKeyPath } from '../../config';
 import { ENV_NODES, HEREDOC_NONCE_BYTES, PRODUCTION_SSH } from './node-sync.constants';
 import { applyServerEnvCommand, applySqlCommand, buildNodeSync, installEnvFileCommand, isSameEnvFile, readFileCommand } from './node-sync.helpers';
 
+const connectProduction = async ({ ssh, host, username, password, privateKeyPath }: ConnectProductionInput): Promise<void> => {
+  if (privateKeyPath) {
+    try {
+      await ssh.connect({ host, username, privateKeyPath });
+
+      return;
+    } catch (error) {
+      if (!password) {
+        throw error;
+      }
+    }
+  }
+
+  await ssh.connect({ host, username, password });
+};
+
 export const syncToProduction = async ({ nodes, envNodes, pruneMissing }: SyncToProductionInput): Promise<SyncResult> => {
   const host = process.env.PROVISION_SSH_HOST;
   const username = process.env.PROVISION_SSH_USER ?? PRODUCTION_SSH.defaultUser;
   const password = process.env.PROVISION_SSH_PASSWORD;
-  const privateKeyPath = process.env.PROVISION_SSH_KEY ?? (password ? undefined : defaultKeyPath());
+  const privateKeyPath = process.env.PROVISION_SSH_KEY ?? defaultKeyPath();
   const deployPath = process.env.PROVISION_DEPLOY_PATH ?? PRODUCTION_SSH.defaultDeployPath;
 
   if (!host) {
@@ -33,7 +49,7 @@ export const syncToProduction = async ({ nodes, envNodes, pruneMissing }: SyncTo
   const envPath = posix.join(deployPath, ENV_NODES.fileName);
 
   try {
-    await ssh.connect({ host, username, password, privateKeyPath });
+    await connectProduction({ ssh, host, username, password, privateKeyPath });
 
     const delimiter = `SQL_${randomBytes(HEREDOC_NONCE_BYTES).toString('hex')}`;
 

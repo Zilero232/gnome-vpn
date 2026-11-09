@@ -15,6 +15,7 @@ export const JOURNALD = {
 } as const;
 
 export const TIMESYNC = {
+  unit: 'systemd-timesyncd.service',
   path: '/etc/systemd/timesyncd.conf.d/gnomevpn.conf',
   servers: ['time.cloudflare.com', 'time.google.com'],
   fallback: ['ntp.ubuntu.com']
