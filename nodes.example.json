@@ -5,8 +5,7 @@
       "sshUser": "root",
       "sshPassword": "REPLACE_ME",
       "country": "Germany",
-      "countryCode": "DE",
-      "city": "Frankfurt"
+      "countryCode": "DE"
     }
   ],
   "relays": [

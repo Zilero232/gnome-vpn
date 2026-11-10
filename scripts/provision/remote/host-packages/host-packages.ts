@@ -65,7 +65,7 @@ export const ensureFail2ban = async (ssh: SshClient) => {
 
   await ssh.run(line(['mkdir', '-p', dirOf(FAIL2BAN.jailPath)]));
   await ssh.putFile({ content: fail2banJail(), remotePath: FAIL2BAN.jailPath });
-  await ssh.run(all(['systemctl enable --now fail2ban', 'systemctl reload fail2ban']));
+  await ssh.run(all(['systemctl enable fail2ban', 'systemctl restart fail2ban']));
 
   log.done(`fail2ban bans an ip after ${FAIL2BAN.maxRetry} tries, for ${FAIL2BAN.banTimeSeconds}s`);
 };

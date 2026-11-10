@@ -10,6 +10,7 @@ import { configurePanel, connectNode, lockToKey, openPanelSession, prepareHost }
 
 export const provisionHost = async ({
   config,
+  displayOrder,
   prisma,
   serverEnvPath,
   xrayComposeContent,
@@ -42,7 +43,7 @@ export const provisionHost = async ({
 
     const panel = await openPanelSession({ host: config.host, panelPath, token });
     const installed = await installInbounds({ ssh, panel, auth });
-    const wasExisting = await registerNode({ config, prisma, panel, cert: installed });
+    const wasExisting = await registerNode({ config, displayOrder, prisma, panel, cert: installed });
 
     const lostCert = Boolean(previous?.certFingerprint) && installed.certWasGenerated;
     const lostRealityKeys = Boolean(previous?.realityPublicKey) && installed.realityWasGenerated;

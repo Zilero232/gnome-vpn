@@ -91,6 +91,11 @@ as it was. A half-set-up relay is never advertised, and a working one is not
 dropped because one run failed. The production sync carries both columns. A
 relay change never revokes a peer: the keys are the node's and stay the same.
 
+**A relay is left alone when a node failed.** The relays run only after every
+node provisioned. On 2026-11-10 two new nodes failed on fail2ban, the relay was
+re-pointed at them anyway, and every user dialling the relay reached a node that
+held none of their keys until the relay was put back by hand.
+
 ## In the subscription
 
 `feedRoutes` gives each node one route. A node with a relay is served **only**

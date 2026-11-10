@@ -13,6 +13,7 @@ export type RememberNodeSecretsInput = {
 
 export type RegisterNodeInput = {
   config: NodeConfig;
+  displayOrder: number;
   prisma: PrismaLike;
   panel: PanelSession;
   cert: InstalledInbounds;
