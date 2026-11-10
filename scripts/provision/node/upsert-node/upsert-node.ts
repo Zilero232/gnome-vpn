@@ -1,3 +1,5 @@
+import { prop } from 'remeda';
+
 import type { UpsertNodeArgs, UpsertNodeResult } from './upsert-node.types';
 
 export const upsertNode = async ({ prisma, input }: UpsertNodeArgs): Promise<UpsertNodeResult> => {
@@ -13,12 +15,21 @@ export const upsertNode = async ({ prisma, input }: UpsertNodeArgs): Promise<Ups
       data: rest
     });
 
-    return { id: updated.id, wasExisting: true };
+    return { id: updated.id, wasExisting: true, replacedHosts: [] };
+  }
+
+  const replaced = await prisma.node.findMany({
+    where: { countryCode: input.countryCode, host: { not: host } },
+    select: { id: true, host: true }
+  });
+
+  if (replaced.length > 0) {
+    await prisma.node.deleteMany({ where: { id: { in: replaced.map(prop('id')) } } });
   }
 
   const created = await prisma.node.create({
     data: { ...input, isAvailable: true }
   });
 
-  return { id: created.id, wasExisting: false };
+  return { id: created.id, wasExisting: false, replacedHosts: replaced.map(prop('host')) };
 };

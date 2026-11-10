@@ -20,6 +20,7 @@ export type UpsertNodeInput = {
 export type UpsertNodeResult = {
   id: string;
   wasExisting: boolean;
+  replacedHosts: string[];
 };
 
 export type UpsertNodeArgs = {

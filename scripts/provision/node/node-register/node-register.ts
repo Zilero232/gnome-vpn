@@ -21,7 +21,7 @@ export const rememberNodeSecrets = async ({ serverEnvPath, countryCode, apiToken
 export const registerNode = async ({ config, displayOrder, prisma, panel, cert }: RegisterNodeInput): Promise<boolean> => {
   log.step('writing the node row');
 
-  const { wasExisting } = await upsertNode({
+  const { wasExisting, replacedHosts } = await upsertNode({
     prisma,
     input: {
       country: config.country,
@@ -38,6 +38,10 @@ export const registerNode = async ({ config, displayOrder, prisma, panel, cert }
       displayOrder
     }
   });
+
+  for (const replaced of replacedHosts) {
+    log.done(`the ${config.countryCode} node at ${replaced} was replaced by this one`);
+  }
 
   log.done(wasExisting ? 'the node row was updated' : 'the node row was created');
 

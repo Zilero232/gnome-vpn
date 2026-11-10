@@ -60,6 +60,13 @@ reloading it: on a fresh Ubuntu 22.04 host `enable --now` returns before the
 server's socket is up, and the `reload` right after it failed with "Could not
 find server", failing the whole node.
 
+**A new host for a country replaces the old one.** A node is one per country
+(`country_code` is unique), so a row for the same country on another host is the
+node being moved: `upsertNode` deletes it before it creates the new row. Before
+this a replacement failed on the unique key, because stale nodes were only
+pruned after every host had succeeded. The production sync already deletes a
+missing host before it inserts the new one.
+
 **The local database is migrated first.** `bun run provision:nodes` runs
 `db:deploy` against the root `.env` before anything else, because every node
 row is written there and then read back for the production sync. A migration
