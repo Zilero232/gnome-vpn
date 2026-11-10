@@ -4,7 +4,7 @@ import { UPTIME_HISTORY } from '@gnomevpn/schemas';
 import { indexBy } from 'remeda';
 
 import { dayKey, dayKeys, utcDay } from '@/common/lib';
-import { historyStart, nodeStatus } from '@/modules/status';
+import { historyStart, isLossy, nodeStatus } from '@/modules/status';
 
 import type { NodeViewInput, PeakHistoryInput } from './nodes.types';
 
@@ -35,11 +35,12 @@ export const nodeView = ({ node, now }: NodeViewInput): AdminNode => {
     ...status,
     id: node.id,
     country: node.country,
-    city: node.city,
     host: node.host,
     port: node.port,
     isAvailable: node.isAvailable,
     isOverloaded: node.isOverloaded,
+    packetLoss: node.packetLoss,
+    isLossy: isLossy(node.packetLoss),
     displayOrder: node.displayOrder,
     lastHealthyAt: isoOrNull(node.lastHealthyAt),
     createdAt: node.createdAt.toISOString(),

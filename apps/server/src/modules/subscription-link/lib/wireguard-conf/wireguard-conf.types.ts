@@ -18,7 +18,6 @@ export type WireguardNodeSource = {
   id: string;
   country: string;
   countryCode: string;
-  city: string | null;
 };
 
 export type WireguardNodeViewInput = {

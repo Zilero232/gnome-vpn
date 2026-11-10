@@ -49,7 +49,7 @@ if (canPin) {
   url.searchParams.set('pinSHA256', pinned);
 }
 
-url.hash = serverName({ country, countryCode, city });
+url.hash = serverName({ country, countryCode });
 
 return url.toString();
 ```

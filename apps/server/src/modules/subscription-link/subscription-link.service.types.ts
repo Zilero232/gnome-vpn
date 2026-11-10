@@ -10,7 +10,6 @@ export type SubscriptionNode = {
   id: string;
   country: string;
   countryCode: string;
-  city: string | null;
   host: string;
   port: number;
   serverName: string;
@@ -24,6 +23,7 @@ export type SubscriptionNode = {
   relayPort: number | null;
   createdAt: Date;
   lastHealthyAt: Date | null;
+  packetLoss: number | null;
 };
 
 export type FeedPeer = {

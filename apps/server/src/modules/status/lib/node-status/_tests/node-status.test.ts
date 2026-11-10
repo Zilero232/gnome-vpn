@@ -16,6 +16,7 @@ const ROW: StatusNodeRow = {
   lastHealthyAt: subMinutes(NOW, 1),
   lastCheckedAt: subSeconds(subMinutes(NOW, 1), 2),
   isOverloaded: false,
+  packetLoss: null,
   uptime: [{ day: new Date('2026-10-23T00:00:00Z'), checkedMinutes: 720, upMinutes: 720 }]
 };
 

@@ -132,6 +132,14 @@ included. An entry is named by the flag and the country alone, no city, and the
 nodes come by `displayOrder` and then by country, so the list keeps its order
 between fetches. Why and how: [relays.md](relays.md).
 
+**A node that loses packets sinks to the bottom.** `availableNodes` passes the
+nodes through `healthyFirst`, which keeps their order but moves every node at
+`NODE_LOSS.degradedPercent` loss or more below the healthy ones. INCY picks the
+top entry by default, so most users land on a working node without anyone
+taking the lossy one out; it climbs back on the first probe that finds it
+clean. `displayOrder` itself is the node's position in `nodes.json`, written by
+provisioning.
+
 ## Certificates: pin or skip
 
 **A self-signed node is pinned, not trusted blindly.** `hysteria2Uri` emits

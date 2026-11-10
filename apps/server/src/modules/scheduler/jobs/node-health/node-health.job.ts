@@ -7,7 +7,7 @@ import { PrismaService } from '@/core';
 import { xrayClientForNode } from '@/lib/xray';
 import { NodeTrafficService } from '@/modules/peers';
 import { ALERT } from '@/modules/scheduler/config';
-import { NodePeakService, NodeUptimeService } from '@/modules/status';
+import { NODE_LOSS, NodePeakService, NodeUptimeService } from '@/modules/status';
 import { TelegramAlertService } from '@/modules/telegram/notify';
 
 import type {
@@ -21,7 +21,7 @@ import type {
   RecordNodeInput
 } from './node-health.job.types';
 
-import { deviceActivity, isOverloaded, isSustainedLoad, nextLoadStreak, nodeRestart, onlineCount } from './lib';
+import { deviceActivity, isOverloaded, isSustainedLoad, nextLoadStreak, nodeRestart, onlineCount, reachLoss } from './lib';
 import { ACTIVITY_PEER_SELECT, PROBE_NODE_SELECT } from './node-health.job.constants';
 
 @Injectable()
@@ -38,12 +38,15 @@ export class NodeHealthJob {
   ) {}
 
   private async probe(node: ProbeNodeRow): Promise<void> {
-    const probed = await this.check(node);
+    const [probed, packetLoss] = await Promise.all([this.check(node), this.measureLoss(node)]);
     const isUp = isNonNullish(probed);
 
     this.alerts.nodeProbed({ nodeId: node.id, isUp, healthyAt: isUp ? new Date() : (node.lastHealthyAt ?? node.createdAt) });
+    this.noteReading({ node, reading: { resource: 'loss', percent: packetLoss, threshold: NODE_LOSS.degradedPercent } });
 
     if (!isUp) {
+      await this.prisma.node.update({ where: { id: node.id }, data: { packetLoss } });
+
       return;
     }
 
@@ -56,12 +59,21 @@ export class NodeHealthJob {
       data: {
         lastHealthyAt: new Date(),
         isOverloaded: isOverloaded(health),
+        packetLoss,
         bootedAt: health.bootedAt ?? node.bootedAt,
         coreStartedAt: health.coreStartedAt ?? node.coreStartedAt
       }
     });
 
     await Promise.all([this.recordActivity({ node, xray, health }), this.recordTraffic({ node, xray })]);
+  }
+
+  private async measureLoss(node: ProbeNodeRow): Promise<number | null> {
+    return reachLoss({ host: node.host, port: node.port }).catch((error: unknown) => {
+      this.logger.warn(`Node reach probe failed: ${node.id}: ${describeError(error)}`);
+
+      return null;
+    });
   }
 
   private async connect(node: ProbeNodeRow): Promise<ProbedNode> {

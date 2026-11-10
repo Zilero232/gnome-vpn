@@ -19,6 +19,7 @@ export type { IncyRouting, StoredRouting } from './incy-routing';
 export { incyServerUri } from './incy-uri';
 export type { IncyServerUriInput } from './incy-uri';
 export { liveNodes } from './live-nodes';
+export { healthyFirst } from './node-rank';
 export { serverName } from './server-name';
 export type { ServerNameInput } from './server-name';
 export { generateSubscriptionToken } from './subscription-token';

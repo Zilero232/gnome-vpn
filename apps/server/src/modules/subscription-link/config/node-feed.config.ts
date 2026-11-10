@@ -2,7 +2,6 @@ export const NODE_FEED_SELECT = {
   id: true,
   country: true,
   countryCode: true,
-  city: true,
   host: true,
   port: true,
   serverName: true,
@@ -15,5 +14,6 @@ export const NODE_FEED_SELECT = {
   relayHost: true,
   relayPort: true,
   createdAt: true,
-  lastHealthyAt: true
+  lastHealthyAt: true,
+  packetLoss: true
 } as const;

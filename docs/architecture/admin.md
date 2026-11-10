@@ -355,7 +355,7 @@ Confirmation buttons name what they do: «Вернуть 990 ₽» / «Не во
 
 ## Nodes
 
-Every node, the ones out of rotation too, in display order: country and city,
+Every node, the ones out of rotation too, in display order: country,
 `host:port`, protocols, state, last healthy and last checked, overload, and the
 30-day uptime strip. State and uptime are the status module's computation
 (`nodeStatus` over `node_uptime`), the strip is the status page's own

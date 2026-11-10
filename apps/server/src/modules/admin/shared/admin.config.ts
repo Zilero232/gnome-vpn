@@ -71,7 +71,6 @@ export const ROW_SELECT = {
     ...STATUS_NODE_SELECT,
     id: true,
     country: true,
-    city: true,
     isAvailable: true,
     createdAt: true,
     onlineClients: true,

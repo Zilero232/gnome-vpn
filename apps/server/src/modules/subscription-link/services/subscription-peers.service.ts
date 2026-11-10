@@ -11,6 +11,7 @@ import { feedProtocols, NodeTrafficService, PEER_NAME_SELECT, peerClientName, Pe
 import type { EnsureNodeInput, FeedPeer, IssueFeedPeerInput, PersistPeerInput, SubscriptionNode } from '../subscription-link.service.types';
 
 import { NODE_FEED_SELECT } from '../config';
+import { healthyFirst } from '../lib';
 
 @Injectable()
 export class SubscriptionPeersService {
@@ -22,12 +23,14 @@ export class SubscriptionPeersService {
     private readonly nodeTraffic: NodeTrafficService
   ) {}
 
-  availableNodes(): Promise<SubscriptionNode[]> {
-    return this.prisma.node.findMany({
+  async availableNodes(): Promise<SubscriptionNode[]> {
+    const nodes = await this.prisma.node.findMany({
       where: { isAvailable: true },
       orderBy: [{ displayOrder: 'asc' }, { country: 'asc' }],
       select: NODE_FEED_SELECT
     });
+
+    return healthyFirst(nodes);
   }
 
   async ensureNode({ userId, deviceId, node, canIssue, protocols = feedProtocols(node) }: EnsureNodeInput): Promise<FeedPeer[]> {

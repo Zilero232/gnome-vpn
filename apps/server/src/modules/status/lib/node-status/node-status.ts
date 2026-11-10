@@ -9,7 +9,7 @@ import { nodeProtocols } from '@/modules/peers';
 
 import type { NodeStatusInput, PassedCheckInput, ProbeStamps, UptimeHistory, UptimeHistoryInput, UptimeRow } from './node-status.types';
 
-import { NODE_DOWN } from './node-status.constants';
+import { NODE_DOWN, NODE_LOSS } from './node-status.constants';
 
 const minuteRatio = (rows: UptimeRow[]): number | null => {
   const checked = sumBy(rows, (row) => row.checkedMinutes);
@@ -17,7 +17,9 @@ const minuteRatio = (rows: UptimeRow[]): number | null => {
   return checked > 0 ? clamp(sumBy(rows, (row) => row.upMinutes) / checked, { min: 0, max: 1 }) : null;
 };
 
-export const nodeState = ({ lastHealthyAt, lastCheckedAt, isOverloaded }: ProbeStamps): NodeState => {
+export const isLossy = (packetLoss: number | null): boolean => isNonNullish(packetLoss) && packetLoss >= NODE_LOSS.degradedPercent;
+
+export const nodeState = ({ lastHealthyAt, lastCheckedAt, isOverloaded, packetLoss }: ProbeStamps): NodeState => {
   if (isNullish(lastHealthyAt)) {
     return NODE_STATE.down;
   }
@@ -28,7 +30,7 @@ export const nodeState = ({ lastHealthyAt, lastCheckedAt, isOverloaded }: ProbeS
     return NODE_STATE.down;
   }
 
-  return failingForMs > 0 || isOverloaded ? NODE_STATE.degraded : NODE_STATE.up;
+  return failingForMs > 0 || isOverloaded || isLossy(packetLoss) ? NODE_STATE.degraded : NODE_STATE.up;
 };
 
 export const passedCheck = ({ lastHealthyAt, checkedAt }: PassedCheckInput): boolean =>

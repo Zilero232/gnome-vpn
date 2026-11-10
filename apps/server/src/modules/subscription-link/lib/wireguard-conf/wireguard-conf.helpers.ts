@@ -14,6 +14,6 @@ export const wireguardFileName = ({ countryCode, ordinal }: WireguardFileNameInp
 };
 
 export const wireguardNodeView = ({ node, live }: WireguardNodeViewInput): WireguardNode => ({
-  ...pick(node, ['id', 'country', 'countryCode', 'city']),
+  ...pick(node, ['id', 'country', 'countryCode']),
   isDown: !live.has(node.id)
 });

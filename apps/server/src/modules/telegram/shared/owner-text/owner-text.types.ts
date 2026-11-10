@@ -6,7 +6,7 @@ import type { BotLocale } from '@/modules/telegram/telegram.types';
 
 import type { LabelledNode } from '../text';
 
-export type LoadResource = 'cpu' | 'memory';
+export type LoadResource = 'cpu' | 'loss' | 'memory';
 
 export type NodeRestart = 'core' | 'reboot';
 

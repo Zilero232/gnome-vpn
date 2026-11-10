@@ -47,7 +47,6 @@ const subscriptions: BotStats['subscriptions'] = {
 const node = (patch: Partial<StatsNode>): StatsNode => ({
   country: 'Germany',
   countryCode: 'DE',
-  city: 'Frankfurt',
   isAvailable: true,
   healthyAt: NOW,
   ...patch

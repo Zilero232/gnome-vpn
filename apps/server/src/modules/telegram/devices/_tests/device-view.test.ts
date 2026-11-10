@@ -180,7 +180,6 @@ const amsterdam: WireguardNode = {
   id: '0b8f6f3e-2f4c-4a77-9b1e-5d6c7a8b9c0d',
   country: 'Netherlands',
   countryCode: 'NL',
-  city: 'Amsterdam',
   isDown: false
 };
 
@@ -188,7 +187,6 @@ const helsinki: WireguardNode = {
   id: '7d9e2a1b-3c4d-4e5f-8a9b-0c1d2e3f4a5b',
   country: 'Finland',
   countryCode: 'FI',
-  city: 'Helsinki',
   isDown: false
 };
 

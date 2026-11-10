@@ -27,7 +27,7 @@ const paid = {
   currentPeriodEnd: '2026-12-31T00:00:00.000Z'
 };
 
-const node = { id: NODE, country: 'Netherlands', countryCode: 'NL', city: 'Amsterdam', isDown: false };
+const node = { id: NODE, country: 'Netherlands', countryCode: 'NL', isDown: false };
 
 const overview: WireguardOverview = {
   nodes: [node],

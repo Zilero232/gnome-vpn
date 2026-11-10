@@ -14,7 +14,8 @@ export const STATUS_NODE_SELECT = {
   wgPublicKey: true,
   lastHealthyAt: true,
   lastCheckedAt: true,
-  isOverloaded: true
+  isOverloaded: true,
+  packetLoss: true
 } as const satisfies Prisma.NodeSelect;
 
 export const STATUS_NODE_ORDER = [{ displayOrder: 'asc' }, { createdAt: 'asc' }] as const;
