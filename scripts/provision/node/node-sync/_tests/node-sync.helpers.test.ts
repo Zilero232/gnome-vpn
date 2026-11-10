@@ -7,7 +7,6 @@ import { applyServerEnvCommand, applySqlCommand, buildNodeSync, installEnvFileCo
 const node: SyncableNode = {
   country: 'Netherlands',
   countryCode: 'NL',
-  city: null,
   host: '203.0.113.10',
   port: 443,
   serverName: 'www.bing.com',
@@ -65,11 +64,11 @@ describe('buildNodeSync', () => {
   });
 
   it('escapes a quote in a value rather than ending the literal', () => {
-    expect(buildNodeSync({ nodes: [{ ...node, city: "Hof van 's-Hertogenbosch" }], pruneMissing: true })).toContain("'Hof van ''s-Hertogenbosch'");
+    expect(buildNodeSync({ nodes: [{ ...node, country: "Côte d'Ivoire" }], pruneMissing: true })).toContain("'Côte d''Ivoire'");
   });
 
   it('writes a missing value as NULL, not as the text null', () => {
-    expect(buildNodeSync({ nodes: [node], pruneMissing: true })).toContain("'Netherlands', 'NL', NULL,");
+    expect(buildNodeSync({ nodes: [node], pruneMissing: true })).toContain("'www.bing.com', NULL,");
   });
 
   it('deletes production nodes missing from the list only when asked to', () => {

@@ -23,7 +23,6 @@ const rows: StatsSubscription[] = [
 const node = (patch: Partial<StatsNodeRow>): StatsNodeRow => ({
   id: 'node-1',
   country: 'Germany',
-  city: null,
   createdAt: NOW,
   countryCode: 'DE',
   realityPublicKey: null,
@@ -32,6 +31,7 @@ const node = (patch: Partial<StatsNodeRow>): StatsNodeRow => ({
   lastHealthyAt: NOW,
   lastCheckedAt: NOW,
   isOverloaded: false,
+  packetLoss: null,
   isAvailable: true,
   onlineClients: 0,
   onlineUsers: 0,

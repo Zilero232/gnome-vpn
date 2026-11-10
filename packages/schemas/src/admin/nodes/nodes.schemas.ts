@@ -19,11 +19,12 @@ export const adminNodePeakSchema = z.object({
 export const adminNodeSchema = nodeStatusSchema.extend({
   id: z.string(),
   country: z.string(),
-  city: z.string().nullable(),
   host: z.string(),
   port: z.number().int().positive(),
   isAvailable: z.boolean(),
   isOverloaded: z.boolean(),
+  packetLoss: z.number().int().nullable(),
+  isLossy: z.boolean(),
   displayOrder: z.number().int(),
   lastHealthyAt: z.string().nullable(),
   createdAt: z.string(),

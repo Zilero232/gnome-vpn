@@ -6,6 +6,7 @@ export type ProbeStamps = {
   lastHealthyAt: Date | null;
   lastCheckedAt: Date | null;
   isOverloaded: boolean;
+  packetLoss: number | null;
 };
 
 export type UptimeRow = {

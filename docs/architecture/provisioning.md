@@ -55,7 +55,17 @@ panel's own fail2ban, which enforced the IP limit, is off
 without rsyslog and a jail reading `/var/log/auth.log` silently bans nobody.
 `ensureFail2ban` is idempotent: it installs only when the binary is missing but
 rewrites the jail every run, so changing a threshold in `FAIL2BAN` is a
-re-provision rather than an ssh session.
+re-provision rather than an ssh session. It restarts the service rather than
+reloading it: on a fresh Ubuntu 22.04 host `enable --now` returns before the
+server's socket is up, and the `reload` right after it failed with "Could not
+find server", failing the whole node.
+
+**The local database is migrated first.** `bun run provision:nodes` runs
+`db:deploy` against the root `.env` before anything else, because every node
+row is written there and then read back for the production sync. A migration
+the workstation had not applied (`node.packet_loss`) once let every host
+provision and then crashed the run at the sync, after the relay had already
+been pointed at the new nodes.
 
 **SSH takes our key only, and only after the key has been proven.** A node
 used to accept root logins by password — the one in `nodes.json` — from anywhere.
@@ -124,6 +134,11 @@ resolves to IPv6 first: `systemd-timesyncd` had never synchronised, with
 hundreds of timeouts a day, and the NL clock had drifted 1.2 s. TLS and Reality
 both fail on a clock far enough off. `timesyncd.conf.d/gnomevpn.conf` names
 Cloudflare's and Google's servers, with the Ubuntu pool as the fallback.
+
+**The order of `nodes` is the order of the subscription.** A node's position in
+the list is written as its `displayOrder`, so moving a country up is an edit of
+`nodes.json` and a run; before this every node was 0 and the feed fell back to
+alphabetical order.
 
 **`nodes.json` holds the relays too.** It is `{ "nodes": [...], "relays": [...] }`
 — the old bare list still reads as nodes without relays — and the `relay/`

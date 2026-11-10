@@ -5,7 +5,6 @@ export type PrismaLike = typeof basePrisma;
 export type UpsertNodeInput = {
   country: string;
   countryCode: string;
-  city?: string;
   host: string;
   port: number;
   serverName: string;
@@ -15,6 +14,7 @@ export type UpsertNodeInput = {
   wgPublicKey: string;
   apiUrl: string;
   apiTokenEnvVar: string;
+  displayOrder: number;
 };
 
 export type UpsertNodeResult = {

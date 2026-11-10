@@ -88,7 +88,6 @@ export type PlanLabelInput = {
 export type LabelledNode = {
   country: string;
   countryCode: string;
-  city: string | null;
 };
 
 export type NodeLabelInput = {

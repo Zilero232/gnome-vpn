@@ -3,7 +3,6 @@ import type { SshClient } from '@gnomevpn/scripts/ssh';
 export type SyncableNode = {
   country: string;
   countryCode: string;
-  city: string | null;
   host: string;
   port: number;
   serverName: string;

@@ -13,8 +13,7 @@ const sshTargetShape = {
 export const nodeConfigSchema = z.object({
   ...sshTargetShape,
   country: z.string().min(1),
-  countryCode: countryCodeSchema,
-  city: z.string().min(1).optional()
+  countryCode: countryCodeSchema
 });
 
 export const relayRouteSchema = z.object({

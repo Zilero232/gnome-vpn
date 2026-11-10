@@ -20,6 +20,5 @@ export const AMOUNT_FORMAT = {
 } as const;
 
 export const LABEL = {
-  russianPrefix: 'ru',
-  citySeparator: ' · '
+  russianPrefix: 'ru'
 } as const;

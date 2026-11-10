@@ -35,10 +35,9 @@ export class TelegramStatsService {
 
     return {
       ...snapshot,
-      nodes: nodes.map(({ country, countryCode, city, isAvailable, lastHealthyAt, createdAt }) => ({
+      nodes: nodes.map(({ country, countryCode, isAvailable, lastHealthyAt, createdAt }) => ({
         country,
         countryCode,
-        city,
         isAvailable,
         healthyAt: lastHealthyAt ?? createdAt
       }))

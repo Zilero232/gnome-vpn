@@ -29,6 +29,7 @@ model Node {
   lastHealthyAt DateTime? @map("last_healthy_at") @db.Timestamptz(3)
   lastCheckedAt DateTime? @map("last_checked_at") @db.Timestamptz(3)
   isOverloaded  Boolean   @default(false) @map("is_overloaded")
+  packetLoss    Int?      @map("packet_loss")
 
   bootedAt      DateTime? @map("booted_at") @db.Timestamptz(3)
   coreStartedAt DateTime? @map("core_started_at") @db.Timestamptz(3)

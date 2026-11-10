@@ -17,7 +17,8 @@ commit.
 
 1. Copy `nodes.example.json` to `nodes.json` and fill in each host under
    `nodes`: its SSH credentials (`sshUser`, `sshPassword`), the country,
-   `countryCode` and city. Relays go under `relays` (see
+   and `countryCode` — no city: a node is named by its country everywhere. The
+   order of `nodes` is the order of the subscription. Relays go under `relays` (see
    [Adding a relay](#adding-a-relay)); leave the list empty when there are none.
    The first run installs your SSH key (`PROVISION_NODE_SSH_KEY`, else
    `~/.ssh/gnomevpn_deploy` or `id_ed25519`) and turns password logins off, so

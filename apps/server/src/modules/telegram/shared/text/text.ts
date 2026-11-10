@@ -67,7 +67,6 @@ export const planLabel = ({ planId, locale }: PlanLabelInput): string => {
 
 export const nodeLabel = ({ node, locale }: NodeLabelInput): string => {
   const flag = countryFlag(node.countryCode);
-  const country = [flag, countryName({ locale, countryCode: node.countryCode, fallback: node.country })].filter(isTruthy).join(' ');
 
-  return [country, node.city].filter(isTruthy).join(LABEL.citySeparator);
+  return [flag, countryName({ locale, countryCode: node.countryCode, fallback: node.country })].filter(isTruthy).join(' ');
 };

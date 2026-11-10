@@ -79,6 +79,22 @@ up minute for each node this run stamped healthy — to the node's `node_uptime`
 row for the UTC day, stamps `lastCheckedAt`, and prunes rows past 90 days. A
 failure there is logged and never fails the run.
 
+**A node can answer its panel and still drop users.** On 2026-11-10 the
+Helsinki node passed every panel probe while it lost 13–21% of its packets in
+windows of a few seconds every 15–30 seconds — users saw the internet drop, and
+nothing in the admin panel said so. Every probe now also measures packet loss:
+`reachLoss` (`lib/node-reach`) opens `NODE_REACH.attempts` TCP connections to
+the node's tunnel port, 200 ms apart, and counts one that has not connected
+within a second as lost — a lost SYN is only retried after a second, so a
+single dropped packet counts. The share goes to `node.packet_loss` whether the
+panel answered or not. It reuses the load streak: at `NODE_LOSS.degradedPercent`
+for `ALERT.loadStreakMinutes` the owner gets `alertNodeLoss`, throttled like the
+CPU and memory alerts. A loss of 10% or more also sinks the node in the feed
+([subscription-feed.md](subscription-feed.md#issuing-the-peers)) and makes it
+degraded on the status page ([status.md](status.md)). It measures the path from
+the production VPS, so it catches a node whose network is failing, not one user's
+ISP.
+
 `expired-access` sweeps `kind: 'config'` peers in both directions — it disables
 the peers of a subscriber whose period lapsed more than `WINDOW.configGraceHours`
 ago (`lapsedBefore`), and restores peers left `disabled` while the period is

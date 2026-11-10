@@ -128,7 +128,7 @@ export class TelegramAlertService {
   }
 
   private async nodeName(nodeId: string): Promise<string> {
-    const node = await this.prisma.node.findUnique({ where: { id: nodeId }, select: { country: true, countryCode: true, city: true } });
+    const node = await this.prisma.node.findUnique({ where: { id: nodeId }, select: { country: true, countryCode: true } });
 
     return isNullish(node) ? nodeId : nodeLabel({ node, locale: DEFAULT_BOT_LOCALE });
   }

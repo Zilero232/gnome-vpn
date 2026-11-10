@@ -86,7 +86,10 @@ up by a whole empty day.
   probe from `isOverloaded(health)`: CPU at `ALERT.nodeCpuPercent` or memory at
   `ALERT.nodeMemoryRatio` — the same thresholds that log a warning, because a
   node that hot is already the one users feel. A failed probe leaves the flag
-  as it was; the failure decides the state then anyway.
+  as it was; the failure decides the state then anyway. A node losing
+  `NODE_LOSS.degradedPercent` or more of its probe connections
+  (`node.packet_loss`, [scheduler.md](scheduler.md)) is degraded too, since a
+  node that drops packets is one users feel even while its panel answers.
 - **up** — otherwise.
 
 So an outage reads up → degraded → down over three minutes, and recovery is

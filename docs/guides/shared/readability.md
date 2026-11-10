@@ -10,22 +10,22 @@ The principle: **destructure as much as you can** — for readability. If a valu
 
 ```ts
 // ✗ BAD — node.X repeats
-incyServerUri({ config, country: node.country, countryCode: node.countryCode, city: node.city, tls });
+incyServerUri({ config, country: node.country, countryCode: node.countryCode, tls });
 
 // ✓ OK — node pulled apart once
-const { country, countryCode, city } = node;
+const { country, countryCode } = node;
 
-incyServerUri({ config, country, countryCode, city, tls });
+incyServerUri({ config, country, countryCode, tls });
 ```
 
 **Function parameters: 2+ arguments → one destructured object** ([functions](functions.md)). Positional arguments (especially same-typed ones — `string, string, string`) are easy to swap by mistake; an object is self-documenting and order stops mattering.
 
 ```ts
 // ✗ BAD — three positional strings, easy to mix up
-serverName(country, countryCode, city);
+serverName(country, countryCode);
 
 // ✓ OK — an object parameter, destructured in the signature
-serverName({ country, countryCode, city });
+serverName({ country, countryCode });
 ```
 
 **A repeated `obj.x` (2+) goes into a local variable / destructuring:**

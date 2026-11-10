@@ -37,17 +37,12 @@ export const NodeItem = ({ node, name, isToggling, onToggle }: NodeItemProps) =>
           <Text as='h3' className={s.name}>
             {name}
           </Text>
-
-          {node.city && (
-            <Text as='span' size='xs' tone='muted'>
-              {node.city}
-            </Text>
-          )}
         </div>
 
         <div className={s.badges}>
           {node.isAvailable ? <Badge tone={NODE_STATE_TONE[node.state]}>{states(node.state)}</Badge> : <Badge tone='muted'>{t('off')}</Badge>}
           {node.isOverloaded && <Badge tone='warning'>{t('overloaded')}</Badge>}
+          {node.isLossy && <Badge tone='warning'>{t('lossy', { percent: node.packetLoss ?? 0 })}</Badge>}
         </div>
       </header>
 

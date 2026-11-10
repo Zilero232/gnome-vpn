@@ -870,7 +870,7 @@ minutes for a week, so `refundCanceled` speaks once per payment per
 `OWNER_ALERT.refundCanceledRepeatMs` (a day). The settled alert goes out before
 the reader's own notice, so a failure there cannot swallow it.
 
-**A node is named, never located.** Alerts use `nodeLabel` — flag, country,
-city — and never the panel URL, which carries a secret path, for the same reason
+**A node is named, never located.** Alerts use `nodeLabel` — flag and
+country — and never the panel URL, which carries a secret path, for the same reason
 logs do not. A reconcile error is cut to `OWNER_ALERT.errorLength` characters and
 escaped.

@@ -2,6 +2,8 @@ import type { IdentifiedNode, NodeHealth, XrayClient } from '@/lib/xray';
 import type { LoadResource } from '@/modules/telegram/notify';
 
 export type ProbeNodeRow = IdentifiedNode & {
+  host: string;
+  port: number;
   lastHealthyAt: Date | null;
   bootedAt: Date | null;
   coreStartedAt: Date | null;

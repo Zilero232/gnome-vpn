@@ -16,7 +16,7 @@ export const QUIET_NODE: NodeAlertState = {
 };
 
 export const ALERT_TEXT = {
-  load: { cpu: 'alertNodeCpu', memory: 'alertNodeMemory' } satisfies Record<LoadResource, keyof BotText>,
+  load: { cpu: 'alertNodeCpu', memory: 'alertNodeMemory', loss: 'alertNodeLoss' } satisfies Record<LoadResource, keyof BotText>,
   restart: { reboot: 'alertNodeRebooted', core: 'alertNodeCoreRestarted' } satisfies Record<NodeRestart, keyof BotText>,
   refundReason: {
     manual: 'alertRefundManual',

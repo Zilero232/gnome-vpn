@@ -8,6 +8,8 @@ export const ACTIVITY_PEER_SELECT = {
 
 export const PROBE_NODE_SELECT = {
   ...IDENTIFIED_NODE_SELECT,
+  host: true,
+  port: true,
   lastHealthyAt: true,
   bootedAt: true,
   coreStartedAt: true,

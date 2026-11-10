@@ -583,6 +583,7 @@
     "empty": "No nodes.",
     "off": "Out of rotation",
     "overloaded": "Overloaded",
+    "lossy": "Losing {percent}%",
     "takeOut": "Take out of rotation",
     "putBack": "Put back into rotation",
     "takeOutDone": "{name} is out of rotation",

@@ -44,12 +44,13 @@ const provisionAll = async (nodes: NodeConfig[]): Promise<ProvisionResult[]> => 
   const panelSources = await productionSources();
   const results: ProvisionResult[] = [];
 
-  for (const config of nodes) {
+  for (const [displayOrder, config] of nodes.entries()) {
     log.tint(config.host);
     log.step(`${config.country} (${config.host})`);
 
     const result = await provisionHost({
       config,
+      displayOrder,
       prisma: basePrisma,
       serverEnvPath: PATHS.serverEnv,
       xrayComposeContent,
@@ -128,7 +129,13 @@ const main = async () => {
 
   try {
     const results = await provisionAll(nodes);
-    const relayResults = await provisionRelays(config);
+    const hasFailedNode = results.map(prop('status')).includes('failed');
+
+    if (hasFailedNode && config.relays.length > 0) {
+      log.warn('a node failed, so the relays keep forwarding to the nodes they had');
+    }
+
+    const relayResults = hasFailedNode ? [] : await provisionRelays(config);
     const hasFailed = [...results, ...relayResults].map(prop('status')).includes('failed');
     const relaySummary = relayResults.length > 0 ? `\n${formatRelaySummary(relayResults)}` : '';
 

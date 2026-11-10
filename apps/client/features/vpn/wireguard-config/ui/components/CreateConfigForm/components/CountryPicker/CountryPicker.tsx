@@ -18,7 +18,7 @@ export const CountryPicker = ({ nodes, selected, onSelect }: CountryPickerProps)
       options={nodes.map((node) => ({
         value: node.id,
         label: countryName(node),
-        description: node.isDown ? <span className={s.down}>{t('serverDown')}</span> : node.city,
+        description: node.isDown ? <span className={s.down}>{t('serverDown')}</span> : undefined,
         icon: <CountryFlag countryCode={node.countryCode} size='md' />,
         isDisabled: node.isDown
       }))}

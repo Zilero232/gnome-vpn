@@ -14,6 +14,7 @@ export type ProvisionResult = {
 
 export type ProvisionHostInput = {
   config: NodeConfig;
+  displayOrder: number;
   prisma: PrismaLike;
   serverEnvPath: string;
   xrayComposeContent: string;

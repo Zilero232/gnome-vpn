@@ -9,6 +9,7 @@
     "alertNodeCoreRestarted": "🔄 <b>VPN core restarted</b>: {node}\nIt came back {ago}; every connection on this node dropped.",
     "alertNodeCpu": "🔥 <b>Node overloaded</b>: {node}\nCPU at {percent}%.",
     "alertNodeDown": "🔴 <b>Node unavailable</b>: {node}\nLast answer {ago}.",
+    "alertNodeLoss": "📉 <b>Node losing packets</b>: {node}\n{percent}% of connections do not get through — users see the internet drop.",
     "alertNodeMemory": "🔥 <b>Node running out of memory</b>: {node}\n{percent}% in use.",
     "alertNodeRebooted": "🔄 <b>Node rebooted</b>: {node}\nIt came back {ago}; every connection on this node dropped.",
     "alertNodeUp": "🟢 <b>Node answering again</b>: {node}",
