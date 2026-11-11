@@ -21,6 +21,7 @@ export type SubscriptionNode = {
   wgPublicKey: string | null;
   relayHost: string | null;
   relayPort: number | null;
+  relayHealthyAt: Date | null;
   createdAt: Date;
   lastHealthyAt: Date | null;
   packetLoss: number | null;
@@ -48,6 +49,7 @@ export type TouchLinkInput = {
 };
 
 export type ServerUrisInput = {
+  now: Date;
   userId: string;
   deviceId: string;
   nodes: SubscriptionNode[];

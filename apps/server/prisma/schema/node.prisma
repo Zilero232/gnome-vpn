@@ -20,6 +20,8 @@ model Node {
   relayHost String? @map("relay_host")
   relayPort Int?    @map("relay_port")
 
+  relayHealthyAt DateTime? @map("relay_healthy_at") @db.Timestamptz(3)
+
   apiUrl         String @map("api_url")
   apiTokenEnvVar String @map("api_token_env_var")
 
@@ -42,6 +44,7 @@ model Node {
   peers  Peer[]
   uptime NodeUptime[]
   peaks  NodePeak[]
+  probes NodeProbe[]
 
   @@map("node")
 }
