@@ -21,7 +21,7 @@
     "pages": {
       "previous": "Previous",
       "next": "Next",
-      "status": "Page {page} of {pages} · {total} in total"
+      "status": "Page {page} of {pages}\u00a0· {total} in total"
     },
     "view": {
       "label": "View",
@@ -80,7 +80,7 @@
     "kpi": {
       "users": {
         "label": "Users",
-        "hint": "+{day} in 24 h · +{week} in 7 days"
+        "hint": "+{day} in 24 h\u00a0· +{week} in 7 days"
       },
       "paid": "Paid subscriptions",
       "plan": "{plan}: {count}",
@@ -99,14 +99,14 @@
         "hint": "Telegram linked: {chats}"
       },
       "online": {
-        "label": "Online now",
+        "label": "Online on all nodes",
         "hint": "{users, plural, one {# user} other {# users}}",
         "unknown": "no data from the nodes"
       },
       "nodes": {
         "label": "Nodes healthy",
         "value": "{up} / {total}",
-        "hint": "degraded {degraded} · down {down} · out {off}"
+        "hint": "degraded {degraded}\u00a0· down {down}\u00a0· out {off}"
       },
       "paidNone": "none right now"
     },
@@ -116,7 +116,7 @@
       "unknown": "Not reported",
       "other": "Others",
       "empty": "No devices yet.",
-      "caption": "Every registered device right now: {total}"
+      "caption": "Shares of every registered device"
     }
   },
   "analytics": {
@@ -189,7 +189,6 @@
         "plan": "Subscription payments over the last {days} days by plan — extra devices, gifts and refunds excluded",
         "kind": "Every succeeded payment over the last {days} days by kind, refunds excluded"
       },
-      "total": "Total for the period",
       "count": "{count, plural, one {# payment} other {# payments}}",
       "empty": "No payments in this period"
     },
@@ -199,7 +198,7 @@
       "empty": "No invite payments, win-back discounts or payment reminders in this period.",
       "referredPayments": {
         "label": "Payments from invites",
-        "value": "{count, plural, one {# payment} other {# payments}} · {amount}",
+        "value": "{count, plural, one {# payment} other {# payments}}\u00a0· {amount}",
         "hint": "Succeeded subscription payments by accounts that came by invite, refunds excluded"
       },
       "winBack": {
@@ -307,7 +306,7 @@
       "end": "Active until",
       "renewal": {
         "label": "Auto-renewal",
-        "on": "on · {card}",
+        "on": "on\u00a0· {card}",
         "off": "off"
       },
       "extras": "Extra devices",
@@ -441,9 +440,9 @@
       "gift": "Gift"
     },
     "kinds": {
-      "subscription": "{plan}{auto, select, true { · automatic charge} other {}}",
+      "subscription": "{plan}{auto, select, true {\u00a0· automatic charge} other {}}",
       "extraDevices": "+{count, plural, one {# device} other {# devices}}",
-      "gift": "Gift · {plan}"
+      "gift": "Gift\u00a0· {plan}"
     },
     "totals": {
       "count": "Payments",
@@ -602,7 +601,7 @@
     },
     "peaks": {
       "title": "Peak connections by day",
-      "summary": "Most in {days} days: {peak} at once, {date} · days are UTC",
+      "summary": "Peak concurrent connections each day\u00a0· days in UTC",
       "empty": "No peaks yet: they build up from the node's minute check.",
       "value": "Connections",
       "users": "Users",

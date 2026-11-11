@@ -33,7 +33,7 @@ export const useUserColumns = (): DataColumn<AdminUser>[] => {
         </span>
       )
     },
-    { key: 'created', header: t('created'), cell: ({ createdAt }) => format.date(createdAt) },
+    { key: 'created', header: t('created'), cell: ({ createdAt }) => <span className={s.date}>{format.date(createdAt)}</span> },
     {
       key: 'access',
       header: t('access'),
@@ -41,7 +41,7 @@ export const useUserColumns = (): DataColumn<AdminUser>[] => {
         <span className={s.access}>
           <AccessBadge access={access} />
           {currentPeriodEnd && (
-            <Text as='span' size='xs' tone='muted'>
+            <Text as='span' className={s.date} size='xs' tone='muted'>
               {t('until', { date: format.date(currentPeriodEnd), isOver: String(access === 'none') })}
             </Text>
           )}

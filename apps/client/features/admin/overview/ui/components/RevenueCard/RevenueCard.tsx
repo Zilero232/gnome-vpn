@@ -10,7 +10,6 @@ import type { RevenueView } from '../../../lib';
 import type { RevenueCardProps } from './RevenueCard.types';
 
 import { revenueSlices, revenueTotal } from '../../../lib';
-import { RevenueTotal } from './components';
 import { REVENUE_VIEWS } from './RevenueCard.constants';
 
 export const RevenueCard = ({ revenueByPlan, revenueByKind, period, isFaded }: RevenueCardProps) => {
@@ -46,11 +45,7 @@ export const RevenueCard = ({ revenueByPlan, revenueByKind, period, isFaded }: R
       title={t('title')}
     >
       {total.count > 0 ? (
-        <>
-          <RevenueTotal label={t('total')} total={total} />
-
-          <BarList formatShare={format.percent} formatValue={format.money} items={items} label={t(`views.${view}`)} />
-        </>
+        <BarList formatShare={format.percent} formatValue={format.money} items={items} label={t(`views.${view}`)} />
       ) : (
         <Text size='sm' tone='muted'>
           {t('empty')}

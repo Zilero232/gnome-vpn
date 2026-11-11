@@ -168,7 +168,7 @@ in SQL (`date_trunc('day', … AT TIME ZONE 'UTC')`, `AdminSeriesService`):
 | Регистрации по дням                      | columns         | `user.created_at`                                                                                                                |
 | Новые платные и пробные дни              | two lines       | accounts whose **first** succeeded subscription payment fell on the day, against `subscription.trial_started_at`                 |
 | Из пробного дня в оплату                 | stat tile       | trials started in the period, and how many of those accounts have a succeeded subscription payment at or after the trial start  |
-| Выручка                                  | share bars      | one card switched between «По тарифам» (succeeded subscription payments per plan) and «По типам» (succeeded payments per kind); the total above the bars |
+| Выручка                                  | share bars      | one card switched between «По тарифам» (succeeded subscription payments per plan) and «По типам» (succeeded payments per kind) |
 | Приглашения                              | tiles + table   | referrals created in the period: invited, rewarded, days granted to inviters and to friends, the ten inviters with the most      |
 | Рост                                     | three tiles     | `growth`: succeeded subscription payments by referred accounts (count and sum); automatic win-back discounts granted, the payments made with one and their sum; checkout reminders sent and how many of those reminded then paid for a subscription |
 
@@ -201,9 +201,17 @@ accessible text and the bar's tooltip), and the numbers right-aligned in
 tabular figures — «12 оплат · 11 880 ₽». The rows share one grid, so bars start
 and numbers end on the same line in every row; below the `md` breakpoint the
 bar takes the full width and the label and numbers sit under it. The revenue
-card shows its total above the bars as a figure, and the plan view's caption
-says it leaves out extra devices and gifts, so the two views' totals are not
-expected to match. Device breakdowns and the promo-code blocks use the same
+card has no total of its own: the period's revenue is the KPI tile and the
+daily chart's summary, and a third copy above the bars was the same number
+again. The plan view's caption says it leaves out extra devices and gifts.
+
+**One number, one place.** A metric is shown where it is read, not again in a
+neighbouring card: the device total lives in the KPI tile, not in the captions
+of the two device breakdowns; a node's 30-day peak lives in its load figures,
+not again over its peak chart; and an empty period shows one «оплат не было»,
+because the daily revenue and payment charts are hidden when nothing was paid.
+The Overview's online tile reads «Онлайн на всех нодах», the sum of what each
+node card on the Nodes tab shows as «Онлайн сейчас». Device breakdowns and the promo-code blocks use the same
 bars inside the same `Panel`, which matches the account page's inner cards
 (padding, radius, title size). Accounts that were deleted are invisible to
 the trial and first-payment series (their rows are gone or their payments have

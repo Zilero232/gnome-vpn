@@ -45,7 +45,7 @@ export const PeakChart = ({ peaks }: PeakChartProps) => {
         }))
       }}
       labels={labels}
-      summary={t('summary', { days: peaks.length, peak: format.count(best.clients), date: format.day(best.date) })}
+      summary={t('summary')}
       title={title}
     >
       <ColumnChart

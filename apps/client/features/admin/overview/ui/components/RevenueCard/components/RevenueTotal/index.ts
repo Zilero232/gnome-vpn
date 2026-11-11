@@ -1,1 +1,0 @@
-export { RevenueTotal } from './RevenueTotal';
