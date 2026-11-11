@@ -10,6 +10,7 @@
     "alertNodeCpu": "🔥 <b>Node overloaded</b>: {node}\nCPU at {percent}%.",
     "alertNodeDown": "🔴 <b>Node unavailable</b>: {node}\nLast answer {ago}.",
     "alertNodeLoss": "📉 <b>Node losing packets</b>: {node}\n{percent}% of connections do not get through — users see the internet drop.",
+    "alertRelayLoss": "🚧 <b>Relay not getting through</b>: {node}\n{percent}% of connections through the relay fail — the subscription serves this node directly until the relay recovers.",
     "alertNodeMemory": "🔥 <b>Node running out of memory</b>: {node}\n{percent}% in use.",
     "alertNodeRebooted": "🔄 <b>Node rebooted</b>: {node}\nIt came back {ago}; every connection on this node dropped.",
     "alertNodeUp": "🟢 <b>Node answering again</b>: {node}",

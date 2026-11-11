@@ -36,3 +36,10 @@ export type RecordPeakInput = {
   cpu: number | null;
   memory: number | null;
 };
+
+export type RecordProbeInput = {
+  nodeId: string;
+  at: Date;
+  packetLoss: number | null;
+  relayPacketLoss: number | null;
+};

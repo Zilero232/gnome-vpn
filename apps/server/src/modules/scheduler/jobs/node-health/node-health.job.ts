@@ -7,7 +7,7 @@ import { PrismaService } from '@/core';
 import { xrayClientForNode } from '@/lib/xray';
 import { NodeTrafficService } from '@/modules/peers';
 import { ALERT } from '@/modules/scheduler/config';
-import { NODE_LOSS, NodePeakService, NodeUptimeService } from '@/modules/status';
+import { isRelayPassing, NODE_LOSS, NodePeakService, NodeProbeService, NodeUptimeService } from '@/modules/status';
 import { TelegramAlertService } from '@/modules/telegram/notify';
 
 import type {
@@ -34,18 +34,26 @@ export class NodeHealthJob {
     private readonly nodeTraffic: NodeTrafficService,
     private readonly uptime: NodeUptimeService,
     private readonly peaks: NodePeakService,
+    private readonly probes: NodeProbeService,
     private readonly alerts: TelegramAlertService
   ) {}
 
   private async probe(node: ProbeNodeRow): Promise<void> {
-    const [probed, packetLoss] = await Promise.all([this.check(node), this.measureLoss(node)]);
+    const at = new Date();
+    const [probed, packetLoss, relayPacketLoss] = await Promise.all([this.check(node), this.measureLoss(node), this.measureRelayLoss(node)]);
     const isUp = isNonNullish(probed);
+    const reach = { packetLoss, ...(isRelayPassing(relayPacketLoss) && { relayHealthyAt: at }) };
 
     this.alerts.nodeProbed({ nodeId: node.id, isUp, healthyAt: isUp ? new Date() : (node.lastHealthyAt ?? node.createdAt) });
     this.noteReading({ node, reading: { resource: 'loss', percent: packetLoss, threshold: NODE_LOSS.degradedPercent } });
+    this.noteReading({ node, reading: { resource: 'relay', percent: relayPacketLoss, threshold: NODE_LOSS.relayDownPercent } });
+
+    await this.probes.record({ nodeId: node.id, at, packetLoss, relayPacketLoss }).catch((error: unknown) => {
+      this.logger.warn(`Node probe not recorded: ${node.id}: ${describeError(error)}`);
+    });
 
     if (!isUp) {
-      await this.prisma.node.update({ where: { id: node.id }, data: { packetLoss } });
+      await this.prisma.node.update({ where: { id: node.id }, data: reach });
 
       return;
     }
@@ -59,7 +67,7 @@ export class NodeHealthJob {
       data: {
         lastHealthyAt: new Date(),
         isOverloaded: isOverloaded(health),
-        packetLoss,
+        ...reach,
         bootedAt: health.bootedAt ?? node.bootedAt,
         coreStartedAt: health.coreStartedAt ?? node.coreStartedAt
       }
@@ -71,6 +79,18 @@ export class NodeHealthJob {
   private async measureLoss(node: ProbeNodeRow): Promise<number | null> {
     return reachLoss({ host: node.host, port: node.port }).catch((error: unknown) => {
       this.logger.warn(`Node reach probe failed: ${node.id}: ${describeError(error)}`);
+
+      return null;
+    });
+  }
+
+  private async measureRelayLoss(node: ProbeNodeRow): Promise<number | null> {
+    if (isNullish(node.relayHost) || isNullish(node.relayPort)) {
+      return null;
+    }
+
+    return reachLoss({ host: node.relayHost, port: node.relayPort }).catch((error: unknown) => {
+      this.logger.warn(`Relay reach probe failed: ${node.id}: ${describeError(error)}`);
 
       return null;
     });
@@ -203,6 +223,10 @@ export class NodeHealthJob {
 
     await this.peaks.prune(checkedAt).catch((error: unknown) => {
       this.logger.warn(`Old node peaks not pruned: ${describeError(error)}`);
+    });
+
+    await this.probes.prune(checkedAt).catch((error: unknown) => {
+      this.logger.warn(`Old node probes not pruned: ${describeError(error)}`);
     });
   }
 }

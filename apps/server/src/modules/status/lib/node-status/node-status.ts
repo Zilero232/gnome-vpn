@@ -1,15 +1,23 @@
 import type { NodeState, NodeStatus } from '@gnomevpn/schemas';
 
 import { NODE_STATE, UPTIME_HISTORY } from '@gnomevpn/schemas';
-import { isBefore } from 'date-fns';
+import { isBefore, milliseconds } from 'date-fns';
 import { clamp, groupBy, isNonNullish, isNullish, sumBy } from 'remeda';
 
 import { dayKey, dayKeys, utcDay, windowStart } from '@/common/lib';
 import { nodeProtocols } from '@/modules/peers';
 
-import type { NodeStatusInput, PassedCheckInput, ProbeStamps, UptimeHistory, UptimeHistoryInput, UptimeRow } from './node-status.types';
+import type {
+  NodeStatusInput,
+  PassedCheckInput,
+  ProbeStamps,
+  RelayLiveInput,
+  UptimeHistory,
+  UptimeHistoryInput,
+  UptimeRow
+} from './node-status.types';
 
-import { NODE_DOWN, NODE_LOSS } from './node-status.constants';
+import { NODE_DOWN, NODE_LOSS, RELAY_DOWN } from './node-status.constants';
 
 const minuteRatio = (rows: UptimeRow[]): number | null => {
   const checked = sumBy(rows, (row) => row.checkedMinutes);
@@ -18,6 +26,12 @@ const minuteRatio = (rows: UptimeRow[]): number | null => {
 };
 
 export const isLossy = (packetLoss: number | null): boolean => isNonNullish(packetLoss) && packetLoss >= NODE_LOSS.degradedPercent;
+
+export const isRelayPassing = (relayPacketLoss: number | null): boolean =>
+  isNonNullish(relayPacketLoss) && relayPacketLoss < NODE_LOSS.relayDownPercent;
+
+export const isRelayLive = ({ relayHealthyAt, now }: RelayLiveInput): boolean =>
+  isNullish(relayHealthyAt) || now.getTime() - relayHealthyAt.getTime() <= milliseconds({ minutes: RELAY_DOWN.staleMinutes });
 
 export const nodeState = ({ lastHealthyAt, lastCheckedAt, isOverloaded, packetLoss }: ProbeStamps): NodeState => {
   if (isNullish(lastHealthyAt)) {

@@ -40,3 +40,8 @@ export type UptimeHistory = {
   days: UptimeDay[];
   uptime: number | null;
 };
+
+export type RelayLiveInput = {
+  relayHealthyAt: Date | null;
+  now: Date;
+};

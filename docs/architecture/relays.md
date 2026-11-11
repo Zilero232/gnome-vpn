@@ -125,6 +125,13 @@ address and port. VLESS would otherwise always dial `REALITY.listenPort`.
   from one of its subnets. The draft "Antifraud 3.0" would bar Russian hosting
   for VPN owners from March 2028; if it passes, a Russian relay stops being an
   option.
-- **The relay is not health-probed.** `node-health` probes the node's panel,
-  not the path through the relay, so a dead relay shows nowhere in the admin
-  panel; users see its countries stop connecting.
+- **The relay is probed every minute, and a dead one is bypassed.**
+  `node-health` measures every node's loss through its relay as well as
+  directly (kept per minute in `node_probe`), stamps `relay_healthy_at` while under
+  `NODE_LOSS.relayDownPercent`, and alerts `alertRelayLoss` after the usual
+  three-minute streak. Once the relay has failed for `RELAY_DOWN.staleMinutes`,
+  `feedRoutes` serves the node directly until it passes again; a relay never
+  probed yet counts as live, so a deploy does not drop them all. Two limits: the
+  probe runs from the production VPS, so it sees a relay that is down, not one a
+  single ISP blocks; and an app picks the direct entry up only when it next
+  refreshes the subscription.

@@ -95,6 +95,11 @@ degraded on the status page ([status.md](status.md)). It measures the path from
 the production VPS, so it catches a node whose network is failing, not one user's
 ISP.
 
+The same probe goes through the node's relay ([relays.md](relays.md)), and every
+minute's pair of readings is kept in `node_probe` for `NODE_PROBE.retentionDays`
+(7), pruned by the same run, so a report of "it dropped at 21:40" can be checked
+against what the node and the relay did at that minute.
+
 `expired-access` sweeps `kind: 'config'` peers in both directions — it disables
 the peers of a subscriber whose period lapsed more than `WINDOW.configGraceHours`
 ago (`lapsedBefore`), and restores peers left `disabled` while the period is

@@ -13,6 +13,7 @@ export const NODE_FEED_SELECT = {
   wgPublicKey: true,
   relayHost: true,
   relayPort: true,
+  relayHealthyAt: true,
   createdAt: true,
   lastHealthyAt: true,
   packetLoss: true

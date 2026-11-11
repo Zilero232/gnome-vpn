@@ -10,6 +10,8 @@ export const PROBE_NODE_SELECT = {
   ...IDENTIFIED_NODE_SELECT,
   host: true,
   port: true,
+  relayHost: true,
+  relayPort: true,
   lastHealthyAt: true,
   bootedAt: true,
   coreStartedAt: true,

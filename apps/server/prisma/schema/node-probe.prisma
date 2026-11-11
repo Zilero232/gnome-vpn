@@ -1,0 +1,13 @@
+model NodeProbe {
+  nodeId String   @map("node_id")
+  at     DateTime @db.Timestamptz(3)
+
+  packetLoss      Int? @map("packet_loss")
+  relayPacketLoss Int? @map("relay_packet_loss")
+
+  node Node @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+
+  @@id([nodeId, at])
+  @@index([at])
+  @@map("node_probe")
+}

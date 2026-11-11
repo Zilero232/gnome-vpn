@@ -11,5 +11,10 @@ export const NODE_DOWN = {
 } as const;
 
 export const NODE_LOSS = {
-  degradedPercent: 10
+  degradedPercent: 10,
+  relayDownPercent: 50
+} as const;
+
+export const RELAY_DOWN = {
+  staleMinutes: 3
 } as const;

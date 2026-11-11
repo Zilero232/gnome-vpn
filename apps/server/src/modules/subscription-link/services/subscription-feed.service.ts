@@ -84,7 +84,9 @@ export class SubscriptionFeedService {
     }
 
     const issuable = new Set(live.map((node) => node.id));
-    const uris = isNonNullish(deviceId) ? await this.serverUris({ userId: link.userId, deviceId, nodes, tls: tlsMode(userAgent), issuable }) : [];
+    const uris = isNonNullish(deviceId)
+      ? await this.serverUris({ userId: link.userId, deviceId, nodes, tls: tlsMode(userAgent), issuable, now })
+      : [];
 
     const expected = live.flatMap((node) => feedProtocols(node)).length;
 
@@ -130,12 +132,12 @@ export class SubscriptionFeedService {
     }
   }
 
-  private async serverUris({ userId, deviceId, nodes, tls, issuable }: ServerUrisInput): Promise<string[]> {
+  private async serverUris({ userId, deviceId, nodes, tls, issuable, now }: ServerUrisInput): Promise<string[]> {
     const issued = await Promise.all(
       nodes.map((node) => this.subscriptionPeers.ensureNode({ userId, deviceId, node, canIssue: issuable.has(node.id) }))
     );
 
-    return zip(feedRoutes(nodes), issued)
+    return zip(feedRoutes({ nodes, now }), issued)
       .flatMap(([{ node, endpoint }, peers]) =>
         feedProtocols(node).map((protocol) => {
           const peer = peers.find((candidate) => candidate.protocol === protocol);

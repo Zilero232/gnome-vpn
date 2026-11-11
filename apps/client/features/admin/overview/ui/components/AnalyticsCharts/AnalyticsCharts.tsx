@@ -9,7 +9,7 @@ import { StatTile } from '@/ui-kit';
 
 import type { AnalyticsChartsProps } from './AnalyticsCharts.types';
 
-import { conversionRate } from '../../../lib';
+import { conversionRate, dailySummary } from '../../../lib';
 import { DailyChart } from '../DailyChart';
 import { GrowthBlock } from '../GrowthBlock';
 import { PaidVsTrials } from '../PaidVsTrials';
@@ -26,14 +26,19 @@ export const AnalyticsCharts = ({ analytics, isFaded }: AnalyticsChartsProps) =>
   const period = ADMIN_PERIOD_DAYS[analytics.range];
   const rate = conversionRate(conversion);
   const shared = { days, period, isFaded };
+  const hasPayments = dailySummary({ days, metric: 'payments' }).total > 0;
 
   return (
     <div className={s.root}>
       <RevenueCard isFaded={isFaded} period={period} revenueByKind={analytics.revenueByKind} revenueByPlan={analytics.revenueByPlan} />
 
       <div className={s.grid}>
-        <DailyChart {...shared} formatTick={format.compactMoney} formatValue={format.money} metric='revenue' />
-        <DailyChart {...shared} formatTick={format.compactCount} formatValue={format.count} metric='payments' />
+        {hasPayments && (
+          <>
+            <DailyChart {...shared} formatTick={format.compactMoney} formatValue={format.money} metric='revenue' />
+            <DailyChart {...shared} formatTick={format.compactCount} formatValue={format.count} metric='payments' />
+          </>
+        )}
         <DailyChart {...shared} formatTick={format.compactCount} formatValue={format.count} metric='signups' />
         <PaidVsTrials {...shared} />
       </div>

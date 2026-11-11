@@ -27,7 +27,7 @@ export const DeviceShares = ({ devicesBy }: DeviceSharesProps) => {
   return (
     <div className={s.root}>
       {blocks.map((block) => (
-        <Panel key={block.key} caption={t('caption', { total })} title={block.title}>
+        <Panel key={block.key} caption={t('caption')} title={block.title}>
           {total > 0 ? (
             <BarList formatShare={format.percent} formatValue={format.count} items={block.items} label={block.title} />
           ) : (
