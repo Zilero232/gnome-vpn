@@ -60,15 +60,15 @@ const buildVlessConfig = ({ node, auth, endpoint }: BuildConfigInput): TunnelCon
   };
 };
 
-const buildWireguardConfig = ({ node, auth, address }: BuildConfigInput): TunnelConfig => {
+const buildWireguardConfig = ({ node, auth, address, endpoint }: BuildConfigInput): TunnelConfig => {
   if (!hasWireguard(node) || !address) {
     throw new AppServiceUnavailableException('NODE_UNAVAILABLE', 'node has no wireguard endpoint or the peer no address');
   }
 
   return {
     protocol: TUNNEL_PROTOCOL.wireguard,
-    server: node.host,
-    port: WIREGUARD.listenPort,
+    server: endpoint?.host ?? node.host,
+    port: endpoint?.port ?? WIREGUARD.listenPort,
     auth,
     serverName: node.serverName,
     insecure: false,

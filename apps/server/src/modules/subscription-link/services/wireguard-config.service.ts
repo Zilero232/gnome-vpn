@@ -20,7 +20,7 @@ import type {
 } from '../subscription-link.service.types';
 
 import { NODE_FEED_SELECT } from '../config';
-import { liveNodes, wireguardConf, wireguardFileName, wireguardNodeView } from '../lib';
+import { liveNodes, wireguardConf, wireguardEndpoint, wireguardFileName, wireguardNodeView } from '../lib';
 import { FeedNoticeService } from './feed-notice.service';
 import { SubscriptionPeersService } from './subscription-peers.service';
 
@@ -160,7 +160,8 @@ export class WireguardConfigService {
   }
 
   private render({ deviceId, ordinal, node, peer }: RenderConfigInput): WireguardConfigFile {
-    const config = buildTunnelConfig({ node, protocol: TUNNEL_PROTOCOL.wireguard, auth: peer.nodeCredential, address: peer.tunnelAddress });
+    const endpoint = wireguardEndpoint({ node, now: new Date() });
+    const config = buildTunnelConfig({ node, protocol: TUNNEL_PROTOCOL.wireguard, auth: peer.nodeCredential, address: peer.tunnelAddress, endpoint });
 
     if (isNullish(config.wireguard)) {
       throw new AppServiceUnavailableException('NODE_UNAVAILABLE', 'The WireGuard config could not be built');

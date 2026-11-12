@@ -1,8 +1,9 @@
 import type { NodeConfig, RelayConfig } from '../../node';
 
 export type RelayForward = {
-  port: number;
+  tunnelPort: number;
   target: string;
+  wireguardPort?: number;
 };
 
 export type RelayForwardsInput = {

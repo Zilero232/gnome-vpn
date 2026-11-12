@@ -16,7 +16,8 @@
       "routes": [
         {
           "countryCode": "DE",
-          "port": 8443
+          "tunnelPort": 8443,
+          "wireguardPort": 8820
         }
       ]
     }

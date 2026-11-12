@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { duplicatesOf } from './nodes-config.helpers';
+import { duplicatesOf, routePorts } from './nodes-config.helpers';
 
 const countryCodeSchema = z.string().regex(/^[A-Z]{2}$/, 'must be two uppercase letters');
 
@@ -16,9 +16,12 @@ export const nodeConfigSchema = z.object({
   countryCode: countryCodeSchema
 });
 
+const relayPortSchema = z.number().int().min(1024, 'must be 1024 or above, clear of ssh and the well-known ports').max(65_535);
+
 export const relayRouteSchema = z.object({
   countryCode: countryCodeSchema,
-  port: z.number().int().min(1024, 'must be 1024 or above, clear of ssh and the well-known ports').max(65_535)
+  tunnelPort: relayPortSchema,
+  wireguardPort: relayPortSchema.optional()
 });
 
 export const relayConfigSchema = z.object({
@@ -56,7 +59,7 @@ const provisionConfigSchema = z
         context.addIssue({ code: 'custom', path: ['relays', index, 'host'], message: `${relay.host} is a node, not a relay` });
       }
 
-      for (const value of duplicatesOf(relay.routes.map((route) => String(route.port)))) {
+      for (const value of duplicatesOf(routePorts(relay.routes).map(String))) {
         context.addIssue({ code: 'custom', path: ['relays', index, 'routes'], message: `port ${value} is used twice` });
       }
 

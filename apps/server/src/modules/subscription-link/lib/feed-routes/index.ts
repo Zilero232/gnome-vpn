@@ -1,1 +1,1 @@
-export { feedRoutes } from './feed-routes';
+export { feedRoutes, wireguardEndpoint } from './feed-routes';

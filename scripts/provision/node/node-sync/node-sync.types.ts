@@ -12,6 +12,7 @@ export type SyncableNode = {
   wgPublicKey: string | null;
   relayHost: string | null;
   relayPort: number | null;
+  relayWireguardPort: number | null;
   apiUrl: string;
   apiTokenEnvVar: string;
   displayOrder: number;

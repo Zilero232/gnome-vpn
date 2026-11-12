@@ -3,6 +3,7 @@ import type { NodeConfig, PrismaLike, RelayConfig } from '../../node';
 export type NodeRelay = {
   relayHost: string | null;
   relayPort: number | null;
+  relayWireguardPort: number | null;
 };
 
 export type RelayAssignment = NodeRelay & {

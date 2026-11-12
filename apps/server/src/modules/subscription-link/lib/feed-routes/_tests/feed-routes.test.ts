@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { RELAY_DOWN } from '@/modules/status';
 
-import { feedRoutes, relayOf } from '../feed-routes';
+import { feedRoutes, relayOf, wireguardEndpoint } from '../feed-routes';
 
 const NOW = new Date('2026-11-11T12:00:00Z');
 
@@ -44,5 +44,23 @@ describe('feedRoutes', () => {
 
   it('keeps one route per node, in the order the nodes came', () => {
     expect(feedRoutes({ nodes: [relayed, direct], now: NOW }).map((route) => route.node.id)).toEqual([relayed.id, direct.id]);
+  });
+});
+
+describe('wireguardEndpoint', () => {
+  const node = { relayHost: '198.51.100.7', relayWireguardPort: 9820, relayHealthyAt: subMinutes(NOW, 1) };
+
+  it('points a WireGuard config at the relay port while the relay passes', () => {
+    expect(wireguardEndpoint({ node, now: NOW })).toEqual({ host: node.relayHost, port: node.relayWireguardPort });
+  });
+
+  it('leaves the config on the node when its relay forwards no WireGuard port', () => {
+    expect(wireguardEndpoint({ node: { ...node, relayWireguardPort: null }, now: NOW })).toBeUndefined();
+  });
+
+  it('falls back to the node once the relay has been down past the grace period', () => {
+    const dead = { ...node, relayHealthyAt: subMinutes(NOW, RELAY_DOWN.staleMinutes + 1) };
+
+    expect(wireguardEndpoint({ node: dead, now: NOW })).toBeUndefined();
   });
 });

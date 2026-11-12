@@ -16,6 +16,7 @@ const node: SyncableNode = {
   wgPublicKey: 'wg-pub+/=',
   relayHost: null,
   relayPort: null,
+  relayWireguardPort: null,
   apiUrl: 'http://203.0.113.10:2053/abc',
   apiTokenEnvVar: 'XRAY_KEY_NL',
   displayOrder: 0
@@ -23,9 +24,10 @@ const node: SyncableNode = {
 
 describe('buildNodeSync', () => {
   it('carries the relay into both the update and the insert', () => {
-    const sql = buildNodeSync({ nodes: [{ ...node, relayHost: '198.51.100.7', relayPort: 9443 }], pruneMissing: true });
+    const sql = buildNodeSync({ nodes: [{ ...node, relayHost: '198.51.100.7', relayPort: 9443, relayWireguardPort: 9820 }], pruneMissing: true });
 
-    expect(sql).toContain("'198.51.100.7', 9443");
+    expect(sql).toContain("'198.51.100.7', 9443, 9820");
+    expect(sql).toContain('relay_wireguard_port = i.relay_wireguard_port');
     expect(sql).toContain('relay_host = i.relay_host, relay_port = i.relay_port');
     expect(sql.slice(sql.indexOf('INSERT INTO node'))).toContain('i.relay_host, i.relay_port');
   });

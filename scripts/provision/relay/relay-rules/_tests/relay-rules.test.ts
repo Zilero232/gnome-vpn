@@ -11,8 +11,8 @@ const relay = {
   host: '198.51.100.7',
   sshUser: 'root',
   routes: [
-    { countryCode: 'NL', port: 8443 },
-    { countryCode: 'FI', port: 9443 }
+    { countryCode: 'NL', tunnelPort: 8443 },
+    { countryCode: 'FI', tunnelPort: 9443 }
   ]
 };
 
@@ -21,8 +21,8 @@ const forwards = relayForwards({ relay, nodes: [netherlands, finland] });
 describe('relayForwards', () => {
   it('points each relay port at the node of its country', () => {
     expect(forwards).toEqual([
-      { port: 8443, target: netherlands.host },
-      { port: 9443, target: finland.host }
+      { tunnelPort: 8443, target: netherlands.host },
+      { tunnelPort: 9443, target: finland.host }
     ]);
   });
 
@@ -39,9 +39,9 @@ describe('relayRuleset', () => {
   const ruleset = relayRuleset(forwards);
 
   it('forwards both tcp and udp of every relay port to the node tunnel port', () => {
-    for (const { port, target } of forwards) {
+    for (const { tunnelPort, target } of forwards) {
       for (const protocol of RELAY.protocols) {
-        expect(ruleset).toContain(`${protocol} dport ${port} dnat to ${target}:${RELAY.targetPort}`);
+        expect(ruleset).toContain(`${protocol} dport ${tunnelPort} dnat to ${target}:${RELAY.targetPort}`);
       }
     }
   });
@@ -60,7 +60,7 @@ describe('relayRuleset', () => {
   });
 
   it('masquerades a node once even when two ports lead to it', () => {
-    const twice = relayRuleset([...forwards, { port: 10_443, target: netherlands.host }]);
+    const twice = relayRuleset([...forwards, { tunnelPort: 10_443, target: netherlands.host }]);
 
     expect(twice.split(`ip daddr ${netherlands.host} tcp`)).toHaveLength(2);
   });
@@ -98,5 +98,26 @@ describe('relayFirewallCommands', () => {
     const enable = commands.indexOf('ufw --force enable');
 
     expect(commands.slice(enable + 1).every((command) => !command.startsWith('ufw '))).toBe(true);
+  });
+});
+
+describe('relay WireGuard forwarding', () => {
+  const routes = [{ countryCode: 'FI', tunnelPort: 9443, wireguardPort: 9820 }];
+  const wireguard = relayForwards({ relay: { ...relay, routes }, nodes: [netherlands, finland] });
+
+  it('forwards the WireGuard port of a route over udp to the WireGuard port of the node', () => {
+    expect(relayRuleset(wireguard)).toContain(`udp dport 9820 dnat to ${finland.host}:${RELAY.wireguardTargetPort}`);
+    expect(relayRuleset(wireguard)).toContain(`ip daddr ${finland.host} udp dport ${RELAY.wireguardTargetPort} masquerade`);
+  });
+
+  it('lets the forwarded WireGuard traffic through the firewall, and only over udp', () => {
+    const commands = relayFirewallCommands(wireguard);
+
+    expect(commands).toContain(`ufw route allow proto udp to ${finland.host} port ${RELAY.wireguardTargetPort}`);
+    expect(commands).not.toContain(`ufw route allow proto tcp to ${finland.host} port ${RELAY.wireguardTargetPort}`);
+  });
+
+  it('forwards no WireGuard for a route without a WireGuard port', () => {
+    expect(relayRuleset(forwards)).not.toContain(`:${RELAY.wireguardTargetPort}`);
   });
 });
