@@ -10,10 +10,12 @@ export const relayAssignments = ({ nodes, relays, failedRelays }: RelayAssignmen
       const route = routes.find((candidate) => candidate.countryCode === countryCode);
 
       if (!route) {
-        return { host, relayHost: null, relayPort: null };
+        return { host, relayHost: null, relayPort: null, relayWireguardPort: null };
       }
 
-      return failedRelays.includes(route.relayHost) ? null : { host, relayHost: route.relayHost, relayPort: route.port };
+      return failedRelays.includes(route.relayHost)
+        ? null
+        : { host, relayHost: route.relayHost, relayPort: route.tunnelPort, relayWireguardPort: route.wireguardPort ?? null };
     })
     .filter(isNonNullish);
 };

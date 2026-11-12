@@ -1,4 +1,9 @@
-import type { NodeConfigIssues } from './nodes-config.types';
+import { isNonNullish } from 'remeda';
+
+import type { NodeConfigIssues, RelayRoute } from './nodes-config.types';
+
+export const routePorts = (routes: RelayRoute[]): number[] =>
+  routes.flatMap(({ tunnelPort, wireguardPort }) => [tunnelPort, wireguardPort].filter(isNonNullish));
 
 export const duplicatesOf = (values: string[]): string[] => [...new Set(values.filter((value, index) => values.indexOf(value) !== index))];
 

@@ -14,6 +14,7 @@ export const NODE_FEED_SELECT = {
   relayHost: true,
   relayPort: true,
   relayHealthyAt: true,
+  relayWireguardPort: true,
   createdAt: true,
   lastHealthyAt: true,
   packetLoss: true

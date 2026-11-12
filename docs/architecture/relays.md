@@ -66,8 +66,8 @@ the same way a node does and lists its routes:
   "sshUser": "root",
   "sshPassword": "…",
   "routes": [
-    { "countryCode": "NL", "port": 8443 },
-    { "countryCode": "FI", "port": 9443 }
+    { "countryCode": "NL", "tunnelPort": 8443 },
+    { "countryCode": "FI", "tunnelPort": 9443 }
   ]
 }
 ```
@@ -84,7 +84,7 @@ key, ufw, fail2ban, nftables, the base tuning shared with the nodes (without the
 Docker step — a relay runs no containers), `net.ipv4.ip_forward`, the ruleset
 and the unit. `nft -c` checks the file before the unit loads it.
 
-The node row carries `relay_host` and `relay_port`. After the relays run,
+The node row carries `relay_host`, `relay_port` and `relay_wireguard_port`. After the relays run,
 `assignRelays` writes them for every node: a routed node gets its relay, a node
 no relay routes any more is cleared, and a node whose relay **failed** is left
 as it was. A half-set-up relay is never advertised, and a working one is not
@@ -95,6 +95,20 @@ relay change never revokes a peer: the keys are the node's and stay the same.
 node provisioned. On 2026-11-10 two new nodes failed on fail2ban, the relay was
 re-pointed at them anyway, and every user dialling the relay reached a node that
 held none of their keys until the relay was put back by hand.
+
+**WireGuard goes through the relay too.** A route may name a `wireguardPort`:
+the relay forwards it over udp to the node's 51820, and a downloaded `.conf`
+points at the relay while it is live (`wireguardEndpoint`), at the node once it
+has been down past `RELAY_DOWN.staleMinutes`. Measured on 2026-11-12 from a home
+MTS line: of 60 udp packets in one flow to a Scalaxy node, 26 arrived — the ISP
+lets roughly the first 25 packets of an unknown udp flow to a foreign address
+through and drops the rest, WireGuard-shaped or random alike. That is a
+handshake that succeeds and a tunnel that then stalls, in every client. A
+config downloaded before keeps the node's address; downloading it again gives
+the relay one, with the same key. The address is fixed in the file when it is
+downloaded, so a config taken during a relay outage keeps the node until it is
+downloaded again. The relay probe goes through the 443 port only; a WireGuard
+forward that is missing on a relay that otherwise passes is not detected.
 
 ## In the subscription
 

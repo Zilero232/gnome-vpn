@@ -22,6 +22,7 @@ export type SubscriptionNode = {
   relayHost: string | null;
   relayPort: number | null;
   relayHealthyAt: Date | null;
+  relayWireguardPort: number | null;
   createdAt: Date;
   lastHealthyAt: Date | null;
   packetLoss: number | null;

@@ -6,7 +6,7 @@ export { isClientFetch } from './client-fetch';
 export { clientLinks } from './client-links';
 export type { ClientLinksInput, ImportUrlInput } from './client-links';
 export { clientPlatform } from './client-platform';
-export { feedRoutes } from './feed-routes';
+export { feedRoutes, wireguardEndpoint } from './feed-routes';
 export { feedTracker } from './feed-tracker';
 export type { FeedTrackerRequest } from './feed-tracker';
 export { GEO_KINDS, geoFileTarget } from './geo-files';

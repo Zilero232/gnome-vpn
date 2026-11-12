@@ -90,8 +90,10 @@ its own, for networks that drop TLS and QUIC to the nodes. Why and how:
    account the site does not use. Ubuntu 24.04, one core is plenty; what matters
    is unmetered traffic and a hoster whose rules do not forbid VPN or proxy use.
 2. Add it under `relays` in `nodes.json` with its SSH login and one route per
-   node: `{ "countryCode": "FI", "port": 9443 }`. The port is what users dial on
-   the relay; pick one per node, 1024 or above, and never the same one twice.
+   node: `{ "countryCode": "FI", "tunnelPort": 9443, "wireguardPort": 9820 }`. `tunnelPort`
+   is what users dial on the relay for Hysteria2 and VLESS, `wireguardPort` the
+   one a WireGuard `.conf` dials; pick each once per relay, 1024 or above. Users
+   with a WireGuard config download it again to get the relay address.
 3. Run `bun run provision:nodes`. The relay is set up after the nodes; the
    summary lists it with its ports, and the run logs which node is now served
    through which relay. Production gets `relay_host`/`relay_port` with the rest

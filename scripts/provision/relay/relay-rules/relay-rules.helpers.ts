@@ -1,6 +1,6 @@
 import { arg, line } from '@gnomevpn/scripts/shell';
 import { isIP } from 'node:net';
-import { unique } from 'remeda';
+import { isNonNullish, unique } from 'remeda';
 
 import type { RelayForward, RelayForwardsInput } from './relay-rules.types';
 
@@ -11,8 +11,11 @@ const confFile = (lines: string[]): string => [...lines, ''].join('\n');
 
 const targetsOf = (forwards: RelayForward[]): string[] => unique(forwards.map((forward) => forward.target));
 
+const wireguardTargetsOf = (forwards: RelayForward[]): string[] =>
+  unique(forwards.filter((forward) => isNonNullish(forward.wireguardPort)).map((forward) => forward.target));
+
 export const relayForwards = ({ relay, nodes }: RelayForwardsInput): RelayForward[] =>
-  relay.routes.map(({ countryCode, port }) => {
+  relay.routes.map(({ countryCode, tunnelPort, wireguardPort }) => {
     const node = nodes.find((candidate) => candidate.countryCode === countryCode);
 
     if (!node) {
@@ -23,17 +26,21 @@ export const relayForwards = ({ relay, nodes }: RelayForwardsInput): RelayForwar
       throw new Error(`${node.host} is not an ipv4 address, and nftables forwards to an address`);
     }
 
-    return { port, target: node.host };
+    return { tunnelPort, target: node.host, wireguardPort };
   });
 
 export const relayRuleset = (forwards: RelayForward[]): string => {
-  const dnat = forwards.flatMap(({ port, target }) =>
-    RELAY.protocols.map((protocol) => `    ${protocol} dport ${port} dnat to ${target}:${RELAY.targetPort}`)
-  );
+  const dnat = forwards.flatMap(({ tunnelPort, target, wireguardPort }) => [
+    ...RELAY.protocols.map((protocol) => `    ${protocol} dport ${tunnelPort} dnat to ${target}:${RELAY.targetPort}`),
+    ...[wireguardPort].filter(isNonNullish).map((wireguard) => `    udp dport ${wireguard} dnat to ${target}:${RELAY.wireguardTargetPort}`)
+  ]);
 
-  const masquerade = targetsOf(forwards).flatMap((target) =>
-    RELAY.protocols.map((protocol) => `    ip daddr ${target} ${protocol} dport ${RELAY.targetPort} masquerade`)
-  );
+  const masquerade = [
+    ...targetsOf(forwards).flatMap((target) =>
+      RELAY.protocols.map((protocol) => `    ip daddr ${target} ${protocol} dport ${RELAY.targetPort} masquerade`)
+    ),
+    ...wireguardTargetsOf(forwards).map((target) => `    ip daddr ${target} udp dport ${RELAY.wireguardTargetPort} masquerade`)
+  ];
 
   return confFile([
     `table ip ${RELAY.table}`,
@@ -71,9 +78,14 @@ export const relayUnit = (): string =>
 export const relaySysctl = (): string => confFile(['net.ipv4.ip_forward = 1']);
 
 export const relayFirewallCommands = (forwards: RelayForward[]): string[] => {
-  const routeRules = targetsOf(forwards).flatMap((target) =>
-    RELAY.protocols.map((protocol) => line(['ufw', 'route', 'allow', 'proto', protocol, 'to', arg(target), 'port', RELAY.targetPort]))
-  );
+  const routeRules = [
+    ...targetsOf(forwards).flatMap((target) =>
+      RELAY.protocols.map((protocol) => line(['ufw', 'route', 'allow', 'proto', protocol, 'to', arg(target), 'port', RELAY.targetPort]))
+    ),
+    ...wireguardTargetsOf(forwards).map((target) =>
+      line(['ufw', 'route', 'allow', 'proto', 'udp', 'to', arg(target), 'port', RELAY.wireguardTargetPort])
+    )
+  ];
 
   return [
     'ufw --force reset',

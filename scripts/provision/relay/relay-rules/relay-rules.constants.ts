@@ -8,5 +8,6 @@ export const RELAY = {
   sysctlPath: '/etc/sysctl.d/99-gnomevpn-relay.conf',
   nftBinary: '/usr/sbin/nft',
   targetPort: PORTS.hysteria,
+  wireguardTargetPort: PORTS.wireguard,
   protocols: ['tcp', 'udp']
 } as const;
